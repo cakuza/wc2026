@@ -11,6 +11,10 @@ import { absoluteUrl, SITE_NAME } from "@/lib/site";
 import { formatDateKey } from "@/lib/timezones";
 import type { MatchWithTeams, Team } from "@/lib/types";
 
+// Render the homepage per request (SSR) so the CDN can never serve a stale prerendered
+// build. Pages stays fast; only the home route opts out of static caching.
+export const dynamic = "force-dynamic";
+
 export default async function HomePage() {
   const [matches, teams, meta] = await Promise.all([
     getMatchesWithTeams(),
