@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>World Cup 2026 — Final Direction</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Archivo:wght@400;500;600;700;800;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
+<style>
+  html, body { margin: 0; padding: 0; }
+  * { box-sizing: border-box; }
+</style>
+<template id="__bundler_thumbnail">
+  <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+    <rect width="100" height="100" fill="#0E0C0A"/>
+    <circle cx="50" cy="50" r="22" fill="none" stroke="#E7C36B" stroke-width="4"/>
+    <text x="50" y="58" font-family="Arial Black, sans-serif" font-size="20" fill="#fff" text-anchor="middle" font-weight="900">26</text>
+  </svg>
+</template>
+</head>
+<body>
+<div id="root"></div>
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+
+<script type="text/babel" src="design-canvas.jsx?v=10"></script>
+<script type="text/babel" src="wc-shared.jsx?v=10"></script>
+<script type="text/babel" src="wc-festival.jsx?v=10"></script>
+<script type="text/babel" src="wc-fx.jsx?v=10"></script>
+<script type="text/babel" src="wc-cards2.jsx?v=910"></script>
+<script type="text/babel" src="wc-app.jsx?v=10"></script>
+<script type="text/babel" src="wc-screens.jsx?v=10"></script>
+<script type="text/babel" src="wc-gallery.jsx?v=10"></script>
+
+<script type="text/babel">
+const { DesignCanvas, DCSection, DCArtboard } = window;
+const C2 = window.Cards2;
+const { HomeScreen, CountryScreen } = window.WCScreens;
+const { CardsPage, ProSheet, WatermarkCompare } = window.WCGallery;
+const W = window.WCApp.WHITE;
+const noop = () => {};
+
+// phone-screen wrapper (static, no device bezel — just the screen at 390 wide)
+function Screen({ children, h = 844 }) {
+  return <div style={{ width: 390, height: h, overflow: 'hidden', borderRadius: 28, boxShadow: '0 30px 70px rgba(14,12,10,.3)', background: '#fff' }}>{children}</div>;
+}
+
+function Brief() {
+  return (
+    <div style={{ width: 820, background: '#0E0C0A', color: '#fff', padding: '46px 52px', fontFamily: 'Archivo, sans-serif' }}>
+      <div style={{ fontFamily: '"Space Mono", monospace', fontSize: 12, letterSpacing: '3px', color: '#FF2D6B' }}>WORLD CUP 2026 · FINAL DIRECTION</div>
+      <div style={{ fontFamily: 'Anton, sans-serif', fontSize: 60, lineHeight: .9, textTransform: 'uppercase', marginTop: 14 }}>Poster energy<br />on a <span style={{ color: '#FF2D6B' }}>festival</span> spine</div>
+      <div style={{ fontSize: 16.5, lineHeight: 1.6, color: 'rgba(255,255,255,.72)', marginTop: 18, maxWidth: 620 }}>
+        Clean white app chrome for easy navigation; loud, textured, black + team-color posters as the share output. Every card resizes for <b style={{ color: '#fff' }}>9:16 Story, 1:1 square, and 16:9 X/feed</b>. Premium <b style={{ color: '#E7C36B' }}>Night/Gold</b> theme + watermark removal drive revenue. Fan-made — no official marks, crests, kits, photos or trophy.
+      </div>
+      <div style={{ display: 'flex', gap: 10, marginTop: 26, flexWrap: 'wrap' }}>
+        {['White chrome', 'Bold textured cards', '3 share ratios', 'Grain · halftone · floods', 'Pro / watermark', 'Night-Gold pack'].map((t) => (
+          <span key={t} style={{ fontFamily: '"Space Mono", monospace', fontSize: 11, fontWeight: 700, color: '#fff', background: 'rgba(255,255,255,.08)', padding: '8px 13px', borderRadius: 999 }}>{t}</span>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// card matrix: one template across the 3 ratios
+function RatioTriptych({ title, render }) {
+  return (
+    <DCArtboard id={'m-' + title} label={title} width={760} height={430}>
+      <div style={{ width: 760, background: '#1b1815', padding: 24, display: 'flex', gap: 18, alignItems: 'center', justifyContent: 'center', fontFamily: 'Archivo' }}>
+        {[['9:16', 178], ['1:1', 250], ['16:9', 300]].map(([r, w]) => (
+          <div key={r} style={{ textAlign: 'center' }}>
+            <div style={{ borderRadius: 12, overflow: 'hidden', boxShadow: '0 16px 36px rgba(0,0,0,.45)' }}>{render(r, w)}</div>
+            <div style={{ fontFamily: '"Space Mono", monospace', fontSize: 10, color: 'rgba(255,255,255,.6)', marginTop: 8, letterSpacing: '1px' }}>{r}</div>
+          </div>
+        ))}
+      </div>
+    </DCArtboard>
+  );
+}
+
+function App() {
+  return (
+    <DesignCanvas>
+      <DCSection id="intro" title="World Cup 2026 — Final Direction" subtitle="Poster energy on a festival spine · click any board to focus">
+        <DCArtboard id="brief" label="Direction" width={820} height={460}><Brief /></DCArtboard>
+      </DCSection>
+
+      <DCSection id="screens" title="Screens — white chrome spine" subtitle="Mobile-first · homepage, cards (money page), team hub">
+        <DCArtboard id="s-home" label="Homepage" width={390} height={844}><Screen><HomeScreen go={noop} /></Screen></DCArtboard>
+        <DCArtboard id="s-cards" label="Cards page · money page" width={390} height={980}><div style={{ borderRadius: 28, overflow: 'hidden', boxShadow: '0 30px 70px rgba(14,12,10,.3)' }}><CardsPage /></div></DCArtboard>
+        <DCArtboard id="s-team" label="Team hub · Japan" width={390} height={1340}><div style={{ borderRadius: 28, overflow: 'hidden', boxShadow: '0 30px 70px rgba(14,12,10,.3)' }}><CountryScreen code="JP" go={noop} back={noop} /></div></DCArtboard>
+      </DCSection>
+
+      <DCSection id="matrix" title="Poster cards — every ratio" subtitle="9:16 Story · 1:1 square · 16:9 X/feed — the timeline-crop fix">
+        <RatioTriptych title="Country Road" render={(r, w) => <C2.Road code="TR" ratio={r} w={w} />} />
+        <RatioTriptych title="Prediction Battle" render={(r, w) => <C2.Prediction a="MX" b="ZA" ratio={r} w={w} />} />
+        <RatioTriptych title="Player Watch" render={(r, w) => <C2.Player name={'MBAPP\u00C9'} code="FR" number="10" ratio={r} w={w} />} />
+        <RatioTriptych title="Group Chaos" render={(r, w) => <C2.Chaos code="BR" ratio={r} w={w} />} />
+      </DCSection>
+
+      <DCSection id="premium" title="Premium — Night / Gold pack (Pro)" subtitle="Cinematic finals-night theme · the upsell">
+        <DCArtboard id="p-night" label="Night/Gold pack" width={840} height={470}>
+          <div style={{ width: 840, background: '#0E0C0A', padding: 24, display: 'flex', gap: 16, alignItems: 'center', justifyContent: 'center' }}>
+            <div style={{ borderRadius: 12, overflow: 'hidden', boxShadow: '0 16px 40px rgba(231,195,107,.18)' }}><C2.Player name={'MBAPP\u00C9'} code="FR" number="10" ratio="9:16" w={196} theme="night" pro /></div>
+            <div style={{ borderRadius: 12, overflow: 'hidden', boxShadow: '0 16px 40px rgba(231,195,107,.18)' }}><C2.Road code="AR" ratio="9:16" w={196} theme="night" pro /></div>
+            <div style={{ borderRadius: 12, overflow: 'hidden', boxShadow: '0 16px 40px rgba(231,195,107,.18)' }}><C2.Boot code="FR" ratio="9:16" w={196} theme="night" pro /></div>
+          </div>
+        </DCArtboard>
+        <DCArtboard id="p-sheet" label="Pro upgrade sheet" width={390} height={620}><ProSheet /></DCArtboard>
+        <DCArtboard id="p-wm" label="Watermark · free vs Pro" width={760} height={470}><WatermarkCompare /></DCArtboard>
+      </DCSection>
+    </DesignCanvas>
+  );
+}
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+</body>
+</html>

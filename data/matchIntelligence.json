@@ -1,0 +1,218 @@
+[
+  {
+    "matchId": "m001",
+    "homeTeamId": "mexico",
+    "awayTeamId": "south-africa",
+    "lastCheckedUtc": "2026-06-01T00:00:00.000Z",
+    "dataMode": "sample",
+    "confidence": "low",
+    "keyPlayerWatch": [],
+    "opponentSummary": "No opponent notes added yet. Manual news-watch data can be added before kickoff.",
+    "riskNotes": [
+      "Create prediction card",
+      "Create opponent watch card",
+      "Set reminder, coming soon"
+    ],
+    "sourceLabels": [
+      "Manual news-watch pending"
+    ]
+  },
+  {
+    "matchId": "m002",
+    "homeTeamId": "south-korea",
+    "awayTeamId": "czechia",
+    "lastCheckedUtc": "2026-06-01T00:00:00.000Z",
+    "dataMode": "sample",
+    "confidence": "low",
+    "keyPlayerWatch": [],
+    "opponentSummary": "No opponent notes added yet. Manual news-watch data can be added before kickoff.",
+    "riskNotes": [
+      "Create prediction card",
+      "Create opponent watch card",
+      "Set reminder, coming soon"
+    ],
+    "sourceLabels": [
+      "Manual news-watch pending"
+    ]
+  },
+  {
+    "matchId": "m003",
+    "homeTeamId": "mexico",
+    "awayTeamId": "south-korea",
+    "lastCheckedUtc": "2026-06-01T00:00:00.000Z",
+    "dataMode": "sample",
+    "confidence": "low",
+    "keyPlayerWatch": [],
+    "opponentSummary": "No opponent notes added yet. Manual news-watch data can be added before kickoff.",
+    "riskNotes": [
+      "Create prediction card",
+      "Create opponent watch card",
+      "Set reminder, coming soon"
+    ],
+    "sourceLabels": [
+      "Manual news-watch pending"
+    ]
+  },
+  {
+    "matchId": "m004",
+    "homeTeamId": "south-africa",
+    "awayTeamId": "czechia",
+    "lastCheckedUtc": "2026-06-01T00:00:00.000Z",
+    "dataMode": "sample",
+    "confidence": "low",
+    "keyPlayerWatch": [],
+    "opponentSummary": "No opponent notes added yet. Manual news-watch data can be added before kickoff.",
+    "riskNotes": [
+      "Create prediction card",
+      "Create opponent watch card",
+      "Set reminder, coming soon"
+    ],
+    "sourceLabels": [
+      "Manual news-watch pending"
+    ]
+  },
+  {
+    "matchId": "m005",
+    "homeTeamId": "mexico",
+    "awayTeamId": "czechia",
+    "lastCheckedUtc": "2026-06-01T00:00:00.000Z",
+    "dataMode": "sample",
+    "confidence": "low",
+    "keyPlayerWatch": [],
+    "opponentSummary": "No opponent notes added yet. Manual news-watch data can be added before kickoff.",
+    "riskNotes": [
+      "Create prediction card",
+      "Create opponent watch card",
+      "Set reminder, coming soon"
+    ],
+    "sourceLabels": [
+      "Manual news-watch pending"
+    ]
+  },
+  {
+    "matchId": "m006",
+    "homeTeamId": "south-africa",
+    "awayTeamId": "south-korea",
+    "lastCheckedUtc": "2026-06-01T00:00:00.000Z",
+    "dataMode": "sample",
+    "confidence": "low",
+    "keyPlayerWatch": [],
+    "opponentSummary": "No opponent notes added yet. Manual news-watch data can be added before kickoff.",
+    "riskNotes": [
+      "Create prediction card",
+      "Create opponent watch card",
+      "Set reminder, coming soon"
+    ],
+    "sourceLabels": [
+      "Manual news-watch pending"
+    ]
+  },
+  {
+    "matchId": "m007",
+    "homeTeamId": "canada",
+    "awayTeamId": "bosnia-and-herzegovina",
+    "lastCheckedUtc": "2026-06-01T00:00:00.000Z",
+    "dataMode": "sample",
+    "confidence": "low",
+    "keyPlayerWatch": [],
+    "opponentSummary": "No opponent notes added yet. Manual news-watch data can be added before kickoff.",
+    "riskNotes": [
+      "Create prediction card",
+      "Create opponent watch card",
+      "Set reminder, coming soon"
+    ],
+    "sourceLabels": [
+      "Manual news-watch pending"
+    ]
+  },
+  {
+    "matchId": "m008",
+    "homeTeamId": "qatar",
+    "awayTeamId": "switzerland",
+    "lastCheckedUtc": "2026-06-01T00:00:00.000Z",
+    "dataMode": "sample",
+    "confidence": "low",
+    "keyPlayerWatch": [],
+    "opponentSummary": "No opponent notes added yet. Manual news-watch data can be added before kickoff.",
+    "riskNotes": [
+      "Create prediction card",
+      "Create opponent watch card",
+      "Set reminder, coming soon"
+    ],
+    "sourceLabels": [
+      "Manual news-watch pending"
+    ]
+  },
+  {
+    "matchId": "m009",
+    "homeTeamId": "canada",
+    "awayTeamId": "qatar",
+    "lastCheckedUtc": "2026-06-01T00:00:00.000Z",
+    "dataMode": "sample",
+    "confidence": "low",
+    "keyPlayerWatch": [],
+    "opponentSummary": "No opponent notes added yet. Manual news-watch data can be added before kickoff.",
+    "riskNotes": [
+      "Create prediction card",
+      "Create opponent watch card",
+      "Set reminder, coming soon"
+    ],
+    "sourceLabels": [
+      "Manual news-watch pending"
+    ]
+  },
+  {
+    "matchId": "m010",
+    "homeTeamId": "bosnia-and-herzegovina",
+    "awayTeamId": "switzerland",
+    "lastCheckedUtc": "2026-06-01T00:00:00.000Z",
+    "dataMode": "sample",
+    "confidence": "low",
+    "keyPlayerWatch": [],
+    "opponentSummary": "No opponent notes added yet. Manual news-watch data can be added before kickoff.",
+    "riskNotes": [
+      "Create prediction card",
+      "Create opponent watch card",
+      "Set reminder, coming soon"
+    ],
+    "sourceLabels": [
+      "Manual news-watch pending"
+    ]
+  },
+  {
+    "matchId": "m011",
+    "homeTeamId": "canada",
+    "awayTeamId": "switzerland",
+    "lastCheckedUtc": "2026-06-01T00:00:00.000Z",
+    "dataMode": "sample",
+    "confidence": "low",
+    "keyPlayerWatch": [],
+    "opponentSummary": "No opponent notes added yet. Manual news-watch data can be added before kickoff.",
+    "riskNotes": [
+      "Create prediction card",
+      "Create opponent watch card",
+      "Set reminder, coming soon"
+    ],
+    "sourceLabels": [
+      "Manual news-watch pending"
+    ]
+  },
+  {
+    "matchId": "m012",
+    "homeTeamId": "bosnia-and-herzegovina",
+    "awayTeamId": "qatar",
+    "lastCheckedUtc": "2026-06-01T00:00:00.000Z",
+    "dataMode": "sample",
+    "confidence": "low",
+    "keyPlayerWatch": [],
+    "opponentSummary": "No opponent notes added yet. Manual news-watch data can be added before kickoff.",
+    "riskNotes": [
+      "Create prediction card",
+      "Create opponent watch card",
+      "Set reminder, coming soon"
+    ],
+    "sourceLabels": [
+      "Manual news-watch pending"
+    ]
+  }
+]

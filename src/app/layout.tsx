@@ -1,0 +1,46 @@
+import type { Metadata } from "next";
+import { AdSlot } from "@/components/ad-slot";
+import { Analytics } from "@/components/analytics";
+import { SiteHeader } from "@/components/site-header";
+import { absoluteUrl, getSiteUrl } from "@/lib/site";
+import "./globals.css";
+
+export const metadata: Metadata = {
+  metadataBase: new URL(getSiteUrl()),
+  title: {
+    default: "WC26 Hub - World Cup 2026 Schedule, Standings and Social Cards",
+    template: "%s | WC26 Hub"
+  },
+  description: "A World Cup 2026 fan-card studio for country roads, prediction battles, player-watch posters, group-stage matchups, and debate cards.",
+  alternates: {
+    canonical: absoluteUrl("/")
+  },
+  openGraph: {
+    title: "WC26 Hub",
+    description: "World Cup 2026 fan cards, country roads, prediction battles, group-stage matchups, and content templates.",
+    url: absoluteUrl("/"),
+    siteName: "WC26 Hub",
+    type: "website"
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "WC26 Hub",
+    description: "World Cup 2026 fan cards, country roads, prediction battles, and content templates."
+  }
+};
+
+export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+  return (
+    <html lang="en">
+      <body>
+        <SiteHeader />
+        <div className="mx-auto max-w-7xl px-4 pt-3">
+          <AdSlot placement="header" />
+        </div>
+        {children}
+        <AdSlot placement="mobile-sticky" />
+        <Analytics />
+      </body>
+    </html>
+  );
+}

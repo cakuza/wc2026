@@ -1,0 +1,43 @@
+import type { MetadataRoute } from "next";
+import { getMatchesWithTeams, getTeams } from "@/lib/football";
+import { localTimePages } from "@/lib/local-time-pages";
+import { requestedTeamScheduleSlugs, seoLandingPages } from "@/lib/seo-content";
+import { getSiteUrl } from "@/lib/site";
+
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  const teams = await getTeams();
+  const matches = await getMatchesWithTeams();
+  const baseUrl = getSiteUrl();
+  const staticRoutes = ["", "/matches", "/standings", "/stats", "/leaderboards", "/teams", "/cards", "/preview", "/launch-checklist", "/operations"];
+
+  return [
+    ...staticRoutes.map((route) => ({
+      url: `${baseUrl}${route}`,
+      lastModified: new Date()
+    })),
+    ...seoLandingPages.map((page) => ({
+      url: `${baseUrl}/${page.slug}`,
+      lastModified: new Date()
+    })),
+    ...localTimePages.map((page) => ({
+      url: `${baseUrl}/local-time/${page.slug}`,
+      lastModified: new Date()
+    })),
+    ...teams.map((team) => ({
+      url: `${baseUrl}/teams/${team.slug}`,
+      lastModified: new Date()
+    })),
+    ...teams.map((team) => ({
+      url: `${baseUrl}/teams/${team.slug}-world-cup-schedule`,
+      lastModified: new Date()
+    })),
+    ...matches.map((match) => ({
+      url: `${baseUrl}/matches/${match.id}`,
+      lastModified: new Date()
+    })),
+    ...requestedTeamScheduleSlugs.map((slug) => ({
+      url: `${baseUrl}/teams/${slug}`,
+      lastModified: new Date()
+    }))
+  ];
+}
