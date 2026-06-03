@@ -1088,8 +1088,10 @@ export function CardGenerator({
               </button>
             </div>
           </div>
-          <div className="relative mx-auto w-fit" ref={cardRef}>
-            {card}
+          <div className="flex justify-center">
+            <div className="relative inline-block" ref={cardRef}>
+              {card}
+            </div>
           </div>
         </div>
       </section>
