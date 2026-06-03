@@ -1,9 +1,13 @@
 import type { Metadata } from "next";
+import { Anton } from "next/font/google";
 import { AdSlot } from "@/components/ad-slot";
 import { Analytics } from "@/components/analytics";
 import { SiteHeader } from "@/components/site-header";
 import { absoluteUrl, getSiteUrl } from "@/lib/site";
 import "./globals.css";
+
+// Anton: tall condensed display face for poster headlines (stadium-banner feel).
+const anton = Anton({ weight: "400", subsets: ["latin"], variable: "--font-anton", display: "swap" });
 
 export const metadata: Metadata = {
   metadataBase: new URL(getSiteUrl()),
@@ -31,7 +35,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en">
+    <html lang="en" className={anton.variable}>
       <body>
         <SiteHeader />
         <div className="mx-auto max-w-7xl px-4 pt-3">

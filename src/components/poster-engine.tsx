@@ -146,7 +146,7 @@ export function PosterFrame({
         style={style}
       >
         <PosterEffects theme={theme} wide={wide} streamerAccent={normalizeHex(team?.secondaryColor)} />
-        <p className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 select-none text-[132px] font-black uppercase leading-none text-white/[0.055] [font-family:Impact,Arial_Black,sans-serif]">
+        <p className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 select-none text-[132px] font-black uppercase leading-none text-white/[0.055] [font-family:var(--font-anton),Impact,sans-serif]">
           WC26
         </p>
         <div className="relative z-10 flex items-center justify-between gap-3">
@@ -172,13 +172,14 @@ export function PosterFrame({
 }
 
 function PosterEffects({ theme, wide, streamerAccent }: { theme: PosterTheme; wide: boolean; streamerAccent?: string | null }) {
-  const tint = theme === "night-gold" ? "rgba(231,195,107,.42)" : "rgba(255,248,222,.48)";
+  // Floodlight tints and vignette bumped ~20% for a heavier, stadium-lit feel.
+  const tint = theme === "night-gold" ? "rgba(231,195,107,.50)" : "rgba(255,248,222,.58)";
   return (
     <>
       <div className="poster-grain pointer-events-none absolute inset-0 opacity-45 mix-blend-overlay" />
       <div className="pointer-events-none absolute inset-0 opacity-35 [background-image:radial-gradient(circle,rgba(255,255,255,.22)_1px,transparent_1px)] [background-size:9px_9px]" />
       <div className={`pointer-events-none absolute inset-0 ${wide ? "bg-[linear-gradient(to_left,#0E0C0A_0%,rgba(14,12,10,.82)_31%,transparent_65%)]" : "bg-[linear-gradient(to_top,#0E0C0A_0%,rgba(14,12,10,.82)_28%,transparent_64%)]"}`} />
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(125%_95%_at_50%_42%,transparent_36%,rgba(8,6,4,.55)_100%)]" />
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(125%_95%_at_50%_42%,transparent_36%,rgba(8,6,4,.66)_100%)]" />
       <div className="pointer-events-none absolute -left-[13%] top-[-34%] h-[150%] w-[44%] rotate-[20deg] blur-[18px]" style={{ background: `linear-gradient(180deg,${tint},transparent 58%)` }} />
       <div className="pointer-events-none absolute -right-[13%] top-[-34%] h-[150%] w-[44%] rotate-[-20deg] blur-[18px]" style={{ background: `linear-gradient(180deg,${tint},transparent 58%)` }} />
       <div className="pointer-events-none absolute left-1/2 top-[-12%] h-[50%] w-[70%] -translate-x-1/2 blur-[8px]" style={{ background: `radial-gradient(60% 100% at 50% 0%,${tint},transparent 70%)` }} />
@@ -224,7 +225,7 @@ function RoadPoster({ team, matches, headline, ratio }: { team?: Team; matches: 
       <PosterKick>Road to 2026 - Group {team?.group || ""}</PosterKick>
       <div className="mt-3 flex items-center gap-3">
         <FlagBlock team={team} size={wide ? "md" : "lg"} />
-        <p className="text-2xl uppercase leading-[.92] text-[var(--poster-pop)] [font-family:Impact,Arial_Black,sans-serif]">The road<br />starts here</p>
+        <p className="text-2xl uppercase leading-[.92] text-[var(--poster-pop)] [font-family:var(--font-anton),Impact,sans-serif]">The road<br />starts here</p>
       </div>
       <PosterTitle compact={wide || longName(team?.name)}>{headline || `${(team?.name || "Country").toUpperCase()}'S ROAD STARTS HERE`}</PosterTitle>
       <PosterSub>Fan-made schedule card. Save it before matchday.</PosterSub>
@@ -236,7 +237,7 @@ function RoadPoster({ team, matches, headline, ratio }: { team?: Team; matches: 
         const opponent = team && match.homeTeamId === team.id ? match.awayTeam : match.homeTeam;
         return (
           <div key={match.id} className="grid grid-cols-[auto_auto_1fr_auto] items-center gap-2 bg-white/10 p-2.5 backdrop-blur">
-            <span className="text-xl font-black text-[var(--poster-pop)] [font-family:Impact,Arial_Black,sans-serif]">{index + 1}</span>
+            <span className="text-xl font-black text-[var(--poster-pop)] [font-family:var(--font-anton),Impact,sans-serif]">{index + 1}</span>
             <TeamFlag team={opponent} width={30} />
             <span className={`min-w-0 text-sm font-black uppercase leading-none ${textFit}`}>{opponent.name}</span>
             <span className="text-[9px] font-black uppercase tracking-[0.12em] text-white/58">MD{index + 1}</span>
@@ -255,11 +256,11 @@ function PredictionPoster({ home, away, match, headline, scorePrediction, ratio,
     <>
       <div className="text-center">
         <PosterKick>{home?.name || "Home"} vs {away?.name || "Away"} - Group {match?.group || home?.group || ""}</PosterKick>
-        <h2 className="mt-2 text-4xl uppercase leading-[.88] [font-family:Impact,Arial_Black,sans-serif]">{headline || "Drop Your Score"}</h2>
+        <h2 className="mt-2 text-4xl uppercase leading-[.88] [font-family:var(--font-anton),Impact,sans-serif]">{headline || "Drop Your Score"}</h2>
       </div>
       <div className={`flex flex-1 items-center justify-center gap-3 ${tall ? "flex-col" : "flex-row"}`}>
         <ScoreSide team={home} score={scorePrediction?.split("-")[0]?.trim() || "?"} tall={tall} />
-        <p className="shrink-0 text-4xl text-[var(--poster-pop)] [font-family:Impact,Arial_Black,sans-serif]">VS</p>
+        <p className="shrink-0 text-4xl text-[var(--poster-pop)] [font-family:var(--font-anton),Impact,sans-serif]">VS</p>
         <ScoreSide team={away} score={scorePrediction?.split("-")[1]?.trim() || "?"} tall={tall} />
       </div>
       <p className="text-center text-[10px] font-black uppercase tracking-[0.14em] text-white/68">{formatKickoff(match?.kickoffUtc, timeZone)}</p>
@@ -271,8 +272,8 @@ function ScoreSide({ team, score, tall }: { team?: Team; score: string; tall: bo
   return (
     <div className={`grid justify-items-center gap-2 ${tall ? "w-full" : "flex-1"}`}>
       <FlagBlock team={team} size={tall ? "lg" : "md"} />
-      <p className={`max-w-full text-center ${longName(team?.name) ? "text-lg" : "text-xl"} uppercase leading-[.94] [font-family:Impact,Arial_Black,sans-serif] ${textFit}`}>{team?.name || "Team"}</p>
-      <p className="min-w-20 bg-white px-3 py-1 text-center text-6xl leading-none text-[#0E0C0A] [font-family:Impact,Arial_Black,sans-serif]">{score}</p>
+      <p className={`max-w-full text-center ${longName(team?.name) ? "text-lg" : "text-xl"} uppercase leading-[.94] [font-family:var(--font-anton),Impact,sans-serif] ${textFit}`}>{team?.name || "Team"}</p>
+      <p className="min-w-20 bg-white px-3 py-1 text-center text-6xl leading-none text-[#0E0C0A] [font-family:var(--font-anton),Impact,sans-serif]">{score}</p>
     </div>
   );
 }
@@ -309,7 +310,7 @@ function ChaosPoster({ team, teams, standings, group, headline, ratio }: { team?
     <div className="min-w-0 flex-1">
       <PosterKick>Group stage</PosterKick>
       <PosterTitle compact={wide}>{headline || `Group ${team?.group || group} is loaded`}</PosterTitle>
-      <p className="mt-3 inline-block rotate-[-2deg] bg-white px-3 py-1 text-3xl uppercase leading-none text-[#0E0C0A] [font-family:Impact,Arial_Black,sans-serif]">Who survives?</p>
+      <p className="mt-3 inline-block rotate-[-2deg] bg-white px-3 py-1 text-3xl uppercase leading-none text-[#0E0C0A] [font-family:var(--font-anton),Impact,sans-serif]">Who survives?</p>
     </div>
   );
   const grid = (
@@ -317,7 +318,7 @@ function ChaosPoster({ team, teams, standings, group, headline, ratio }: { team?
       {shown.map((item) => (
         <div key={item.id} className="flex items-center gap-2 bg-white/10 p-2.5 backdrop-blur">
           <TeamFlag team={item} width={30} />
-          <span className={`min-w-0 ${longName(item.name) ? "text-base" : "text-lg"} uppercase leading-none [font-family:Impact,Arial_Black,sans-serif] ${textFit}`}>{item.name}</span>
+          <span className={`min-w-0 ${longName(item.name) ? "text-base" : "text-lg"} uppercase leading-none [font-family:var(--font-anton),Impact,sans-serif] ${textFit}`}>{item.name}</span>
         </div>
       ))}
     </div>
@@ -371,7 +372,7 @@ function BootPoster({ team, players, headline, ratio }: { team?: Team; players: 
       <div className="mt-auto grid gap-2 pb-3">
         {rows.map((row, index) => (
           <div key={`${row.label}-${index}`} className={`grid grid-cols-[auto_auto_1fr] items-center gap-3 p-2.5 ${index === 0 ? "border border-[var(--poster-pop)] bg-white/16" : "bg-white/8"}`}>
-            <span className="text-2xl text-[var(--poster-pop)] [font-family:Impact,Arial_Black,sans-serif]">{index + 1}</span>
+            <span className="text-2xl text-[var(--poster-pop)] [font-family:var(--font-anton),Impact,sans-serif]">{index + 1}</span>
             {row.team ? <TeamFlag team={row.team} width={26} /> : <span className="text-xl leading-none">{row.emoji}</span>}
             <span className={`min-w-0 text-sm font-black uppercase ${textFit}`}>{row.label}</span>
           </div>
@@ -418,7 +419,7 @@ function PosterKick({ children }: { children: ReactNode }) {
 
 function PosterTitle({ children, compact = false }: { children: ReactNode; compact?: boolean }) {
   return (
-    <h2 className={`${compact ? "text-5xl" : "text-6xl"} mt-4 ${textFit} uppercase leading-[.84] tracking-normal text-white [font-family:Impact,Arial_Black,sans-serif] [text-shadow:0_10px_30px_rgba(0,0,0,.45)]`}>
+    <h2 className={`${compact ? "text-5xl" : "text-6xl"} mt-4 ${textFit} uppercase leading-[.84] tracking-[0.02em] text-white [font-family:var(--font-anton),Impact,sans-serif] [text-shadow:0_10px_30px_rgba(0,0,0,.45)]`}>
       {children}
     </h2>
   );
