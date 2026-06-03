@@ -1,3 +1,4 @@
+// cache-bust: 2026-06-04
 import Link from "next/link";
 import { ArrowRight, ImageIcon } from "lucide-react";
 import { LastUpdatedBlock } from "@/components/seo-blocks";
