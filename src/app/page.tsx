@@ -1,24 +1,20 @@
 import Link from "next/link";
-import type { ReactNode } from "react";
-import { ArrowRight, Bell, Clock, ImageIcon, Sparkles } from "lucide-react";
-import { FaqBlock, LastUpdatedBlock } from "@/components/seo-blocks";
+import { ArrowRight, ImageIcon } from "lucide-react";
+import { LastUpdatedBlock } from "@/components/seo-blocks";
 import { HomeTimezoneQuick } from "@/components/home-timezone-quick";
 import { PageShell } from "@/components/page-shell";
 import { PosterPreviewCard } from "@/components/poster-engine";
-import { RelatedLinks } from "@/components/related-links";
 import { StructuredData } from "@/components/structured-data";
 import { TeamPicker } from "@/components/team-picker";
-import { getDataMeta, getMatchesWithTeams, getPlayersWithStats, getTeams } from "@/lib/football";
-import { defaultFaqs } from "@/lib/seo-content";
+import { getDataMeta, getMatchesWithTeams, getTeams } from "@/lib/football";
 import { absoluteUrl, SITE_NAME } from "@/lib/site";
 import { formatDateKey } from "@/lib/timezones";
 import type { MatchWithTeams, Team } from "@/lib/types";
 
 export default async function HomePage() {
-  const [matches, teams, players, meta] = await Promise.all([
+  const [matches, teams, meta] = await Promise.all([
     getMatchesWithTeams(),
     getTeams(),
-    getPlayersWithStats(),
     getDataMeta()
   ]);
   const todayKey = formatDateKey(new Date().toISOString());
@@ -27,7 +23,6 @@ export default async function HomePage() {
   const turkey = teamBy(teams, "turkey");
   const japan = teamBy(teams, "japan");
   const mexico = teamBy(teams, "mexico");
-  const france = teamBy(teams, "france");
   const trending = ["brazil", "argentina", "france", "england", "mexico", "japan", "morocco", "turkey", "portugal", "germany", "spain", "netherlands"]
     .map((slug) => teamBy(teams, slug))
     .filter(Boolean) as Team[];
@@ -112,12 +107,6 @@ export default async function HomePage() {
         <TeamPicker teams={teams} />
       </div>
 
-      <section className="mb-8 grid gap-4 md:grid-cols-3">
-        <StatCard icon={<Clock size={18} />} label="Sample fixture times" value={`${matches.filter((match) => match.kickoffUtc).length}`} />
-        <StatCard icon={<Sparkles size={18} />} label="Poster templates" value="8" />
-        <StatCard icon={<Bell size={18} />} label="Schedule honesty" value="Ready" />
-      </section>
-
       <section className="mb-8 grid gap-5 lg:grid-cols-[1.35fr_.85fr]">
         <div className="rounded-lg border border-[rgba(14,12,10,.10)] bg-white p-4 md:p-5">
           <div className="mb-4 flex items-end justify-between gap-3">
@@ -144,41 +133,6 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <section className="mb-8 grid gap-5 lg:grid-cols-2">
-        <div className="rounded-lg border border-[rgba(14,12,10,.10)] bg-white p-4 md:p-5">
-          <p className="text-xs font-black uppercase tracking-[0.18em] text-[#B48A00]">Style preview later</p>
-          <h2 className="mt-2 text-3xl font-black uppercase leading-none text-[#0E0C0A] [font-family:Impact,Arial_Black,sans-serif]">Night / Gold pack</h2>
-          <p className="mt-3 text-sm font-bold leading-6 text-[#0E0C0A]/62">Free Festival cards are the MVP. Night / Gold stays a non-blocking visual preview for later style exploration.</p>
-          <div className="mt-4 flex gap-3 overflow-hidden">
-            <PosterPreviewCard variant="player" ratio="story" width={150} team={france} players={players} playerName="MBAPPE" headline="MBAPPE WATCH" theme="night-gold" pro />
-            <PosterPreviewCard variant="boot" ratio="story" width={150} team={france} players={players} theme="night-gold" pro />
-          </div>
-        </div>
-        <div className="rounded-lg border border-[rgba(14,12,10,.10)] bg-white p-4 md:p-5">
-          <p className="text-xs font-black uppercase tracking-[0.18em] text-[#B48A00]">MVP scope</p>
-          <h2 className="mt-2 text-3xl font-black uppercase leading-none text-[#0E0C0A] [font-family:Impact,Arial_Black,sans-serif]">Make the card. Share the card.</h2>
-          <p className="mt-3 text-sm font-bold leading-6 text-[#0E0C0A]/62">The launch flow stays simple: pick a country, choose a poster, edit the text, copy or download it.</p>
-          <div className="mt-4 flex flex-wrap gap-2">
-            <Link href="/cards" className="focus-ring rounded-md bg-[#0E0C0A] px-4 py-3 text-sm font-black text-white">Open cards</Link>
-            <Link href="#pick-country" className="focus-ring rounded-md border border-[rgba(14,12,10,.12)] px-4 py-3 text-sm font-bold text-[#0E0C0A]">Pick country</Link>
-          </div>
-        </div>
-      </section>
-
-      <RelatedLinks
-        links={[
-          { href: "/world-cup-schedule-local-time", label: "Local-time schedule" },
-          { href: "/world-cup-standings", label: "Standings SEO page" },
-          { href: "/world-cup-top-scorers", label: "Top scorers" },
-          { href: "/stats", label: "Stats hub" },
-          { href: "/matches/m026", label: "Opponent Watch sample" },
-          { href: "/cards", label: "Card generator" }
-        ]}
-      />
-
-      <div className="mt-8">
-        <FaqBlock items={defaultFaqs} />
-      </div>
     </PageShell>
   );
 }
@@ -192,16 +146,6 @@ function MatchTile({ match }: { match: MatchWithTeams }) {
       </h3>
       <p className="mt-2 text-sm font-bold text-[#0E0C0A]/56">{match.venue === "TBD" || match.city === "TBD" ? "Venue unavailable" : `${match.venue}, ${match.city}`}</p>
     </Link>
-  );
-}
-
-function StatCard({ icon, label, value }: { icon: ReactNode; label: string; value: string }) {
-  return (
-    <div className="rounded-lg border border-[rgba(14,12,10,.10)] bg-white p-4 shadow-[0_10px_24px_rgba(14,12,10,.06)]">
-      <div className="mb-3 text-[#B48A00]">{icon}</div>
-      <p className="text-3xl font-black text-[#0E0C0A]">{value}</p>
-      <p className="text-sm text-[#0E0C0A]/55">{label}</p>
-    </div>
   );
 }
 

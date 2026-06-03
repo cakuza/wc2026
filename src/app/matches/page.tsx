@@ -41,8 +41,7 @@ export default async function MatchesPage() {
           links={[
             { href: "/world-cup-matches-today", label: "Today's matches" },
             { href: "/world-cup-schedule-local-time", label: "Local-time schedule" },
-            { href: "/cards", label: "Create schedule card" },
-            { href: "/preview", label: "Generate match posts" }
+            { href: "/cards", label: "Create schedule card" }
           ]}
         />
       </div>

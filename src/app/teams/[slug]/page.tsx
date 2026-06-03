@@ -90,8 +90,7 @@ export default async function TeamPage({ params }: Props) {
             { href: "/matches", label: "Full schedule" },
             { href: "/standings", label: "Group standings" },
             { href: `/cards?template=team-schedule&team=${data.team.id}`, label: "Create team card" },
-            { href: `/cards?template=player-watch&team=${data.team.id}`, label: "Create player watch" },
-            { href: "/preview", label: "Match post templates" }
+            { href: `/cards?template=player-watch&team=${data.team.id}`, label: "Create player watch" }
           ]}
         />
       </div>

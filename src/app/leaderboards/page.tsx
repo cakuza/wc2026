@@ -51,8 +51,7 @@ export default async function LeaderboardsPage() {
             { href: "/world-cup-assists-leaderboard", label: "Assists page" },
             { href: "/world-cup-yellow-cards", label: "Yellow cards page" },
             { href: "/stats", label: "Stats Hub" },
-            { href: "/cards", label: "Create leaderboard card" },
-            { href: "/preview", label: "Match previews" }
+            { href: "/cards", label: "Create leaderboard card" }
           ]}
         />
       </div>

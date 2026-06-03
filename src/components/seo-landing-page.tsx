@@ -36,14 +36,12 @@ export function SeoLandingPage({
         links={[
           { href: "/matches", label: "Full schedule" },
           { href: "/cards", label: "Create cards" },
-          { href: "/preview", label: "Match previews" },
           { href: "/teams", label: "Team pages" }
         ]}
       />
       <InternalLinksBlock
         links={[
-          ...coreInternalLinks,
-          { href: "/preview", label: "Post templates", description: "Draft match copy without paid AI APIs." }
+          ...coreInternalLinks
         ]}
       />
       <FaqBlock items={defaultFaqs} />

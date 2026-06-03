@@ -44,8 +44,7 @@ export default async function CardsPage() {
           links={[
             { href: "/world-cup-matches-today", label: "Today's matches" },
             { href: "/world-cup-top-scorers", label: "Top scorers" },
-            { href: "/world-cup-standings", label: "Standings" },
-            { href: "/preview", label: "Social post templates" }
+            { href: "/world-cup-standings", label: "Standings" }
           ]}
         />
       </div>

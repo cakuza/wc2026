@@ -53,7 +53,6 @@ export function TeamScheduleSeoPage({
         links={[
           { href: "/world-cup-schedule-local-time", label: "Time conversion later", description: "Use timezone conversion once official kickoffs are added." },
           { href: "/cards", label: "Team schedule card", description: "Create a shareable image for team fixtures." },
-          { href: "/preview", label: "Match posts", description: "Draft social posts from match templates." },
           ...coreInternalLinks.slice(1, 3)
         ]}
       />

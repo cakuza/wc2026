@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { CalendarDays, Eye, MapPin, PenLine } from "lucide-react";
+import { CalendarDays, Eye, MapPin } from "lucide-react";
 import { DataStatusNotice } from "@/components/data-status-notice";
 import { StatusBadge } from "@/components/status-badge";
 import type { MatchWithTeams } from "@/lib/types";
@@ -37,14 +37,10 @@ export function MatchCard({ match, timeZone = "Europe/Istanbul" }: { match: Matc
           <DataStatusNotice variant="schedulePending" compact className="mt-3" />
         </details>
       ) : null}
-      <div className="mt-4 grid gap-2 sm:grid-cols-2">
-        <Link href={`/matches/${match.id}`} className="focus-ring inline-flex min-h-10 items-center justify-center gap-2 rounded-md border border-pitch/14 px-3 py-2 text-sm font-bold text-pitch">
+      <div className="mt-4">
+        <Link href={`/matches/${match.id}`} className="focus-ring inline-flex min-h-10 w-full items-center justify-center gap-2 rounded-md border border-pitch/14 px-3 py-2 text-sm font-bold text-pitch">
           <Eye size={15} />
           Opponent watch
-        </Link>
-        <Link href="/preview" className="focus-ring inline-flex min-h-10 items-center justify-center gap-2 rounded-md border border-pitch/14 px-3 py-2 text-sm font-bold text-pitch">
-          <PenLine size={15} />
-          Preview post
         </Link>
       </div>
       </div>

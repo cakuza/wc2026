@@ -57,8 +57,7 @@ export default async function MatchDetailPage({ params }: Props) {
           links={[
             { href: `/cards?template=prediction&match=${match.id}`, label: "Create prediction card" },
             { href: "/matches", label: "Full schedule" },
-            { href: "/stats", label: "Stats Hub" },
-            { href: "/preview", label: "Preview generator" }
+            { href: "/stats", label: "Stats Hub" }
           ]}
         />
       </div>
