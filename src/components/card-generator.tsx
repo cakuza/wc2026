@@ -532,7 +532,11 @@ export function CardGenerator({
   // Web Share with files only exists on most mobile browsers; detect once on mount so the
   // Share button is hidden where it would not work (most desktops).
   const [canShareFiles, setCanShareFiles] = useState(false);
+  // Responsive poster width: fills the preview column on mobile, capped at the ratio's
+  // natural size on desktop so it never blows up.
+  const [previewWidth, setPreviewWidth] = useState<number | undefined>(undefined);
   const cardRef = useRef<HTMLDivElement>(null);
+  const previewRef = useRef<HTMLDivElement>(null);
   const studioRef = useRef<HTMLElement>(null);
 
   const selectedTeam = teams.find((team) => team.id === teamId) || teams[0];
@@ -588,6 +592,7 @@ export function CardGenerator({
         ratio={size}
         theme={template}
         pro={!showWatermark}
+        width={previewWidth}
         team={selectedTeam}
         opponent={selectedMatch.awayTeam}
         match={selectedMatch}
@@ -606,7 +611,21 @@ export function CardGenerator({
         timeZone={timeZone}
       />
     );
-  }, [cardType, frameOptions.footer, group, headline, jerseyName, matches, playerName, players, scorePrediction, selectedMatch, selectedTeam, showWatermark, size, standings, subtitle, teams, template, shirtNumber, timeZone]);
+  }, [cardType, frameOptions.footer, group, headline, jerseyName, matches, playerName, players, previewWidth, scorePrediction, selectedMatch, selectedTeam, showWatermark, size, standings, subtitle, teams, template, shirtNumber, timeZone]);
+
+  useEffect(() => {
+    const el = previewRef.current;
+    if (!el) return;
+    const update = () => {
+      const inner = el.clientWidth - 32; // account for p-4 padding
+      const naturalMax = posterRatios[size].previewWidth;
+      setPreviewWidth(Math.max(220, Math.min(inner, naturalMax)));
+    };
+    update();
+    const observer = new ResizeObserver(update);
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [size]);
 
   useEffect(() => {
     setTimeZone(getBrowserTimezone());
@@ -751,9 +770,12 @@ export function CardGenerator({
     try {
       const { toPng } = await import("html-to-image");
       const target = cardSizes[size];
+      // Derive pixelRatio from the actual rendered width so the exported PNG is always the
+      // full target resolution even when the preview is scaled down on mobile.
+      const renderedWidth = cardRef.current.getBoundingClientRect().width || target.previewWidth;
       return await toPng(cardRef.current, {
         backgroundColor: undefined,
-        pixelRatio: target.width / target.previewWidth,
+        pixelRatio: target.width / renderedWidth,
         cacheBust: true
       });
     } finally {
@@ -870,7 +892,7 @@ export function CardGenerator({
   }
 
   return (
-    <div className="grid gap-6">
+    <div className="grid gap-6 pb-24 md:pb-0">
       <section className="grid gap-4">
         <div className="grid gap-2 md:grid-cols-[1fr_auto] md:items-end">
           <div>
@@ -900,27 +922,32 @@ export function CardGenerator({
             <option value="legacy">Last Dance / Legacy Debate</option>
             <option value="fan-mode">Custom Fan Card</option>
           </Select>
-          <SegmentedControl
-            label="Format - resizes for every app"
-            value={size}
-            options={Object.entries(cardSizes).map(([key, item]) => ({ value: key, label: item.short, sub: item.label.replace(`${item.short} `, "") }))}
-            onChange={(value) => setSize(value as CardSize)}
-          />
-          <SegmentedControl
-            label="Theme"
-            value={template}
-            options={[
-              { value: "festival", label: "Festival", sub: "Free", swatch: "linear-gradient(135deg,#FF2D6B,#FF6A1A)" },
-              { value: "night-gold", label: "Night / Gold", sub: "Preview", swatch: "linear-gradient(135deg,#E7C36B,#0E0C0A)" }
-            ]}
-            onChange={(value) => setTemplate(value as CardTemplate)}
-          />
-          <Select label="Local time on poster" value={timeZone} onChange={setTimeZone}>
-            {!QUICK_TIMEZONES.includes(timeZone) ? <option value={timeZone}>Your timezone</option> : null}
-            {QUICK_TIMEZONES.map((zone) => (
-              <option key={zone} value={zone}>{zone}</option>
-            ))}
-          </Select>
+          <details className="grid gap-4 rounded-lg border border-[rgba(14,12,10,.10)] bg-[#F6F4F1] p-3 [&_summary]:mb-3 [&[open]_summary]:mb-1">
+            <summary className="cursor-pointer text-sm font-black text-[#0E0C0A]">More options - format, theme, time</summary>
+            <div className="grid gap-4">
+              <SegmentedControl
+                label="Format - resizes for every app"
+                value={size}
+                options={Object.entries(cardSizes).map(([key, item]) => ({ value: key, label: item.short, sub: item.label.replace(`${item.short} `, "") }))}
+                onChange={(value) => setSize(value as CardSize)}
+              />
+              <SegmentedControl
+                label="Theme"
+                value={template}
+                options={[
+                  { value: "festival", label: "Festival", sub: "Free", swatch: "linear-gradient(135deg,#FF2D6B,#FF6A1A)" },
+                  { value: "night-gold", label: "Night / Gold", sub: "Preview", swatch: "linear-gradient(135deg,#E7C36B,#0E0C0A)" }
+                ]}
+                onChange={(value) => setTemplate(value as CardTemplate)}
+              />
+              <Select label="Local time on poster" value={timeZone} onChange={setTimeZone}>
+                {!QUICK_TIMEZONES.includes(timeZone) ? <option value={timeZone}>Your timezone</option> : null}
+                {QUICK_TIMEZONES.map((zone) => (
+                  <option key={zone} value={zone}>{zone}</option>
+                ))}
+              </Select>
+            </div>
+          </details>
               <Select label="Team / country" value={teamId} onChange={(value) => {
                 const team = teams.find((item) => item.id === value);
                 setTeamId(value);
@@ -1022,21 +1049,21 @@ export function CardGenerator({
             <Copy size={17} />
             Copy link
           </button>
-          <div className="grid gap-2 sm:grid-cols-2">
+          <div className="hidden gap-2 md:grid md:grid-cols-2">
             {canShareFiles ? (
               <button onClick={sharePng} className="focus-ring flex items-center justify-center gap-2 rounded-md bg-[#FF2D6B] px-4 py-3 font-black text-white">
                 <Share2 size={17} />
                 Share
               </button>
             ) : null}
-            <button onClick={exportPng} className={`focus-ring flex items-center justify-center gap-2 rounded-md bg-[#0E0C0A] px-4 py-3 font-black text-white ${canShareFiles ? "" : "sm:col-span-2"}`}>
+            <button onClick={exportPng} className={`focus-ring flex items-center justify-center gap-2 rounded-md bg-[#0E0C0A] px-4 py-3 font-black text-white ${canShareFiles ? "" : "md:col-span-2"}`}>
               <Download size={17} />
               Download PNG
             </button>
           </div>
           {status ? <p className="text-sm text-[#0E0C0A]/55">{status}</p> : null}
         </aside>
-        <div className="order-1 overflow-x-auto rounded-lg border border-[rgba(14,12,10,.10)] bg-[#F6F4F1] p-4 lg:order-2 lg:sticky lg:top-4 lg:self-start">
+        <div ref={previewRef} className="order-1 overflow-x-auto rounded-lg border border-[rgba(14,12,10,.10)] bg-[#F6F4F1] p-4 lg:order-2 lg:sticky lg:top-4 lg:self-start">
           <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
             <p className="text-xs font-black uppercase tracking-[0.16em] text-[#B48A00]">Preview / {cardSizes[size].label}</p>
             <div className="flex flex-wrap gap-2">
@@ -1056,7 +1083,7 @@ export function CardGenerator({
               </button>
             </div>
           </div>
-          <div className="relative inline-block" ref={cardRef}>
+          <div className="relative mx-auto w-fit" ref={cardRef}>
             {card}
           </div>
         </div>
@@ -1081,6 +1108,20 @@ export function CardGenerator({
           ))}
         </div>
       </section>
+
+      {/* Mobile-only fixed action bar: primary Download + Share always in thumb reach. */}
+      <div className="fixed inset-x-0 bottom-0 z-40 flex gap-2 border-t border-[rgba(14,12,10,.12)] bg-white/95 p-3 shadow-[0_-8px_24px_rgba(14,12,10,.12)] backdrop-blur md:hidden">
+        {canShareFiles ? (
+          <button onClick={sharePng} className="focus-ring flex flex-1 items-center justify-center gap-2 rounded-md bg-[#FF2D6B] px-4 py-3 font-black text-white">
+            <Share2 size={18} />
+            Share
+          </button>
+        ) : null}
+        <button onClick={exportPng} className="focus-ring flex flex-1 items-center justify-center gap-2 rounded-md bg-[#0E0C0A] px-4 py-3 font-black text-white">
+          <Download size={18} />
+          Download
+        </button>
+      </div>
     </div>
   );
 }
