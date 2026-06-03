@@ -79,6 +79,9 @@ export function TeamMatchCenter({
                 {team.name}
               </h1>
             </div>
+            {team.fanHook ? (
+              <p className="mt-3 text-lg font-black text-[#E7C36B] md:text-2xl">{team.fanHook}</p>
+            ) : null}
             <p className="mt-4 max-w-2xl text-sm font-bold leading-6 text-white/72">
               {team.name}&apos;s group-stage road in your local time. Pick a match, drop a prediction, and share the poster.
             </p>

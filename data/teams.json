@@ -22,7 +22,8 @@
     "accentColor": "#d71920",
     "dataStatus": "sample",
     "sourceLabel": "Pre-launch sample team slot",
-    "featuredPlayer": "Santiago Giménez"
+    "featuredPlayer": "Santiago Giménez",
+    "fanHook": "Es nuestra hora 🇲🇽"
   },
   {
     "id": "south-africa",
@@ -216,7 +217,8 @@
     "accentColor": "#d71920",
     "dataStatus": "sample",
     "sourceLabel": "Pre-launch sample team slot",
-    "featuredPlayer": "Vinicius Jr"
+    "featuredPlayer": "Vinicius Jr",
+    "fanHook": "É hora do Brasil 🇧🇷"
   },
   {
     "id": "morocco",
@@ -240,7 +242,8 @@
     "accentColor": "#ffffff",
     "dataStatus": "sample",
     "sourceLabel": "Pre-launch sample team slot",
-    "featuredPlayer": "Achraf Hakimi"
+    "featuredPlayer": "Achraf Hakimi",
+    "fanHook": "Atlas Lions are ready 🦁"
   },
   {
     "id": "haiti",
@@ -313,7 +316,8 @@
     "accentColor": "#ffffff",
     "dataStatus": "sample",
     "sourceLabel": "Pre-launch sample team slot",
-    "featuredPlayer": "Christian Pulisic"
+    "featuredPlayer": "Christian Pulisic",
+    "fanHook": "It's our tournament 🦅"
   },
   {
     "id": "paraguay",
@@ -387,7 +391,8 @@
     "accentColor": "#ef3340",
     "dataStatus": "sample",
     "sourceLabel": "Pre-launch sample team slot",
-    "featuredPlayer": "Arda Güler"
+    "featuredPlayer": "Arda Güler",
+    "fanHook": "Gruba at, kimse kaçırmasın 🔴"
   },
   {
     "id": "germany",
@@ -411,7 +416,8 @@
     "accentColor": "#0033a0",
     "dataStatus": "sample",
     "sourceLabel": "Pre-launch sample team slot",
-    "featuredPlayer": "Jamal Musiala"
+    "featuredPlayer": "Jamal Musiala",
+    "fanHook": "Efficiency mode on ⚙️"
   },
   {
     "id": "curacao",
@@ -533,7 +539,8 @@
     "accentColor": "#ef3340",
     "dataStatus": "sample",
     "sourceLabel": "Pre-launch sample team slot",
-    "featuredPlayer": "Takefusa Kubo"
+    "featuredPlayer": "Takefusa Kubo",
+    "fanHook": "The upset is coming ⚡"
   },
   {
     "id": "sweden",
@@ -698,7 +705,8 @@
     "accentColor": "#c1272d",
     "dataStatus": "sample",
     "sourceLabel": "Pre-launch sample team slot",
-    "featuredPlayer": "Lamine Yamal"
+    "featuredPlayer": "Lamine Yamal",
+    "fanHook": "Tiki-taka forever 🔴"
   },
   {
     "id": "cape-verde",
@@ -794,7 +802,8 @@
     "accentColor": "#d71920",
     "dataStatus": "sample",
     "sourceLabel": "Pre-launch sample team slot",
-    "featuredPlayer": "Mbappé"
+    "featuredPlayer": "Mbappé",
+    "fanHook": "Les Bleus sont là 🇫🇷"
   },
   {
     "id": "iraq",
@@ -890,7 +899,8 @@
     "accentColor": "#ffffff",
     "dataStatus": "sample",
     "sourceLabel": "Pre-launch sample team slot",
-    "featuredPlayer": "Messi"
+    "featuredPlayer": "Messi",
+    "fanHook": "Campeones del mundo 🏆"
   },
   {
     "id": "algeria",
@@ -985,7 +995,8 @@
     "accentColor": "#d71920",
     "dataStatus": "sample",
     "sourceLabel": "Pre-launch sample team slot",
-    "featuredPlayer": "Cristiano Ronaldo"
+    "featuredPlayer": "Cristiano Ronaldo",
+    "fanHook": "Uma última dança 🎭"
   },
   {
     "id": "uzbekistan",
@@ -1081,7 +1092,8 @@
     "accentColor": "#ffffff",
     "dataStatus": "sample",
     "sourceLabel": "Pre-launch sample team slot",
-    "featuredPlayer": "Bellingham"
+    "featuredPlayer": "Bellingham",
+    "fanHook": "Football's coming home 📣"
   },
   {
     "id": "croatia",

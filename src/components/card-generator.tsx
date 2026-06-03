@@ -559,10 +559,12 @@ export function CardGenerator({
   const featuredPresets = Array.from(featuredTemplateLabels)
     .map((label) => templatePresets.find((preset) => preset.label === label))
     .filter(Boolean) as typeof templatePresets;
-  const captions = useMemo(
-    () => buildCaptions(cardType, selectedMatch, selectedTeam, playerName, customCaption, customHashtags),
-    [cardType, selectedMatch, selectedTeam, playerName, customCaption, customHashtags]
-  );
+  const captions = useMemo(() => {
+    const set = buildCaptions(cardType, selectedMatch, selectedTeam, playerName, customCaption, customHashtags);
+    // Lead the WhatsApp message with the team's fan hook when one exists.
+    if (selectedTeam?.fanHook) set.whatsapp = `${selectedTeam.fanHook}\n${set.whatsapp}`;
+    return set;
+  }, [cardType, selectedMatch, selectedTeam, playerName, customCaption, customHashtags]);
 
   const frameOptions = useMemo(
     () => ({
@@ -979,6 +981,9 @@ export function CardGenerator({
               <option key={team.id} value={team.id}>{team.name}</option>
             ))}
           </Select>
+          {selectedTeam?.fanHook ? (
+            <p className="-mt-1 text-sm font-black text-[#B48A00]">{selectedTeam.fanHook}</p>
+          ) : null}
           {cardType === "player-watch" && squad.length ? (
             <Select
               label="Squad player"

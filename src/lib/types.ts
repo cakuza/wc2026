@@ -18,6 +18,7 @@ export type Team = {
   secondaryColor?: string;
   accentColor?: string;
   featuredPlayer?: string;
+  fanHook?: string;
   timezoneSuggestion?: string;
   aliases?: string[];
   dataStatus?: "sample" | "pending" | "verified";
