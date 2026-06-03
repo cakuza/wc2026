@@ -11,7 +11,7 @@ import { groupBy, sortStandings } from "@/lib/utils";
 
 export const metadata: Metadata = {
   title: "World Cup 2026 Standings",
-  description: "World Cup 2026 sample group standings with points, goal difference, and third-place watch table.",
+  description: "World Cup 2026 group standings with points, goal difference, and third-place watch table.",
   alternates: {
     canonical: absoluteUrl("/standings")
   },

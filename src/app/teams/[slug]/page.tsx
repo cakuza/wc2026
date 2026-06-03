@@ -107,7 +107,7 @@ export default async function TeamPage({ params }: Props) {
             },
             {
               question: "Is this live tournament data?",
-              answer: "These are pre-draw sample fixtures, shown in your local timezone. Real fixtures update after the official draw."
+              answer: "Yes — these are the official WC2026 group stage fixtures from the final draw, shown in your local timezone."
             }
           ]}
         />

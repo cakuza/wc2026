@@ -85,7 +85,7 @@ export function MatchScheduleClient({ matches }: { matches: MatchWithTeams[] }) 
         <div className="rounded-lg border border-dashed border-white/18 p-8 text-center">
           <h2 className="text-xl font-black text-white">No matches found</h2>
           <p className="mx-auto mt-2 max-w-lg text-sm leading-6 text-white/60">
-            Try clearing the team, date, or group filters. You can also jump to today&apos;s matches or create a schedule card from the full sample fixture list.
+            Try clearing the team, date, or group filters. You can also jump to today&apos;s matches or create a schedule card from the full fixture list.
           </p>
           <div className="mt-4 flex flex-wrap justify-center gap-2">
             <button

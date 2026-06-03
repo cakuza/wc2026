@@ -35,7 +35,7 @@ export default async function MatchesPage() {
         <TeamPicker teams={teams} />
       </div>
       <MatchScheduleClient matches={matches} />
-      <p className="mt-6 text-xs text-white/40">* Pre-draw sample bracket. Times shown in your local timezone.</p>
+      <p className="mt-6 text-xs text-white/40">* Official WC2026 group stage fixtures. Times shown in your local timezone.</p>
       <div className="mt-6">
         <RelatedLinks
           links={[

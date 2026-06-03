@@ -5,7 +5,7 @@ const notices = {
   scheduleReady: {
     icon: Clock,
     title: "Kickoffs in your local time",
-    copy: "Every fixture converts to your timezone automatically. Real fixtures update after the official draw.",
+    copy: "Official WC2026 group stage fixtures convert to your timezone automatically.",
     action: "Create local-time cards"
   },
   schedulePending: {
