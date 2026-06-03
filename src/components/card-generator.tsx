@@ -1,6 +1,6 @@
 "use client";
 
-import { Copy, Download } from "lucide-react";
+import { Copy, Download, Share2 } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { PosterPreviewCard, posterRatios, type PosterTheme, type PosterVariant } from "@/components/poster-engine";
 import type { MatchWithTeams, PlayerWithStats, Standing, Team } from "@/lib/types";
@@ -529,6 +529,9 @@ export function CardGenerator({
   // hydration mismatch, then we switch to the viewer's own zone on mount so the
   // exported PNG shows their local kickoff — not a hardcoded GMT+3.
   const [timeZone, setTimeZone] = useState("Europe/Istanbul");
+  // Web Share with files only exists on most mobile browsers; detect once on mount so the
+  // Share button is hidden where it would not work (most desktops).
+  const [canShareFiles, setCanShareFiles] = useState(false);
   const cardRef = useRef<HTMLDivElement>(null);
   const studioRef = useRef<HTMLElement>(null);
 
@@ -607,6 +610,12 @@ export function CardGenerator({
 
   useEffect(() => {
     setTimeZone(getBrowserTimezone());
+    try {
+      const probe = new File([new Blob()], "probe.png", { type: "image/png" });
+      setCanShareFiles(typeof navigator !== "undefined" && typeof navigator.canShare === "function" && navigator.canShare({ files: [probe] }));
+    } catch {
+      setCanShareFiles(false);
+    }
   }, []);
 
   // On first load (default card is Player Watch), seed the jersey with the team's star
@@ -731,32 +740,65 @@ export function CardGenerator({
     }
   }, [matches, players, teams]);
 
-  async function exportPng() {
-    setStatus("");
-    if (!cardRef.current) return;
-    // The poster body is fully gradient-filled, but the rounded-[16px] frame leaves
-    // transparent corners that read as a white background once the PNG is posted on a
-    // light feed. Square the frame for the capture only, then restore it.
+  // Capture the poster as a PNG data URL. The poster body is fully gradient-filled, but
+  // the rounded-[16px] frame leaves transparent corners that read as a white background
+  // on a light feed — square the frame for the capture only, then restore it.
+  async function capturePngDataUrl(): Promise<string | null> {
+    if (!cardRef.current) return null;
     const frame = cardRef.current.firstElementChild as HTMLElement | null;
     const prevRadius = frame?.style.borderRadius ?? "";
     if (frame) frame.style.borderRadius = "0";
     try {
       const { toPng } = await import("html-to-image");
       const target = cardSizes[size];
-      const dataUrl = await toPng(cardRef.current, {
+      return await toPng(cardRef.current, {
         backgroundColor: undefined,
         pixelRatio: target.width / target.previewWidth,
         cacheBust: true
       });
-      const link = document.createElement("a");
-      link.download = `wc26-fan-card-${cardType}-${size}.png`;
-      link.href = dataUrl;
-      link.click();
+    } finally {
+      if (frame) frame.style.borderRadius = prevRadius;
+    }
+  }
+
+  function downloadDataUrl(dataUrl: string) {
+    const link = document.createElement("a");
+    link.download = `wc26-fan-card-${cardType}-${size}.png`;
+    link.href = dataUrl;
+    link.click();
+  }
+
+  async function exportPng() {
+    setStatus("");
+    try {
+      const dataUrl = await capturePngDataUrl();
+      if (!dataUrl) return;
+      downloadDataUrl(dataUrl);
       setStatus("PNG exported.");
     } catch {
       setStatus("PNG export was blocked in this browser. The visual preview is ready; try Chrome or Edge for download.");
-    } finally {
-      if (frame) frame.style.borderRadius = prevRadius;
+    }
+  }
+
+  // One-tap mobile share: hand the PNG to the OS share sheet. Falls back to download if
+  // the device can't share files.
+  async function sharePng() {
+    setStatus("");
+    try {
+      const dataUrl = await capturePngDataUrl();
+      if (!dataUrl) return;
+      const blob = await (await fetch(dataUrl)).blob();
+      const file = new File([blob], "wc26-poster.png", { type: "image/png" });
+      if (typeof navigator !== "undefined" && navigator.canShare?.({ files: [file] })) {
+        await navigator.share({ files: [file], title: headline, text: captions.whatsapp || captions.caption });
+        setStatus("Shared.");
+      } else {
+        downloadDataUrl(dataUrl);
+        setStatus("PNG exported.");
+      }
+    } catch (error) {
+      if (error instanceof Error && error.name === "AbortError") return; // user dismissed the share sheet
+      setStatus("Sharing was blocked in this browser. Try Download instead.");
     }
   }
 
@@ -980,10 +1022,18 @@ export function CardGenerator({
             <Copy size={17} />
             Copy link
           </button>
-          <button onClick={exportPng} className="focus-ring flex items-center justify-center gap-2 rounded-md bg-[#0E0C0A] px-4 py-3 font-black text-white">
-            <Download size={17} />
-            Download PNG
-          </button>
+          <div className="grid gap-2 sm:grid-cols-2">
+            {canShareFiles ? (
+              <button onClick={sharePng} className="focus-ring flex items-center justify-center gap-2 rounded-md bg-[#FF2D6B] px-4 py-3 font-black text-white">
+                <Share2 size={17} />
+                Share
+              </button>
+            ) : null}
+            <button onClick={exportPng} className={`focus-ring flex items-center justify-center gap-2 rounded-md bg-[#0E0C0A] px-4 py-3 font-black text-white ${canShareFiles ? "" : "sm:col-span-2"}`}>
+              <Download size={17} />
+              Download PNG
+            </button>
+          </div>
           {status ? <p className="text-sm text-[#0E0C0A]/55">{status}</p> : null}
         </aside>
         <div className="order-1 overflow-x-auto rounded-lg border border-[rgba(14,12,10,.10)] bg-[#F6F4F1] p-4 lg:order-2 lg:sticky lg:top-4 lg:self-start">
@@ -994,6 +1044,12 @@ export function CardGenerator({
                 <Copy size={14} />
                 Copy link
               </button>
+              {canShareFiles ? (
+                <button onClick={sharePng} className="focus-ring inline-flex items-center gap-2 rounded-md bg-[#FF2D6B] px-3 py-2 text-xs font-black text-white">
+                  <Share2 size={14} />
+                  Share
+                </button>
+              ) : null}
               <button onClick={exportPng} className="focus-ring inline-flex items-center gap-2 rounded-md bg-[#0E0C0A] px-3 py-2 text-xs font-black text-white">
                 <Download size={14} />
                 Download
