@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Anton } from "next/font/google";
 import { AdSlot } from "@/components/ad-slot";
 import { Analytics } from "@/components/analytics";
+import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
 import { absoluteUrl, getSiteUrl } from "@/lib/site";
 import "./globals.css";
@@ -42,6 +43,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
           <AdSlot placement="header" />
         </div>
         {children}
+        <SiteFooter />
         <AdSlot placement="mobile-sticky" />
         <Analytics />
       </body>
