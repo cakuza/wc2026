@@ -1,14 +1,13 @@
 /**
- * sync-results.mjs — SKELETON (no live API calls yet)
+ * sync-results.mjs
  *
  * Pulls FIFA World Cup 2026 match results + group standings from football-data.org
  * (competition code "WC") and writes them into data/matches.json + data/standings.json,
  * then bumps data/meta.json. Designed to be run on a schedule by
  * .github/workflows/sync-results.yml during the tournament.
  *
- * The actual HTTP calls + field mapping are left as TODOs until the free API token
- * (FOOTBALL_DATA_API_KEY) is available. Until then this runs as a safe no-op that
- * validates the environment and the crosswalk wiring.
+ * Requires FOOTBALL_DATA_API_KEY (free tier). Without it, runs as a safe no-op.
+ * Only mutates result fields (status/score) — never the verified kickoffUtc/venue/city.
  *
  * Endpoints (v4, header `X-Auth-Token: <key>`):
  *   GET https://api.football-data.org/v4/competitions/WC/matches
@@ -46,40 +45,81 @@ async function main() {
   const resolveTeamId = buildTeamResolver(teams, crosswalk);
 
   // ---- 1) MATCH RESULTS -------------------------------------------------------------
-  // TODO: const fdMatches = await fdFetch(`/competitions/${COMPETITION}/matches`);
-  // TODO: for (const fdMatch of fdMatches.matches) {
-  //   const homeId = resolveTeamId(fdMatch.homeTeam?.name);
-  //   const awayId = resolveTeamId(fdMatch.awayTeam?.name);
-  //   if (!homeId || !awayId) { console.warn("[sync] unmatched teams", fdMatch.homeTeam?.name, fdMatch.awayTeam?.name); continue; }
-  //   const local = matches.find((m) => m.homeTeamId === homeId && m.awayTeamId === awayId);
-  //   if (!local) continue;
-  //   // Only touch live result fields — never overwrite verified date/venue/kickoff.
-  //   local.status = mapStatus(fdMatch.status);            // SCHEDULED|IN_PLAY|PAUSED|FINISHED -> scheduled|live|finished
-  //   local.homeScore = fdMatch.score?.fullTime?.home ?? null;
-  //   local.awayScore = fdMatch.score?.fullTime?.away ?? null;
-  //   local.lastVerifiedUtc = new Date().toISOString();
-  // }
-  const updatedMatches = matches; // no-op until API wired
+  const matchesRes = await fdFetch(`/competitions/${COMPETITION}/matches`);
+  const fdMatches = matchesRes.matches || [];
 
-  // ---- 2) GROUP STANDINGS -----------------------------------------------------------
-  // TODO: const fdStandings = await fdFetch(`/competitions/${COMPETITION}/standings`);
-  // TODO: const nextStandings = [];
-  // for (const groupBlock of fdStandings.standings) {        // groupBlock.group === "GROUP_A"
-  //   const group = (groupBlock.group || "").replace("GROUP_", "");
-  //   for (const row of groupBlock.table) {
-  //     const teamId = resolveTeamId(row.team?.name);
-  //     if (!teamId) continue;
-  //     nextStandings.push({
-  //       teamId, group,
-  //       rank: row.position,
-  //       played: row.playedGames, won: row.won, drawn: row.draw, lost: row.lost,
-  //       goalsFor: row.goalsFor, goalsAgainst: row.goalsAgainst,
-  //       goalDifference: row.goalDifference, points: row.points,
-  //       dataStatus: "verified", isPreTournament: false
-  //     });
-  //   }
-  // }
-  const updatedStandings = standings; // no-op until API wired
+  // ---- 2) UPDATE MATCH RESULTS ------------------------------------------------------
+  let matchesUpdated = 0;
+  const unmatched = [];
+  for (const fdMatch of fdMatches) {
+    const homeId = resolveTeamId(fdMatch.homeTeam?.name);
+    const awayId = resolveTeamId(fdMatch.awayTeam?.name);
+    if (!homeId || !awayId) {
+      // Knockout placeholders ("Winner Group A", "1B", TBD) won't resolve before the bracket
+      // is set — that's expected, so collect for a summary rather than spamming warnings.
+      unmatched.push(`${fdMatch.homeTeam?.name || "?"} vs ${fdMatch.awayTeam?.name || "?"}`);
+      continue;
+    }
+    const local = matches.find((m) => m.homeTeamId === homeId && m.awayTeamId === awayId);
+    if (!local) continue;
+
+    // Only touch live result fields — never overwrite verified kickoffUtc/venue/city.
+    local.status = mapStatus(fdMatch.status);
+    if (local.status === "finished") {
+      local.homeScore = fdMatch.score?.fullTime?.home ?? null;
+      local.awayScore = fdMatch.score?.fullTime?.away ?? null;
+    } else if (local.status === "live") {
+      // Show the running score while in play; fall back to null if the API omits it.
+      local.homeScore = fdMatch.score?.fullTime?.home ?? null;
+      local.awayScore = fdMatch.score?.fullTime?.away ?? null;
+    } else {
+      local.homeScore = null;
+      local.awayScore = null;
+    }
+    local.dataStatus = "verified";
+    local.lastVerifiedUtc = new Date().toISOString();
+    matchesUpdated += 1;
+  }
+  const updatedMatches = matches;
+
+  // ---- 3) FETCH STANDINGS -----------------------------------------------------------
+  const standingsRes = await fdFetch(`/competitions/${COMPETITION}/standings`);
+  const fdStandings = standingsRes.standings || [];
+
+  // ---- 4) UPDATE STANDINGS ----------------------------------------------------------
+  const nextStandings = [];
+  for (const groupBlock of fdStandings) {
+    // football-data returns TOTAL/HOME/AWAY blocks; keep only the combined table.
+    if (groupBlock.type && groupBlock.type !== "TOTAL") continue;
+    const group = (groupBlock.group || "").replace("GROUP_", "");
+    for (const row of groupBlock.table || []) {
+      const teamId = resolveTeamId(row.team?.name);
+      if (!teamId) continue;
+      nextStandings.push({
+        teamId,
+        group,
+        rank: row.position,
+        played: row.playedGames,
+        won: row.won,
+        drawn: row.draw,
+        lost: row.lost,
+        goalsFor: row.goalsFor,
+        goalsAgainst: row.goalsAgainst,
+        goalDifference: row.goalDifference,
+        points: row.points,
+        dataStatus: "verified",
+        isPreTournament: false
+      });
+    }
+  }
+  // Only replace standings.json once the API actually returns a table; otherwise keep the
+  // existing pre-tournament file so an empty/early response can't wipe it.
+  const updatedStandings = nextStandings.length ? nextStandings : standings;
+
+  console.log(`[sync-results] matches updated: ${matchesUpdated}/${fdMatches.length}; standings rows: ${nextStandings.length}.`);
+  if (unmatched.length) {
+    console.log(`[sync-results] ${unmatched.length} fixtures unresolved (expected for knockout placeholders): ${unmatched.slice(0, 6).join(" | ")}${unmatched.length > 6 ? " …" : ""}`);
+  }
 
   // ---- 3) PERSIST -------------------------------------------------------------------
   writeJson(matchesPath, updatedMatches);
@@ -94,14 +134,12 @@ async function main() {
     note: "Match results and group standings synced from football-data.org during the tournament. Scores may be slightly delayed on the free tier."
   });
 
-  console.log("[sync-results] Skeleton ran. API calls are still TODO — data files unchanged except meta timestamp.");
+  console.log("[sync-results] Done. data/matches.json, data/standings.json, and data/meta.json written.");
 }
 
 // --- helpers -------------------------------------------------------------------------
 
-// eslint-disable-next-line no-unused-vars
 async function fdFetch(endpoint) {
-  // TODO: enable once FOOTBALL_DATA_API_KEY exists.
   const res = await fetch(`${API_BASE}${endpoint}`, {
     headers: { "X-Auth-Token": apiKey }
   });
@@ -111,10 +149,9 @@ async function fdFetch(endpoint) {
   return res.json();
 }
 
-// eslint-disable-next-line no-unused-vars
 function mapStatus(fdStatus) {
   if (fdStatus === "FINISHED") return "finished";
-  if (fdStatus === "IN_PLAY" || fdStatus === "PAUSED") return "live";
+  if (fdStatus === "IN_PLAY" || fdStatus === "PAUSED" || fdStatus === "LIVE") return "live";
   return "scheduled";
 }
 
