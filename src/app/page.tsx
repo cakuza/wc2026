@@ -6,6 +6,7 @@ import { PosterPreviewCard } from "@/components/poster-engine";
 import { StructuredData } from "@/components/structured-data";
 import { TeamFlag } from "@/components/team-flag";
 import { TeamPicker } from "@/components/team-picker";
+import { TodayMatches } from "@/components/today-matches";
 import { getMatchesWithTeams, getTeams } from "@/lib/football";
 import { absoluteUrl, SITE_NAME } from "@/lib/site";
 import { formatDateKey } from "@/lib/timezones";
@@ -21,8 +22,16 @@ export default async function HomePage() {
     getTeams()
   ]);
   const todayKey = formatDateKey(new Date().toISOString());
-  const todayMatches = matches.filter((match) => formatDateKey(match.date) === todayKey);
-  const featuredMatches = todayMatches.length ? todayMatches : matches.slice(0, 4);
+  const sortedByDate = [...matches].sort((a, b) => Date.parse(a.date) - Date.parse(b.date));
+  const todayMatches = sortedByDate.filter((match) => formatDateKey(match.date) === todayKey);
+  // No matches today → fall back to the next matchday (every fixture sharing the earliest
+  // upcoming match date), so the board always shows a real, complete matchday.
+  const nextMatch = sortedByDate.find((match) => formatDateKey(match.date) >= todayKey);
+  const nextMatchdayMatches = nextMatch
+    ? sortedByDate.filter((match) => formatDateKey(match.date) === formatDateKey(nextMatch.date))
+    : [];
+  const showingToday = todayMatches.length > 0;
+  const matchdayMatches = showingToday ? todayMatches : nextMatchdayMatches;
   // Rotate the hero road poster across a pool of big fan bases so the homepage never looks
   // like a "Turkey-only" site. Picked per request (page is force-dynamic) for fresh variety.
   const heroPool = ["brazil", "france", "japan", "mexico", "argentina", "england"];
@@ -78,7 +87,7 @@ export default async function HomePage() {
               <PosterPreviewCard variant="upset" ratio="story" width={170} team={japan} headline="Japan upset watch" />
             </Link>
             <Link href="/cards?template=prediction&match=m026" className="overflow-hidden rounded-[18px]">
-              <PosterPreviewCard variant="prediction" ratio="story" width={170} team={mexico} opponent={teams.find((team) => team.slug === "south-africa")} match={matches.find((match) => match.id === "m026") || featuredMatches[0]} headline="Drop your score" />
+              <PosterPreviewCard variant="prediction" ratio="story" width={170} team={mexico} opponent={teams.find((team) => team.slug === "south-africa")} match={matches.find((match) => match.id === "m026") || matchdayMatches[0]} headline="Drop your score" />
             </Link>
           </div>
         </div>
@@ -106,42 +115,22 @@ export default async function HomePage() {
         <div className="rounded-lg border border-[rgba(14,12,10,.10)] bg-white p-4 md:p-5">
           <div className="mb-4 flex items-end justify-between gap-3">
             <div>
-              <p className="text-xs font-black uppercase tracking-[0.18em] text-[#B48A00]">{todayMatches.length ? "Today's matchday menu" : "Next matchday menu"}</p>
-              <h2 className="mt-1 text-2xl font-black text-[#0E0C0A]">Save the matchups</h2>
+              <p className="text-xs font-black uppercase tracking-[0.18em] text-[#B48A00]">{showingToday ? "On today" : "Next matchday"}</p>
+              <h2 className="mt-1 text-2xl font-black text-[#0E0C0A]">Today&apos;s Matches</h2>
             </div>
             <Link href="/world-cup-matches-today" className="text-sm font-bold text-[#0E0C0A]/62 hover:text-[#B48A00]">Open schedule</Link>
           </div>
-          <div className="grid gap-3 md:grid-cols-2">
-            {featuredMatches.map((match) => (
-              <MatchTile key={match.id} match={match} />
-            ))}
-          </div>
+          <TodayMatches matches={matchdayMatches} />
         </div>
         <div className="rounded-lg border border-[rgba(14,12,10,.10)] bg-white p-4 md:p-5">
           <p className="text-xs font-black uppercase tracking-[0.18em] text-[#B48A00]">Local time helper</p>
           <div className="mt-4 rounded-lg border border-[rgba(14,12,10,.10)] bg-[#F6F4F1] p-4">
-            <HomeTimezoneQuick match={featuredMatches[0]} />
+            <HomeTimezoneQuick match={matchdayMatches[0]} />
           </div>
         </div>
       </section>
 
     </PageShell>
-  );
-}
-
-function MatchTile({ match }: { match: MatchWithTeams }) {
-  return (
-    <Link href={`/cards?template=prediction&match=${match.id}`} className="rounded-md border border-[rgba(14,12,10,.10)] bg-[#F6F4F1] p-4 transition hover:bg-white hover:shadow-[0_10px_24px_rgba(14,12,10,.08)]">
-      <p className="text-xs font-black uppercase tracking-[0.14em] text-[#B48A00]">Save the matchup</p>
-      <div className="mt-2 flex items-center gap-2">
-        <TeamFlag team={match.homeTeam} width={32} />
-        <span className="min-w-0 truncate text-lg font-black uppercase leading-none text-[#0E0C0A] [font-family:Impact,Arial_Black,sans-serif]">{match.homeTeam.name}</span>
-        <span className="shrink-0 text-base font-black uppercase text-[#0E0C0A]/45 [font-family:Impact,Arial_Black,sans-serif]">vs</span>
-        <span className="min-w-0 truncate text-lg font-black uppercase leading-none text-[#0E0C0A] [font-family:Impact,Arial_Black,sans-serif]">{match.awayTeam.name}</span>
-        <TeamFlag team={match.awayTeam} width={32} />
-      </div>
-      <p className="mt-2 text-sm font-bold text-[#0E0C0A]/56">{match.venue === "TBD" || match.city === "TBD" ? "Venue unavailable" : `${match.venue}, ${match.city}`}</p>
-    </Link>
   );
 }
 
