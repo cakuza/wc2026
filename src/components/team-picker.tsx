@@ -74,9 +74,9 @@ export function TeamPicker({ teams }: { teams: Team[]; squadStatusByTeam?: Recor
         {filtered.map((team) => (
           <div key={team.id} className="rounded-md border border-[rgba(14,12,10,.10)] bg-white p-3 transition hover:border-[#E7C36B]/70 hover:shadow-[0_10px_24px_rgba(14,12,10,.08)]">
             <Link href={`/teams/${team.slug}-world-cup-schedule`} className="focus-ring block rounded-sm">
-              <p className="text-2xl">{team.flagEmoji}</p>
+              <p className="text-4xl leading-none">{team.flagEmoji}</p>
               <p className="mt-2 font-black text-[#0E0C0A] hover:text-[#B48A00]">{team.name}</p>
-              <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#0E0C0A]/45">Group {team.group} / {team.fifaCode}</p>
+              <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#0E0C0A]/45">Group {team.group}</p>
               <p className="mt-2 inline-flex rounded-full border border-[#E7C36B]/30 bg-[#E7C36B]/10 px-2 py-1 text-[10px] font-black uppercase tracking-[0.1em] text-[#8A6400]">
                 Road poster ready
               </p>

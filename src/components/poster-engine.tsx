@@ -162,7 +162,7 @@ export function PosterFrame({
           <p className="bg-black/35 px-3 py-2 text-center text-[10px] font-black uppercase tracking-[0.14em] text-white/84">{footer}</p>
           <div className="flex items-end justify-between gap-2">
             <p className="max-w-[68%] text-[8px] font-bold uppercase tracking-[0.04em] text-white/46">{fanDisclaimer}</p>
-            {!pro ? <p className="text-[10px] font-black tracking-[0.04em] text-white/62">wc26.app</p> : null}
+            {!pro ? <p className="text-[10px] font-black uppercase tracking-[0.12em] text-white/62">WC26 HUB</p> : null}
           </div>
         </div>
       </div>

@@ -55,7 +55,7 @@ export function TeamSearch({ teams }: { teams: Team[]; squadStatusByTeam?: Recor
             className="rounded-lg border border-white/10 bg-white/[0.04] p-4 transition hover:border-gold/50 hover:bg-white/[0.07]"
           >
             <div className="mb-4 flex items-center justify-between">
-              <span className="grid h-11 w-11 place-items-center rounded-md bg-gold/12 font-black text-gold">{team.fifaCode}</span>
+              <span className="text-4xl leading-none drop-shadow-[0_6px_14px_rgba(0,0,0,.45)]">{team.flagEmoji}</span>
               <span className="rounded-md border border-white/10 px-2 py-1 text-xs font-bold text-white/55">Group {team.group}</span>
             </div>
             <h2 className="text-xl font-black text-white">{team.name}</h2>

@@ -1,6 +1,6 @@
 "use client";
 
-import { Copy, Download, Share2 } from "lucide-react";
+import { Copy, Download, Search, Share2, X } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { PosterPreviewCard, posterRatios, type PosterTheme, type PosterVariant } from "@/components/poster-engine";
 import type { MatchWithTeams, PlayerWithStats, Standing, Team } from "@/lib/types";
@@ -535,6 +535,11 @@ export function CardGenerator({
   // Responsive poster width: fills the preview column on mobile, capped at the ratio's
   // natural size on desktop so it never blows up.
   const [previewWidth, setPreviewWidth] = useState<number | undefined>(undefined);
+  // Country-first onboarding: when /cards is opened with no team/match/template deep link and
+  // no remembered choice, the picker overlay leads instead of defaulting to one country.
+  const [showPicker, setShowPicker] = useState(false);
+  // Cold-start onboarding can't be dismissed without picking; the "Change team" re-open can.
+  const [pickerDismissable, setPickerDismissable] = useState(false);
   const cardRef = useRef<HTMLDivElement>(null);
   const previewRef = useRef<HTMLDivElement>(null);
   const studioRef = useRef<HTMLElement>(null);
@@ -556,6 +561,43 @@ export function CardGenerator({
     setTeamHook(`${teamName || selectedTeam?.name || "Team"} player to watch`);
     if (withHeadline) setHeadline(`${upper} WATCH`);
   }
+
+  // Switch the studio to a team: re-skin the active card to that country and remember the
+  // choice so returning visitors skip the picker. Used by the dropdown and the picker overlay.
+  function loadTeam(value: string, remember = true) {
+    const team = teams.find((item) => item.id === value);
+    setTeamId(value);
+    if (team) {
+      const preset = templatePresets.find((item) => item.cardType === cardType);
+      if (preset) {
+        const personalized = personalizePreset(preset, team, matches);
+        setHeadline(personalized.headline);
+        setPlayerName(personalized.playerName);
+        setJerseyName(personalized.jerseyName);
+        setCountryName(personalized.countryName);
+        setTeamHook(personalized.teamHook);
+        if (personalized.group) setGroup(personalized.group);
+        if (personalized.matchId) setMatchId(personalized.matchId);
+        if (personalized.matchTime) setMatchTime(personalized.matchTime);
+      } else {
+        setCountryName(team.name);
+        setJerseyName(team.fifaCode);
+        setTeamHook(`${team.name} fan card`);
+      }
+      const star = getStarPlayer(value);
+      const newSquad = getTeamSquad(value);
+      setSquadIndex(star ? newSquad.indexOf(star) : 0);
+      if (star) applySquadEntry(star, cardType === "player-watch" || cardType === "jersey-star", team.name);
+    }
+    if (remember) {
+      try {
+        localStorage.setItem("wc26-team", value);
+      } catch {
+        /* private mode / storage blocked - non-fatal */
+      }
+    }
+  }
+
   const featuredPresets = Array.from(featuredTemplateLabels)
     .map((label) => templatePresets.find((preset) => preset.label === label))
     .filter(Boolean) as typeof templatePresets;
@@ -650,6 +692,25 @@ export function CardGenerator({
     if (!star) return;
     setSquadIndex(sq.indexOf(star));
     applySquadEntry(star, true, selectedTeam?.name);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Country-first onboarding. A team/match/template/player deep link wins (handled below), a
+  // remembered choice loads silently, and a cold visit gets the picker overlay.
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("team") || params.get("match") || params.get("template") || params.get("player")) return;
+    let saved: string | null = null;
+    try {
+      saved = localStorage.getItem("wc26-team");
+    } catch {
+      saved = null;
+    }
+    if (saved && teams.some((team) => team.id === saved)) {
+      loadTeam(saved, false);
+      return;
+    }
+    setShowPicker(true);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -895,6 +956,17 @@ export function CardGenerator({
 
   return (
     <div className="grid gap-6 pb-24 md:pb-0">
+      {showPicker ? (
+        <CountryPickerOverlay
+          teams={teams}
+          onPick={(value) => {
+            loadTeam(value);
+            setShowPicker(false);
+            studioRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+          }}
+          onClose={pickerDismissable ? () => setShowPicker(false) : undefined}
+        />
+      ) : null}
       <section className="grid gap-4">
         <div className="grid gap-2 md:grid-cols-[1fr_auto] md:items-end">
           <div>
@@ -950,37 +1022,23 @@ export function CardGenerator({
               </Select>
             </div>
           </details>
-              <Select label="Team / country" value={teamId} onChange={(value) => {
-                const team = teams.find((item) => item.id === value);
-                setTeamId(value);
-                if (team) {
-                  const preset = templatePresets.find((item) => item.cardType === cardType);
-                  if (preset) {
-                    const personalized = personalizePreset(preset, team, matches);
-                    setHeadline(personalized.headline);
-                    setPlayerName(personalized.playerName);
-                    setJerseyName(personalized.jerseyName);
-                    setCountryName(personalized.countryName);
-                    setTeamHook(personalized.teamHook);
-                    if (personalized.group) setGroup(personalized.group);
-                    if (personalized.matchId) setMatchId(personalized.matchId);
-                    if (personalized.matchTime) setMatchTime(personalized.matchTime);
-                  } else {
-                    setCountryName(team.name);
-                    setJerseyName(team.fifaCode);
-                    setTeamHook(`${team.name} fan card`);
-                  }
-                  // Load the new team's star player into the jersey/picker.
-                  const star = getStarPlayer(value);
-                  const newSquad = getTeamSquad(value);
-                  setSquadIndex(star ? newSquad.indexOf(star) : 0);
-                  if (star) applySquadEntry(star, cardType === "player-watch" || cardType === "jersey-star", team.name);
-                }
-              }}>
-            {teams.map((team) => (
-              <option key={team.id} value={team.id}>{team.name}</option>
-            ))}
-          </Select>
+              <div className="grid gap-2">
+                <Select label="Team / country" value={teamId} onChange={(value) => loadTeam(value)}>
+                  {teams.map((team) => (
+                    <option key={team.id} value={team.id}>{team.name}</option>
+                  ))}
+                </Select>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setPickerDismissable(true);
+                    setShowPicker(true);
+                  }}
+                  className="focus-ring justify-self-start text-xs font-black uppercase tracking-[0.14em] text-[#FF2D6B] hover:text-[#FF6A1A]"
+                >
+                  Change team
+                </button>
+              </div>
           {selectedTeam?.fanHook ? (
             <p className="-mt-1 text-sm font-black text-[#B48A00]">{selectedTeam.fanHook}</p>
           ) : null}
@@ -1128,6 +1186,70 @@ export function CardGenerator({
           <Download size={18} />
           Download
         </button>
+      </div>
+    </div>
+  );
+}
+
+const PICKER_FEATURED = ["brazil", "argentina", "france", "england", "germany", "spain", "portugal", "mexico", "united-states", "japan", "morocco", "turkey"];
+
+// Full-screen country-first onboarding. Leads with a search + 12 big flag tiles, expands to
+// all 48 on demand, and hands the chosen team id back to the studio.
+function CountryPickerOverlay({ teams, onPick, onClose }: { teams: Team[]; onPick: (id: string) => void; onClose?: () => void }) {
+  const [query, setQuery] = useState("");
+  const [showAll, setShowAll] = useState(false);
+  const featured = PICKER_FEATURED.map((id) => teams.find((team) => team.id === id)).filter(Boolean) as Team[];
+  const normalized = query.trim().toLowerCase();
+  const results = normalized
+    ? teams.filter((team) => [team.name, team.fifaCode, team.group, ...(team.aliases || [])].join(" ").toLowerCase().includes(normalized))
+    : showAll
+      ? teams
+      : featured;
+
+  return (
+    <div className="fixed inset-0 z-50 overflow-y-auto bg-[#0E0C0A]/95 p-4 backdrop-blur md:p-8">
+      <div className="mx-auto grid max-w-3xl gap-5">
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <p className="text-xs font-black uppercase tracking-[0.2em] text-[#FF6A1A]">World Cup 2026 fan studio</p>
+            <h2 className="mt-2 text-3xl font-black leading-tight text-white md:text-4xl">Which country are you cheering for?</h2>
+          </div>
+          {onClose ? (
+            <button type="button" onClick={onClose} className="focus-ring grid h-10 w-10 shrink-0 place-items-center rounded-md border border-white/15 text-white/70 hover:text-white" aria-label="Close">
+              <X size={18} />
+            </button>
+          ) : null}
+        </div>
+        <label className="flex items-center gap-3 rounded-md border border-white/15 bg-white/[0.06] px-4 py-3 text-white">
+          <Search size={18} className="text-[#FF6A1A]" />
+          <input
+            autoFocus
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
+            placeholder="Search any of the 48 teams"
+            className="w-full bg-transparent text-base outline-none placeholder:text-white/40"
+          />
+        </label>
+        <div className="grid grid-cols-3 gap-3 sm:grid-cols-4">
+          {results.map((team) => (
+            <button
+              key={team.id}
+              type="button"
+              onClick={() => onPick(team.id)}
+              className="focus-ring group grid justify-items-center gap-1 rounded-lg border border-white/10 bg-white/[0.05] p-4 text-center transition hover:border-[#FF6A1A]/60 hover:bg-white/[0.09]"
+            >
+              <span className="text-5xl leading-none drop-shadow-[0_8px_18px_rgba(0,0,0,.5)]">{team.flagEmoji}</span>
+              <span className="mt-1 text-sm font-black leading-tight text-white">{team.name}</span>
+              <span className="text-[10px] font-black uppercase tracking-[0.12em] text-white/45">Group {team.group}</span>
+            </button>
+          ))}
+          {results.length === 0 ? <p className="col-span-full py-6 text-center text-sm font-bold text-white/55">No team matches “{query}”.</p> : null}
+        </div>
+        {!normalized && !showAll ? (
+          <button type="button" onClick={() => setShowAll(true)} className="focus-ring justify-self-center text-sm font-black uppercase tracking-[0.14em] text-[#FF6A1A] hover:text-white">
+            See all 48 teams →
+          </button>
+        ) : null}
       </div>
     </div>
   );

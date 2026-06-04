@@ -25,13 +25,16 @@ export default async function HomePage() {
   const todayKey = formatDateKey(new Date().toISOString());
   const todayMatches = matches.filter((match) => formatDateKey(match.date) === todayKey);
   const featuredMatches = todayMatches.length ? todayMatches : matches.slice(0, 4);
-  const turkey = teamBy(teams, "turkey");
+  // Rotate the hero road poster across a pool of big fan bases so the homepage never looks
+  // like a "Turkey-only" site. Picked per request (page is force-dynamic) for fresh variety.
+  const heroPool = ["brazil", "france", "japan", "mexico", "argentina", "england"];
+  const heroTeam = teamBy(teams, heroPool[Math.floor(Math.random() * heroPool.length)]);
   const japan = teamBy(teams, "japan");
   const mexico = teamBy(teams, "mexico");
   const trending = ["brazil", "argentina", "france", "england", "mexico", "japan", "morocco", "turkey", "portugal", "germany", "spain", "netherlands"]
     .map((slug) => teamBy(teams, slug))
     .filter(Boolean) as Team[];
-  const turkeyRoad = teamMatches(matches, turkey);
+  const heroRoad = teamMatches(matches, heroTeam);
 
   return (
     <PageShell>
@@ -58,7 +61,7 @@ export default async function HomePage() {
             Share the <span className="text-[#1FA9F6]">road.</span>
           </h1>
           <p className="mt-5 max-w-2xl text-base font-bold leading-7 text-[#0E0C0A]/62">
-            Fan-made World Cup 2026 posters for all 48 teams. Country roads, prediction battles, player-watch cards. No signup. Just pick and share.
+            Pick your team. See your road. Make the poster. Share it in 60 seconds — no signup, no cost.
           </p>
           <div className="mt-6 flex flex-wrap gap-3">
             <Link href="/cards" className="focus-ring inline-flex items-center gap-2 rounded-md bg-[#0E0C0A] px-5 py-3 font-black text-white">
@@ -71,7 +74,7 @@ export default async function HomePage() {
             </Link>
           </div>
           <div className="mt-6 flex flex-wrap gap-2">
-            {["48 teams", "12 groups", "3 share ratios", "Fan-made", "No official marks"].map((item) => (
+            {["48 teams", "104 matches", "Your local time", "Free", "60 seconds"].map((item) => (
               <span key={item} className="rounded-full border border-[rgba(14,12,10,.10)] bg-[#F6F4F1] px-3 py-1 text-[10px] font-black uppercase tracking-[0.12em] text-[#0E0C0A]/72">
                 {item}
               </span>
@@ -79,8 +82,8 @@ export default async function HomePage() {
           </div>
         </div>
         <div className="grid gap-3 sm:grid-cols-[1.25fr_.75fr]">
-          <Link href="/cards?template=team-schedule&team=turkey" className="overflow-hidden rounded-[22px]">
-            <PosterPreviewCard variant="road" ratio="twitter" width={520} team={turkey} matches={turkeyRoad} headline="Turkey fans, save this" />
+          <Link href={`/cards?template=team-schedule&team=${heroTeam.slug}`} className="overflow-hidden rounded-[22px]">
+            <PosterPreviewCard variant="road" ratio="twitter" width={520} team={heroTeam} matches={heroRoad} headline={`${heroTeam.name} fans, save this`} />
           </Link>
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-1">
             <Link href="/cards?template=opponent-watch&team=japan" className="overflow-hidden rounded-[18px]">
