@@ -84,6 +84,11 @@ export function TeamMatchCenter({
             {team.fanHook ? (
               <p className="mt-3 text-lg font-black text-[#E7C36B] md:text-2xl">{team.fanHook}</p>
             ) : null}
+            {typeof team.squadValue === "number" ? (
+              <p className="mt-3 inline-flex items-center gap-2 rounded-md bg-white/12 px-3 py-1.5 text-sm font-black uppercase tracking-[0.12em] text-white/90">
+                Squad value: {formatSquadValue(team.squadValue)}
+              </p>
+            ) : null}
             <p className="mt-4 max-w-2xl text-sm font-bold leading-6 text-white/72">
               {team.name}&apos;s group-stage road in your local time. Pick a match, drop a prediction, and share the poster.
             </p>
@@ -332,6 +337,12 @@ function HeroFx() {
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(125%_95%_at_50%_42%,transparent_38%,rgba(8,6,4,.42)_100%)]" />
     </>
   );
+}
+
+// squadValue is stored in € millions. Show €X.XXB for billion-euro squads, €NNNM otherwise.
+function formatSquadValue(millions: number): string {
+  if (millions >= 1000) return `€${(millions / 1000).toFixed(2)}B`;
+  return `€${millions}M`;
 }
 
 function opponentFor(match: MatchWithTeams, team: Team) {

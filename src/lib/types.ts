@@ -19,6 +19,8 @@ export type Team = {
   accentColor?: string;
   featuredPlayer?: string;
   fanHook?: string;
+  /** Total squad market value in € millions, rounded (source: Transfermarkt). */
+  squadValue?: number;
   timezoneSuggestion?: string;
   aliases?: string[];
   dataStatus?: "sample" | "pending" | "verified";

@@ -23,7 +23,8 @@
     "dataStatus": "sample",
     "sourceLabel": "Pre-launch sample team slot",
     "featuredPlayer": "Santiago Giménez",
-    "fanHook": "Es nuestra hora 🇲🇽"
+    "fanHook": "Es nuestra hora 🇲🇽",
+    "squadValue": 194
   },
   {
     "id": "south-africa",
@@ -47,7 +48,8 @@
     "secondaryColor": "#063d1f",
     "accentColor": "#ffffff",
     "dataStatus": "sample",
-    "sourceLabel": "Pre-launch sample team slot"
+    "sourceLabel": "Pre-launch sample team slot",
+    "squadValue": 45
   },
   {
     "id": "south-korea",
@@ -73,7 +75,8 @@
     "accentColor": "#d71920",
     "dataStatus": "sample",
     "sourceLabel": "Pre-launch sample team slot",
-    "featuredPlayer": "Son Heung-min"
+    "featuredPlayer": "Son Heung-min",
+    "squadValue": 138
   },
   {
     "id": "czechia",
@@ -97,7 +100,8 @@
     "secondaryColor": "#f2c94c",
     "accentColor": "#ffffff",
     "dataStatus": "sample",
-    "sourceLabel": "Pre-launch sample team slot"
+    "sourceLabel": "Pre-launch sample team slot",
+    "squadValue": 188
   },
   {
     "id": "canada",
@@ -121,7 +125,8 @@
     "accentColor": "#ffffff",
     "dataStatus": "sample",
     "sourceLabel": "Pre-launch sample team slot",
-    "featuredPlayer": "Alphonso Davies"
+    "featuredPlayer": "Alphonso Davies",
+    "squadValue": 198
   },
   {
     "id": "bosnia-and-herzegovina",
@@ -146,7 +151,8 @@
     "secondaryColor": "#ffffff",
     "accentColor": "#d71920",
     "dataStatus": "sample",
-    "sourceLabel": "Pre-launch sample team slot"
+    "sourceLabel": "Pre-launch sample team slot",
+    "squadValue": 151
   },
   {
     "id": "qatar",
@@ -169,7 +175,8 @@
     "secondaryColor": "#f2c94c",
     "accentColor": "#ffffff",
     "dataStatus": "sample",
-    "sourceLabel": "Pre-launch sample team slot"
+    "sourceLabel": "Pre-launch sample team slot",
+    "squadValue": 20
   },
   {
     "id": "switzerland",
@@ -193,7 +200,8 @@
     "accentColor": "#0033a0",
     "dataStatus": "sample",
     "sourceLabel": "Pre-launch sample team slot",
-    "featuredPlayer": "Granit Xhaka"
+    "featuredPlayer": "Granit Xhaka",
+    "squadValue": 333
   },
   {
     "id": "brazil",
@@ -219,7 +227,8 @@
     "dataStatus": "sample",
     "sourceLabel": "Pre-launch sample team slot",
     "featuredPlayer": "Vinicius Jr",
-    "fanHook": "É hora do Brasil 🇧🇷"
+    "fanHook": "É hora do Brasil 🇧🇷",
+    "squadValue": 943
   },
   {
     "id": "morocco",
@@ -244,7 +253,8 @@
     "dataStatus": "sample",
     "sourceLabel": "Pre-launch sample team slot",
     "featuredPlayer": "Achraf Hakimi",
-    "fanHook": "Atlas Lions are ready 🦁"
+    "fanHook": "Atlas Lions are ready 🦁",
+    "squadValue": 490
   },
   {
     "id": "haiti",
@@ -267,7 +277,8 @@
     "secondaryColor": "#ffffff",
     "accentColor": "#0033a0",
     "dataStatus": "sample",
-    "sourceLabel": "Pre-launch sample team slot"
+    "sourceLabel": "Pre-launch sample team slot",
+    "squadValue": 56
   },
   {
     "id": "scotland",
@@ -290,7 +301,8 @@
     "secondaryColor": "#f2c94c",
     "accentColor": "#e11d48",
     "dataStatus": "sample",
-    "sourceLabel": "Pre-launch sample team slot"
+    "sourceLabel": "Pre-launch sample team slot",
+    "squadValue": 170
   },
   {
     "id": "united-states",
@@ -318,7 +330,8 @@
     "dataStatus": "sample",
     "sourceLabel": "Pre-launch sample team slot",
     "featuredPlayer": "Christian Pulisic",
-    "fanHook": "It's our tournament 🦅"
+    "fanHook": "It's our tournament 🦅",
+    "squadValue": 386
   },
   {
     "id": "paraguay",
@@ -341,7 +354,8 @@
     "secondaryColor": "#ffffff",
     "accentColor": "#0033a0",
     "dataStatus": "sample",
-    "sourceLabel": "Pre-launch sample team slot"
+    "sourceLabel": "Pre-launch sample team slot",
+    "squadValue": 154
   },
   {
     "id": "australia",
@@ -366,7 +380,8 @@
     "accentColor": "#e11d48",
     "dataStatus": "sample",
     "sourceLabel": "Pre-launch sample team slot",
-    "featuredPlayer": "Mathew Ryan"
+    "featuredPlayer": "Mathew Ryan",
+    "squadValue": 78
   },
   {
     "id": "turkey",
@@ -393,7 +408,8 @@
     "dataStatus": "sample",
     "sourceLabel": "Pre-launch sample team slot",
     "featuredPlayer": "Arda Güler",
-    "fanHook": "Gruba at, kimse kaçırmasın 🔴"
+    "fanHook": "Gruba at, kimse kaçırmasın 🔴",
+    "squadValue": 474
   },
   {
     "id": "germany",
@@ -418,7 +434,8 @@
     "dataStatus": "sample",
     "sourceLabel": "Pre-launch sample team slot",
     "featuredPlayer": "Jamal Musiala",
-    "fanHook": "Efficiency mode on ⚙️"
+    "fanHook": "Efficiency mode on ⚙️",
+    "squadValue": 982
   },
   {
     "id": "curacao",
@@ -442,7 +459,8 @@
     "secondaryColor": "#f2c94c",
     "accentColor": "#e11d48",
     "dataStatus": "sample",
-    "sourceLabel": "Pre-launch sample team slot"
+    "sourceLabel": "Pre-launch sample team slot",
+    "squadValue": 26
   },
   {
     "id": "cote-divoire",
@@ -467,7 +485,8 @@
     "secondaryColor": "#ffffff",
     "accentColor": "#ef3340",
     "dataStatus": "sample",
-    "sourceLabel": "Pre-launch sample team slot"
+    "sourceLabel": "Pre-launch sample team slot",
+    "squadValue": 522
   },
   {
     "id": "ecuador",
@@ -491,7 +510,8 @@
     "accentColor": "#c1272d",
     "dataStatus": "sample",
     "sourceLabel": "Pre-launch sample team slot",
-    "featuredPlayer": "Moisés Caicedo"
+    "featuredPlayer": "Moisés Caicedo",
+    "squadValue": 369
   },
   {
     "id": "netherlands",
@@ -516,7 +536,8 @@
     "accentColor": "#e11d48",
     "dataStatus": "sample",
     "sourceLabel": "Pre-launch sample team slot",
-    "featuredPlayer": "Cody Gakpo"
+    "featuredPlayer": "Cody Gakpo",
+    "squadValue": 814
   },
   {
     "id": "japan",
@@ -541,7 +562,8 @@
     "dataStatus": "sample",
     "sourceLabel": "Pre-launch sample team slot",
     "featuredPlayer": "Takefusa Kubo",
-    "fanHook": "The upset is coming ⚡"
+    "fanHook": "The upset is coming ⚡",
+    "squadValue": 281
   },
   {
     "id": "sweden",
@@ -564,7 +586,8 @@
     "secondaryColor": "#ffffff",
     "accentColor": "#c1272d",
     "dataStatus": "sample",
-    "sourceLabel": "Pre-launch sample team slot"
+    "sourceLabel": "Pre-launch sample team slot",
+    "squadValue": 404
   },
   {
     "id": "tunisia",
@@ -587,7 +610,8 @@
     "secondaryColor": "#ffffff",
     "accentColor": "#d71920",
     "dataStatus": "sample",
-    "sourceLabel": "Pre-launch sample team slot"
+    "sourceLabel": "Pre-launch sample team slot",
+    "squadValue": 70
   },
   {
     "id": "belgium",
@@ -611,7 +635,8 @@
     "accentColor": "#ef3340",
     "dataStatus": "sample",
     "sourceLabel": "Pre-launch sample team slot",
-    "featuredPlayer": "Kevin De Bruyne"
+    "featuredPlayer": "Kevin De Bruyne",
+    "squadValue": 551
   },
   {
     "id": "egypt",
@@ -635,7 +660,8 @@
     "accentColor": "#c1272d",
     "dataStatus": "sample",
     "sourceLabel": "Pre-launch sample team slot",
-    "featuredPlayer": "Mohamed Salah"
+    "featuredPlayer": "Mohamed Salah",
+    "squadValue": 116
   },
   {
     "id": "iran",
@@ -659,7 +685,8 @@
     "accentColor": "#d71920",
     "dataStatus": "sample",
     "sourceLabel": "Pre-launch sample team slot",
-    "featuredPlayer": "Mehdi Taremi"
+    "featuredPlayer": "Mehdi Taremi",
+    "squadValue": 32
   },
   {
     "id": "new-zealand",
@@ -682,7 +709,8 @@
     "secondaryColor": "#063d1f",
     "accentColor": "#ffffff",
     "dataStatus": "sample",
-    "sourceLabel": "Pre-launch sample team slot"
+    "sourceLabel": "Pre-launch sample team slot",
+    "squadValue": 34
   },
   {
     "id": "spain",
@@ -707,7 +735,8 @@
     "dataStatus": "sample",
     "sourceLabel": "Pre-launch sample team slot",
     "featuredPlayer": "Lamine Yamal",
-    "fanHook": "Tiki-taka forever 🔴"
+    "fanHook": "Tiki-taka forever 🔴",
+    "squadValue": 1220
   },
   {
     "id": "cape-verde",
@@ -732,7 +761,8 @@
     "secondaryColor": "#ffffff",
     "accentColor": "#d71920",
     "dataStatus": "sample",
-    "sourceLabel": "Pre-launch sample team slot"
+    "sourceLabel": "Pre-launch sample team slot",
+    "squadValue": 56
   },
   {
     "id": "saudi-arabia",
@@ -756,7 +786,8 @@
     "accentColor": "#ffffff",
     "dataStatus": "sample",
     "sourceLabel": "Pre-launch sample team slot",
-    "featuredPlayer": "Salem Al-Dawsari"
+    "featuredPlayer": "Salem Al-Dawsari",
+    "squadValue": 41
   },
   {
     "id": "uruguay",
@@ -780,7 +811,8 @@
     "accentColor": "#d71920",
     "dataStatus": "sample",
     "sourceLabel": "Pre-launch sample team slot",
-    "featuredPlayer": "Federico Valverde"
+    "featuredPlayer": "Federico Valverde",
+    "squadValue": 392
   },
   {
     "id": "france",
@@ -805,7 +837,8 @@
     "dataStatus": "sample",
     "sourceLabel": "Pre-launch sample team slot",
     "featuredPlayer": "Mbappé",
-    "fanHook": "Les Bleus sont là 🇫🇷"
+    "fanHook": "Les Bleus sont là 🇫🇷",
+    "squadValue": 1550
   },
   {
     "id": "iraq",
@@ -828,7 +861,8 @@
     "secondaryColor": "#063d1f",
     "accentColor": "#ffffff",
     "dataStatus": "sample",
-    "sourceLabel": "Pre-launch sample team slot"
+    "sourceLabel": "Pre-launch sample team slot",
+    "squadValue": 21
   },
   {
     "id": "norway",
@@ -852,7 +886,8 @@
     "accentColor": "#d71920",
     "dataStatus": "sample",
     "sourceLabel": "Pre-launch sample team slot",
-    "featuredPlayer": "Erling Haaland"
+    "featuredPlayer": "Erling Haaland",
+    "squadValue": 592
   },
   {
     "id": "senegal",
@@ -876,7 +911,8 @@
     "accentColor": "#ffffff",
     "dataStatus": "sample",
     "sourceLabel": "Pre-launch sample team slot",
-    "featuredPlayer": "Sadio Mané"
+    "featuredPlayer": "Sadio Mané",
+    "squadValue": 478
   },
   {
     "id": "argentina",
@@ -902,7 +938,8 @@
     "dataStatus": "sample",
     "sourceLabel": "Pre-launch sample team slot",
     "featuredPlayer": "Messi",
-    "fanHook": "Campeones del mundo 🏆"
+    "fanHook": "Campeones del mundo 🏆",
+    "squadValue": 800
   },
   {
     "id": "algeria",
@@ -926,7 +963,8 @@
     "accentColor": "#d71920",
     "dataStatus": "sample",
     "sourceLabel": "Pre-launch sample team slot",
-    "featuredPlayer": "Riyad Mahrez"
+    "featuredPlayer": "Riyad Mahrez",
+    "squadValue": 257
   },
   {
     "id": "austria",
@@ -950,7 +988,8 @@
     "accentColor": "#ffffff",
     "dataStatus": "sample",
     "sourceLabel": "Pre-launch sample team slot",
-    "featuredPlayer": "David Alaba"
+    "featuredPlayer": "David Alaba",
+    "squadValue": 232
   },
   {
     "id": "jordan",
@@ -973,7 +1012,8 @@
     "secondaryColor": "#ffffff",
     "accentColor": "#0033a0",
     "dataStatus": "sample",
-    "sourceLabel": "Pre-launch sample team slot"
+    "sourceLabel": "Pre-launch sample team slot",
+    "squadValue": 20
   },
   {
     "id": "portugal",
@@ -998,7 +1038,8 @@
     "dataStatus": "sample",
     "sourceLabel": "Pre-launch sample team slot",
     "featuredPlayer": "Cristiano Ronaldo",
-    "fanHook": "Uma última dança 🎭"
+    "fanHook": "Uma última dança 🎭",
+    "squadValue": 1010
   },
   {
     "id": "uzbekistan",
@@ -1021,7 +1062,8 @@
     "secondaryColor": "#f2c94c",
     "accentColor": "#ffffff",
     "dataStatus": "sample",
-    "sourceLabel": "Pre-launch sample team slot"
+    "sourceLabel": "Pre-launch sample team slot",
+    "squadValue": 85
   },
   {
     "id": "colombia",
@@ -1045,7 +1087,8 @@
     "accentColor": "#0033a0",
     "dataStatus": "sample",
     "sourceLabel": "Pre-launch sample team slot",
-    "featuredPlayer": "James Rodríguez"
+    "featuredPlayer": "James Rodríguez",
+    "squadValue": 298
   },
   {
     "id": "dr-congo",
@@ -1070,7 +1113,8 @@
     "secondaryColor": "#f2c94c",
     "accentColor": "#e11d48",
     "dataStatus": "sample",
-    "sourceLabel": "Pre-launch sample team slot"
+    "sourceLabel": "Pre-launch sample team slot",
+    "squadValue": 144
   },
   {
     "id": "england",
@@ -1095,7 +1139,8 @@
     "dataStatus": "sample",
     "sourceLabel": "Pre-launch sample team slot",
     "featuredPlayer": "Bellingham",
-    "fanHook": "Football's coming home 📣"
+    "fanHook": "Football's coming home 📣",
+    "squadValue": 1370
   },
   {
     "id": "croatia",
@@ -1119,7 +1164,8 @@
     "accentColor": "#0033a0",
     "dataStatus": "sample",
     "sourceLabel": "Pre-launch sample team slot",
-    "featuredPlayer": "Luka Modrić"
+    "featuredPlayer": "Luka Modrić",
+    "squadValue": 388
   },
   {
     "id": "ghana",
@@ -1143,7 +1189,8 @@
     "accentColor": "#e11d48",
     "dataStatus": "sample",
     "sourceLabel": "Pre-launch sample team slot",
-    "featuredPlayer": "Mohammed Kudus"
+    "featuredPlayer": "Mohammed Kudus",
+    "squadValue": 238
   },
   {
     "id": "panama",
@@ -1166,6 +1213,7 @@
     "secondaryColor": "#ffffff",
     "accentColor": "#ef3340",
     "dataStatus": "sample",
-    "sourceLabel": "Pre-launch sample team slot"
+    "sourceLabel": "Pre-launch sample team slot",
+    "squadValue": 35
   }
 ]
