@@ -2,12 +2,14 @@
 
 import Link from "next/link";
 import { ArrowUpRight, Copy, ImageIcon } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { PosterPreviewCard } from "@/components/poster-engine";
 import { StandingsTable } from "@/components/standings-table";
 import { TeamFlag } from "@/components/team-flag";
+import { TimezoneSelect } from "@/components/timezone-select";
+import { useTimezone } from "@/components/timezone-provider";
 import type { MatchWithTeams, Standing, Team } from "@/lib/types";
-import { formatKickoff, getBrowserTimezone, QUICK_TIMEZONES } from "@/lib/timezones";
+import { formatKickoff } from "@/lib/timezones";
 import { getPlayersToWatch, getSquadByPosition, getStarPlayer, playerSlug, positionCode } from "@/lib/squads";
 
 const readableName = "break-normal [hyphens:none] [overflow-wrap:normal] [word-break:normal]";
@@ -23,7 +25,7 @@ export function TeamMatchCenter({
   groupStandings: Standing[];
   teams: Team[];
 }) {
-  const [timezone, setTimezone] = useState("Europe/Istanbul");
+  const { timeZone: timezone } = useTimezone();
   const [status, setStatus] = useState("");
   const sortedFixtures = useMemo(() => [...fixtures].sort((a, b) => Date.parse(a.date) - Date.parse(b.date)), [fixtures]);
   const nextMatch = sortedFixtures[0];
@@ -45,10 +47,6 @@ export function TeamMatchCenter({
         row.goalsAgainst === 0 &&
         row.points === 0
     );
-
-  useEffect(() => {
-    setTimezone(getBrowserTimezone());
-  }, []);
 
   async function copyText(value: string, label: string) {
     try {
@@ -134,11 +132,7 @@ export function TeamMatchCenter({
             </div>
             <label className="grid gap-1 text-xs font-black uppercase tracking-[0.14em] text-[#0E0C0A]/55">
               Timezone
-              <select value={timezone} onChange={(event) => setTimezone(event.target.value)} className="focus-ring rounded-md border border-[rgba(14,12,10,.10)] bg-[#F6F4F1] px-3 py-2 text-sm normal-case tracking-normal text-[#0E0C0A]">
-                {QUICK_TIMEZONES.map((item) => (
-                  <option key={item} value={item}>{item}</option>
-                ))}
-              </select>
+              <TimezoneSelect variant="light" />
             </label>
           </div>
           <div className="grid gap-3">
@@ -155,8 +149,11 @@ export function TeamMatchCenter({
                     <span className={`min-w-0 text-lg font-black text-[#0E0C0A] ${readableName}`}>{opponent.name}</span>
                   </div>
                   <div className="mt-4 flex flex-wrap items-center justify-between gap-2">
-                    <span className={match.kickoffUtc ? "rounded-md bg-[#0E0C0A] px-3 py-2 text-sm font-black text-white" : "rounded-md border border-[#E7C36B]/35 bg-[#E7C36B]/10 px-3 py-2 text-sm font-black text-[#8A6400]"}>
-                      {kickoff}
+                    <span className="inline-flex items-center gap-2">
+                      <span className={match.kickoffUtc ? "rounded-md bg-[#0E0C0A] px-3 py-2 text-sm font-black text-white" : "rounded-md border border-[#E7C36B]/35 bg-[#E7C36B]/10 px-3 py-2 text-sm font-black text-[#8A6400]"}>
+                        {kickoff}
+                      </span>
+                      {match.kickoffUtc ? <span className="text-[10px] font-black uppercase tracking-[0.12em] text-[#0E0C0A]/45">Local time</span> : null}
                     </span>
                     <div className="flex flex-wrap gap-2">
                       <button onClick={() => copyText(`${team.name} vs ${opponent.name}: ${kickoff}`, "Match time")} className="focus-ring inline-flex items-center gap-2 rounded-md border border-[rgba(14,12,10,.12)] px-3 py-2 text-xs font-black text-[#0E0C0A]">

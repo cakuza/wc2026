@@ -1,13 +1,15 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { Search } from "lucide-react";
 import { MatchCard } from "@/components/match-card";
+import { TimezoneSelect } from "@/components/timezone-select";
+import { useTimezone } from "@/components/timezone-provider";
 import { GROUPS, type MatchWithTeams } from "@/lib/types";
-import { QUICK_TIMEZONES, formatDateKey, getBrowserTimezone } from "@/lib/timezones";
+import { formatDateKey } from "@/lib/timezones";
 
 export function MatchScheduleClient({ matches }: { matches: MatchWithTeams[] }) {
-  const [timeZone, setTimeZone] = useState("Europe/Istanbul");
+  const { timeZone } = useTimezone();
   const [team, setTeam] = useState("");
   const [date, setDate] = useState("all");
   const [group, setGroup] = useState("all");
@@ -30,10 +32,6 @@ export function MatchScheduleClient({ matches }: { matches: MatchWithTeams[] }) 
       return teamMatch && (date === "all" || localDate === date) && (group === "all" || match.group === group);
     });
   }, [date, group, matches, team, timeZone]);
-
-  useEffect(() => {
-    setTimeZone(getBrowserTimezone());
-  }, []);
 
   return (
     <div className="grid gap-5">
@@ -66,16 +64,12 @@ export function MatchScheduleClient({ matches }: { matches: MatchWithTeams[] }) 
             </option>
           ))}
         </Select>
-        <Select label="Timezone" value={timeZone} onChange={setTimeZone}>
-          {!QUICK_TIMEZONES.includes(timeZone) ? <option value={timeZone}>Your timezone</option> : null}
-          {QUICK_TIMEZONES.map((item) => (
-            <option key={item} value={item}>
-              {item}
-            </option>
-          ))}
-        </Select>
+        <label className="grid gap-1 text-xs font-bold uppercase tracking-[0.14em] text-white/55">
+          Timezone
+          <TimezoneSelect variant="dark" />
+        </label>
       </div>
-      <p className="text-sm text-white/58">Every fixture with `kickoffUtc` is converted into the timezone you choose here.</p>
+      <p className="text-sm text-white/58">Kickoffs show in your local time. Pick a different timezone above and every page updates to match.</p>
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
         {filtered.map((match) => (
           <MatchCard key={match.id} match={match} timeZone={timeZone} />

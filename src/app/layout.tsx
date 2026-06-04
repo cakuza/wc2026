@@ -4,6 +4,7 @@ import { AdSlot } from "@/components/ad-slot";
 import { Analytics } from "@/components/analytics";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
+import { TimezoneProvider } from "@/components/timezone-provider";
 import { absoluteUrl, getSiteUrl } from "@/lib/site";
 import "./globals.css";
 
@@ -38,14 +39,16 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
   return (
     <html lang="en" className={anton.variable}>
       <body>
-        <SiteHeader />
-        <div className="mx-auto max-w-7xl px-4 pt-3">
-          <AdSlot placement="header" />
-        </div>
-        {children}
-        <SiteFooter />
-        <AdSlot placement="mobile-sticky" />
-        <Analytics />
+        <TimezoneProvider>
+          <SiteHeader />
+          <div className="mx-auto max-w-7xl px-4 pt-3">
+            <AdSlot placement="header" />
+          </div>
+          {children}
+          <SiteFooter />
+          <AdSlot placement="mobile-sticky" />
+          <Analytics />
+        </TimezoneProvider>
       </body>
     </html>
   );

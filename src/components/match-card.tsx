@@ -24,7 +24,7 @@ export function MatchCard({ match, timeZone = "Europe/Istanbul" }: { match: Matc
         <span className="flex items-center gap-2">
           <CalendarDays size={15} className="text-gold" />
           <span>{formatKickoff(match.kickoffUtc, timeZone)}</span>
-          {match.kickoffUtc ? <span className="text-pitch/45">({timeZone})</span> : <span className="text-pitch/45">Local time unavailable</span>}
+          {match.kickoffUtc ? <span className="text-pitch/45">Local time</span> : <span className="text-pitch/45">Local time unavailable</span>}
         </span>
         <span className="flex items-center gap-2">
           <MapPin size={15} className="text-gold" />

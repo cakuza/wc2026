@@ -1,19 +1,15 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
 import { TeamFlag } from "@/components/team-flag";
+import { useTimezone } from "@/components/timezone-provider";
 import type { MatchWithTeams } from "@/lib/types";
-import { formatKickoff, getBrowserTimezone } from "@/lib/timezones";
+import { formatKickoff } from "@/lib/timezones";
 
-// Schedule-only matchday board (no scores yet). Local kickoff time is resolved on the
-// client from the visitor's timezone; date, stadium and city come from the fixtures data.
+// Schedule-only matchday board (no scores yet). Local kickoff time is resolved from the
+// site-wide timezone selection; date, stadium and city come from the fixtures data.
 export function TodayMatches({ matches }: { matches: MatchWithTeams[] }) {
-  const [timeZone, setTimeZone] = useState("Europe/Istanbul");
-
-  useEffect(() => {
-    setTimeZone(getBrowserTimezone());
-  }, []);
+  const { timeZone } = useTimezone();
 
   if (!matches.length) {
     return <p className="text-sm font-bold text-[#0E0C0A]/56">No matches scheduled yet.</p>;
@@ -37,7 +33,7 @@ export function TodayMatches({ matches }: { matches: MatchWithTeams[] }) {
               <TeamFlag team={match.awayTeam} width={32} />
             </div>
             <p className="mt-3 text-sm font-black text-[#B48A00]">
-              {match.kickoffUtc ? formatKickoff(match.kickoffUtc, timeZone) : "Local time not added yet"}
+              {match.kickoffUtc ? `${formatKickoff(match.kickoffUtc, timeZone)} · Local time` : "Local time not added yet"}
             </p>
             <p className="mt-1 text-sm font-bold text-[#0E0C0A]/56">
               {hasVenue ? `${match.venue}, ${match.city}` : "Venue to be confirmed"}
