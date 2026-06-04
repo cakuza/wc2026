@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { Search } from "lucide-react";
 import { useMemo, useState } from "react";
+import { TeamFlag } from "@/components/team-flag";
 import type { Team } from "@/lib/types";
 import { GROUPS } from "@/lib/types";
 
@@ -55,13 +56,12 @@ export function TeamSearch({ teams }: { teams: Team[]; squadStatusByTeam?: Recor
             className="rounded-lg border border-white/10 bg-white/[0.04] p-4 transition hover:border-gold/50 hover:bg-white/[0.07]"
           >
             <div className="mb-4 flex items-center justify-between">
-              <span className="text-4xl leading-none drop-shadow-[0_6px_14px_rgba(0,0,0,.45)]">{team.flagEmoji}</span>
+              <TeamFlag team={team} width={44} />
               <span className="rounded-md border border-white/10 px-2 py-1 text-xs font-bold text-white/55">Group {team.group}</span>
             </div>
             <h2 className="text-xl font-black text-white">{team.name}</h2>
             <p className="mt-2 text-sm text-white/55">{team.confederation}</p>
             <div className="mt-3 flex flex-wrap gap-2">
-              <p className="inline-flex rounded-full border border-gold/20 bg-gold/10 px-2 py-1 text-[10px] font-black uppercase tracking-[0.1em] text-gold">Road poster ready</p>
               <span className="rounded-full border border-white/10 px-2 py-1 text-[10px] font-black uppercase tracking-[0.1em] text-white/50">View schedule</span>
               <span className="rounded-full border border-white/10 px-2 py-1 text-[10px] font-black uppercase tracking-[0.1em] text-white/50">Create team card</span>
             </div>

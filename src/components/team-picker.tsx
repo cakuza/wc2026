@@ -1,8 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowRight, ImageIcon, Search } from "lucide-react";
+import { ArrowRight, Search } from "lucide-react";
 import { useMemo, useState } from "react";
+import { TeamFlag } from "@/components/team-flag";
 import type { Team } from "@/lib/types";
 import { GROUPS } from "@/lib/types";
 
@@ -40,8 +41,8 @@ export function TeamPicker({ teams }: { teams: Team[]; squadStatusByTeam?: Recor
       <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
         <div>
           <p className="text-xs font-black uppercase tracking-[0.18em] text-[#B48A00]">Pick your country</p>
-          <h2 className="mt-1 text-2xl font-black text-[#0E0C0A]">Find your country. Save its road.</h2>
-          <p className="mt-2 text-sm leading-6 text-[#0E0C0A]/58">Every team gets a country road, matchup list, and one-click fan-card route.</p>
+          <h2 className="mt-1 text-2xl font-black text-[#0E0C0A]">Follow your country&apos;s World Cup journey.</h2>
+          <p className="mt-2 text-sm leading-6 text-[#0E0C0A]/58">Match times, squads, group tables — for all 48 teams.</p>
         </div>
         <Link href="/teams" className="inline-flex items-center gap-2 text-sm font-bold text-[#0E0C0A]/62 hover:text-[#B48A00]">
           All teams <ArrowRight size={15} />
@@ -74,20 +75,13 @@ export function TeamPicker({ teams }: { teams: Team[]; squadStatusByTeam?: Recor
         {filtered.map((team) => (
           <div key={team.id} className="rounded-md border border-[rgba(14,12,10,.10)] bg-white p-3 transition hover:border-[#E7C36B]/70 hover:shadow-[0_10px_24px_rgba(14,12,10,.08)]">
             <Link href={`/teams/${team.slug}-world-cup-schedule`} className="focus-ring block rounded-sm">
-              <p className="text-4xl leading-none">{team.flagEmoji}</p>
+              <TeamFlag team={team} width={44} />
               <p className="mt-2 font-black text-[#0E0C0A] hover:text-[#B48A00]">{team.name}</p>
               <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#0E0C0A]/45">Group {team.group}</p>
-              <p className="mt-2 inline-flex rounded-full border border-[#E7C36B]/30 bg-[#E7C36B]/10 px-2 py-1 text-[10px] font-black uppercase tracking-[0.1em] text-[#8A6400]">
-                Road poster ready
-              </p>
             </Link>
-            <div className="mt-3 grid grid-cols-[1fr_auto] gap-2">
-              <Link href={`/teams/${team.slug}-world-cup-schedule`} className="focus-ring rounded-md bg-[#F6F4F1] px-3 py-2 text-xs font-bold text-[#0E0C0A]/72 hover:text-[#B48A00]">
+            <div className="mt-3">
+              <Link href={`/teams/${team.slug}-world-cup-schedule`} className="focus-ring block rounded-md bg-[#F6F4F1] px-3 py-2 text-xs font-bold text-[#0E0C0A]/72 hover:text-[#B48A00]">
                 Match center
-              </Link>
-              <Link href={`/cards?template=team-schedule&team=${team.id}`} className="focus-ring grid h-9 w-9 place-items-center rounded-md border border-[rgba(14,12,10,.12)] text-[#B48A00]" title="Create team card">
-                <ImageIcon size={15} />
-                <span className="sr-only">Create team card</span>
               </Link>
             </div>
           </div>
