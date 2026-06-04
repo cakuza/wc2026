@@ -1,8 +1,8 @@
 // cache-bust: 2026-06-04
 import Link from "next/link";
 import { HomeTimezoneQuick } from "@/components/home-timezone-quick";
+import { NextMatchPanel } from "@/components/next-match-panel";
 import { PageShell } from "@/components/page-shell";
-import { PosterPreviewCard } from "@/components/poster-engine";
 import { StructuredData } from "@/components/structured-data";
 import { TeamFlag } from "@/components/team-flag";
 import { TeamPicker } from "@/components/team-picker";
@@ -37,16 +37,13 @@ export default async function HomePage() {
   const nextMatchdayMatches = nextMatch ? sortedByDate.filter((match) => dateKeyOf(match) === dateKeyOf(nextMatch)) : [];
   const showingToday = todayMatches.length > 0;
   const matchdayMatches = showingToday ? todayMatches : nextMatchdayMatches;
-  // Rotate the hero road poster across a pool of big fan bases so the homepage never looks
-  // like a "Turkey-only" site. Picked per request (page is force-dynamic) for fresh variety.
-  const heroPool = ["brazil", "france", "japan", "mexico", "argentina", "england"];
-  const heroTeam = teamBy(teams, heroPool[Math.floor(Math.random() * heroPool.length)]);
-  const japan = teamBy(teams, "japan");
-  const mexico = teamBy(teams, "mexico");
+  // Tournament-first hero: feature the very next fixture and list the ones after it.
+  const upcomingMatches = sortedByDate.filter((match) => dateKeyOf(match) >= todayKey);
+  const heroFeatured = upcomingMatches[0];
+  const heroUpcoming = upcomingMatches.slice(1, 4);
   const trending = ["brazil", "argentina", "france", "england", "mexico", "japan", "morocco", "turkey", "portugal", "germany", "spain", "netherlands"]
     .map((slug) => teamBy(teams, slug))
     .filter(Boolean) as Team[];
-  const heroRoad = teamMatches(matches, heroTeam);
 
   return (
     <PageShell>
@@ -72,30 +69,29 @@ export default async function HomePage() {
             Build the <span className="text-[#FF6A1A]">hype.</span><br />
             Share the <span className="text-[#1FA9F6]">road.</span>
           </h1>
+          <div className="mt-6 flex flex-wrap gap-3">
+            <Link href="/teams" className="focus-ring inline-flex items-center justify-center rounded-md bg-[#0E0C0A] px-6 py-3 font-black text-white transition hover:bg-[#23201c]">
+              Teams
+            </Link>
+            <Link href="/matches" className="focus-ring inline-flex items-center justify-center rounded-md border border-[rgba(14,12,10,.16)] bg-white px-6 py-3 font-black text-[#0E0C0A] transition hover:border-[#0E0C0A]/40">
+              Schedule
+            </Link>
+            <Link href="/cards" className="focus-ring inline-flex items-center justify-center rounded-md border border-[rgba(14,12,10,.16)] bg-white px-6 py-3 font-black text-[#0E0C0A] transition hover:border-[#0E0C0A]/40">
+              Cards
+            </Link>
+          </div>
           <div className="mt-6">
             <ScoreboardChipRow
               chips={[
-                { label: "Nations", value: "48 NATIONS" },
-                { label: "Matches", value: "104 MATCHES" },
-                { label: "Hosts", value: "3 HOSTS" },
-                { label: "Dream", value: "ONE DREAM" }
+                { value: "48 NATIONS" },
+                { value: "104 MATCHES" },
+                { value: "3 HOSTS" },
+                { value: "ONE DREAM" }
               ]}
             />
           </div>
         </div>
-        <div className="grid gap-3 sm:grid-cols-[1.25fr_.75fr]">
-          <Link href={`/cards?template=team-schedule&team=${heroTeam.slug}`} className="overflow-hidden rounded-[22px]">
-            <PosterPreviewCard variant="road" ratio="twitter" width={520} team={heroTeam} matches={heroRoad} headline={`${heroTeam.name} fans, save this`} />
-          </Link>
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-1">
-            <Link href="/cards?template=opponent-watch&team=japan" className="overflow-hidden rounded-[18px]">
-              <PosterPreviewCard variant="upset" ratio="story" width={170} team={japan} headline="Japan upset watch" />
-            </Link>
-            <Link href="/cards?template=prediction&match=m026" className="overflow-hidden rounded-[18px]">
-              <PosterPreviewCard variant="prediction" ratio="story" width={170} team={mexico} opponent={teams.find((team) => team.slug === "south-africa")} match={matches.find((match) => match.id === "m026") || matchdayMatches[0]} headline="Drop your score" />
-            </Link>
-          </div>
-        </div>
+        <NextMatchPanel featured={heroFeatured} upcoming={heroUpcoming} />
       </section>
 
       <section className="mb-8">
@@ -141,40 +137,25 @@ export default async function HomePage() {
 
 // Stadium scoreboard stat chips — ported from design-reference/wc-chips.jsx
 const CHIP_GOLD = "#E7C36B";
-const CHIP_MONO = '"Space Mono", monospace';
 const CHIP_ANTON = "var(--font-anton, Anton, sans-serif)";
 
-type ScoreboardChipData = { label: string; value: string; accent?: string };
+type ScoreboardChipData = { value: string; accent?: string };
 
-function ScoreboardChip({ label, value, accent = CHIP_GOLD }: ScoreboardChipData) {
+function ScoreboardChip({ value, accent = CHIP_GOLD }: ScoreboardChipData) {
   return (
     <div
       style={{
         display: "inline-flex",
-        flexDirection: "column",
+        alignItems: "center",
         background: "rgba(14,12,10,.94)",
         border: "1px solid rgba(231,195,107,.15)",
         borderTop: `2px solid ${accent}55`,
         borderRadius: 5,
-        padding: "9px 16px 11px",
+        padding: "11px 16px",
         minWidth: 84,
         boxShadow: "0 2px 14px rgba(0,0,0,.38), inset 0 1px 0 rgba(255,255,255,.03)"
       }}
     >
-      <span
-        style={{
-          fontFamily: CHIP_MONO,
-          fontSize: 8,
-          letterSpacing: "2.5px",
-          color: `${accent}99`,
-          textTransform: "uppercase",
-          lineHeight: 1,
-          marginBottom: 5,
-          whiteSpace: "nowrap"
-        }}
-      >
-        {label}
-      </span>
       <span
         style={{
           fontFamily: CHIP_ANTON,
@@ -195,7 +176,7 @@ function ScoreboardChipRow({ chips, gap = 8 }: { chips: ScoreboardChipData[]; ga
   return (
     <div style={{ display: "flex", gap, flexWrap: "wrap", alignItems: "stretch" }}>
       {chips.map((chip) => (
-        <ScoreboardChip key={chip.label} label={chip.label} value={chip.value} accent={chip.accent} />
+        <ScoreboardChip key={chip.value} value={chip.value} accent={chip.accent} />
       ))}
     </div>
   );
@@ -203,9 +184,4 @@ function ScoreboardChipRow({ chips, gap = 8 }: { chips: ScoreboardChipData[]; ga
 
 function teamBy(teams: Team[], slug: string) {
   return teams.find((team) => team.slug === slug || team.id === slug) || teams[0];
-}
-
-function teamMatches(matches: MatchWithTeams[], team?: Team) {
-  if (!team) return matches.slice(0, 3);
-  return matches.filter((match) => match.homeTeamId === team.id || match.awayTeamId === team.id).slice(0, 3);
 }
