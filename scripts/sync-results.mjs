@@ -28,6 +28,9 @@ const teamsPath = path.join(root, "data/teams.json");
 const crosswalkPath = path.join(root, "data/fd-crosswalk.json");
 
 const apiKey = process.env.FOOTBALL_DATA_API_KEY;
+// --dry-run: fetch + resolve from the API but write nothing. Useful for verifying team-name
+// matching before the tournament without touching data/*.json.
+const dryRun = process.argv.includes("--dry-run");
 
 async function main() {
   if (!apiKey) {
@@ -115,6 +118,28 @@ async function main() {
   // Only replace standings.json once the API actually returns a table; otherwise keep the
   // existing pre-tournament file so an empty/early response can't wipe it.
   const updatedStandings = nextStandings.length ? nextStandings : standings;
+
+  if (dryRun) {
+    const resolvedCount = fdMatches.length - unmatched.length;
+    console.log("===== DRY RUN =====");
+    console.log(`Matches found (API):     ${fdMatches.length}`);
+    console.log(`Matches resolved:        ${resolvedCount}`);
+    console.log(`Matches updated locally: ${matchesUpdated}`);
+    console.log(`Matches unmatched:       ${unmatched.length}`);
+    if (unmatched.length) {
+      console.log("  Unmatched fixtures:");
+      for (const pair of unmatched) console.log(`    - ${pair}`);
+    }
+    console.log(`Standings rows found:    ${nextStandings.length}`);
+    if (nextStandings.length) {
+      console.log("  Sample (first 3 rows):");
+      for (const row of nextStandings.slice(0, 3)) {
+        console.log(`    - Group ${row.group} #${row.rank} ${row.teamId}: ${row.points}pts (${row.won}-${row.drawn}-${row.lost}, GD ${row.goalDifference})`);
+      }
+    }
+    console.log("DRY RUN — no files written");
+    return;
+  }
 
   console.log(`[sync-results] matches updated: ${matchesUpdated}/${fdMatches.length}; standings rows: ${nextStandings.length}.`);
   if (unmatched.length) {

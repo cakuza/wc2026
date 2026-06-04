@@ -6,7 +6,12 @@ name: Sync WC results
 on:
   schedule:
     - cron: "*/15 * * 6,7 *" # every 15 minutes, June & July (UTC)
-  workflow_dispatch: {}
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        type: boolean
+        default: false
+        description: "Log only, do not write files"
 
 permissions:
   contents: write
@@ -22,6 +27,13 @@ jobs:
       - name: Tournament window guard
         id: window
         run: |
+          # Manual runs (workflow_dispatch) always proceed so dry-runs work before kickoff.
+          # Scheduled runs are limited to the tournament window.
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            echo "Manual dispatch — bypassing window guard."
+            echo "run=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
           TODAY=$(date -u +%Y-%m-%d)
           START="2026-06-11"
           END="2026-07-19"
@@ -46,7 +58,7 @@ jobs:
         if: steps.window.outputs.run == 'true'
         env:
           FOOTBALL_DATA_API_KEY: ${{ secrets.FOOTBALL_DATA_API_KEY }}
-        run: node scripts/sync-results.mjs
+        run: node scripts/sync-results.mjs ${{ github.event.inputs.dry_run == 'true' && '--dry-run' || '' }}
 
       - name: Commit & push if data changed
         if: steps.window.outputs.run == 'true'
