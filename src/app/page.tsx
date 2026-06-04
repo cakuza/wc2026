@@ -1,13 +1,12 @@
 // cache-bust: 2026-06-04
 import Link from "next/link";
-import { LastUpdatedBlock } from "@/components/seo-blocks";
 import { HomeTimezoneQuick } from "@/components/home-timezone-quick";
 import { PageShell } from "@/components/page-shell";
 import { PosterPreviewCard } from "@/components/poster-engine";
 import { StructuredData } from "@/components/structured-data";
 import { TeamFlag } from "@/components/team-flag";
 import { TeamPicker } from "@/components/team-picker";
-import { getDataMeta, getMatchesWithTeams, getTeams } from "@/lib/football";
+import { getMatchesWithTeams, getTeams } from "@/lib/football";
 import { absoluteUrl, SITE_NAME } from "@/lib/site";
 import { formatDateKey } from "@/lib/timezones";
 import type { MatchWithTeams, Team } from "@/lib/types";
@@ -17,10 +16,9 @@ import type { MatchWithTeams, Team } from "@/lib/types";
 export const dynamic = "force-dynamic";
 
 export default async function HomePage() {
-  const [matches, teams, meta] = await Promise.all([
+  const [matches, teams] = await Promise.all([
     getMatchesWithTeams(),
-    getTeams(),
-    getDataMeta()
+    getTeams()
   ]);
   const todayKey = formatDateKey(new Date().toISOString());
   const todayMatches = matches.filter((match) => formatDateKey(match.date) === todayKey);
@@ -124,9 +122,6 @@ export default async function HomePage() {
           <div className="mt-4 rounded-lg border border-[rgba(14,12,10,.10)] bg-[#F6F4F1] p-4">
             <HomeTimezoneQuick match={featuredMatches[0]} />
           </div>
-          <div className="mt-4">
-            <LastUpdatedBlock meta={meta} />
-          </div>
         </div>
       </section>
 
@@ -138,9 +133,13 @@ function MatchTile({ match }: { match: MatchWithTeams }) {
   return (
     <Link href={`/cards?template=prediction&match=${match.id}`} className="rounded-md border border-[rgba(14,12,10,.10)] bg-[#F6F4F1] p-4 transition hover:bg-white hover:shadow-[0_10px_24px_rgba(14,12,10,.08)]">
       <p className="text-xs font-black uppercase tracking-[0.14em] text-[#B48A00]">Save the matchup</p>
-      <h3 className="mt-2 text-2xl font-black uppercase leading-none text-[#0E0C0A] [font-family:Impact,Arial_Black,sans-serif]">
-        {match.homeTeam.flagEmoji} {match.homeTeam.fifaCode} vs {match.awayTeam.fifaCode} {match.awayTeam.flagEmoji}
-      </h3>
+      <div className="mt-2 flex items-center gap-2">
+        <TeamFlag team={match.homeTeam} width={32} />
+        <span className="min-w-0 truncate text-lg font-black uppercase leading-none text-[#0E0C0A] [font-family:Impact,Arial_Black,sans-serif]">{match.homeTeam.name}</span>
+        <span className="shrink-0 text-base font-black uppercase text-[#0E0C0A]/45 [font-family:Impact,Arial_Black,sans-serif]">vs</span>
+        <span className="min-w-0 truncate text-lg font-black uppercase leading-none text-[#0E0C0A] [font-family:Impact,Arial_Black,sans-serif]">{match.awayTeam.name}</span>
+        <TeamFlag team={match.awayTeam} width={32} />
+      </div>
       <p className="mt-2 text-sm font-bold text-[#0E0C0A]/56">{match.venue === "TBD" || match.city === "TBD" ? "Venue unavailable" : `${match.venue}, ${match.city}`}</p>
     </Link>
   );
