@@ -1,6 +1,5 @@
 // cache-bust: 2026-06-04
 import Link from "next/link";
-import { ArrowRight, ImageIcon } from "lucide-react";
 import { LastUpdatedBlock } from "@/components/seo-blocks";
 import { HomeTimezoneQuick } from "@/components/home-timezone-quick";
 import { PageShell } from "@/components/page-shell";
@@ -61,19 +60,6 @@ export default async function HomePage() {
             Build the <span className="text-[#FF6A1A]">hype.</span><br />
             Share the <span className="text-[#1FA9F6]">road.</span>
           </h1>
-          <p className="mt-5 max-w-2xl text-base font-bold leading-7 text-[#0E0C0A]/62">
-            Pick your team. See your road. Make the poster. Share it in 60 seconds — no signup, no cost.
-          </p>
-          <div className="mt-6 flex flex-wrap gap-3">
-            <Link href="/cards" className="focus-ring inline-flex items-center gap-2 rounded-md bg-[#0E0C0A] px-5 py-3 font-black text-white">
-              <ImageIcon size={18} />
-              Create a fan card
-              <ArrowRight size={18} />
-            </Link>
-            <Link href="/teams" className="focus-ring inline-flex items-center gap-2 rounded-md border border-[rgba(14,12,10,.14)] px-5 py-3 font-black text-[#0E0C0A]">
-              Pick your country
-            </Link>
-          </div>
           <div className="mt-6">
             <ScoreboardChipRow
               chips={[
