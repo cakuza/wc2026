@@ -26,11 +26,37 @@ const DETAILED_POSITION_CODES: Record<string, string> = {
   "offence": "FWD", "attacker": "FWD"
 };
 
-// Short position code for display. Prefers a detailed role when available, else the broad bucket.
+// Display group a code belongs to, and the order codes sort within a group. Wingers (LW/RW/W)
+// are grouped with Midfielders and Forwards lead with ST, per product preference.
+const GROUP_FOR_CODE: Record<string, SquadPosition> = {
+  GK: "GK",
+  CB: "DEF", RB: "DEF", LB: "DEF", FB: "DEF", WB: "DEF", RWB: "DEF", LWB: "DEF", SW: "DEF", DEF: "DEF",
+  CDM: "MID", CM: "MID", CAM: "MID", LM: "MID", RM: "MID", LW: "MID", RW: "MID", W: "MID", MID: "MID",
+  ST: "FWD", CF: "FWD", FWD: "FWD"
+};
+const SORT_ORDER = [
+  "GK",
+  "CB", "FB", "LB", "RB", "RWB", "LWB", "WB", "SW", "DEF",
+  "CAM", "CDM", "CM", "LM", "RM", "LW", "RW", "W", "MID",
+  "ST", "CF", "FWD"
+];
+// Codes that are already short codes (e.g. adopted verbatim from EA FC), so positionCode can pass
+// them through without a label lookup.
+const KNOWN_CODES = new Set(SORT_ORDER);
+const groupForCode = (code: string): SquadPosition => GROUP_FOR_CODE[code] ?? "MID";
+const sortIndex = (code: string) => {
+  const i = SORT_ORDER.indexOf(code);
+  return i === -1 ? SORT_ORDER.length : i;
+};
+
+// Short position code for display. Prefers a detailed role (label or code) when available, else the
+// broad bucket.
 export function positionCode(entry: SquadEntry): string {
   if (entry.detailedPosition) {
     const key = entry.detailedPosition.toLowerCase().replace(/-/g, " ").replace(/\s+/g, " ").trim();
     if (DETAILED_POSITION_CODES[key]) return DETAILED_POSITION_CODES[key];
+    const upper = entry.detailedPosition.trim().toUpperCase();
+    if (KNOWN_CODES.has(upper)) return upper;
   }
   return entry.position;
 }
@@ -110,11 +136,19 @@ export function findSquadPlayer(teamId: string, slug: string): SquadEntry | null
   return getTeamSquad(teamId).find((p) => playerSlug(p.name) === slug) || null;
 }
 
-// Squad grouped by position, in display order, skipping empty groups.
+// Squad grouped for display (group derived from the short position code, so wingers sit with
+// midfielders), skipping empty groups. Within each group players are ordered by position code
+// (SORT_ORDER) then alphabetically by name.
 export function getSquadByPosition(teamId: string): Array<{ position: SquadPosition; label: string; players: SquadEntry[] }> {
   const squad = getTeamSquad(teamId);
   const labels: Record<SquadPosition, string> = { GK: "Goalkeepers", DEF: "Defenders", MID: "Midfielders", FWD: "Forwards" };
   return (["GK", "DEF", "MID", "FWD"] as SquadPosition[])
-    .map((position) => ({ position, label: labels[position], players: squad.filter((p) => p.position === position) }))
+    .map((group) => ({
+      position: group,
+      label: labels[group],
+      players: squad
+        .filter((p) => groupForCode(positionCode(p)) === group)
+        .sort((a, b) => sortIndex(positionCode(a)) - sortIndex(positionCode(b)) || a.name.localeCompare(b.name))
+    }))
     .filter((group) => group.players.length > 0);
 }

@@ -76,7 +76,7 @@
       "name": "Hakan Calhanoglu",
       "number": 10,
       "position": "MID",
-      "detailedPosition": "Midfielder"
+      "detailedPosition": "CDM"
     },
     {
       "name": "Ismail Yuksek",
@@ -209,7 +209,8 @@
     {
       "name": "Ibanez",
       "number": null,
-      "position": "DEF"
+      "position": "DEF",
+      "detailedPosition": "CB"
     },
     {
       "name": "Leo Pereira",
@@ -457,7 +458,7 @@
       "name": "Kylian Mbappe",
       "number": 10,
       "position": "FWD",
-      "detailedPosition": "Forward"
+      "detailedPosition": "ST"
     },
     {
       "name": "Jean-Philippe Mateta",
@@ -524,7 +525,8 @@
     {
       "name": "Joshua Kimmich",
       "number": 6,
-      "position": "DEF"
+      "position": "DEF",
+      "detailedPosition": "RB"
     },
     {
       "name": "Malick Thiaw",
@@ -748,13 +750,13 @@
       "name": "Lionel Messi",
       "number": 10,
       "position": "FWD",
-      "detailedPosition": "Forward"
+      "detailedPosition": "RW"
     },
     {
       "name": "Nicolas Gonzalez",
       "number": 15,
       "position": "FWD",
-      "detailedPosition": "Winger"
+      "detailedPosition": "RW"
     },
     {
       "name": "Thiago Almada",
@@ -1251,7 +1253,7 @@
       "name": "Cristiano Ronaldo",
       "number": 7,
       "position": "FWD",
-      "detailedPosition": "Forward"
+      "detailedPosition": "ST"
     },
     {
       "name": "Francisco Trincao",
@@ -1935,7 +1937,7 @@
       "name": "Jurrien Timber",
       "number": 2,
       "position": "DEF",
-      "detailedPosition": "Defender"
+      "detailedPosition": "CB"
     },
     {
       "name": "Jorrel Hato",
@@ -2141,7 +2143,7 @@
       "name": "Youri Tielemans",
       "number": 8,
       "position": "MID",
-      "detailedPosition": "Midfielder"
+      "detailedPosition": "CM"
     },
     {
       "name": "Hans Vanaken",
@@ -2596,7 +2598,8 @@
     {
       "name": "Christoph Baumgartner",
       "number": null,
-      "position": "MID"
+      "position": "MID",
+      "detailedPosition": "CAM"
     },
     {
       "name": "Carney Chukwuemeka",
@@ -3072,7 +3075,8 @@
     {
       "name": "Cameron Devlin",
       "number": null,
-      "position": "MID"
+      "position": "MID",
+      "detailedPosition": "CDM"
     },
     {
       "name": "Ajdin Hrustic",
@@ -3750,7 +3754,7 @@
       "name": "Eldor Shomurodov",
       "number": 14,
       "position": "FWD",
-      "detailedPosition": "Forward"
+      "detailedPosition": "ST"
     },
     {
       "name": "Igor Sergeev",
@@ -4484,7 +4488,7 @@
       "name": "Hicham Boudaoui",
       "number": 14,
       "position": "MID",
-      "detailedPosition": "Midfielder"
+      "detailedPosition": "CM"
     },
     {
       "name": "Fares Chaibi",
@@ -4835,7 +4839,7 @@
       "name": "Sphephelo Sithole",
       "number": 13,
       "position": "MID",
-      "detailedPosition": "Midfielder"
+      "detailedPosition": "CDM"
     },
     {
       "name": "Evidence Makgopa",
@@ -5246,7 +5250,8 @@
     {
       "name": "Alphonso Davies",
       "number": 19,
-      "position": "DEF"
+      "position": "DEF",
+      "detailedPosition": "LB"
     },
     {
       "name": "Alfie Jones",
@@ -5724,8 +5729,8 @@
     {
       "name": "Leandro Bacuna",
       "number": 10,
-      "position": "MID",
-      "detailedPosition": "Midfielder"
+      "position": "DEF",
+      "detailedPosition": "RB"
     },
     {
       "name": "Livano Comenencia",
@@ -6052,7 +6057,8 @@
     {
       "name": "Juan Camilo Portilla",
       "number": null,
-      "position": "MID"
+      "position": "MID",
+      "detailedPosition": "CDM"
     },
     {
       "name": "Gustavo Puerta",
@@ -6660,7 +6666,7 @@
       "name": "David Zima",
       "number": 2,
       "position": "DEF",
-      "detailedPosition": "Defender"
+      "detailedPosition": "CB"
     },
     {
       "name": "Lukas Cerv",
@@ -6726,7 +6732,7 @@
       "name": "Tomas Chory",
       "number": 19,
       "position": "FWD",
-      "detailedPosition": "Forward"
+      "detailedPosition": "ST"
     },
     {
       "name": "Mojmir Chytil",
@@ -7051,7 +7057,7 @@
       "name": "Chris Wood",
       "number": 9,
       "position": "FWD",
-      "detailedPosition": "Forward"
+      "detailedPosition": "ST"
     }
   ],
   "iraq": [
@@ -7172,8 +7178,8 @@
     {
       "name": "Youssef Amyn",
       "number": 7,
-      "position": "FWD",
-      "detailedPosition": "Winger"
+      "position": "MID",
+      "detailedPosition": "CAM"
     },
     {
       "name": "Marko Farji",
@@ -7517,7 +7523,7 @@
       "name": "Haris Tabakovic",
       "number": 23,
       "position": "FWD",
-      "detailedPosition": "Forward"
+      "detailedPosition": "ST"
     },
     {
       "name": "Edin Dzeko",
