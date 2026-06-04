@@ -367,9 +367,9 @@ function FestCards() {
           <div style={{ whiteSpace: 'nowrap' }}>Create football cards</div>
           <div style={{ whiteSpace: 'nowrap' }}>fans actually <span style={{ color: FT.pink }}>share.</span></div>
         </div>
-        <div style={{ fontSize: 17, color: FT.sub, marginTop: 20, maxWidth: 560 }}>Pick a template, drop your country, post it to your group chat in seconds. Built for Instagram Story, X, WhatsApp & Telegram.</div>
+        <div style={{ fontSize: 17, color: FT.sub, marginTop: 20, maxWidth: 560 }}>Pick a template, drop your country, post it to your group chat in seconds. Built for Instagram Story, X and WhatsApp.</div>
         <div style={{ display: 'flex', gap: 8, marginTop: 20 }}>
-          {['Instagram Story', 'X / Twitter', 'WhatsApp', 'Telegram'].map((p) => <Chip key={p} bg="rgba(20,16,12,.06)" color={FT.ink} style={{ fontSize: 11 }}>{p}</Chip>)}
+          {['Instagram Story', 'X / Twitter', 'WhatsApp'].map((p) => <Chip key={p} bg="rgba(20,16,12,.06)" color={FT.ink} style={{ fontSize: 11 }}>{p}</Chip>)}
         </div>
         {/* template grid */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 18, marginTop: 34 }}>

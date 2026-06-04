@@ -26,6 +26,30 @@ export const posterRatios: Record<PosterRatio, { label: string; short: string; w
 const fanDisclaimer = "FAN-MADE - NOT AFFILIATED WITH FIFA OR ANY OFFICIAL ORGANIZER";
 const textFit = "break-normal [hyphens:none] [overflow-wrap:normal] [word-break:normal]";
 
+// Ultras-banner visual tokens ported from design-reference/wc-poster-upgrade.jsx.
+const POSTER_GOLD = "#E7C36B";
+const fontAnton = "[font-family:var(--font-anton),Impact,sans-serif]";
+const fontMono = "[font-family:'Space_Mono',ui-monospace,monospace]";
+
+// Gold monospace kicker (ported from wc-poster-upgrade UKicker).
+function UltrasKick({ children }: { children: ReactNode }) {
+  return <p className={`text-[10px] uppercase tracking-[0.28em] text-[#E7C36B] ${fontMono}`}>{children}</p>;
+}
+
+// Giant Anton headline with tight tracking + drop shadow (ported from wc-poster-upgrade titles).
+function UltrasTitle({ children, compact = false }: { children: ReactNode; compact?: boolean }) {
+  return (
+    <h2 className={`${compact ? "text-5xl" : "text-6xl"} mt-3 ${textFit} uppercase leading-[.84] tracking-[-0.01em] text-white ${fontAnton} [text-shadow:0_4px_22px_rgba(0,0,0,.5)]`}>
+      {children}
+    </h2>
+  );
+}
+
+// Resolve a team's primary color to a #rrggbb hex (with neutral fallback) for color tiles/accents.
+function teamHex(team?: Team) {
+  return normalizeHex(team?.primaryColor) || "#888888";
+}
+
 export function PosterPreviewCard({
   variant,
   ratio = "story",

@@ -1193,11 +1193,95 @@ export function CardGenerator({
 
 const PICKER_FEATURED = ["brazil", "argentina", "france", "england", "germany", "spain", "portugal", "mexico", "united-states", "japan", "morocco", "turkey"];
 
+// Stadium-night visual tokens for the picker — ported from design-reference/wc-picker.jsx.
+const PICKER_GOLD = "#E7C36B";
+const PICKER_ANTON = "var(--font-anton, Anton, sans-serif)";
+const PICKER_UI = "Archivo, system-ui, sans-serif";
+
+// Accent colors for the featured tiles (ported from design-reference/wc-picker.jsx
+// FEATURED_TEAMS, keyed by team id). Teams without an entry fall back to neutral slate.
+const PICKER_TEAM_COLORS: Record<string, string> = {
+  brazil: "#009C3B",
+  france: "#1A5CC8",
+  england: "#CF1124",
+  argentina: "#5B9DD8",
+  germany: "#333333",
+  spain: "#AA151B",
+  portugal: "#006600",
+  turkey: "#E30A17",
+  mexico: "#006847",
+  japan: "#BC002D",
+  morocco: "#C1272D",
+  "united-states": "#3C3B6E"
+};
+
+// Single colored country tile with flag + name and hover lift (ported from wc-picker.jsx TeamTile).
+function PickerTile({ team, onPick }: { team: Team; onPick: (id: string) => void }) {
+  const [hov, setHov] = useState(false);
+  const color = PICKER_TEAM_COLORS[team.id] || "#2A2A2A";
+  const label = team.name.includes(" ") ? team.name.split(" ")[0] : team.name;
+  return (
+    <div
+      role="button"
+      tabIndex={0}
+      onClick={() => onPick(team.id)}
+      onKeyDown={(event) => {
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          onPick(team.id);
+        }
+      }}
+      onMouseEnter={() => setHov(true)}
+      onMouseLeave={() => setHov(false)}
+      style={{
+        aspectRatio: "1 / 1",
+        background: `linear-gradient(148deg, ${color}ee 0%, ${color}99 100%)`,
+        borderRadius: 10,
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        gap: 8,
+        cursor: "pointer",
+        transform: hov ? "scale(1.07) translateY(-2px)" : "scale(1)",
+        boxShadow: hov
+          ? `0 0 0 2px ${color}cc, 0 14px 36px ${color}66, 0 24px 52px rgba(0,0,0,.52)`
+          : "0 4px 18px rgba(0,0,0,.42), inset 0 1px 0 rgba(255,255,255,.12)",
+        transition: "transform .17s ease, box-shadow .17s ease",
+        position: "relative",
+        overflow: "hidden",
+        border: "1px solid rgba(255,255,255,.08)"
+      }}
+    >
+      <div style={{ position: "absolute", inset: 0, background: "linear-gradient(148deg, rgba(255,255,255,.14) 0%, transparent 55%)", borderRadius: 10 }} />
+      <span style={{ position: "relative", zIndex: 1, fontSize: 42, lineHeight: 1, textShadow: "0 3px 10px rgba(0,0,0,.45)" }}>{team.flagEmoji}</span>
+      <span
+        style={{
+          fontFamily: PICKER_ANTON,
+          fontSize: 15,
+          color: "#fff",
+          textTransform: "uppercase",
+          position: "relative",
+          zIndex: 1,
+          textShadow: "0 1px 5px rgba(0,0,0,.65)",
+          lineHeight: 1,
+          textAlign: "center",
+          padding: "0 6px"
+        }}
+      >
+        {label}
+      </span>
+    </div>
+  );
+}
+
 // Full-screen country-first onboarding. Leads with a search + 12 big flag tiles, expands to
 // all 48 on demand, and hands the chosen team id back to the studio.
+// Visual layer ported from design-reference/wc-picker.jsx; logic is unchanged.
 function CountryPickerOverlay({ teams, onPick, onClose }: { teams: Team[]; onPick: (id: string) => void; onClose?: () => void }) {
   const [query, setQuery] = useState("");
   const [showAll, setShowAll] = useState(false);
+  const [searchFocused, setSearchFocused] = useState(false);
   const featured = PICKER_FEATURED.map((id) => teams.find((team) => team.id === id)).filter(Boolean) as Team[];
   const normalized = query.trim().toLowerCase();
   const results = normalized
@@ -1207,49 +1291,151 @@ function CountryPickerOverlay({ teams, onPick, onClose }: { teams: Team[]; onPic
       : featured;
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-[#0E0C0A]/95 p-4 backdrop-blur md:p-8">
-      <div className="mx-auto grid max-w-3xl gap-5">
-        <div className="flex items-start justify-between gap-4">
-          <div>
-            <p className="text-xs font-black uppercase tracking-[0.2em] text-[#FF6A1A]">World Cup 2026 fan studio</p>
-            <h2 className="mt-2 text-3xl font-black leading-tight text-white md:text-4xl">Which country are you cheering for?</h2>
-          </div>
-          {onClose ? (
-            <button type="button" onClick={onClose} className="focus-ring grid h-10 w-10 shrink-0 place-items-center rounded-md border border-white/15 text-white/70 hover:text-white" aria-label="Close">
-              <X size={18} />
-            </button>
-          ) : null}
-        </div>
-        <label className="flex items-center gap-3 rounded-md border border-white/15 bg-white/[0.06] px-4 py-3 text-white">
-          <Search size={18} className="text-[#FF6A1A]" />
-          <input
-            autoFocus
-            value={query}
-            onChange={(event) => setQuery(event.target.value)}
-            placeholder="Search any of the 48 teams"
-            className="w-full bg-transparent text-base outline-none placeholder:text-white/40"
-          />
-        </label>
-        <div className="grid grid-cols-3 gap-3 sm:grid-cols-4">
-          {results.map((team) => (
-            <button
-              key={team.id}
-              type="button"
-              onClick={() => onPick(team.id)}
-              className="focus-ring group grid justify-items-center gap-1 rounded-lg border border-white/10 bg-white/[0.05] p-4 text-center transition hover:border-[#FF6A1A]/60 hover:bg-white/[0.09]"
-            >
-              <span className="text-5xl leading-none drop-shadow-[0_8px_18px_rgba(0,0,0,.5)]">{team.flagEmoji}</span>
-              <span className="mt-1 text-sm font-black leading-tight text-white">{team.name}</span>
-              <span className="text-[10px] font-black uppercase tracking-[0.12em] text-white/45">Group {team.group}</span>
-            </button>
-          ))}
-          {results.length === 0 ? <p className="col-span-full py-6 text-center text-sm font-bold text-white/55">No team matches “{query}”.</p> : null}
-        </div>
-        {!normalized && !showAll ? (
-          <button type="button" onClick={() => setShowAll(true)} className="focus-ring justify-self-center text-sm font-black uppercase tracking-[0.14em] text-[#FF6A1A] hover:text-white">
-            See all 48 teams →
+    <div
+      style={{
+        position: "fixed",
+        inset: 0,
+        zIndex: 50,
+        overflowY: "auto",
+        background: "#080604",
+        fontFamily: PICKER_UI,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        padding: 16
+      }}
+    >
+      {/* Crowd depth gradients */}
+      <div style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse 95% 60% at 50% 115%, rgba(48,36,10,.88) 0%, rgba(8,6,4,1) 62%)" }} />
+      <div style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse 72% 50% at 50% -6%, rgba(92,70,16,.28) 0%, transparent 65%)" }} />
+
+      {/* Stadium floodlight beams from top corners */}
+      <div style={{ position: "absolute", inset: 0, pointerEvents: "none", overflow: "hidden" }}>
+        <div style={{ position: "absolute", top: "-20%", left: "-8%", width: "54%", height: "115%", background: "linear-gradient(172deg, rgba(231,195,107,.10) 0%, transparent 50%)", transform: "rotate(20deg)", filter: "blur(22px)" }} />
+        <div style={{ position: "absolute", top: "-20%", right: "-8%", width: "54%", height: "115%", background: "linear-gradient(188deg, rgba(231,195,107,.10) 0%, transparent 50%)", transform: "rotate(-20deg)", filter: "blur(22px)" }} />
+        <div style={{ position: "absolute", top: 0, left: "25%", width: "50%", height: "50%", background: "linear-gradient(180deg, rgba(255,255,255,.032) 0%, transparent 100%)", filter: "blur(40px)" }} />
+      </div>
+
+      {/* Grain noise overlay */}
+      <svg xmlns="http://www.w3.org/2000/svg" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", pointerEvents: "none", mixBlendMode: "overlay", display: "block" }}>
+        <filter id="pknoise-picker">
+          <feTurbulence type="fractalNoise" baseFrequency="0.68" numOctaves="4" stitchTiles="stitch" />
+          <feColorMatrix type="saturate" values="0" />
+        </filter>
+        <rect width="100%" height="100%" filter="url(#pknoise-picker)" opacity={0.36} />
+      </svg>
+
+      {/* Glass card */}
+      <div
+        style={{
+          position: "relative",
+          zIndex: 2,
+          width: "100%",
+          maxWidth: 856,
+          margin: "auto",
+          background: "rgba(14,12,10,.84)",
+          backdropFilter: "blur(28px)",
+          WebkitBackdropFilter: "blur(28px)",
+          border: "1px solid rgba(255,255,255,.12)",
+          borderTop: "1px solid rgba(255,255,255,.22)",
+          borderRadius: 18,
+          padding: 28,
+          boxShadow: "0 44px 100px rgba(0,0,0,.78), inset 0 1px 0 rgba(255,255,255,.06)"
+        }}
+      >
+        {onClose ? (
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label="Close"
+            className="focus-ring"
+            style={{
+              position: "absolute",
+              top: 16,
+              right: 16,
+              display: "grid",
+              placeItems: "center",
+              height: 38,
+              width: 38,
+              borderRadius: 9,
+              border: "1px solid rgba(255,255,255,.15)",
+              background: "rgba(255,255,255,.04)",
+              color: "rgba(255,255,255,.7)",
+              cursor: "pointer"
+            }}
+          >
+            <X size={18} />
           </button>
         ) : null}
+
+        {/* Headline */}
+        <div style={{ fontFamily: PICKER_ANTON, fontSize: 40, color: "#fff", textTransform: "uppercase", lineHeight: 0.9, letterSpacing: "-.5px", marginBottom: 26, maxWidth: "16ch" }}>
+          Which country are you<br />
+          <span style={{ color: PICKER_GOLD }}>cheering for?</span>
+        </div>
+
+        {/* Search */}
+        <div style={{ position: "relative", marginBottom: 28 }}>
+          <span style={{ position: "absolute", left: 15, top: "50%", transform: "translateY(-50%)", color: PICKER_GOLD, lineHeight: 1, display: "flex", pointerEvents: "none" }}>
+            <Search size={18} />
+          </span>
+          <input
+            autoFocus
+            type="text"
+            placeholder="Search for your country…"
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
+            onFocus={() => setSearchFocused(true)}
+            onBlur={() => setSearchFocused(false)}
+            style={{
+              display: "block",
+              width: "100%",
+              boxSizing: "border-box",
+              background: "rgba(255,255,255,.05)",
+              border: `2px solid ${searchFocused ? PICKER_GOLD : "rgba(255,255,255,.12)"}`,
+              borderRadius: 8,
+              padding: "13px 18px 13px 44px",
+              fontFamily: PICKER_UI,
+              fontSize: 15,
+              color: "#fff",
+              outline: "none",
+              boxShadow: searchFocused ? `0 0 0 3px ${PICKER_GOLD}28` : "none",
+              transition: "border-color .15s, box-shadow .15s"
+            }}
+          />
+        </div>
+
+        {/* Team grid */}
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(108px, 1fr))", gap: 10, justifyContent: "center" }}>
+          {results.map((team) => (
+            <PickerTile key={team.id} team={team} onPick={onPick} />
+          ))}
+        </div>
+        {results.length === 0 ? (
+          <p style={{ textAlign: "center", padding: "26px 0", fontSize: 14, fontWeight: 700, color: "rgba(255,255,255,.55)" }}>No team matches “{query}”.</p>
+        ) : null}
+
+        {/* See all */}
+        {!normalized && !showAll ? (
+          <div
+            role="button"
+            tabIndex={0}
+            onClick={() => setShowAll(true)}
+            onKeyDown={(event) => {
+              if (event.key === "Enter" || event.key === " ") {
+                event.preventDefault();
+                setShowAll(true);
+              }
+            }}
+            style={{ marginTop: 24, textAlign: "center", fontFamily: PICKER_ANTON, fontSize: 15, color: PICKER_GOLD, textTransform: "uppercase", letterSpacing: "1px", cursor: "pointer" }}
+          >
+            See all 48 teams →
+          </div>
+        ) : null}
+
+        <div style={{ marginTop: 14, textAlign: "center", fontFamily: '"Space Mono", monospace', fontSize: 9, letterSpacing: ".4px", color: "rgba(255,255,255,.22)" }}>
+          FAN-MADE · NOT AFFILIATED WITH FIFA OR ANY OFFICIAL ORGANIZER
+        </div>
       </div>
     </div>
   );

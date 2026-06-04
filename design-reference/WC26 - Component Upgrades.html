@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>WC26 Hub — Component Upgrades</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Archivo:wght@400;500;600;700;800;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
+<style>
+  html, body { margin: 0; padding: 0; }
+  * { box-sizing: border-box; }
+  :root { --font-anton: Anton, sans-serif; }
+</style>
+<template id="__bundler_thumbnail">
+  <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+    <rect width="100" height="100" fill="#0E0C0A"/>
+    <rect x="18" y="28" width="64" height="44" rx="4" fill="none" stroke="#E7C36B" stroke-width="3"/>
+    <text x="50" y="55" font-family="Arial Black,sans-serif" font-size="16" fill="#E7C36B"
+          text-anchor="middle" font-weight="900">WC26</text>
+  </svg>
+</template>
+</head>
+<body>
+<div id="root"></div>
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+
+<!-- load order matters: shared → chips → picker → posters → hero → canvas -->
+<script type="text/babel" src="design-canvas.jsx?v=12"></script>
+<script type="text/babel" src="wc-shared.jsx?v=1"></script>
+<script type="text/babel" src="wc-chips.jsx?v=1"></script>
+<script type="text/babel" src="wc-picker.jsx?v=1"></script>
+<script type="text/babel" src="wc-poster-upgrade.jsx?v=1"></script>
+<script type="text/babel" src="wc-homepage-hero.jsx?v=1"></script>
+
+<script type="text/babel">
+const { DesignCanvas, DCSection, DCArtboard } = window;
+const { CountryPicker }                        = window.WCPicker;
+const { ChipDemo }                             = window.WCChips;
+const { URoadCard, UPredCard, UPlayerCard,
+        UChaosCard, UBootCard,
+        UUpsetCard, UMenuCard }                = window.WCPosterUpgrade;
+const { UpgradeHero }                          = window.WCHero;
+
+function App() {
+  return (
+    <DesignCanvas>
+
+      {/* ── 1. HOMEPAGE HERO ──────────────────────────────────────── */}
+      <DCSection id="hero" title="① Homepage Hero — Upgrade"
+        subtitle="82px Anton headline · floating Instagram Stories · stadium scoreboard chips">
+        <DCArtboard id="hero-main" label="Homepage Hero · 1280" width={1280} height={840}>
+          <UpgradeHero width={1280} />
+        </DCArtboard>
+      </DCSection>
+
+      {/* ── 2. COUNTRY PICKER ─────────────────────────────────────── */}
+      <DCSection id="picker" title="② Country Picker Overlay"
+        subtitle="Dark glass card · team-colour tiles · hover glow · gold search bar">
+        <DCArtboard id="picker-desk" label="Picker · Desktop 1280×820" width={1280} height={820}>
+          <CountryPicker pickerId="desk" />
+        </DCArtboard>
+        <DCArtboard id="picker-mob" label="Picker · Mobile 390×700" width={390} height={700}>
+          <CountryPicker pickerId="mob" width={390} height={700} />
+        </DCArtboard>
+      </DCSection>
+
+      {/* ── 3. SCOREBOARD CHIPS ───────────────────────────────────── */}
+      <DCSection id="chips" title="③ Stadium Scoreboard Chips — wc-chips.jsx"
+        subtitle="Dark bg · monospace · gold text · alert white variant">
+        <DCArtboard id="chips-demo" label="Chip showcase" width={860} height={240}>
+          <ChipDemo width={860} />
+        </DCArtboard>
+      </DCSection>
+
+      {/* ── 4. POSTER UPGRADES ────────────────────────────────────── */}
+      <DCSection id="posters" title="④ Poster Templates — Stadium Banner Upgrade"
+        subtitle="Dark base · heavy grain · floodlights from corners · team colours · ultras energy">
+
+        {/* Country Road */}
+        <DCArtboard id="road-tr" label="Country Road · Turkey" width={540} height={960}>
+          <URoadCard code="TR" w={540} />
+        </DCArtboard>
+        <DCArtboard id="road-br" label="Country Road · Brazil" width={540} height={960}>
+          <URoadCard code="BR" w={540} />
+        </DCArtboard>
+        <DCArtboard id="road-ar" label="Country Road · Argentina" width={540} height={960}>
+          <URoadCard code="AR" w={540} />
+        </DCArtboard>
+
+        {/* Prediction Battle */}
+        <DCArtboard id="pred-mxza" label="Prediction Battle · MX vs ZA" width={540} height={960}>
+          <UPredCard a="MX" b="ZA" w={540} />
+        </DCArtboard>
+        <DCArtboard id="pred-frar" label="Prediction Battle · FR vs AR" width={540} height={960}>
+          <UPredCard a="FR" b="AR" scoreA={1} scoreB={2} w={540} />
+        </DCArtboard>
+
+        {/* Player Watch */}
+        <DCArtboard id="player-mb" label="Player Watch · Mbappé" width={540} height={960}>
+          <UPlayerCard name="MBAPPÉ" code="FR" number="10" w={540} />
+        </DCArtboard>
+        <DCArtboard id="player-gu" label="Player Watch · Güler" width={540} height={960}>
+          <UPlayerCard name="GÜLER" code="TR" number="10" w={540} />
+        </DCArtboard>
+        <DCArtboard id="player-ha" label="Player Watch · Haaland" width={540} height={960}>
+          <UPlayerCard name="HAALAND" code="NO" number="9" w={540} />
+        </DCArtboard>
+
+        {/* Group of Chaos */}
+        <DCArtboard id="chaos-d" label="Group of Chaos · Group D" width={540} height={960}>
+          <UChaosCard code="BR" w={540} />
+        </DCArtboard>
+        <DCArtboard id="chaos-e" label="Group of Chaos · Group E" width={540} height={960}>
+          <UChaosCard code="JP" w={540} />
+        </DCArtboard>
+
+        {/* Golden Boot */}
+        <DCArtboard id="boot-fr" label="Golden Boot Debate · Mbappé pick" width={540} height={960}>
+          <UBootCard code="FR" w={540} />
+        </DCArtboard>
+        <DCArtboard id="boot-tr" label="Golden Boot Debate · Güler pick" width={540} height={960}>
+          <UBootCard code="TR" w={540} />
+        </DCArtboard>
+
+        {/* Upset Watch */}
+        <DCArtboard id="upset-jp" label="Upset Watch · Japan" width={540} height={960}>
+          <UUpsetCard code="JP" w={540} />
+        </DCArtboard>
+        <DCArtboard id="upset-ma" label="Upset Watch · Morocco" width={540} height={960}>
+          <UUpsetCard code="MA" w={540} />
+        </DCArtboard>
+
+        {/* Matchday Menu */}
+        <DCArtboard id="menu-mx" label="Matchday Menu · Group A" width={540} height={960}>
+          <UMenuCard code="MX" w={540} />
+        </DCArtboard>
+        <DCArtboard id="menu-fr" label="Matchday Menu · Group C" width={540} height={960}>
+          <UMenuCard code="FR" w={540} />
+        </DCArtboard>
+
+      </DCSection>
+
+    </DesignCanvas>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+</body>
+</html>

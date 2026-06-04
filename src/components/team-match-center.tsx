@@ -1,14 +1,14 @@
 "use client";
 
 import Link from "next/link";
-import { Copy, ImageIcon } from "lucide-react";
+import { ArrowUpRight, Copy, ImageIcon } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { PosterPreviewCard } from "@/components/poster-engine";
 import { StandingsTable } from "@/components/standings-table";
 import { TeamFlag } from "@/components/team-flag";
 import type { MatchWithTeams, Standing, Team } from "@/lib/types";
 import { formatKickoff, getBrowserTimezone, QUICK_TIMEZONES } from "@/lib/timezones";
-import { getSquadByPosition, getStarPlayer, playerSlug } from "@/lib/squads";
+import { getPlayersToWatch, getSquadByPosition, getStarPlayer, playerSlug, positionCode } from "@/lib/squads";
 
 const readableName = "break-normal [hyphens:none] [overflow-wrap:normal] [word-break:normal]";
 
@@ -29,6 +29,8 @@ export function TeamMatchCenter({
   const nextMatch = sortedFixtures[0];
   const nextOpponent = nextMatch ? opponentFor(nextMatch, team) : undefined;
   const squadGroups = getSquadByPosition(team.id);
+  const playersToWatch = getPlayersToWatch(team.id, team.featuredPlayer);
+  const summary = useMemo(() => buildTeamSummary(team, sortedFixtures, teams), [team, sortedFixtures, teams]);
   // Before any match is played every row is 0-0-0, which reads as a broken demo. Treat an
   // all-zero group as pre-tournament and show a prompt instead of an empty table.
   const groupNotStarted =
@@ -95,6 +97,15 @@ export function TeamMatchCenter({
           <div className="mx-auto overflow-hidden rounded-[22px] lg:mx-0">
             <PosterPreviewCard variant="road" ratio="story" width={220} team={team} matches={sortedFixtures} headline={`${team.name} road starts here`} />
           </div>
+        </div>
+      </section>
+
+      <section className="rounded-lg border border-[rgba(14,12,10,.10)] bg-white p-4 md:p-5">
+        <p className="text-xs font-black uppercase tracking-[0.18em] text-[#B48A00]">{team.name} at the 2026 World Cup</p>
+        <div className="mt-3 grid gap-3 text-sm leading-7 text-[#0E0C0A]/70 md:text-base">
+          {summary.map((paragraph) => (
+            <p key={paragraph}>{paragraph}</p>
+          ))}
         </div>
       </section>
 
@@ -187,6 +198,29 @@ export function TeamMatchCenter({
         <ShareScheduleBox team={team} scheduleUrl={scheduleUrl} whatsappText={whatsappText} onCopy={copyText} status={status} />
       </section>
 
+      {playersToWatch.length ? (
+        <section className="rounded-lg border border-[rgba(14,12,10,.10)] bg-white p-4 md:p-5">
+          <div className="mb-4">
+            <p className="text-xs font-black uppercase tracking-[0.18em] text-[#B48A00]">Players to watch</p>
+            <h2 className="text-2xl font-black text-[#0E0C0A]">{team.name} key names</h2>
+          </div>
+          <div className="grid gap-3 sm:grid-cols-3">
+            {playersToWatch.map((player) => (
+              <Link
+                key={player.name}
+                href={`/cards?template=player-watch&team=${team.id}&player=${playerSlug(player.name)}`}
+                className="focus-ring group relative flex flex-col items-center gap-2 rounded-lg border border-[rgba(14,12,10,.10)] bg-[#F6F4F1] p-4 text-center transition hover:border-[#E7C36B]/60 hover:bg-white"
+              >
+                <ArrowUpRight size={15} className="absolute right-3 top-3 text-[#0E0C0A]/20 transition group-hover:text-[#B48A00]" />
+                <JerseyBadge color={team.primaryColor} number={player.number} />
+                <span className="text-[11px] font-black uppercase tracking-[0.16em] text-[#0E0C0A]/55">{positionCode(player)}</span>
+                <span className={`text-base font-black uppercase leading-tight text-[#0E0C0A] ${readableName}`}>{lastName(player.name)}</span>
+              </Link>
+            ))}
+          </div>
+        </section>
+      ) : null}
+
       {squadGroups.length ? (
         <section className="rounded-lg border border-[rgba(14,12,10,.10)] bg-white p-4 md:p-5">
           <div className="mb-4 flex items-center gap-3">
@@ -202,14 +236,11 @@ export function TeamMatchCenter({
                 <p className="mb-2 text-[11px] font-black uppercase tracking-[0.16em] text-[#0E0C0A]/45">{group.label}</p>
                 <ul className="grid gap-1.5">
                   {group.players.map((player) => (
-                    <li key={player.name} className="group flex items-center justify-between gap-3 rounded-md border border-[rgba(14,12,10,.08)] bg-[#F6F4F1] px-3 py-2">
+                    <li key={player.name} className="flex items-center justify-between gap-3 rounded-md border border-[rgba(14,12,10,.08)] bg-[#F6F4F1] px-3 py-2">
                       <span className="min-w-0 truncate text-sm font-bold text-[#0E0C0A]">{player.name}</span>
-                      <Link
-                        href={`/cards?template=player-watch&team=${team.id}&player=${playerSlug(player.name)}`}
-                        className="focus-ring shrink-0 text-xs font-black uppercase tracking-[0.06em] text-[#0E0C0A]/35 hover:text-[#B48A00]"
-                      >
-                        Create player card →
-                      </Link>
+                      <span className="shrink-0 rounded bg-[#0E0C0A]/[.06] px-1.5 py-0.5 text-[10px] font-black uppercase tracking-[0.08em] text-[#0E0C0A]/45">
+                        {positionCode(player)}
+                      </span>
                     </li>
                   ))}
                 </ul>
@@ -305,6 +336,78 @@ function HeroFx() {
 
 function opponentFor(match: MatchWithTeams, team: Team) {
   return match.homeTeamId === team.id ? match.awayTeam : match.homeTeam;
+}
+
+// Original 2-3 sentence summary built from real fixture/group data so every one of the 48
+// pages reads differently and avoids thin/placeholder content.
+function buildTeamSummary(team: Team, fixtures: MatchWithTeams[], allTeams: Team[]): string[] {
+  const opponents = [
+    ...new Set(fixtures.filter((match) => match.stage === "group").map((match) => opponentFor(match, team).name))
+  ];
+  const groupSize = allTeams.filter((item) => item.group === team.group).length;
+  const sentences: string[] = [];
+
+  if (opponents.length) {
+    sentences.push(
+      `${team.name} compete in Group ${team.group} at the 2026 World Cup, where they face ${joinWithAnd(opponents)} in the group stage.`
+    );
+  } else {
+    sentences.push(`${team.name} compete in Group ${team.group} at the 2026 World Cup, hosted across the United States, Canada and Mexico.`);
+  }
+
+  sentences.push(
+    `Representing ${team.confederation} in the expanded 48-team field, they need a strong start from ${groupSize ? `a ${groupSize}-team group` : "their group"} to reach the knockout rounds.`
+  );
+
+  sentences.push(
+    `Below you'll find ${team.name}'s group-stage kickoffs in your local time, players to watch, the Group ${team.group} table and the full reported squad.`
+  );
+
+  return sentences;
+}
+
+function joinWithAnd(items: string[]): string {
+  if (items.length <= 1) return items[0] ?? "";
+  return `${items.slice(0, -1).join(", ")} and ${items[items.length - 1]}`;
+}
+
+// Last token of a name for the football-manager-style label (e.g. "Baris Alper Yilmaz" -> "Yilmaz").
+function lastName(name: string): string {
+  const parts = name.trim().split(/\s+/);
+  return parts[parts.length - 1] || name;
+}
+
+// Pick black or white text for legibility on a given background color.
+function readableTextColor(hex?: string): string {
+  if (!hex) return "#ffffff";
+  const raw = hex.replace("#", "");
+  const full = raw.length === 3 ? raw.split("").map((c) => c + c).join("") : raw;
+  if (full.length < 6) return "#ffffff";
+  const r = parseInt(full.slice(0, 2), 16);
+  const g = parseInt(full.slice(2, 4), 16);
+  const b = parseInt(full.slice(4, 6), 16);
+  const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+  return luminance > 0.6 ? "#0E0C0A" : "#ffffff";
+}
+
+// Minimal football-shirt badge filled with the team color, showing the squad number or "?".
+function JerseyBadge({ color, number }: { color?: string; number: number | null }) {
+  const fill = color || "#0E0C0A";
+  const textColor = readableTextColor(fill);
+  return (
+    <svg viewBox="0 0 48 48" width={56} height={56} aria-hidden="true" className="drop-shadow-[0_4px_10px_rgba(14,12,10,.18)]">
+      <path
+        d="M16 5 L8 11 L3 20 L10 25 L13 22 L13 43 L35 43 L35 22 L38 25 L45 20 L40 11 L32 5 C30 9.5 27 11 24 11 C21 11 18 9.5 16 5 Z"
+        fill={fill}
+        stroke="rgba(14,12,10,.18)"
+        strokeWidth="1"
+        strokeLinejoin="round"
+      />
+      <text x="24" y="33" textAnchor="middle" fontSize="15" fontWeight="900" fill={textColor} fontFamily="Impact, Arial Black, sans-serif">
+        {number ?? "?"}
+      </text>
+    </svg>
+  );
 }
 
 function teamHue(team: Team) {

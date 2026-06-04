@@ -73,12 +73,15 @@ export default async function HomePage() {
               Pick your country
             </Link>
           </div>
-          <div className="mt-6 flex flex-wrap gap-2">
-            {["48 teams", "104 matches", "Your local time", "Free", "60 seconds"].map((item) => (
-              <span key={item} className="rounded-full border border-[rgba(14,12,10,.10)] bg-[#F6F4F1] px-3 py-1 text-[10px] font-black uppercase tracking-[0.12em] text-[#0E0C0A]/72">
-                {item}
-              </span>
-            ))}
+          <div className="mt-6">
+            <ScoreboardChipRow
+              chips={[
+                { label: "Teams", value: "48 TEAMS" },
+                { label: "Matches", value: "104 MATCHES" },
+                { label: "Time", value: "YOUR LOCAL TIME" },
+                { label: "Cost", value: "FREE" }
+              ]}
+            />
           </div>
         </div>
         <div className="grid gap-3 sm:grid-cols-[1.25fr_.75fr]">
@@ -154,6 +157,68 @@ function MatchTile({ match }: { match: MatchWithTeams }) {
       </h3>
       <p className="mt-2 text-sm font-bold text-[#0E0C0A]/56">{match.venue === "TBD" || match.city === "TBD" ? "Venue unavailable" : `${match.venue}, ${match.city}`}</p>
     </Link>
+  );
+}
+
+// Stadium scoreboard stat chips — ported from design-reference/wc-chips.jsx
+const CHIP_GOLD = "#E7C36B";
+const CHIP_MONO = '"Space Mono", monospace';
+const CHIP_ANTON = "var(--font-anton, Anton, sans-serif)";
+
+type ScoreboardChipData = { label: string; value: string; accent?: string };
+
+function ScoreboardChip({ label, value, accent = CHIP_GOLD }: ScoreboardChipData) {
+  return (
+    <div
+      style={{
+        display: "inline-flex",
+        flexDirection: "column",
+        background: "rgba(14,12,10,.94)",
+        border: "1px solid rgba(231,195,107,.15)",
+        borderTop: `2px solid ${accent}55`,
+        borderRadius: 5,
+        padding: "9px 16px 11px",
+        minWidth: 84,
+        boxShadow: "0 2px 14px rgba(0,0,0,.38), inset 0 1px 0 rgba(255,255,255,.03)"
+      }}
+    >
+      <span
+        style={{
+          fontFamily: CHIP_MONO,
+          fontSize: 8,
+          letterSpacing: "2.5px",
+          color: `${accent}99`,
+          textTransform: "uppercase",
+          lineHeight: 1,
+          marginBottom: 5,
+          whiteSpace: "nowrap"
+        }}
+      >
+        {label}
+      </span>
+      <span
+        style={{
+          fontFamily: CHIP_ANTON,
+          fontSize: 20,
+          color: accent,
+          lineHeight: 1,
+          letterSpacing: "-.3px",
+          whiteSpace: "nowrap"
+        }}
+      >
+        {value}
+      </span>
+    </div>
+  );
+}
+
+function ScoreboardChipRow({ chips, gap = 8 }: { chips: ScoreboardChipData[]; gap?: number }) {
+  return (
+    <div style={{ display: "flex", gap, flexWrap: "wrap", alignItems: "stretch" }}>
+      {chips.map((chip) => (
+        <ScoreboardChip key={chip.label} label={chip.label} value={chip.value} accent={chip.accent} />
+      ))}
+    </div>
   );
 }
 
