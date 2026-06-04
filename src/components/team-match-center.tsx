@@ -81,17 +81,11 @@ export function TeamMatchCenter({
                 {team.name}
               </h1>
             </div>
-            {team.fanHook ? (
-              <p className="mt-3 text-lg font-black text-[#E7C36B] md:text-2xl">{team.fanHook}</p>
-            ) : null}
             {typeof team.squadValue === "number" ? (
-              <p className="mt-3 inline-flex items-center gap-2 rounded-md bg-white/12 px-3 py-1.5 text-sm font-black uppercase tracking-[0.12em] text-white/90">
+              <p className="mt-4 inline-flex items-center gap-2 rounded-md bg-white/12 px-3 py-1.5 text-sm font-black uppercase tracking-[0.12em] text-white/90">
                 Squad value: {formatSquadValue(team.squadValue)}
               </p>
             ) : null}
-            <p className="mt-4 max-w-2xl text-sm font-bold leading-6 text-white/72">
-              {team.name}&apos;s group-stage road in your local time. Pick a match, drop a prediction, and share the poster.
-            </p>
             <div className="mt-5 flex flex-wrap gap-3">
               <Link href={`/cards?template=team-schedule&team=${team.id}`} className="focus-ring inline-flex items-center gap-2 rounded-md bg-white px-4 py-3 font-black text-[#0E0C0A]">
                 <ImageIcon size={17} />
@@ -231,7 +225,6 @@ export function TeamMatchCenter({
           <div className="mb-4 flex items-center gap-3">
             <TeamFlag team={team} width={36} />
             <div>
-              <p className="text-xs font-black uppercase tracking-[0.18em] text-[#B48A00]">Squad</p>
               <h2 className="text-2xl font-black text-[#0E0C0A]">{team.name} squad</h2>
             </div>
           </div>
