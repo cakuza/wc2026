@@ -21,15 +21,20 @@ export default async function HomePage() {
     getMatchesWithTeams(),
     getTeams()
   ]);
-  const todayKey = formatDateKey(new Date().toISOString());
+  // Group matchdays by the host (US Eastern) calendar date rather than UTC. Late kickoffs
+  // roll past midnight UTC (e.g. the June 11 opener night runs into June 12 UTC), so a UTC
+  // grouping would wrongly split a single matchday. Eastern keeps each matchday intact and
+  // matches the official FIFA schedule. Recomputed per request (force-dynamic), so the board
+  // advances to the current matchday automatically as the tournament progresses.
+  const TOURNAMENT_TZ = "America/New_York";
+  const dateKeyOf = (match: MatchWithTeams) => formatDateKey(match.date, TOURNAMENT_TZ);
+  const todayKey = formatDateKey(new Date().toISOString(), TOURNAMENT_TZ);
   const sortedByDate = [...matches].sort((a, b) => Date.parse(a.date) - Date.parse(b.date));
-  const todayMatches = sortedByDate.filter((match) => formatDateKey(match.date) === todayKey);
-  // No matches today → fall back to the next matchday (every fixture sharing the earliest
-  // upcoming match date), so the board always shows a real, complete matchday.
-  const nextMatch = sortedByDate.find((match) => formatDateKey(match.date) >= todayKey);
-  const nextMatchdayMatches = nextMatch
-    ? sortedByDate.filter((match) => formatDateKey(match.date) === formatDateKey(nextMatch.date))
-    : [];
+  const todayMatches = sortedByDate.filter((match) => dateKeyOf(match) === todayKey);
+  // No matches today → fall back to the next matchday: every fixture sharing the earliest
+  // upcoming match date, so the board always shows a real, complete matchday.
+  const nextMatch = sortedByDate.find((match) => dateKeyOf(match) >= todayKey);
+  const nextMatchdayMatches = nextMatch ? sortedByDate.filter((match) => dateKeyOf(match) === dateKeyOf(nextMatch)) : [];
   const showingToday = todayMatches.length > 0;
   const matchdayMatches = showingToday ? todayMatches : nextMatchdayMatches;
   // Rotate the hero road poster across a pool of big fan bases so the homepage never looks
