@@ -63,11 +63,9 @@ export default async function HomePage() {
 
       <section className="mb-8 grid gap-8 rounded-[28px] border border-[rgba(14,12,10,.10)] bg-white p-5 shadow-[0_24px_70px_rgba(14,12,10,.10)] md:p-8 lg:grid-cols-[.9fr_1.1fr] lg:items-center">
         <div>
-          <p className="text-xs font-black uppercase tracking-[0.22em] text-[#FF2D6B]">World Cup 2026 fan hub</p>
+          <p className="text-xs font-black uppercase tracking-[0.22em] text-[#FF2D6B]">June 11 – July 19 · USA · Canada · Mexico</p>
           <h1 className="mt-4 max-w-3xl text-6xl font-black uppercase leading-[.9] tracking-normal text-[#0E0C0A] [font-family:Impact,Arial_Black,sans-serif] md:text-8xl">
-            Pick your <span className="text-[#FF2D6B]">country.</span><br />
-            Build the <span className="text-[#FF6A1A]">hype.</span><br />
-            Share the <span className="text-[#1FA9F6]">road.</span>
+            Your <span className="text-[#FF2D6B]">World Cup</span> <span className="text-[#1FA9F6]">2026</span> hub.
           </h1>
           <div className="mt-6 flex flex-wrap gap-3">
             <Link href="/teams" className="focus-ring inline-flex items-center justify-center rounded-md bg-[#0E0C0A] px-6 py-3 font-black text-white transition hover:bg-[#23201c]">

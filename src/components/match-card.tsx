@@ -1,8 +1,10 @@
 import Link from "next/link";
-import { CalendarDays, Eye, MapPin } from "lucide-react";
+import { CalendarDays, ImageIcon, MapPin } from "lucide-react";
+import { AddToCalendarButton } from "@/components/add-to-calendar-button";
 import { DataStatusNotice } from "@/components/data-status-notice";
 import { StatusBadge } from "@/components/status-badge";
-import type { MatchWithTeams } from "@/lib/types";
+import { TeamFlag } from "@/components/team-flag";
+import type { MatchWithTeams, Team } from "@/lib/types";
 import { formatKickoff } from "@/lib/timezones";
 
 export function MatchCard({ match, timeZone = "Europe/Istanbul" }: { match: MatchWithTeams; timeZone?: string }) {
@@ -12,13 +14,12 @@ export function MatchCard({ match, timeZone = "Europe/Istanbul" }: { match: Matc
       <div className="relative">
       <div className="mb-3 flex flex-wrap items-center gap-2">
         <StatusBadge label={match.dataStatus === "schedulePending" ? "Fixture slot" : match.status === "scheduled" ? "Pre-match" : match.status} variant="prelaunch" />
-        <StatusBadge label={match.kickoffUtc ? "Local time ready" : "Time unavailable"} variant="local" />
         {match.group ? <StatusBadge label={`Group ${match.group}`} variant="sample" /> : null}
       </div>
       <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-2 sm:gap-3">
-        <TeamBlock flag={match.homeTeam.flagEmoji} code={match.homeTeam.fifaCode} name={match.homeTeam.name} slug={match.homeTeam.slug} align="left" />
+        <TeamBlock team={match.homeTeam} align="left" />
         <div className="rounded-md bg-pitch px-3 py-2 text-sm font-black text-white">VS</div>
-        <TeamBlock flag={match.awayTeam.flagEmoji} code={match.awayTeam.fifaCode} name={match.awayTeam.name} slug={match.awayTeam.slug} align="right" />
+        <TeamBlock team={match.awayTeam} align="right" />
       </div>
       <div className="mt-4 grid gap-2 text-sm font-bold text-pitch/72">
         <span className="flex items-center gap-2">
@@ -37,37 +38,27 @@ export function MatchCard({ match, timeZone = "Europe/Istanbul" }: { match: Matc
           <DataStatusNotice variant="schedulePending" compact className="mt-3" />
         </details>
       ) : null}
-      <div className="mt-4">
-        <Link href={`/matches/${match.id}`} className="focus-ring inline-flex min-h-10 w-full items-center justify-center gap-2 rounded-md border border-pitch/14 px-3 py-2 text-sm font-bold text-pitch">
-          <Eye size={15} />
-          Opponent watch
+      <div className="mt-4 grid gap-2 sm:grid-cols-2">
+        <Link
+          href={`/cards?template=prediction&match=${match.id}`}
+          className="focus-ring inline-flex min-h-10 items-center justify-center gap-2 rounded-md bg-pitch px-3 py-2 text-sm font-black text-white"
+        >
+          <ImageIcon size={15} />
+          Create match card
         </Link>
+        <AddToCalendarButton match={match} />
       </div>
       </div>
     </article>
   );
 }
 
-function TeamBlock({
-  code,
-  flag,
-  name,
-  slug,
-  align
-}: {
-  code: string;
-  flag?: string;
-  name: string;
-  slug: string;
-  align: "left" | "right";
-}) {
+function TeamBlock({ team, align }: { team: Team; align: "left" | "right" }) {
   return (
-    <Link href={`/teams/${slug}`} className={align === "right" ? "text-right" : ""}>
-      <span className="mb-1 inline-grid h-10 w-10 place-items-center rounded-md border border-gold/30 bg-gold/10 text-sm font-black text-gold">
-        {flag || code}
-      </span>
-      <h3 className="text-sm font-black text-pitch sm:text-base md:text-lg">{name}</h3>
-      <p className="text-xs font-bold text-pitch/45">{code}</p>
+    <Link href={`/teams/${team.slug}`} className={align === "right" ? "grid justify-items-end text-right" : "grid justify-items-start"}>
+      <TeamFlag team={team} width={40} className="mb-1" />
+      <h3 className="text-sm font-black text-pitch sm:text-base md:text-lg">{team.name}</h3>
+      <p className="text-xs font-bold text-pitch/45">{team.fifaCode}</p>
     </Link>
   );
 }
