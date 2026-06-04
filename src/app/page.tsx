@@ -6,6 +6,7 @@ import { HomeTimezoneQuick } from "@/components/home-timezone-quick";
 import { PageShell } from "@/components/page-shell";
 import { PosterPreviewCard } from "@/components/poster-engine";
 import { StructuredData } from "@/components/structured-data";
+import { TeamFlag } from "@/components/team-flag";
 import { TeamPicker } from "@/components/team-picker";
 import { getDataMeta, getMatchesWithTeams, getTeams } from "@/lib/football";
 import { absoluteUrl, SITE_NAME } from "@/lib/site";
@@ -76,10 +77,10 @@ export default async function HomePage() {
           <div className="mt-6">
             <ScoreboardChipRow
               chips={[
-                { label: "Teams", value: "48 TEAMS" },
+                { label: "Nations", value: "48 NATIONS" },
                 { label: "Matches", value: "104 MATCHES" },
-                { label: "Time", value: "YOUR LOCAL TIME" },
-                { label: "Cost", value: "FREE" }
+                { label: "Hosts", value: "3 HOSTS" },
+                { label: "Dream", value: "ONE DREAM" }
               ]}
             />
           </div>
@@ -102,13 +103,12 @@ export default async function HomePage() {
       <section className="mb-8">
         <div className="mb-3 flex items-center justify-between gap-3">
           <p className="text-xs font-black uppercase tracking-[0.18em] text-[#B48A00]">Trending teams · tap to open</p>
-          <Link href="/teams" className="text-sm font-bold text-[#0E0C0A]/62 hover:text-[#B48A00]">All teams</Link>
         </div>
         <div className="flex gap-3 overflow-x-auto pb-2">
           {trending.map((team) => (
-            <Link key={team.id} href={`/teams/${team.slug}-world-cup-schedule`} className="grid min-w-[76px] justify-items-center gap-2 rounded-md border border-[rgba(14,12,10,.10)] bg-white p-3 shadow-[0_8px_18px_rgba(14,12,10,.06)]">
-              <span className="text-4xl">{team.flagEmoji}</span>
-              <span className="text-[10px] font-black uppercase tracking-[0.12em] text-[#0E0C0A]/58">{team.fifaCode}</span>
+            <Link key={team.id} href={`/teams/${team.slug}-world-cup-schedule`} className="grid min-w-[84px] justify-items-center gap-2 rounded-md border border-[rgba(14,12,10,.10)] bg-white p-3 shadow-[0_8px_18px_rgba(14,12,10,.06)]">
+              <TeamFlag team={team} width={48} />
+              <span className="text-[10px] font-black uppercase tracking-[0.12em] text-[#0E0C0A]/58">{team.name}</span>
             </Link>
           ))}
         </div>
