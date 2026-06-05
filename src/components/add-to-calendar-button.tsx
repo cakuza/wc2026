@@ -29,7 +29,15 @@ function slugify(value: string) {
   return value.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
 }
 
-export function AddToCalendarButton({ match, className = "" }: { match: MatchWithTeams; className?: string }) {
+export function AddToCalendarButton({
+  match,
+  className = "",
+  iconOnly = false
+}: {
+  match: MatchWithTeams;
+  className?: string;
+  iconOnly?: boolean;
+}) {
   const { timeZone } = useTimezone();
 
   if (!match.kickoffUtc) return null;
@@ -77,11 +85,26 @@ export function AddToCalendarButton({ match, className = "" }: { match: MatchWit
     URL.revokeObjectURL(url);
   }
 
+  if (iconOnly) {
+    return (
+      <button
+        type="button"
+        onClick={handleDownload}
+        title="Add to calendar"
+        aria-label="Add to calendar"
+        className={`focus-ring grid h-9 w-9 place-items-center rounded-md border border-[rgba(14,12,10,.12)] text-[#0E0C0A]/70 transition hover:border-[#0E0C0A]/30 hover:text-[#0E0C0A] ${className}`}
+      >
+        <CalendarPlus size={16} />
+        <span className="sr-only">Add to calendar</span>
+      </button>
+    );
+  }
+
   return (
     <button
       type="button"
       onClick={handleDownload}
-      className={`focus-ring inline-flex min-h-10 items-center justify-center gap-2 rounded-md border border-pitch/14 px-3 py-2 text-sm font-bold text-pitch transition hover:bg-pitch/[0.04] ${className}`}
+      className={`focus-ring inline-flex min-h-10 items-center justify-center gap-2 rounded-md border border-[rgba(14,12,10,.12)] px-3 py-2 text-sm font-bold text-[#0E0C0A] transition hover:bg-[#0E0C0A]/[0.04] ${className}`}
     >
       <CalendarPlus size={15} />
       Add to calendar

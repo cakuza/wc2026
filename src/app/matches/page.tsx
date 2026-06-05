@@ -2,8 +2,7 @@ import type { Metadata } from "next";
 import { MatchScheduleClient } from "@/components/match-schedule-client";
 import { PageIntro, PageShell } from "@/components/page-shell";
 import { RelatedLinks } from "@/components/related-links";
-import { TeamPicker } from "@/components/team-picker";
-import { getMatchesWithTeams, getTeams } from "@/lib/football";
+import { getMatchesWithTeams } from "@/lib/football";
 import { absoluteUrl } from "@/lib/site";
 
 export const metadata: Metadata = {
@@ -20,10 +19,7 @@ export const metadata: Metadata = {
 };
 
 export default async function MatchesPage() {
-  const [matches, teams] = await Promise.all([
-    getMatchesWithTeams(),
-    getTeams()
-  ]);
+  const matches = await getMatchesWithTeams();
   return (
     <PageShell>
       <PageIntro
@@ -31,9 +27,6 @@ export default async function MatchesPage() {
         title="World Cup matches in your local time."
         copy="Filter the group stage by country, date, group, and timezone. Then turn any match into a prediction card or team-road poster."
       />
-      <div className="mb-6">
-        <TeamPicker teams={teams} />
-      </div>
       <MatchScheduleClient matches={matches} />
       <p className="mt-6 text-xs text-[#0E0C0A]/45">* Official WC2026 group stage fixtures. Times shown in your local timezone.</p>
       <div className="mt-6">
