@@ -1,9 +1,7 @@
 "use client";
 
-import Link from "next/link";
-import { ArrowUpRight, Copy, ImageIcon } from "lucide-react";
+import { Copy } from "lucide-react";
 import { useMemo, useState } from "react";
-import { PosterPreviewCard } from "@/components/poster-engine";
 import { QualificationScenario } from "@/components/qualification-scenario";
 import { StandingsTable } from "@/components/standings-table";
 import { TeamFlag } from "@/components/team-flag";
@@ -12,7 +10,7 @@ import { TimezoneSelect } from "@/components/timezone-select";
 import { useTimezone } from "@/components/timezone-provider";
 import type { MatchWithTeams, Standing, Team } from "@/lib/types";
 import { formatKickoff } from "@/lib/timezones";
-import { getPlayersToWatch, getSquadByPosition, playerSlug, positionCode } from "@/lib/squads";
+import { getPlayersToWatch, getSquadByPosition, positionCode } from "@/lib/squads";
 
 const readableName = "break-normal [hyphens:none] [overflow-wrap:normal] [word-break:normal]";
 
@@ -70,30 +68,19 @@ export function TeamMatchCenter({
         }}
       >
         <HeroFx />
-        <div className="relative z-10 grid gap-6 lg:grid-cols-[1fr_auto] lg:items-center">
-          <div>
-            <p className="text-xs font-black uppercase tracking-[0.2em] text-white/82">My World Cup hub - Group {team.group}</p>
-            <div className="mt-4 flex items-center gap-4">
-              <TeamFlag team={team} width={104} className="drop-shadow-[0_12px_24px_rgba(0,0,0,.35)]" />
-              <h1 className={`${readableName} text-6xl font-black uppercase leading-[.82] tracking-normal [font-family:Impact,Arial_Black,sans-serif] md:text-8xl`}>
-                {team.name}
-              </h1>
-            </div>
-            {typeof team.squadValue === "number" ? (
-              <p className="mt-4 inline-flex items-center gap-2 rounded-md bg-white/12 px-3 py-1.5 text-sm font-black uppercase tracking-[0.12em] text-white/90">
-                Squad value: {formatSquadValue(team.squadValue)}
-              </p>
-            ) : null}
-            <div className="mt-5 flex flex-wrap gap-3">
-              <Link href={`/cards?template=team-schedule&team=${team.id}`} className="focus-ring inline-flex items-center gap-2 rounded-md bg-white px-4 py-3 font-black text-[#0E0C0A]">
-                <ImageIcon size={17} />
-                Create {team.name} poster
-              </Link>
-            </div>
+        <div className="relative z-10">
+          <p className="text-xs font-black uppercase tracking-[0.2em] text-white/82">World Cup 2026 · Group {team.group}</p>
+          <div className="mt-4 flex items-center gap-4">
+            <TeamFlag team={team} width={104} className="drop-shadow-[0_12px_24px_rgba(0,0,0,.35)]" />
+            <h1 className={`${readableName} text-6xl font-black uppercase leading-[.82] tracking-normal [font-family:Impact,Arial_Black,sans-serif] md:text-8xl`}>
+              {team.name}
+            </h1>
           </div>
-          <div className="mx-auto overflow-hidden rounded-[22px] lg:mx-0">
-            <PosterPreviewCard variant="road" ratio="story" width={220} team={team} matches={sortedFixtures} headline={`${team.name} road starts here`} />
-          </div>
+          {typeof team.squadValue === "number" ? (
+            <p className="mt-4 inline-flex items-center gap-2 rounded-md bg-white/12 px-3 py-1.5 text-sm font-black uppercase tracking-[0.12em] text-white/90">
+              Squad value: {formatSquadValue(team.squadValue)}
+            </p>
+          ) : null}
         </div>
       </section>
 
@@ -106,24 +93,7 @@ export function TeamMatchCenter({
         </div>
       </section>
 
-      <section className="grid gap-5 lg:grid-cols-[.8fr_1.2fr]">
-        <div className="rounded-lg border border-[rgba(14,12,10,.10)] bg-white p-4 md:p-5">
-          <p className="text-xs font-black uppercase tracking-[0.18em] text-[#B48A00]">Group {team.group} - the path</p>
-          <div className="mt-4 grid gap-3">
-            {teams.filter((item) => item.group === team.group).map((item, index) => (
-              <Link
-                key={item.id}
-                href={`/teams/${item.slug}-world-cup-schedule`}
-                className={item.id === team.id ? "grid grid-cols-[auto_1fr_auto] items-center gap-3 rounded-md bg-[#0E0C0A] p-3 text-white" : "grid grid-cols-[auto_1fr_auto] items-center gap-3 rounded-md border border-[rgba(14,12,10,.10)] bg-white p-3 text-[#0E0C0A]"}
-              >
-                <TeamFlag team={item} width={42} />
-                <span className={`min-w-0 font-black ${readableName}`}>{item.name}</span>
-                <span className="text-[10px] font-black uppercase tracking-[0.12em] opacity-60">{["Seed", "Pot 2", "Pot 3", "Pot 4"][index] || item.fifaCode}</span>
-              </Link>
-            ))}
-          </div>
-        </div>
-
+      <section>
         <div className="rounded-lg border border-[rgba(14,12,10,.10)] bg-white p-4 md:p-5">
           <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
             <div>
@@ -194,16 +164,14 @@ export function TeamMatchCenter({
           </div>
           <div className="grid gap-3 sm:grid-cols-3">
             {playersToWatch.map((player) => (
-              <Link
+              <div
                 key={player.name}
-                href={`/cards?template=player-watch&team=${team.id}&player=${playerSlug(player.name)}`}
-                className="focus-ring group relative flex flex-col items-center gap-2 rounded-lg border border-[rgba(14,12,10,.10)] bg-[#F6F4F1] p-4 text-center transition hover:border-[#E7C36B]/60 hover:bg-white"
+                className="flex flex-col items-center gap-2 rounded-lg border border-[rgba(14,12,10,.10)] bg-[#F6F4F1] p-4 text-center"
               >
-                <ArrowUpRight size={15} className="absolute right-3 top-3 text-[#0E0C0A]/20 transition group-hover:text-[#B48A00]" />
                 <JerseyBadge color={team.primaryColor} number={player.number} />
                 <span className="text-[11px] font-black uppercase tracking-[0.16em] text-[#0E0C0A]/55">{positionCode(player)}</span>
                 <span className={`text-base font-black uppercase leading-tight text-[#0E0C0A] ${readableName}`}>{lastName(player.name)}</span>
-              </Link>
+              </div>
             ))}
           </div>
         </section>
