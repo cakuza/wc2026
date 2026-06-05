@@ -1,6 +1,6 @@
 "use client";
 
-import { Copy } from "lucide-react";
+import { Copy, Share2 } from "lucide-react";
 import { useMemo, useState } from "react";
 import { QualificationScenario } from "@/components/qualification-scenario";
 import { StandingsTable } from "@/components/standings-table";
@@ -55,8 +55,20 @@ export function TeamMatchCenter({
     }
   }
 
-  const scheduleUrl = typeof window === "undefined" ? `/teams/${team.slug}-world-cup-schedule` : `${window.location.origin}/teams/${team.slug}-world-cup-schedule`;
-  const whatsappText = `${team.name} World Cup road\n${sortedFixtures.map((match) => `${team.fifaCode} vs ${opponentFor(match, team).fifaCode} - ${formatKickoff(match.kickoffUtc, timezone)}`).join("\n")}\nLocal times shown in ${timezone}.`;
+  async function sharePage() {
+    const url = typeof window === "undefined" ? "" : window.location.href;
+    try {
+      if (navigator.share) {
+        await navigator.share({ title: `${team.name} — World Cup 2026`, url });
+        return;
+      }
+      await navigator.clipboard.writeText(url);
+      setStatus("Link copied.");
+    } catch {
+      // user dismissed the share sheet, or clipboard blocked — no-op
+    }
+  }
+
   const hue = teamHue(team);
 
   return (
@@ -76,11 +88,22 @@ export function TeamMatchCenter({
               {team.name}
             </h1>
           </div>
-          {typeof team.squadValue === "number" ? (
-            <p className="mt-4 inline-flex items-center gap-2 rounded-md bg-white/12 px-3 py-1.5 text-sm font-black uppercase tracking-[0.12em] text-white/90">
-              Squad value: {formatSquadValue(team.squadValue)}
-            </p>
-          ) : null}
+          <div className="mt-4 flex flex-wrap items-center gap-3">
+            {typeof team.squadValue === "number" ? (
+              <p className="inline-flex items-center gap-2 rounded-md bg-white/12 px-3 py-1.5 text-sm font-black uppercase tracking-[0.12em] text-white/90">
+                Squad value: {formatSquadValue(team.squadValue)}
+              </p>
+            ) : null}
+            <button
+              type="button"
+              onClick={sharePage}
+              className="focus-ring inline-flex items-center gap-2 rounded-md bg-white/15 px-3 py-1.5 text-sm font-black text-white transition hover:bg-white/25"
+            >
+              <Share2 size={15} />
+              Share
+            </button>
+            {status ? <span className="text-xs font-bold text-white/80">{status}</span> : null}
+          </div>
         </div>
       </section>
 
@@ -141,20 +164,17 @@ export function TeamMatchCenter({
 
       <QualificationScenario team={team} />
 
-      <section className="grid gap-5 lg:grid-cols-[1.15fr_.85fr]">
-        <div className="rounded-lg border border-[rgba(14,12,10,.10)] bg-white p-4 md:p-5">
-          <p className="text-xs font-black uppercase tracking-[0.18em] text-[#B48A00]">Group table</p>
-          <h2 className="mt-1 text-2xl font-black text-[#0E0C0A]">Group {team.group}</h2>
-          <div className="mt-4 overflow-x-auto">
-            <StandingsTable rows={groupStandings} teams={teams} highlightTeamId={team.id} showFlags qualifyCount={2} />
-          </div>
-          {groupNotStarted ? (
-            <p className="mt-2 text-xs text-[#0E0C0A]/50">
-              Pre-tournament table — every team starts level. Standings update automatically once the group stage kicks off on June 11, 2026.
-            </p>
-          ) : null}
+      <section className="rounded-lg border border-[rgba(14,12,10,.10)] bg-white p-4 md:p-5">
+        <p className="text-xs font-black uppercase tracking-[0.18em] text-[#B48A00]">Group table</p>
+        <h2 className="mt-1 text-2xl font-black text-[#0E0C0A]">Group {team.group}</h2>
+        <div className="mt-4 overflow-x-auto">
+          <StandingsTable rows={groupStandings} teams={teams} highlightTeamId={team.id} showFlags qualifyCount={2} />
         </div>
-        <ShareScheduleBox team={team} scheduleUrl={scheduleUrl} whatsappText={whatsappText} onCopy={copyText} status={status} />
+        {groupNotStarted ? (
+          <p className="mt-2 text-xs text-[#0E0C0A]/50">
+            Pre-tournament table — every team starts level. Standings update automatically once the group stage kicks off on June 11, 2026.
+          </p>
+        ) : null}
       </section>
 
       {playersToWatch.length ? (
@@ -206,39 +226,6 @@ export function TeamMatchCenter({
       ) : null}
 
       <TriviaWidget />
-    </div>
-  );
-}
-
-function ShareScheduleBox({
-  team,
-  scheduleUrl,
-  whatsappText,
-  onCopy,
-  status
-}: {
-  team: Team;
-  scheduleUrl: string;
-  whatsappText: string;
-  onCopy: (value: string, label: string) => void;
-  status: string;
-}) {
-  return (
-    <div className="rounded-lg border border-[rgba(14,12,10,.10)] bg-white p-4">
-      <p className="text-xs font-black uppercase tracking-[0.18em] text-[#B48A00]">Share this schedule</p>
-      <h2 className="mt-1 text-xl font-black text-[#0E0C0A]">{team.name} schedule link</h2>
-      <p className="mt-2 text-sm leading-6 text-[#0E0C0A]/58">Copy the country road link or send a WhatsApp-ready matchup list.</p>
-      <div className="mt-4 grid gap-2">
-        <button onClick={() => onCopy(scheduleUrl, "Schedule link")} className="focus-ring inline-flex items-center justify-center gap-2 rounded-md border border-[rgba(14,12,10,.12)] px-3 py-2 text-sm font-bold text-[#0E0C0A]">
-          <Copy size={15} />
-          Copy link
-        </button>
-        <button onClick={() => onCopy(whatsappText, "WhatsApp message")} className="focus-ring inline-flex items-center justify-center gap-2 rounded-md border border-[rgba(14,12,10,.12)] px-3 py-2 text-sm font-bold text-[#0E0C0A]">
-          <Copy size={15} />
-          Copy WhatsApp message
-        </button>
-      </div>
-      <p className="mt-3 text-sm text-[#0E0C0A]/50">{status || "Ready for fan groups."}</p>
     </div>
   );
 }

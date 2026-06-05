@@ -10,9 +10,9 @@ const notices = {
   },
   schedulePending: {
     icon: Clock,
-    title: "Times coming soon",
-    copy: "Matchups are ready to save now. Kick-off times and venues fill in closer to the tournament.",
-    action: "Save the road today"
+    title: "Kickoff time to be confirmed",
+    copy: "The fixture is set. Kick-off time and venue are confirmed closer to the tournament.",
+    action: "View the schedule"
   },
   squadPending: {
     icon: Users,

@@ -14,16 +14,16 @@ const anton = Anton({ weight: "400", subsets: ["latin"], variable: "--font-anton
 export const metadata: Metadata = {
   metadataBase: new URL(getSiteUrl()),
   title: {
-    default: "WC26 Hub - World Cup 2026 Schedule, Standings and Social Cards",
+    default: "WC26 Hub - World Cup 2026 Schedule, Groups, Standings and Teams",
     template: "%s | WC26 Hub"
   },
-  description: "A World Cup 2026 fan-card studio for country roads, prediction battles, player-watch posters, group-stage matchups, and debate cards.",
+  description: "Your World Cup 2026 hub: fixtures in your local time, all 12 groups, squads for every team, group tables and qualification scenarios.",
   alternates: {
     canonical: absoluteUrl("/")
   },
   openGraph: {
     title: "WC26 Hub",
-    description: "World Cup 2026 fan cards, country roads, prediction battles, group-stage matchups, and content templates.",
+    description: "World Cup 2026 fixtures in your local time, groups, standings, squads and qualification scenarios.",
     url: absoluteUrl("/"),
     siteName: "WC26 Hub",
     type: "website"
@@ -31,7 +31,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "WC26 Hub",
-    description: "World Cup 2026 fan cards, country roads, prediction battles, and content templates."
+    description: "World Cup 2026 fixtures in your local time, groups, standings, squads and qualification scenarios."
   }
 };
 

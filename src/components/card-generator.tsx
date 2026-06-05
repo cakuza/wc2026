@@ -1600,7 +1600,7 @@ function buildCaptions(
     banter: "Productivity officially cancelled.",
     x: "World Cup 2026 fan-card menu is looking dangerous. Which game are you watching?",
     telegram: `MATCHDAY MENU\n\n${title}\n${time}\n\n${scheduleHelper} Send this to the group.`,
-    whatsapp: "Maç listesi hazır. Saatler onaylanınca yerel saate göre güncellenir.",
+    whatsapp: "Matchday menu is ready. Times update to your local zone once confirmed.",
     hashtags: customHashtags,
     custom
   };
@@ -1612,7 +1612,7 @@ function buildCaptions(
       banter: `${playerName} agenda starts now. Receipts will be checked later.`,
       x: `${playerName} watch.\n\nBig-game energy. Who is your player to watch? #WorldCup2026`,
       telegram: `PLAYER WATCH\n\n${playerName}\n${team.name}\n\nSend your player to watch before kick-off.`,
-      whatsapp: `${playerName} watch kartı hazır. Gruba atın, herkes kendi oyuncusunu yazsın.`,
+      whatsapp: `${playerName} watch card is ready. Send it to the group — everyone names their player.`,
       hashtags: customHashtags,
       custom
     };
@@ -1625,7 +1625,7 @@ function buildCaptions(
       banter: `${team.name} group chat check-in: how many points are we taking?`,
       x: `${team.name}'s World Cup 2026 fan-made schedule card.\n\nSave it before kick-off. #WorldCup2026`,
       telegram: `${team.name} schedule card\n\nSave this and share it before matchday. ${scheduleHelper}`,
-      whatsapp: `${team.name} maç yolu burada. Yerel saatler hazır. Gruba atın, kimse kaçırmasın.`,
+      whatsapp: `${team.name}'s schedule is here. Local times ready — send it to the group so nobody misses a match.`,
       hashtags: customHashtags,
       custom
     };
@@ -1638,7 +1638,7 @@ function buildCaptions(
       banter: "Drop the agenda now so nobody pretends later.",
       x: "Big tournament debate.\n\nWho owns the moment? #WorldCup2026",
       telegram: "FAN DEBATE\n\nPick your No. 1 and send the card to the group.",
-      whatsapp: "Tahminler gelsin. Kim büyük anı alır? Herkes bir isim yazsın.",
+      whatsapp: "Predictions in. Who owns the big moment? Everyone drop a name.",
       hashtags: customHashtags,
       custom
     };
@@ -1651,7 +1651,7 @@ function buildCaptions(
       banter: "This group is not normal. Screenshot your prediction now.",
       x: "Group of chaos.\n\nWho survives this group? #WorldCup2026",
       telegram: "GROUP OF CHAOS\n\nPick your top two and send your prediction before matchday.",
-      whatsapp: "Bu grup normal değil. İlk iki tahminlerinizi yazın, sonra kimse inkâr etmesin.",
+      whatsapp: "This group is not normal. Drop your top two now so nobody denies it later.",
       hashtags: customHashtags,
       custom
     };
@@ -1664,7 +1664,7 @@ function buildCaptions(
       banter: "Receipts matter. Send your prediction before the excuses arrive.",
       x: `${title}\n\nDrop your score prediction before kick-off. #WorldCup2026`,
       telegram: `PREDICTION BATTLE\n\n${title}\n${time}\n\nDrop your score before kick-off.`,
-      whatsapp: "Skor tahminleri gelsin. Maç başlamadan yazın, sonra kimse tahmin değiştirmesin.",
+      whatsapp: "Score predictions in. Lock them before kick-off so nobody changes their mind.",
       hashtags: customHashtags,
       custom
     };
@@ -1677,7 +1677,7 @@ function buildCaptions(
       banter: "This one could get weird. Drop predictions now.",
       x: `${title}\n\nUpset watch? Save the matchup now. #WorldCup2026`,
       telegram: `UPSET WATCH\n\n${title}\n${time}\n\nSend predictions before kick-off.`,
-      whatsapp: "Bu maçta sürpriz kokusu var. Tahminleri yazın; saatler onaylanınca güncellenir.",
+      whatsapp: "Upset alert on this one. Drop your predictions — times update once confirmed.",
       hashtags: customHashtags,
       custom
     };
