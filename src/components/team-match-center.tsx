@@ -84,7 +84,7 @@ export function TeamMatchCenter({
       <section
         className="relative -mx-4 overflow-hidden px-4 py-5 text-white shadow-[0_24px_70px_rgba(14,12,10,.18)] md:mx-0 md:rounded-[28px] md:px-6 md:py-6"
         style={{
-          background: `linear-gradient(158deg, ${primary}, ${darkenHex(primary, 0.45)})`
+          background: `linear-gradient(158deg, ${primary}, ${darkenHex(primary, HERO_DARKEN)})`
         }}
       >
         {/* Diagonal stripe texture in the secondary color at ~10% — premium, not loud. */}
@@ -101,7 +101,7 @@ export function TeamMatchCenter({
             <TeamFlag team={team} width={104} className="drop-shadow-[0_12px_24px_rgba(0,0,0,.35)]" />
             <h1
               className={`${readableName} text-6xl font-black uppercase leading-[.82] tracking-normal [font-family:Impact,Arial_Black,sans-serif] md:text-8xl`}
-              style={{ color: secondary }}
+              style={{ color: heroNameColor(primary, secondary) }}
             >
               {team.name}
             </h1>
@@ -344,9 +344,42 @@ function hexToRgb(hex: string) {
 }
 
 // Multiply each channel toward black to make the gradient's bottom stop (factor < 1).
+const HERO_DARKEN = 0.45;
 function darkenHex(hex: string, factor: number) {
   const { r, g, b } = hexToRgb(hex);
   return `rgb(${Math.round(r * factor)}, ${Math.round(g * factor)}, ${Math.round(b * factor)})`;
+}
+
+// WCAG relative luminance for an {r,g,b} (0-255) color.
+function relLuminance({ r, g, b }: { r: number; g: number; b: number }) {
+  const channel = (v: number) => {
+    const s = v / 255;
+    return s <= 0.03928 ? s / 12.92 : Math.pow((s + 0.055) / 1.055, 2.4);
+  };
+  return 0.2126 * channel(r) + 0.7152 * channel(g) + 0.0722 * channel(b);
+}
+
+function contrastRatio(a: { r: number; g: number; b: number }, b: { r: number; g: number; b: number }) {
+  const l1 = relLuminance(a);
+  const l2 = relLuminance(b);
+  const [hi, lo] = l1 >= l2 ? [l1, l2] : [l2, l1];
+  return (hi + 0.05) / (lo + 0.05);
+}
+
+// Choose the team-name color. Prefer the national secondary color, but only if it stays
+// legible across the WHOLE gradient (both the bright top stop and the darkened bottom stop).
+// Argentina's dark green reads fine on the light-blue top but vanishes on the darker bottom,
+// so it falls back to whichever neutral (white / near-black) is most readable.
+function heroNameColor(primary: string, secondary: string) {
+  const top = hexToRgb(primary);
+  const bottom = { r: top.r * HERO_DARKEN, g: top.g * HERO_DARKEN, b: top.b * HERO_DARKEN };
+  const sec = hexToRgb(secondary);
+  const minAcross = (c: { r: number; g: number; b: number }) => Math.min(contrastRatio(c, top), contrastRatio(c, bottom));
+
+  if (minAcross(sec) >= 3) return secondary;
+  const white = { r: 255, g: 255, b: 255 };
+  const dark = { r: 14, g: 12, b: 10 };
+  return minAcross(white) >= minAcross(dark) ? "#ffffff" : "#0E0C0A";
 }
 
 // Same color at a given alpha, e.g. for the 10% diagonal-stripe overlay.
