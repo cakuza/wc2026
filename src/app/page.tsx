@@ -3,7 +3,6 @@ import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { PageShell } from "@/components/page-shell";
 import { StructuredData } from "@/components/structured-data";
-import { TeamFlag } from "@/components/team-flag";
 import { TeamPicker } from "@/components/team-picker";
 import { TimezoneSelect } from "@/components/timezone-select";
 import { TodayMatches } from "@/components/today-matches";
@@ -60,7 +59,7 @@ export default async function HomePage() {
       <section className="mb-8 grid gap-8 rounded-[28px] border border-[rgba(14,12,10,.10)] bg-white p-5 shadow-[0_24px_70px_rgba(14,12,10,.10)] md:p-8 lg:grid-cols-[.9fr_1.1fr] lg:items-center">
         <div>
           <p className="text-xs font-black uppercase tracking-[0.22em] text-[#FF2D6B]">48 Teams · 104 Matches · 3 Host Nations</p>
-          <h1 className="mt-4 max-w-3xl text-6xl font-black uppercase leading-[.9] tracking-normal text-[#0E0C0A] [font-family:Impact,Arial_Black,sans-serif] md:text-8xl">
+          <h1 className="mt-4 max-w-2xl text-5xl font-black uppercase leading-[.95] tracking-normal text-[#0E0C0A] [font-family:Impact,Arial_Black,sans-serif] md:text-6xl">
             Your <span className="text-[#FF2D6B]">World Cup</span> <span className="text-[#1FA9F6]">2026</span> hub.
           </h1>
           <div className="mt-6">
@@ -86,22 +85,8 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <section className="mb-8">
-        <div className="mb-3 flex items-center justify-between gap-3">
-          <p className="text-xs font-black uppercase tracking-[0.18em] text-[#B48A00]">Trending teams · tap to open</p>
-        </div>
-        <div className="flex gap-3 overflow-x-auto pb-2">
-          {trending.map((team) => (
-            <Link key={team.id} href={`/teams/${team.slug}-world-cup-schedule`} className="grid min-w-[84px] justify-items-center gap-2 rounded-md border border-[rgba(14,12,10,.10)] bg-white p-3 shadow-[0_8px_18px_rgba(14,12,10,.06)]">
-              <TeamFlag team={team} width={48} />
-              <span className="text-[10px] font-black uppercase tracking-[0.12em] text-[#0E0C0A]/58">{team.name}</span>
-            </Link>
-          ))}
-        </div>
-      </section>
-
       <div id="pick-team" className="mb-8">
-        <TeamPicker teams={teams} />
+        <TeamPicker teams={teams} trending={trending} />
       </div>
 
       <section className="mb-8">

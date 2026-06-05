@@ -9,7 +9,7 @@ import { GROUPS } from "@/lib/types";
 
 const featuredTeamIds = ["turkey", "brazil", "argentina", "france", "england", "portugal", "germany", "spain", "united-states", "mexico"];
 
-export function TeamPicker({ teams, hideHeader = false }: { teams: Team[]; squadStatusByTeam?: Record<string, string>; hideHeader?: boolean }) {
+export function TeamPicker({ teams, trending, hideHeader = false }: { teams: Team[]; trending?: Team[]; squadStatusByTeam?: Record<string, string>; hideHeader?: boolean }) {
   const [query, setQuery] = useState("");
   const [group, setGroup] = useState("all");
   const [confederation, setConfederation] = useState("all");
@@ -50,13 +50,30 @@ export function TeamPicker({ teams, hideHeader = false }: { teams: Team[]; squad
           </Link>
         </div>
       )}
+      {trending && trending.length ? (
+        <div className="mb-4">
+          <p className="mb-2 text-[11px] font-black uppercase tracking-[0.18em] text-[#B48A00]">Trending</p>
+          <div className="flex gap-3 overflow-x-auto pb-1">
+            {trending.map((team) => (
+              <Link
+                key={team.id}
+                href={`/teams/${team.slug}-world-cup-schedule`}
+                className="focus-ring grid min-w-[84px] justify-items-center gap-2 rounded-md border border-[rgba(14,12,10,.10)] bg-white p-3 shadow-[0_8px_18px_rgba(14,12,10,.06)] transition hover:border-[#E7C36B]/70 hover:shadow-[0_14px_30px_rgba(14,12,10,.12)]"
+              >
+                <TeamFlag team={team} width={48} />
+                <span className="text-[10px] font-black uppercase tracking-[0.12em] text-[#0E0C0A]/58">{team.name}</span>
+              </Link>
+            ))}
+          </div>
+        </div>
+      ) : null}
       <div className="mb-4 grid gap-3 lg:grid-cols-[1fr_auto_auto]">
         <label className="flex items-center gap-2 rounded-md border border-[rgba(14,12,10,.10)] bg-[#F6F4F1] px-3 py-3 text-[#0E0C0A]">
           <Search size={17} className="text-[#B48A00]" />
           <input
             value={query}
             onChange={(event) => setQuery(event.target.value)}
-            placeholder="Search team, code, group, alias, or confederation"
+            placeholder="Search teams..."
             className="w-full bg-transparent text-sm outline-none placeholder:text-[#0E0C0A]/35"
           />
         </label>
