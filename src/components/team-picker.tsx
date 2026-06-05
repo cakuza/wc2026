@@ -9,7 +9,7 @@ import { GROUPS } from "@/lib/types";
 
 const featuredTeamIds = ["turkey", "brazil", "argentina", "france", "england", "portugal", "germany", "spain", "united-states", "mexico"];
 
-export function TeamPicker({ teams }: { teams: Team[]; squadStatusByTeam?: Record<string, string> }) {
+export function TeamPicker({ teams, hideHeader = false }: { teams: Team[]; squadStatusByTeam?: Record<string, string>; hideHeader?: boolean }) {
   const [query, setQuery] = useState("");
   const [group, setGroup] = useState("all");
   const [confederation, setConfederation] = useState("all");
@@ -38,16 +38,18 @@ export function TeamPicker({ teams }: { teams: Team[]; squadStatusByTeam?: Recor
 
   return (
     <section className="rounded-lg border border-[rgba(14,12,10,.10)] bg-white p-4 shadow-[0_16px_40px_rgba(14,12,10,.06)] md:p-5">
-      <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <p className="text-xs font-black uppercase tracking-[0.18em] text-[#B48A00]">Pick your country</p>
-          <h2 className="mt-1 text-2xl font-black text-[#0E0C0A]">Follow your country&apos;s World Cup journey.</h2>
-          <p className="mt-2 text-sm leading-6 text-[#0E0C0A]/58">Match times, squads, group tables — for all 48 teams.</p>
+      {hideHeader ? null : (
+        <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
+          <div>
+            <p className="text-xs font-black uppercase tracking-[0.18em] text-[#B48A00]">Pick your country</p>
+            <h2 className="mt-1 text-2xl font-black text-[#0E0C0A]">Follow your country&apos;s World Cup journey.</h2>
+            <p className="mt-2 text-sm leading-6 text-[#0E0C0A]/58">Match times, squads, group tables — for all 48 teams.</p>
+          </div>
+          <Link href="/teams" className="inline-flex items-center gap-2 text-sm font-bold text-[#0E0C0A]/62 hover:text-[#B48A00]">
+            All teams <ArrowRight size={15} />
+          </Link>
         </div>
-        <Link href="/teams" className="inline-flex items-center gap-2 text-sm font-bold text-[#0E0C0A]/62 hover:text-[#B48A00]">
-          All teams <ArrowRight size={15} />
-        </Link>
-      </div>
+      )}
       <div className="mb-4 grid gap-3 lg:grid-cols-[1fr_auto_auto]">
         <label className="flex items-center gap-2 rounded-md border border-[rgba(14,12,10,.10)] bg-[#F6F4F1] px-3 py-3 text-[#0E0C0A]">
           <Search size={17} className="text-[#B48A00]" />

@@ -26,11 +26,11 @@ export default async function TeamsPage() {
     <PageShell>
       <PageIntro
         kicker="Teams"
-        title="Pick your country. Save the road."
-        copy="Every country gets a fan hub with group-stage matchups, road posters, prediction cards, and custom player-card entry points."
+        title="All 48 World Cup 2026 teams."
+        copy="Squad, fixtures, group table and local match times — for every team."
       />
       <div className="mb-6">
-        <TeamPicker teams={teams} squadStatusByTeam={squadStatusByTeam} />
+        <TeamPicker teams={teams} squadStatusByTeam={squadStatusByTeam} hideHeader />
       </div>
       <TeamSearch teams={teams} squadStatusByTeam={squadStatusByTeam} />
     </PageShell>
