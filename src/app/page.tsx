@@ -39,6 +39,15 @@ export default async function HomePage() {
   const trending = ["brazil", "argentina", "france", "england", "mexico", "japan", "morocco", "turkey", "portugal", "germany", "spain", "netherlands"]
     .map((slug) => teamBy(teams, slug))
     .filter(Boolean) as Team[];
+  // Group-stage fixtures only carry real team objects (knockout slots are placeholders),
+  // so the picker's "first match" line pulls from these.
+  const groupMatches = matches.filter((match) => match.stage === "group");
+  // Countdown to the upcoming matchday's first kickoff (only meaningful when it's in the future).
+  const firstKickoff = matchdayMatches[0]?.date;
+  const daysUntilMatchday =
+    !showingToday && firstKickoff
+      ? Math.max(0, Math.ceil((Date.parse(firstKickoff) - Date.now()) / 86_400_000))
+      : null;
 
   return (
     <PageShell>
@@ -62,20 +71,17 @@ export default async function HomePage() {
           <h1 className="mt-4 max-w-2xl text-5xl font-black uppercase leading-[.95] tracking-normal text-[#0E0C0A] [font-family:Impact,Arial_Black,sans-serif] md:text-6xl">
             Your <span className="text-[#FF2D6B]">World Cup</span> <span className="text-[#1FA9F6]">2026</span> hub.
           </h1>
-          <div className="mt-6">
-            <ScoreboardChipRow
-              chips={[
-                { value: "48 NATIONS" },
-                { value: "104 MATCHES" },
-                { value: "3 HOSTS" },
-                { value: "ONE DREAM" }
-              ]}
-            />
-          </div>
         </div>
         <div className="rounded-[22px] border border-[rgba(14,12,10,.10)] bg-white p-4 shadow-[0_18px_50px_rgba(14,12,10,.10)] md:p-5">
           <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-            <p className="text-xs font-black uppercase tracking-[0.18em] text-[#B48A00]">{showingToday ? "Today's matches" : "Next matchday"}</p>
+            <div className="flex flex-wrap items-center gap-2">
+              <p className="text-xs font-black uppercase tracking-[0.18em] text-[#B48A00]">{showingToday ? "Today's matches" : "Next matchday"}</p>
+              {daysUntilMatchday !== null ? (
+                <span className="inline-flex items-center rounded-full bg-[#0E0C0A] px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.12em] text-[#E7C36B]">
+                  {countdownLabel(daysUntilMatchday)}
+                </span>
+              ) : null}
+            </div>
             <label className="grid gap-1 text-[10px] font-black uppercase tracking-[0.14em] text-[#0E0C0A]/55">
               Timezone
               <TimezoneSelect variant="light" className="!py-2" />
@@ -86,7 +92,7 @@ export default async function HomePage() {
       </section>
 
       <div id="pick-team" className="mb-8">
-        <TeamPicker teams={teams} trending={trending} />
+        <TeamPicker teams={teams} trending={trending} matches={groupMatches} />
       </div>
 
       <section className="mb-8">
@@ -108,51 +114,10 @@ export default async function HomePage() {
   );
 }
 
-// Stadium scoreboard stat chips — ported from design-reference/wc-chips.jsx
-const CHIP_GOLD = "#E7C36B";
-const CHIP_ANTON = "var(--font-anton, Anton, sans-serif)";
-
-type ScoreboardChipData = { value: string; accent?: string };
-
-function ScoreboardChip({ value, accent = CHIP_GOLD }: ScoreboardChipData) {
-  return (
-    <div
-      style={{
-        display: "inline-flex",
-        alignItems: "center",
-        background: "rgba(14,12,10,.94)",
-        border: "1px solid rgba(231,195,107,.15)",
-        borderTop: `2px solid ${accent}55`,
-        borderRadius: 5,
-        padding: "11px 16px",
-        minWidth: 84,
-        boxShadow: "0 2px 14px rgba(0,0,0,.38), inset 0 1px 0 rgba(255,255,255,.03)"
-      }}
-    >
-      <span
-        style={{
-          fontFamily: CHIP_ANTON,
-          fontSize: 20,
-          color: accent,
-          lineHeight: 1,
-          letterSpacing: "-.3px",
-          whiteSpace: "nowrap"
-        }}
-      >
-        {value}
-      </span>
-    </div>
-  );
-}
-
-function ScoreboardChipRow({ chips, gap = 8 }: { chips: ScoreboardChipData[]; gap?: number }) {
-  return (
-    <div style={{ display: "flex", gap, flexWrap: "wrap", alignItems: "stretch" }}>
-      {chips.map((chip) => (
-        <ScoreboardChip key={chip.value} value={chip.value} accent={chip.accent} />
-      ))}
-    </div>
-  );
+function countdownLabel(days: number) {
+  if (days <= 0) return "Starts today";
+  if (days === 1) return "Starts tomorrow";
+  return `Starts in ${days} days`;
 }
 
 function teamBy(teams: Team[], slug: string) {
