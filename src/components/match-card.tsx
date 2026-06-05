@@ -9,8 +9,7 @@ import { formatKickoff } from "@/lib/timezones";
 
 export function MatchCard({ match, timeZone = "Europe/Istanbul" }: { match: MatchWithTeams; timeZone?: string }) {
   return (
-    <article className="relative overflow-hidden rounded-lg bg-[linear-gradient(135deg,#fff7d1,rgba(255,255,255,.94)_42%,#b8f1d7)] p-4 text-pitch shadow-[0_22px_70px_rgba(0,0,0,.24)]">
-      <div className="pointer-events-none absolute inset-x-0 top-0 h-20 bg-[repeating-linear-gradient(90deg,rgba(5,30,22,.14)_0_1px,transparent_1px_28px)]" />
+    <article className="relative overflow-hidden rounded-lg border border-[rgba(14,12,10,.10)] bg-white p-4 text-[#0E0C0A] shadow-[0_10px_24px_rgba(14,12,10,.06)]">
       <div className="relative">
       <div className="mb-3 flex flex-wrap items-center gap-2">
         <StatusBadge label={match.dataStatus === "schedulePending" ? "Fixture slot" : match.status === "scheduled" ? "Pre-match" : match.status} variant="prelaunch" />
@@ -33,8 +32,8 @@ export function MatchCard({ match, timeZone = "Europe/Istanbul" }: { match: Matc
         </span>
       </div>
       {match.dataStatus === "schedulePending" ? (
-        <details className="mt-4 rounded-lg border border-white/10 bg-white/[0.035] p-3">
-          <summary className="cursor-pointer text-sm font-black text-pitch">Data status</summary>
+        <details className="mt-4 rounded-lg border border-[rgba(14,12,10,.10)] bg-[#F6F4F1] p-3">
+          <summary className="cursor-pointer text-sm font-black text-[#0E0C0A]">Data status</summary>
           <DataStatusNotice variant="schedulePending" compact className="mt-3" />
         </details>
       ) : null}

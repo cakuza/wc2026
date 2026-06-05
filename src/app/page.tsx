@@ -1,11 +1,10 @@
 // cache-bust: 2026-06-04
 import Link from "next/link";
-import { HomeTimezoneQuick } from "@/components/home-timezone-quick";
-import { NextMatchPanel } from "@/components/next-match-panel";
 import { PageShell } from "@/components/page-shell";
 import { StructuredData } from "@/components/structured-data";
 import { TeamFlag } from "@/components/team-flag";
 import { TeamPicker } from "@/components/team-picker";
+import { TimezoneSelect } from "@/components/timezone-select";
 import { TodayMatches } from "@/components/today-matches";
 import { getMatchesWithTeams, getTeams } from "@/lib/football";
 import { absoluteUrl, SITE_NAME } from "@/lib/site";
@@ -37,10 +36,6 @@ export default async function HomePage() {
   const nextMatchdayMatches = nextMatch ? sortedByDate.filter((match) => dateKeyOf(match) === dateKeyOf(nextMatch)) : [];
   const showingToday = todayMatches.length > 0;
   const matchdayMatches = showingToday ? todayMatches : nextMatchdayMatches;
-  // Tournament-first hero: feature the very next fixture and list the ones after it.
-  const upcomingMatches = sortedByDate.filter((match) => dateKeyOf(match) >= todayKey);
-  const heroFeatured = upcomingMatches[0];
-  const heroUpcoming = upcomingMatches.slice(1, 4);
   const trending = ["brazil", "argentina", "france", "england", "mexico", "japan", "morocco", "turkey", "portugal", "germany", "spain", "netherlands"]
     .map((slug) => teamBy(teams, slug))
     .filter(Boolean) as Team[];
@@ -63,7 +58,7 @@ export default async function HomePage() {
 
       <section className="mb-8 grid gap-8 rounded-[28px] border border-[rgba(14,12,10,.10)] bg-white p-5 shadow-[0_24px_70px_rgba(14,12,10,.10)] md:p-8 lg:grid-cols-[.9fr_1.1fr] lg:items-center">
         <div>
-          <p className="text-xs font-black uppercase tracking-[0.22em] text-[#FF2D6B]">June 11 – July 19 · USA · Canada · Mexico</p>
+          <p className="text-xs font-black uppercase tracking-[0.22em] text-[#FF2D6B]">48 Teams · 104 Matches · 3 Host Nations</p>
           <h1 className="mt-4 max-w-3xl text-6xl font-black uppercase leading-[.9] tracking-normal text-[#0E0C0A] [font-family:Impact,Arial_Black,sans-serif] md:text-8xl">
             Your <span className="text-[#FF2D6B]">World Cup</span> <span className="text-[#1FA9F6]">2026</span> hub.
           </h1>
@@ -89,7 +84,19 @@ export default async function HomePage() {
             />
           </div>
         </div>
-        <NextMatchPanel featured={heroFeatured} upcoming={heroUpcoming} />
+        <div className="rounded-[22px] border border-[rgba(14,12,10,.10)] bg-white p-4 shadow-[0_18px_50px_rgba(14,12,10,.10)] md:p-5">
+          <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <p className="text-xs font-black uppercase tracking-[0.18em] text-[#B48A00]">{showingToday ? "On today" : "Next matchday"}</p>
+              <h2 className="mt-1 text-2xl font-black text-[#0E0C0A]">{showingToday ? "Today's Matches" : "Next Matchday"}</h2>
+            </div>
+            <label className="grid gap-1 text-[10px] font-black uppercase tracking-[0.14em] text-[#0E0C0A]/55">
+              Timezone
+              <TimezoneSelect variant="light" className="!py-2" />
+            </label>
+          </div>
+          <TodayMatches matches={matchdayMatches} />
+        </div>
       </section>
 
       <section className="mb-8">
@@ -109,25 +116,6 @@ export default async function HomePage() {
       <div id="pick-team" className="mb-8">
         <TeamPicker teams={teams} />
       </div>
-
-      <section className="mb-8 grid gap-5 lg:grid-cols-[1.35fr_.85fr]">
-        <div className="rounded-lg border border-[rgba(14,12,10,.10)] bg-white p-4 md:p-5">
-          <div className="mb-4 flex items-end justify-between gap-3">
-            <div>
-              <p className="text-xs font-black uppercase tracking-[0.18em] text-[#B48A00]">{showingToday ? "On today" : "Next matchday"}</p>
-              <h2 className="mt-1 text-2xl font-black text-[#0E0C0A]">Today&apos;s Matches</h2>
-            </div>
-            <Link href="/world-cup-matches-today" className="text-sm font-bold text-[#0E0C0A]/62 hover:text-[#B48A00]">Open schedule</Link>
-          </div>
-          <TodayMatches matches={matchdayMatches} />
-        </div>
-        <div className="rounded-lg border border-[rgba(14,12,10,.10)] bg-white p-4 md:p-5">
-          <p className="text-xs font-black uppercase tracking-[0.18em] text-[#B48A00]">Local time helper</p>
-          <div className="mt-4 rounded-lg border border-[rgba(14,12,10,.10)] bg-[#F6F4F1] p-4">
-            <HomeTimezoneQuick match={matchdayMatches[0]} />
-          </div>
-        </div>
-      </section>
 
     </PageShell>
   );
