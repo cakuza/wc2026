@@ -3,16 +3,21 @@ import { getMatchesWithTeams, getTeams } from "@/lib/football";
 import { localTimePages } from "@/lib/local-time-pages";
 import { requestedTeamScheduleSlugs, seoLandingPages } from "@/lib/seo-content";
 import { getSiteUrl } from "@/lib/site";
+import { GROUPS } from "@/lib/types";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const teams = await getTeams();
   const matches = await getMatchesWithTeams();
   const baseUrl = getSiteUrl();
-  const staticRoutes = ["", "/matches", "/standings", "/stats", "/leaderboards", "/teams", "/cards", "/launch-checklist", "/operations"];
+  const staticRoutes = ["", "/matches", "/standings", "/stats", "/leaderboards", "/teams", "/groups", "/cards", "/launch-checklist", "/operations"];
 
   return [
     ...staticRoutes.map((route) => ({
       url: `${baseUrl}${route}`,
+      lastModified: new Date()
+    })),
+    ...GROUPS.map((group) => ({
+      url: `${baseUrl}/groups/${group.toLowerCase()}`,
       lastModified: new Date()
     })),
     ...seoLandingPages.map((page) => ({
