@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import { GroupFixtures } from "@/components/group-fixtures";
+import { GroupQualificationScenarios } from "@/components/qualification-scenario";
 import { PageShell } from "@/components/page-shell";
 import { RelatedLinks } from "@/components/related-links";
 import { StandingsTable } from "@/components/standings-table";
@@ -114,29 +115,7 @@ export default async function GroupPage({ params }: Props) {
         <GroupFixtures matchdays={matchdays} />
       </section>
 
-      <section className="mb-8 rounded-[22px] border border-[rgba(14,12,10,.10)] bg-[#F6F4F1] p-5 md:p-6">
-        <p className="text-xs font-black uppercase tracking-[0.18em] text-[#B48A00]">How teams advance</p>
-        <h2 className="mt-1 text-2xl font-black text-[#0E0C0A]">Qualification rules</h2>
-        <ul className="mt-4 grid gap-3">
-          <li className="flex items-start gap-3">
-            <span className="mt-0.5 inline-grid h-6 w-6 shrink-0 place-items-center rounded-full bg-[#1FA960] text-xs font-black text-white">1-2</span>
-            <span className="text-sm font-bold leading-6 text-[#0E0C0A]/80"><span className="font-black text-[#0E0C0A]">Top 2 advance automatically</span> to the Round of 32.</span>
-          </li>
-          <li className="flex items-start gap-3">
-            <span className="mt-0.5 inline-grid h-6 w-6 shrink-0 place-items-center rounded-full bg-[#E7C36B] text-xs font-black text-[#0E0C0A]">3</span>
-            <span className="text-sm font-bold leading-6 text-[#0E0C0A]/80"><span className="font-black text-[#0E0C0A]">Best 8 third-place teams also advance</span> — the eight strongest of the twelve group third-placed sides go through.</span>
-          </li>
-          <li className="flex items-start gap-3">
-            <span className="mt-0.5 inline-grid h-6 w-6 shrink-0 place-items-center rounded-full bg-[#0E0C0A]/12 text-xs font-black text-[#0E0C0A]/60">4</span>
-            <span className="text-sm font-bold leading-6 text-[#0E0C0A]/80"><span className="font-black text-[#0E0C0A]">4th place is eliminated.</span></span>
-          </li>
-        </ul>
-        <p className="mt-4 text-sm font-bold text-[#0E0C0A]/70">
-          <Link href="/world-cup-2026-format" className="text-[#B48A00] underline-offset-2 hover:underline">Tournament format</Link>
-          {" · "}
-          <Link href="/world-cup-2026-tiebreakers" className="text-[#B48A00] underline-offset-2 hover:underline">Tiebreaker rules</Link>
-        </p>
-      </section>
+      <GroupQualificationScenarios teams={teams} />
 
       <RelatedLinks
         links={[

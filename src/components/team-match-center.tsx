@@ -4,6 +4,7 @@ import Link from "next/link";
 import { ArrowUpRight, Copy, ImageIcon } from "lucide-react";
 import { useMemo, useState } from "react";
 import { PosterPreviewCard } from "@/components/poster-engine";
+import { QualificationScenario } from "@/components/qualification-scenario";
 import { StandingsTable } from "@/components/standings-table";
 import { TeamFlag } from "@/components/team-flag";
 import { TimezoneSelect } from "@/components/timezone-select";
@@ -168,6 +169,8 @@ export function TeamMatchCenter({
           </div>
         </div>
       </section>
+
+      <QualificationScenario team={team} />
 
       <section className="grid gap-5 lg:grid-cols-[1.15fr_.85fr]">
         <div className="rounded-lg border border-[rgba(14,12,10,.10)] bg-white p-4 md:p-5">
