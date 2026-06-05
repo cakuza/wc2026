@@ -68,22 +68,35 @@ export function TeamMatchCenter({
     }
   }
 
-  const hue = teamHue(team);
+  // National-color hero: primaryColor drives the gradient (top = primary, bottom = a darker
+  // shade of it), secondaryColor tints the team name and a faint diagonal-stripe texture.
+  const primary = team.primaryColor || "#0E0C0A";
+  const secondary = team.secondaryColor || "#ffffff";
 
   return (
     <div className="grid gap-6">
       <section
         className="relative -mx-4 overflow-hidden px-4 py-5 text-white shadow-[0_24px_70px_rgba(14,12,10,.18)] md:mx-0 md:rounded-[28px] md:px-6 md:py-6"
         style={{
-          background: `linear-gradient(158deg, hsl(${hue},78%,42%), hsl(${hue},70%,24%))`
+          background: `linear-gradient(158deg, ${primary}, ${darkenHex(primary, 0.45)})`
         }}
       >
+        {/* Diagonal stripe texture in the secondary color at ~10% — premium, not loud. */}
+        <div
+          className="pointer-events-none absolute inset-0"
+          style={{
+            backgroundImage: `repeating-linear-gradient(135deg, ${hexWithAlpha(secondary, 0.1)} 0px, ${hexWithAlpha(secondary, 0.1)} 2px, transparent 2px, transparent 16px)`
+          }}
+        />
         <HeroFx />
         <div className="relative z-10">
           <p className="text-xs font-black uppercase tracking-[0.2em] text-white/82">World Cup 2026 · Group {team.group}</p>
           <div className="mt-4 flex items-center gap-4">
             <TeamFlag team={team} width={104} className="drop-shadow-[0_12px_24px_rgba(0,0,0,.35)]" />
-            <h1 className={`${readableName} text-6xl font-black uppercase leading-[.82] tracking-normal [font-family:Impact,Arial_Black,sans-serif] md:text-8xl`}>
+            <h1
+              className={`${readableName} text-6xl font-black uppercase leading-[.82] tracking-normal [font-family:Impact,Arial_Black,sans-serif] md:text-8xl`}
+              style={{ color: secondary }}
+            >
               {team.name}
             </h1>
           </div>
@@ -277,6 +290,26 @@ function JerseyBadge({ color, number }: { color?: string; number: number | null 
   );
 }
 
-function teamHue(team: Team) {
-  return Math.abs(team.name.split("").reduce((sum, char) => sum + char.charCodeAt(0), 0)) % 360;
+// Parse a #RGB or #RRGGBB hex into {r,g,b}; falls back to black on malformed input.
+function hexToRgb(hex: string) {
+  const raw = hex.replace("#", "");
+  const full = raw.length === 3 ? raw.split("").map((c) => c + c).join("") : raw;
+  if (full.length < 6) return { r: 0, g: 0, b: 0 };
+  return {
+    r: parseInt(full.slice(0, 2), 16),
+    g: parseInt(full.slice(2, 4), 16),
+    b: parseInt(full.slice(4, 6), 16)
+  };
+}
+
+// Multiply each channel toward black to make the gradient's bottom stop (factor < 1).
+function darkenHex(hex: string, factor: number) {
+  const { r, g, b } = hexToRgb(hex);
+  return `rgb(${Math.round(r * factor)}, ${Math.round(g * factor)}, ${Math.round(b * factor)})`;
+}
+
+// Same color at a given alpha, e.g. for the 10% diagonal-stripe overlay.
+function hexWithAlpha(hex: string, alpha: number) {
+  const { r, g, b } = hexToRgb(hex);
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
 }
