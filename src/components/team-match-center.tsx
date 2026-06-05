@@ -28,6 +28,12 @@ export function TeamMatchCenter({
   const { timeZone: timezone } = useTimezone();
   const [status, setStatus] = useState("");
   const sortedFixtures = useMemo(() => [...fixtures].sort((a, b) => Date.parse(a.date) - Date.parse(b.date)), [fixtures]);
+  // First upcoming fixture for the hero "Next match" line; falls back to the opener so the
+  // line is always populated pre-tournament when every fixture is still in the future.
+  const nextMatch = useMemo(() => {
+    const now = Date.now();
+    return sortedFixtures.find((match) => Date.parse(match.date) >= now) || sortedFixtures[0] || null;
+  }, [sortedFixtures]);
   const squadGroups = getSquadByPosition(team.id);
   const playersToWatch = getPlayersToWatch(team.id, team.featuredPlayer);
   // Before any match is played every row is 0-0-0, which reads as a broken demo. Treat an
@@ -100,6 +106,31 @@ export function TeamMatchCenter({
               {team.name}
             </h1>
           </div>
+          {nextMatch ? (
+            <div className="mt-5">
+              <p className="text-[11px] font-black uppercase tracking-[0.2em] text-white/65">Next match</p>
+              <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm font-bold text-white/90">
+                <span className="inline-flex items-center gap-2">
+                  <TeamFlag team={opponentFor(nextMatch, team)} width={26} />
+                  <span className="font-black">{opponentFor(nextMatch, team).name}</span>
+                </span>
+                <span className="text-white/40">·</span>
+                <span>{heroMatchDate(nextMatch.kickoffUtc || nextMatch.date, timezone)}</span>
+                {nextMatch.kickoffUtc ? (
+                  <>
+                    <span className="text-white/40">·</span>
+                    <span>{heroMatchTime(nextMatch.kickoffUtc, timezone)} local</span>
+                  </>
+                ) : null}
+                {nextMatch.venue ? (
+                  <>
+                    <span className="text-white/40">·</span>
+                    <span className="text-white/75">{nextMatch.venue}</span>
+                  </>
+                ) : null}
+              </div>
+            </div>
+          ) : null}
           <div className="mt-4 flex flex-wrap items-center gap-3">
             {typeof team.squadValue === "number" ? (
               <p className="inline-flex items-center gap-2 rounded-md bg-white/12 px-3 py-1.5 text-sm font-black uppercase tracking-[0.12em] text-white/90">
@@ -288,6 +319,16 @@ function JerseyBadge({ color, number }: { color?: string; number: number | null 
       </text>
     </svg>
   );
+}
+
+// "Sun Jun 14" in the user's timezone for the hero next-match line.
+function heroMatchDate(date: string, timeZone: string) {
+  return new Intl.DateTimeFormat("en", { weekday: "short", month: "short", day: "numeric", timeZone }).format(new Date(date));
+}
+
+// "07:00" in the user's timezone (24h, no offset label — UI says "local").
+function heroMatchTime(date: string, timeZone: string) {
+  return new Intl.DateTimeFormat("en-GB", { hour: "2-digit", minute: "2-digit", hour12: false, timeZone }).format(new Date(date));
 }
 
 // Parse a #RGB or #RRGGBB hex into {r,g,b}; falls back to black on malformed input.
