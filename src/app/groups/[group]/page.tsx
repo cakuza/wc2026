@@ -7,6 +7,7 @@ import { GroupQualificationScenarios } from "@/components/qualification-scenario
 import { PageShell } from "@/components/page-shell";
 import { RelatedLinks } from "@/components/related-links";
 import { StandingsTable } from "@/components/standings-table";
+import { TriviaWidget } from "@/components/trivia-widget";
 import { footballProvider } from "@/lib/providers";
 import { getMatchesWithTeams, getTeams } from "@/lib/football";
 import { absoluteUrl } from "@/lib/site";
@@ -116,6 +117,10 @@ export default async function GroupPage({ params }: Props) {
       </section>
 
       <GroupQualificationScenarios teams={teams} />
+
+      <div className="mb-8">
+        <TriviaWidget />
+      </div>
 
       <RelatedLinks
         links={[

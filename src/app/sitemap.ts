@@ -10,7 +10,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const teams = await getTeams();
   const matches = await getMatchesWithTeams();
   const baseUrl = getSiteUrl();
-  const staticRoutes = ["", "/matches", "/standings", "/stats", "/leaderboards", "/teams", "/groups", "/world-cup-2026-format", "/world-cup-2026-tiebreakers", "/privacy-policy", "/cards", "/launch-checklist", "/operations"];
+  const staticRoutes = ["", "/matches", "/standings", "/stats", "/leaderboards", "/teams", "/groups", "/world-cup-2026-format", "/world-cup-2026-tiebreakers", "/world-cup-quiz", "/privacy-policy", "/cards", "/launch-checklist", "/operations"];
 
   return [
     ...staticRoutes.map((route) => ({

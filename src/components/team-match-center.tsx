@@ -7,6 +7,7 @@ import { PosterPreviewCard } from "@/components/poster-engine";
 import { QualificationScenario } from "@/components/qualification-scenario";
 import { StandingsTable } from "@/components/standings-table";
 import { TeamFlag } from "@/components/team-flag";
+import { TriviaWidget } from "@/components/trivia-widget";
 import { TimezoneSelect } from "@/components/timezone-select";
 import { useTimezone } from "@/components/timezone-provider";
 import type { MatchWithTeams, Standing, Team } from "@/lib/types";
@@ -239,6 +240,8 @@ export function TeamMatchCenter({
       ) : null}
 
       {nextOpponent ? <OpponentWatch opponent={nextOpponent} teams={teams} /> : null}
+
+      <TriviaWidget />
     </div>
   );
 }
