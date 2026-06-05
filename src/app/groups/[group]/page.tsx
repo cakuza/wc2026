@@ -91,17 +91,12 @@ export default async function GroupPage({ params }: Props) {
 
       <header className="mb-8">
         <p className="text-xs font-black uppercase tracking-[0.22em] text-[#FF2D6B]">World Cup 2026 · Group stage</p>
-        <h1 className="mt-3 text-5xl font-black uppercase leading-[.9] tracking-normal text-[#0E0C0A] [font-family:Impact,Arial_Black,sans-serif] md:text-7xl">
-          Group {group}
-        </h1>
+        <h1 className="mt-2 text-3xl font-black text-[#0E0C0A] md:text-4xl">Group {group}</h1>
       </header>
 
       <section className="mb-10">
         <div className="mb-3 flex items-end justify-between gap-3">
-          <div>
-            <p className="text-xs font-black uppercase tracking-[0.18em] text-[#B48A00]">Group {group} table</p>
-            <h2 className="mt-1 text-2xl font-black text-[#0E0C0A]">Standings</h2>
-          </div>
+          <h2 className="text-2xl font-black text-[#0E0C0A]">Standings</h2>
           <span className="hidden items-center gap-2 text-xs font-bold text-[#0E0C0A]/55 sm:flex">
             <span className="inline-block h-3 w-3 rounded-full bg-[#1FA960]" />
             Qualification places
@@ -116,8 +111,7 @@ export default async function GroupPage({ params }: Props) {
       </section>
 
       <section className="mb-10">
-        <p className="text-xs font-black uppercase tracking-[0.18em] text-[#B48A00]">All six fixtures</p>
-        <h2 className="mt-1 mb-5 text-2xl font-black text-[#0E0C0A]">Group {group} schedule</h2>
+        <h2 className="mb-5 text-2xl font-black text-[#0E0C0A]">Fixtures</h2>
         <GroupFixtures matchdays={matchdays} />
       </section>
 
