@@ -122,8 +122,8 @@ export default async function HomePage() {
             </div>
           </div>
 
-          {/* RIGHT — dark glass "Next matchday" card (desktop only) */}
-          <div className="hidden lg:block">
+          {/* RIGHT — dark glass "Next matchday" card (stacks under the headline on mobile) */}
+          <div className="pb-6 lg:pb-0">
             <div className="rounded-[22px] border border-white/12 bg-white/[0.05] p-5 shadow-[0_30px_80px_rgba(0,0,0,0.5)] backdrop-blur-xl">
               <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
                 <div className="flex flex-wrap items-center gap-2">
@@ -148,27 +148,6 @@ export default async function HomePage() {
       {/* LIGHT-GRAY BAND — team discovery, separated from the dark hero */}
       <section className="bg-[#F4F4F4]">
         <div className="mx-auto w-full max-w-7xl px-4 py-10 md:py-12">
-          {/* Mobile-only matchday card (desktop shows it in the hero) */}
-          <div className="mb-8 lg:hidden">
-            <div className="rounded-[22px] border border-[rgba(14,12,10,.10)] bg-white p-4 shadow-[0_18px_50px_rgba(14,12,10,.10)]">
-              <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-                <div className="flex flex-wrap items-center gap-2">
-                  <p className="text-xs font-black uppercase tracking-[0.18em] text-[#B48A00]">{showingToday ? "Today's matches" : "Next matchday"}</p>
-                  {daysUntilMatchday !== null ? (
-                    <span className="inline-flex items-center rounded-full bg-[#0E0C0A] px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.12em] text-[#E7C36B]">
-                      {countdownLabel(daysUntilMatchday)}
-                    </span>
-                  ) : null}
-                </div>
-                <label className="grid gap-1 text-[10px] font-black uppercase tracking-[0.14em] text-[#0E0C0A]/55">
-                  Timezone
-                  <TimezoneSelect variant="light" className="!py-2" />
-                </label>
-              </div>
-              <TodayMatches matches={matchdayMatches} />
-            </div>
-          </div>
-
           <div id="pick-team" className="scroll-mt-20">
             <TeamPicker teams={teams} trending={trending} matches={groupMatches} />
           </div>
