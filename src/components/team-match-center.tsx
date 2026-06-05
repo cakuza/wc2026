@@ -149,6 +149,8 @@ export function TeamMatchCenter({
         </div>
       </section>
 
+      <TriviaWidget />
+
       <QualificationScenario team={team} />
 
       <section className="rounded-lg border border-[rgba(14,12,10,.10)] bg-white p-4 md:p-5">
@@ -211,8 +213,6 @@ export function TeamMatchCenter({
           </div>
         </section>
       ) : null}
-
-      <TriviaWidget />
     </div>
   );
 }
