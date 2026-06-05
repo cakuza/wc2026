@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
-import { PageIntro, PageShell } from "@/components/page-shell";
+import { PageShell } from "@/components/page-shell";
 import { RelatedLinks } from "@/components/related-links";
-import { LastUpdatedBlock } from "@/components/seo-blocks";
 import { SectionCard } from "@/components/section-card";
 import { StandingsTable } from "@/components/standings-table";
 import { footballProvider } from "@/lib/providers";
@@ -23,28 +22,23 @@ export const metadata: Metadata = {
 };
 
 export default async function StandingsPage() {
-  const [standings, teams, meta] = await Promise.all([
+  const [standings, teams] = await Promise.all([
     footballProvider.getStandings(),
-    footballProvider.getTeams(),
-    footballProvider.getMeta()
+    footballProvider.getTeams()
   ]);
   const groups = groupBy(standings, (row) => row.group);
 
   return (
     <PageShell>
-      <PageIntro
-        kicker="Tables"
-        title="Group standings built for instant publishing."
-        copy={meta.note}
-      />
-      <div className="mb-5">
-        <LastUpdatedBlock meta={meta} />
-      </div>
+      <header className="mb-6">
+        <p className="mb-2 text-xs font-bold uppercase tracking-[0.2em] text-[#B48A00]">Tables</p>
+        <h1 className="text-3xl font-black leading-tight text-[#0E0C0A] md:text-5xl">World Cup 2026 Group Standings</h1>
+      </header>
       <div className="grid gap-5">
         {GROUPS.map((group) => (
           <SectionCard key={group} title={`Group ${group}`}>
             <div className="overflow-x-auto">
-              <StandingsTable rows={groups[group] || []} teams={teams} />
+              <StandingsTable rows={groups[group] || []} teams={teams} showFlags />
             </div>
           </SectionCard>
         ))}

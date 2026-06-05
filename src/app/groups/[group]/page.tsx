@@ -9,7 +9,7 @@ import { StandingsTable } from "@/components/standings-table";
 import { footballProvider } from "@/lib/providers";
 import { getMatchesWithTeams, getTeams } from "@/lib/football";
 import { absoluteUrl } from "@/lib/site";
-import { GROUPS, type Group, type Team } from "@/lib/types";
+import { GROUPS, type Group } from "@/lib/types";
 
 type Props = {
   params: Promise<{ group: string }>;
@@ -43,21 +43,6 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
-// 2-3 sentences of original copy built from real data, so every group page reads
-// differently and avoids thin/placeholder content.
-function buildGroupSummary(group: Group, teams: Team[]): string[] {
-  const names = teams.map((team) => team.name);
-  const confederations = [...new Set(teams.map((team) => team.confederation))];
-  const list =
-    names.length > 1 ? `${names.slice(0, -1).join(", ")} and ${names[names.length - 1]}` : names[0] || "four teams";
-
-  return [
-    `Group ${group} at the 2026 World Cup brings together ${list}, spanning ${confederations.length} confederation${confederations.length > 1 ? "s" : ""} (${confederations.join(", ")}).`,
-    `Each side plays the other three once in the group stage across the United States, Canada and Mexico, with kickoff times below shown in your local timezone.`,
-    `The top two teams advance directly to the Round of 32, and Group ${group}'s third-placed side can still progress as one of the eight best third-placed teams in the expanded 48-nation field.`
-  ];
-}
-
 export default async function GroupPage({ params }: Props) {
   const { group: raw } = await params;
   const group = normalizeGroup(raw);
@@ -76,7 +61,6 @@ export default async function GroupPage({ params }: Props) {
     .sort((a, b) => Date.parse(a.date) - Date.parse(b.date));
   // Four-team round robin = three matchdays of two fixtures each, in date order.
   const matchdays = [fixtures.slice(0, 2), fixtures.slice(2, 4), fixtures.slice(4, 6)].filter((day) => day.length > 0);
-  const summary = buildGroupSummary(group, teams);
 
   return (
     <PageShell>
@@ -85,16 +69,31 @@ export default async function GroupPage({ params }: Props) {
         All groups
       </Link>
 
+      <nav aria-label="Groups" className="mb-6 flex flex-wrap gap-1.5">
+        {GROUPS.map((item) => {
+          const active = item === group;
+          return (
+            <Link
+              key={item}
+              href={`/groups/${item.toLowerCase()}`}
+              aria-current={active ? "page" : undefined}
+              className={
+                active
+                  ? "grid h-9 w-9 place-items-center rounded-md bg-[#0E0C0A] text-sm font-black text-white"
+                  : "grid h-9 w-9 place-items-center rounded-md border border-[rgba(14,12,10,.12)] bg-white text-sm font-black text-[#0E0C0A]/70 transition hover:border-[#0E0C0A]/40 hover:text-[#0E0C0A]"
+              }
+            >
+              {item}
+            </Link>
+          );
+        })}
+      </nav>
+
       <header className="mb-8">
         <p className="text-xs font-black uppercase tracking-[0.22em] text-[#FF2D6B]">World Cup 2026 · Group stage</p>
         <h1 className="mt-3 text-5xl font-black uppercase leading-[.9] tracking-normal text-[#0E0C0A] [font-family:Impact,Arial_Black,sans-serif] md:text-7xl">
           Group {group}
         </h1>
-        <div className="mt-5 grid max-w-3xl gap-3 text-sm leading-7 text-[#0E0C0A]/70 md:text-base">
-          {summary.map((paragraph) => (
-            <p key={paragraph}>{paragraph}</p>
-          ))}
-        </div>
       </header>
 
       <section className="mb-10">

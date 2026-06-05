@@ -59,7 +59,6 @@ export function StandingsTable({
                     <Link href={`/teams/${team.slug}-world-cup-schedule`} className="flex items-center gap-2.5 hover:text-[#B48A00]">
                       <TeamFlag team={team} width={28} />
                       <span>{team.name}</span>
-                      <span className="text-xs font-bold text-[#0E0C0A]/40">{team.fifaCode}</span>
                     </Link>
                   ) : (
                     <>
