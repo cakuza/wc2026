@@ -62,17 +62,6 @@ export default async function HomePage() {
           <h1 className="mt-4 max-w-3xl text-6xl font-black uppercase leading-[.9] tracking-normal text-[#0E0C0A] [font-family:Impact,Arial_Black,sans-serif] md:text-8xl">
             Your <span className="text-[#FF2D6B]">World Cup</span> <span className="text-[#1FA9F6]">2026</span> hub.
           </h1>
-          <div className="mt-6 flex flex-wrap gap-3">
-            <Link href="/teams" className="focus-ring inline-flex items-center justify-center rounded-md bg-[#0E0C0A] px-6 py-3 font-black text-white transition hover:bg-[#23201c]">
-              Teams
-            </Link>
-            <Link href="/matches" className="focus-ring inline-flex items-center justify-center rounded-md border border-[rgba(14,12,10,.16)] bg-white px-6 py-3 font-black text-[#0E0C0A] transition hover:border-[#0E0C0A]/40">
-              Schedule
-            </Link>
-            <Link href="/cards" className="focus-ring inline-flex items-center justify-center rounded-md border border-[rgba(14,12,10,.16)] bg-white px-6 py-3 font-black text-[#0E0C0A] transition hover:border-[#0E0C0A]/40">
-              Cards
-            </Link>
-          </div>
           <div className="mt-6">
             <ScoreboardChipRow
               chips={[
