@@ -131,6 +131,11 @@ export default async function GroupPage({ params }: Props) {
             <span className="text-sm font-bold leading-6 text-[#0E0C0A]/80"><span className="font-black text-[#0E0C0A]">4th place is eliminated.</span></span>
           </li>
         </ul>
+        <p className="mt-4 text-sm font-bold text-[#0E0C0A]/70">
+          <Link href="/world-cup-2026-format" className="text-[#B48A00] underline-offset-2 hover:underline">Tournament format</Link>
+          {" · "}
+          <Link href="/world-cup-2026-tiebreakers" className="text-[#B48A00] underline-offset-2 hover:underline">Tiebreaker rules</Link>
+        </p>
       </section>
 
       <RelatedLinks
