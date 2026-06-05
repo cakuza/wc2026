@@ -1,7 +1,6 @@
 // cache-bust: 2026-06-04
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
-import { PageShell } from "@/components/page-shell";
 import { StructuredData } from "@/components/structured-data";
 import { TeamPicker } from "@/components/team-picker";
 import { TimezoneSelect } from "@/components/timezone-select";
@@ -48,9 +47,13 @@ export default async function HomePage() {
     !showingToday && firstKickoff
       ? Math.max(0, Math.ceil((Date.parse(firstKickoff) - Date.now()) / 86_400_000))
       : null;
+  // Days to the next kickoff for the big hero pill (independent of today/next-matchday split).
+  const daysToKickoff = nextMatch
+    ? Math.max(0, Math.ceil((Date.parse(nextMatch.date) - Date.now()) / 86_400_000))
+    : null;
 
   return (
-    <PageShell>
+    <>
       <StructuredData
         data={{
           "@context": "https://schema.org",
@@ -65,53 +68,135 @@ export default async function HomePage() {
         }}
       />
 
-      <section className="mb-8 grid gap-8 rounded-[28px] border border-[rgba(14,12,10,.10)] bg-white p-5 shadow-[0_24px_70px_rgba(14,12,10,.10)] md:p-8 lg:grid-cols-[.9fr_1.1fr] lg:items-center">
-        <div>
-          <p className="text-xs font-black uppercase tracking-[0.22em] text-[#FF2D6B]">48 Teams · 104 Matches · 3 Host Nations</p>
-          <h1 className="mt-4 max-w-2xl text-5xl font-black uppercase leading-[.95] tracking-normal text-[#0E0C0A] [font-family:Impact,Arial_Black,sans-serif] md:text-6xl">
-            Your <span className="text-[#FF2D6B]">World Cup</span> <span className="text-[#1FA9F6]">2026</span> hub.
-          </h1>
-        </div>
-        <div className="rounded-[22px] border border-[rgba(14,12,10,.10)] bg-white p-4 shadow-[0_18px_50px_rgba(14,12,10,.10)] md:p-5">
-          <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-            <div className="flex flex-wrap items-center gap-2">
-              <p className="text-xs font-black uppercase tracking-[0.18em] text-[#B48A00]">{showingToday ? "Today's matches" : "Next matchday"}</p>
-              {daysUntilMatchday !== null ? (
-                <span className="inline-flex items-center rounded-full bg-[#0E0C0A] px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.12em] text-[#E7C36B]">
-                  {countdownLabel(daysUntilMatchday)}
+      {/* CINEMATIC HERO — full-bleed, near-black with stadium-floodlight glow */}
+      <section className="relative overflow-hidden bg-[#0a0a0a] text-white">
+        {/* Floodlight glow: gold core + deep-red wash, ~15% opacity */}
+        <div
+          className="pointer-events-none absolute inset-0"
+          style={{
+            backgroundImage:
+              "radial-gradient(60% 55% at 50% 38%, rgba(201,168,76,0.16), transparent 70%), radial-gradient(50% 60% at 78% 80%, rgba(139,0,0,0.18), transparent 70%)"
+          }}
+        />
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(120%_120%_at_50%_0%,transparent_55%,rgba(0,0,0,0.75)_100%)]" />
+
+        <div className="relative mx-auto grid min-h-[50vh] w-full max-w-7xl items-center gap-10 px-4 py-14 lg:min-h-[calc(100vh-64px)] lg:grid-cols-[1.05fr_.95fr] lg:py-0">
+          {/* LEFT — magazine-cover headline */}
+          <div className="py-6 lg:py-20">
+            <p className="text-xs font-black uppercase tracking-[0.28em] text-[#C9A84C]">
+              World Cup 2026 · June 11 – July 19
+            </p>
+            <h1 className="mt-5 text-6xl font-black uppercase leading-[.86] tracking-[-0.01em] text-white [font-family:Impact,Arial_Black,sans-serif] sm:text-7xl md:text-8xl">
+              The World&apos;s
+              <br />
+              Biggest
+              <br />
+              Tournament.
+            </h1>
+
+            {daysToKickoff !== null ? (
+              <div className="mt-7">
+                <span
+                  className="inline-flex items-center rounded-full border border-[#C9A84C]/40 bg-[#C9A84C]/10 px-4 py-2 text-sm font-black uppercase tracking-[0.14em] text-[#E7C36B] shadow-[0_0_28px_rgba(201,168,76,0.35)]"
+                >
+                  {heroCountdownLabel(daysToKickoff)}
                 </span>
-              ) : null}
+              </div>
+            ) : null}
+
+            <div className="mt-8 flex flex-wrap items-center gap-3">
+              <Link
+                href="/matches"
+                className="focus-ring inline-flex items-center gap-2 rounded-md bg-[#C9A84C] px-6 py-3.5 text-sm font-black uppercase tracking-[0.1em] text-[#0a0a0a] transition hover:bg-[#dabb5e]"
+              >
+                View Schedule
+                <ArrowRight size={16} />
+              </Link>
+              <Link
+                href="#pick-team"
+                className="focus-ring inline-flex items-center gap-2 rounded-md border border-white/35 px-6 py-3.5 text-sm font-black uppercase tracking-[0.1em] text-white transition hover:border-white hover:bg-white/10"
+              >
+                Pick your team
+                <ArrowRight size={16} />
+              </Link>
             </div>
-            <label className="grid gap-1 text-[10px] font-black uppercase tracking-[0.14em] text-[#0E0C0A]/55">
-              Timezone
-              <TimezoneSelect variant="light" className="!py-2" />
-            </label>
           </div>
-          <TodayMatches matches={matchdayMatches} />
+
+          {/* RIGHT — dark glass "Next matchday" card (desktop only) */}
+          <div className="hidden lg:block">
+            <div className="rounded-[22px] border border-white/12 bg-white/[0.05] p-5 shadow-[0_30px_80px_rgba(0,0,0,0.5)] backdrop-blur-xl">
+              <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+                <div className="flex flex-wrap items-center gap-2">
+                  <p className="text-xs font-black uppercase tracking-[0.18em] text-[#C9A84C]">{showingToday ? "Today's matches" : "Next matchday"}</p>
+                  {daysUntilMatchday !== null ? (
+                    <span className="inline-flex items-center rounded-full bg-white/10 px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.12em] text-[#E7C36B]">
+                      {countdownLabel(daysUntilMatchday)}
+                    </span>
+                  ) : null}
+                </div>
+                <label className="grid gap-1 text-[10px] font-black uppercase tracking-[0.14em] text-white/55">
+                  Timezone
+                  <TimezoneSelect variant="dark" className="!py-2" />
+                </label>
+              </div>
+              <TodayMatches matches={matchdayMatches} variant="dark" />
+            </div>
+          </div>
         </div>
       </section>
 
-      <div id="pick-team" className="mb-8">
-        <TeamPicker teams={teams} trending={trending} matches={groupMatches} />
-      </div>
-
-      <section className="mb-8">
-        <Link
-          href="/groups"
-          className="group flex flex-col items-start justify-between gap-4 rounded-[22px] border border-[rgba(14,12,10,.10)] bg-[#0E0C0A] p-6 text-white shadow-[0_18px_50px_rgba(14,12,10,.18)] transition hover:bg-[#23201c] sm:flex-row sm:items-center md:p-8">
-          <div>
-            <p className="text-xs font-black uppercase tracking-[0.22em] text-[#E7C36B]">Kick-off is June 11</p>
-            <p className="mt-2 text-2xl font-black leading-tight md:text-3xl">Pick your team and follow every match.</p>
+      {/* LIGHT-GRAY BAND — team discovery, separated from the dark hero */}
+      <section className="bg-[#F4F4F4]">
+        <div className="mx-auto w-full max-w-7xl px-4 py-10 md:py-12">
+          {/* Mobile-only matchday card (desktop shows it in the hero) */}
+          <div className="mb-8 lg:hidden">
+            <div className="rounded-[22px] border border-[rgba(14,12,10,.10)] bg-white p-4 shadow-[0_18px_50px_rgba(14,12,10,.10)]">
+              <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+                <div className="flex flex-wrap items-center gap-2">
+                  <p className="text-xs font-black uppercase tracking-[0.18em] text-[#B48A00]">{showingToday ? "Today's matches" : "Next matchday"}</p>
+                  {daysUntilMatchday !== null ? (
+                    <span className="inline-flex items-center rounded-full bg-[#0E0C0A] px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.12em] text-[#E7C36B]">
+                      {countdownLabel(daysUntilMatchday)}
+                    </span>
+                  ) : null}
+                </div>
+                <label className="grid gap-1 text-[10px] font-black uppercase tracking-[0.14em] text-[#0E0C0A]/55">
+                  Timezone
+                  <TimezoneSelect variant="light" className="!py-2" />
+                </label>
+              </div>
+              <TodayMatches matches={matchdayMatches} />
+            </div>
           </div>
-          <span className="inline-flex shrink-0 items-center gap-2 rounded-md bg-[#E7C36B] px-5 py-3 text-sm font-black uppercase tracking-[0.12em] text-[#0E0C0A] transition group-hover:gap-3">
-            Browse all groups
-            <ArrowRight size={16} />
-          </span>
-        </Link>
-      </section>
 
-    </PageShell>
+          <div id="pick-team" className="scroll-mt-20">
+            <TeamPicker teams={teams} trending={trending} matches={groupMatches} />
+          </div>
+
+          <div className="mt-8">
+            <Link
+              href="/groups"
+              className="group flex flex-col items-start justify-between gap-4 rounded-[22px] border border-[rgba(14,12,10,.10)] bg-[#0E0C0A] p-6 text-white shadow-[0_18px_50px_rgba(14,12,10,.18)] transition hover:bg-[#23201c] sm:flex-row sm:items-center md:p-8">
+              <div>
+                <p className="text-xs font-black uppercase tracking-[0.22em] text-[#E7C36B]">Kick-off is June 11</p>
+                <p className="mt-2 text-2xl font-black leading-tight md:text-3xl">Pick your team and follow every match.</p>
+              </div>
+              <span className="inline-flex shrink-0 items-center gap-2 rounded-md bg-[#E7C36B] px-5 py-3 text-sm font-black uppercase tracking-[0.12em] text-[#0E0C0A] transition group-hover:gap-3">
+                Browse all groups
+                <ArrowRight size={16} />
+              </span>
+            </Link>
+          </div>
+        </div>
+      </section>
+    </>
   );
+}
+
+function heroCountdownLabel(days: number) {
+  if (days <= 0) return "Kicks off today";
+  if (days === 1) return "Kicks off tomorrow";
+  return `Kicks off in ${days} days`;
 }
 
 function countdownLabel(days: number) {
