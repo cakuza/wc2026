@@ -5,8 +5,7 @@ const navItems = [
   { href: "/", label: "Today" },
   { href: "/groups", label: "Groups" },
   { href: "/matches", label: "Schedule" },
-  { href: "/teams", label: "Teams" },
-  { href: "/cards", label: "Cards" }
+  { href: "/teams", label: "Teams" }
 ];
 
 export function SiteHeader() {

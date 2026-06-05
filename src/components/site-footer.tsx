@@ -4,7 +4,8 @@ const footerLinks = [
   { href: "/world-cup-2026-format", label: "Tournament format" },
   { href: "/world-cup-2026-tiebreakers", label: "Tiebreaker rules" },
   { href: "/groups", label: "Groups" },
-  { href: "/matches", label: "Schedule" }
+  { href: "/matches", label: "Schedule" },
+  { href: "/privacy-policy", label: "Privacy Policy" }
 ];
 
 // Subtle site-wide footer. WC26 Hub is an unofficial fan project.
