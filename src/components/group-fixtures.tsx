@@ -4,6 +4,7 @@ import Link from "next/link";
 import { CalendarDays, MapPin } from "lucide-react";
 import { TeamFlag } from "@/components/team-flag";
 import { useTimezone } from "@/components/timezone-provider";
+import { matchSlug } from "@/lib/matches";
 import { formatKickoff } from "@/lib/timezones";
 import type { MatchWithTeams } from "@/lib/types";
 
@@ -23,7 +24,7 @@ export function GroupFixtures({ matchdays }: { matchdays: MatchWithTeams[][] }) 
               return (
                 <Link
                   key={match.id}
-                  href={`/matches/${match.id}`}
+                  href={`/matches/${matchSlug(match)}`}
                   className="rounded-lg border border-[rgba(14,12,10,.10)] bg-white p-4 shadow-[0_8px_18px_rgba(14,12,10,.05)] transition hover:border-[#E7C36B]/60 hover:shadow-[0_14px_32px_rgba(14,12,10,.09)]"
                 >
                   <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-3">

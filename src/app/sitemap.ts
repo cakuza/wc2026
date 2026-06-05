@@ -1,5 +1,6 @@
 import type { MetadataRoute } from "next";
 import { getMatchesWithTeams, getTeams } from "@/lib/football";
+import { matchSlug } from "@/lib/matches";
 import { localTimePages } from "@/lib/local-time-pages";
 import { requestedTeamScheduleSlugs, seoLandingPages } from "@/lib/seo-content";
 import { getSiteUrl } from "@/lib/site";
@@ -37,7 +38,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       lastModified: new Date()
     })),
     ...matches.map((match) => ({
-      url: `${baseUrl}/matches/${match.id}`,
+      url: `${baseUrl}/matches/${matchSlug(match)}`,
       lastModified: new Date()
     })),
     ...requestedTeamScheduleSlugs.map((slug) => ({
