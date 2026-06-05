@@ -25,7 +25,7 @@ export default function WorldCupQuizPage() {
         title="The World Cup quiz."
         copy="Ten questions on World Cup history, records and the 2026 tournament. Answer, see instant feedback, and share your score."
       />
-      <div className="max-w-2xl">
+      <div className="max-w-full md:max-w-2xl">
         <QuizClient />
       </div>
       <div className="mt-8">

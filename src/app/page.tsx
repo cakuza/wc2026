@@ -1,5 +1,6 @@
 // cache-bust: 2026-06-04
 import Link from "next/link";
+import { ArrowRight } from "lucide-react";
 import { PageShell } from "@/components/page-shell";
 import { StructuredData } from "@/components/structured-data";
 import { TeamFlag } from "@/components/team-flag";
@@ -102,6 +103,21 @@ export default async function HomePage() {
       <div id="pick-team" className="mb-8">
         <TeamPicker teams={teams} />
       </div>
+
+      <section className="mb-8">
+        <Link
+          href="/groups"
+          className="group flex flex-col items-start justify-between gap-4 rounded-[22px] border border-[rgba(14,12,10,.10)] bg-[#0E0C0A] p-6 text-white shadow-[0_18px_50px_rgba(14,12,10,.18)] transition hover:bg-[#23201c] sm:flex-row sm:items-center md:p-8">
+          <div>
+            <p className="text-xs font-black uppercase tracking-[0.22em] text-[#E7C36B]">Kick-off is June 11</p>
+            <p className="mt-2 text-2xl font-black leading-tight md:text-3xl">Pick your team and follow every match.</p>
+          </div>
+          <span className="inline-flex shrink-0 items-center gap-2 rounded-md bg-[#E7C36B] px-5 py-3 text-sm font-black uppercase tracking-[0.12em] text-[#0E0C0A] transition group-hover:gap-3">
+            Browse all groups
+            <ArrowRight size={16} />
+          </span>
+        </Link>
+      </section>
 
     </PageShell>
   );
