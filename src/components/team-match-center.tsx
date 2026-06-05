@@ -30,7 +30,6 @@ export function TeamMatchCenter({
   const sortedFixtures = useMemo(() => [...fixtures].sort((a, b) => Date.parse(a.date) - Date.parse(b.date)), [fixtures]);
   const squadGroups = getSquadByPosition(team.id);
   const playersToWatch = getPlayersToWatch(team.id, team.featuredPlayer);
-  const summary = useMemo(() => buildTeamSummary(team, sortedFixtures, teams), [team, sortedFixtures, teams]);
   // Before any match is played every row is 0-0-0, which reads as a broken demo. Treat an
   // all-zero group as pre-tournament and show a prompt instead of an empty table.
   const groupNotStarted =
@@ -107,22 +106,10 @@ export function TeamMatchCenter({
         </div>
       </section>
 
-      <section className="rounded-lg border border-[rgba(14,12,10,.10)] bg-white p-4 md:p-5">
-        <p className="text-xs font-black uppercase tracking-[0.18em] text-[#B48A00]">{team.name} at the 2026 World Cup</p>
-        <div className="mt-3 grid gap-3 text-sm leading-7 text-[#0E0C0A]/70 md:text-base">
-          {summary.map((paragraph) => (
-            <p key={paragraph}>{paragraph}</p>
-          ))}
-        </div>
-      </section>
-
       <section>
         <div className="rounded-lg border border-[rgba(14,12,10,.10)] bg-white p-4 md:p-5">
           <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
-            <div>
-              <p className="text-xs font-black uppercase tracking-[0.18em] text-[#B48A00]">Three matchups</p>
-              <h2 className="text-2xl font-black text-[#0E0C0A]">{team.name} fixtures</h2>
-            </div>
+            <h2 className="text-2xl font-black text-[#0E0C0A]">{team.name} fixtures</h2>
             <label className="grid gap-1 text-xs font-black uppercase tracking-[0.14em] text-[#0E0C0A]/55">
               Timezone
               <TimezoneSelect variant="light" />
@@ -249,39 +236,6 @@ function formatSquadValue(millions: number): string {
 
 function opponentFor(match: MatchWithTeams, team: Team) {
   return match.homeTeamId === team.id ? match.awayTeam : match.homeTeam;
-}
-
-// Original 2-3 sentence summary built from real fixture/group data so every one of the 48
-// pages reads differently and avoids thin/placeholder content.
-function buildTeamSummary(team: Team, fixtures: MatchWithTeams[], allTeams: Team[]): string[] {
-  const opponents = [
-    ...new Set(fixtures.filter((match) => match.stage === "group").map((match) => opponentFor(match, team).name))
-  ];
-  const groupSize = allTeams.filter((item) => item.group === team.group).length;
-  const sentences: string[] = [];
-
-  if (opponents.length) {
-    sentences.push(
-      `${team.name} compete in Group ${team.group} at the 2026 World Cup, where they face ${joinWithAnd(opponents)} in the group stage.`
-    );
-  } else {
-    sentences.push(`${team.name} compete in Group ${team.group} at the 2026 World Cup, hosted across the United States, Canada and Mexico.`);
-  }
-
-  sentences.push(
-    `Representing ${team.confederation} in the expanded 48-team field, they need a strong start from ${groupSize ? `a ${groupSize}-team group` : "their group"} to reach the knockout rounds.`
-  );
-
-  sentences.push(
-    `Below you'll find ${team.name}'s group-stage kickoffs in your local time, players to watch, the Group ${team.group} table and the full reported squad.`
-  );
-
-  return sentences;
-}
-
-function joinWithAnd(items: string[]): string {
-  if (items.length <= 1) return items[0] ?? "";
-  return `${items.slice(0, -1).join(", ")} and ${items[items.length - 1]}`;
 }
 
 // Last token of a name for the football-manager-style label (e.g. "Baris Alper Yilmaz" -> "Yilmaz").
