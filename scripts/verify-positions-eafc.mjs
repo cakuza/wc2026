@@ -52,7 +52,9 @@ const KNOWN_CODES = new Set(Object.keys(GRANULAR_TO_BROAD));
 // "Genuine fix" mode: only adopt EA when our current code is generic (a broad bucket or an
 // unsided winger) and EA gives something more specific. This refines vague values without
 // importing EA's specific-vs-specific reclassifications (RW->RM, CM->CDM, CAM->LW, ...).
-const GENERIC_CODES = new Set(["DEF", "MID", "FWD", "W"]);
+// Generic/unsided codes that should be refined to a specific EA role (FB/WB are unsided backs,
+// same class as the unsided winger W).
+const GENERIC_CODES = new Set(["DEF", "MID", "FWD", "W", "FB", "WB"]);
 const genuineOnly = !process.argv.includes("--all");
 // Known namesake collisions: our player shares a name with a DIFFERENT EA player. EA lists e.g.
 // a "Nicolás Paz" (CB) separate from "Nico Paz" (CAM, the Argentina squad member), so the exact
