@@ -2,11 +2,10 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
+import { GroupFixtures } from "@/components/group-fixtures";
 import { PageShell } from "@/components/page-shell";
 import { RelatedLinks } from "@/components/related-links";
 import { StandingsTable } from "@/components/standings-table";
-import { TeamFlag } from "@/components/team-flag";
-import { TodayMatches } from "@/components/today-matches";
 import { footballProvider } from "@/lib/providers";
 import { getMatchesWithTeams, getTeams } from "@/lib/football";
 import { absoluteUrl } from "@/lib/site";
@@ -75,6 +74,8 @@ export default async function GroupPage({ params }: Props) {
   const fixtures = allMatches
     .filter((match) => match.group === group)
     .sort((a, b) => Date.parse(a.date) - Date.parse(b.date));
+  // Four-team round robin = three matchdays of two fixtures each, in date order.
+  const matchdays = [fixtures.slice(0, 2), fixtures.slice(2, 4), fixtures.slice(4, 6)].filter((day) => day.length > 0);
   const summary = buildGroupSummary(group, teams);
 
   return (
@@ -84,51 +85,60 @@ export default async function GroupPage({ params }: Props) {
         All groups
       </Link>
 
-      <section className="mb-8 rounded-[28px] border border-[rgba(14,12,10,.10)] bg-white p-5 shadow-[0_24px_70px_rgba(14,12,10,.10)] md:p-8">
+      <header className="mb-8">
         <p className="text-xs font-black uppercase tracking-[0.22em] text-[#FF2D6B]">World Cup 2026 · Group stage</p>
         <h1 className="mt-3 text-5xl font-black uppercase leading-[.9] tracking-normal text-[#0E0C0A] [font-family:Impact,Arial_Black,sans-serif] md:text-7xl">
           Group {group}
         </h1>
-        <div className="mt-5 grid gap-3 text-sm leading-7 text-[#0E0C0A]/70 md:text-base">
+        <div className="mt-5 grid max-w-3xl gap-3 text-sm leading-7 text-[#0E0C0A]/70 md:text-base">
           {summary.map((paragraph) => (
             <p key={paragraph}>{paragraph}</p>
           ))}
         </div>
-        <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
-          {teams.map((team) => (
-            <Link
-              key={team.id}
-              href={`/teams/${team.slug}-world-cup-schedule`}
-              className="grid justify-items-center gap-2 rounded-lg border border-[rgba(14,12,10,.10)] bg-[#F6F4F1] p-4 text-center transition hover:border-[#E7C36B]/60 hover:bg-white"
-            >
-              <TeamFlag team={team} width={52} />
-              <span className="text-sm font-black uppercase leading-tight text-[#0E0C0A]">{team.name}</span>
-              <span className="text-[10px] font-black uppercase tracking-[0.12em] text-[#0E0C0A]/45">{team.confederation}</span>
-            </Link>
-          ))}
-        </div>
-      </section>
+      </header>
 
-      <section className="mb-8">
-        <p className="text-xs font-black uppercase tracking-[0.18em] text-[#B48A00]">Group {group} table</p>
-        <h2 className="mt-1 text-2xl font-black text-[#0E0C0A]">Standings</h2>
-        <p className="mt-2 max-w-2xl text-sm leading-6 text-[#0E0C0A]/58">
-          Pre-tournament table — every team starts level. Standings update automatically once the group stage kicks off on June 11, 2026.
+      <section className="mb-10">
+        <div className="mb-3 flex items-end justify-between gap-3">
+          <div>
+            <p className="text-xs font-black uppercase tracking-[0.18em] text-[#B48A00]">Group {group} table</p>
+            <h2 className="mt-1 text-2xl font-black text-[#0E0C0A]">Standings</h2>
+          </div>
+          <span className="hidden items-center gap-2 text-xs font-bold text-[#0E0C0A]/55 sm:flex">
+            <span className="inline-block h-3 w-3 rounded-full bg-[#1FA960]" />
+            Qualification places
+          </span>
+        </div>
+        <div className="overflow-x-auto">
+          <StandingsTable rows={groupStandings} teams={teams} showFlags qualifyCount={2} />
+        </div>
+        <p className="mt-2 text-xs text-[#0E0C0A]/50">
+          Pre-tournament table — every team starts level. Positions and points update automatically once the group stage kicks off on June 11, 2026.
         </p>
-        <div className="mt-4 overflow-x-auto">
-          <StandingsTable rows={groupStandings} teams={teams} />
-        </div>
       </section>
 
-      <section className="mb-8">
+      <section className="mb-10">
         <p className="text-xs font-black uppercase tracking-[0.18em] text-[#B48A00]">All six fixtures</p>
-        <h2 className="mt-1 text-2xl font-black text-[#0E0C0A]">Group {group} schedule</h2>
-        <p className="mt-2 max-w-2xl text-sm leading-6 text-[#0E0C0A]/58">
-          Kickoff times shown in your local timezone. Tap any match to build a shareable prediction card.
-        </p>
-        <div className="mt-4">
-          <TodayMatches matches={fixtures} />
-        </div>
+        <h2 className="mt-1 mb-5 text-2xl font-black text-[#0E0C0A]">Group {group} schedule</h2>
+        <GroupFixtures matchdays={matchdays} />
+      </section>
+
+      <section className="mb-8 rounded-[22px] border border-[rgba(14,12,10,.10)] bg-[#F6F4F1] p-5 md:p-6">
+        <p className="text-xs font-black uppercase tracking-[0.18em] text-[#B48A00]">How teams advance</p>
+        <h2 className="mt-1 text-2xl font-black text-[#0E0C0A]">Qualification rules</h2>
+        <ul className="mt-4 grid gap-3">
+          <li className="flex items-start gap-3">
+            <span className="mt-0.5 inline-grid h-6 w-6 shrink-0 place-items-center rounded-full bg-[#1FA960] text-xs font-black text-white">1-2</span>
+            <span className="text-sm font-bold leading-6 text-[#0E0C0A]/80"><span className="font-black text-[#0E0C0A]">Top 2 advance automatically</span> to the Round of 32.</span>
+          </li>
+          <li className="flex items-start gap-3">
+            <span className="mt-0.5 inline-grid h-6 w-6 shrink-0 place-items-center rounded-full bg-[#E7C36B] text-xs font-black text-[#0E0C0A]">3</span>
+            <span className="text-sm font-bold leading-6 text-[#0E0C0A]/80"><span className="font-black text-[#0E0C0A]">Best 8 third-place teams also advance</span> — the eight strongest of the twelve group third-placed sides go through.</span>
+          </li>
+          <li className="flex items-start gap-3">
+            <span className="mt-0.5 inline-grid h-6 w-6 shrink-0 place-items-center rounded-full bg-[#0E0C0A]/12 text-xs font-black text-[#0E0C0A]/60">4</span>
+            <span className="text-sm font-bold leading-6 text-[#0E0C0A]/80"><span className="font-black text-[#0E0C0A]">4th place is eliminated.</span></span>
+          </li>
+        </ul>
       </section>
 
       <RelatedLinks
