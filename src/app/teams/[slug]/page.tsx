@@ -87,6 +87,7 @@ export default async function TeamPage({ params }: Props) {
       <div className="mt-6">
         <RelatedLinks
           links={[
+            { href: `/groups/${data.team.group.toLowerCase()}`, label: `Group ${data.team.group}` },
             { href: "/matches", label: "Full schedule" },
             { href: "/standings", label: "Group standings" }
           ]}
@@ -100,8 +101,8 @@ export default async function TeamPage({ params }: Props) {
               answer: `${data.team.name} fixtures are listed on this page with imported kickoff times, venues, and local-time conversion.`
             },
             {
-              question: `Can I create a ${data.team.name} schedule card?`,
-              answer: "Yes. Use the card generator and choose Team Schedule, then select the team and preferred social format."
+              question: `How does ${data.team.name} qualify from the group stage?`,
+              answer: `${data.team.name} qualify by finishing 1st or 2nd in Group ${data.team.group}, which means automatic qualification for the Round of 32. Finishing 3rd may still go through as one of the eight best third-placed teams across the 12 groups, while finishing 4th means elimination.`
             },
             {
               question: "Is this live tournament data?",
