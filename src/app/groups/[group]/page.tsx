@@ -69,7 +69,7 @@ export default async function GroupPage({ params }: Props) {
         All groups
       </Link>
 
-      <nav aria-label="Groups" className="mb-6 flex flex-wrap gap-1.5">
+      <nav aria-label="Groups" className="mb-6 flex flex-wrap gap-2">
         {GROUPS.map((item) => {
           const active = item === group;
           return (
@@ -79,8 +79,8 @@ export default async function GroupPage({ params }: Props) {
               aria-current={active ? "page" : undefined}
               className={
                 active
-                  ? "grid h-9 w-9 place-items-center rounded-md bg-[#0E0C0A] text-sm font-black text-white"
-                  : "grid h-9 w-9 place-items-center rounded-md border border-[rgba(14,12,10,.12)] bg-white text-sm font-black text-[#0E0C0A]/70 transition hover:border-[#0E0C0A]/40 hover:text-[#0E0C0A]"
+                  ? "grid h-11 w-11 place-items-center rounded-full bg-[#0E0C0A] text-base font-black text-white shadow-[0_6px_16px_rgba(14,12,10,.22)]"
+                  : "grid h-11 w-11 place-items-center rounded-full border border-[rgba(14,12,10,.15)] bg-white text-base font-black text-[#0E0C0A]/70 transition hover:border-[#0E0C0A]/45 hover:bg-[#F6F4F1] hover:text-[#0E0C0A]"
               }
             >
               {item}
@@ -111,7 +111,6 @@ export default async function GroupPage({ params }: Props) {
       </section>
 
       <section className="mb-10">
-        <h2 className="mb-5 text-2xl font-black text-[#0E0C0A]">Fixtures</h2>
         <GroupFixtures matchdays={matchdays} />
       </section>
 
