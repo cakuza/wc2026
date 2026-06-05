@@ -24,8 +24,8 @@ export default async function MatchesPage() {
     <PageShell>
       <PageIntro
         kicker="Match schedule"
-        title="World Cup matches in your local time."
-        copy="Filter the group stage by country, date, group, and timezone. Then turn any match into a prediction card or team-road poster."
+        title="World Cup 2026 Match Schedule."
+        copy="All 104 matches with local kickoff times. Filter by team, date or group."
       />
       <MatchScheduleClient matches={matches} />
       <p className="mt-6 text-xs text-[#0E0C0A]/45">* Official WC2026 group stage fixtures. Times shown in your local timezone.</p>

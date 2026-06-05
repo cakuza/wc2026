@@ -75,10 +75,7 @@ export default async function HomePage() {
         </div>
         <div className="rounded-[22px] border border-[rgba(14,12,10,.10)] bg-white p-4 shadow-[0_18px_50px_rgba(14,12,10,.10)] md:p-5">
           <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-            <div>
-              <p className="text-xs font-black uppercase tracking-[0.18em] text-[#B48A00]">{showingToday ? "On today" : "Next matchday"}</p>
-              <h2 className="mt-1 text-2xl font-black text-[#0E0C0A]">{showingToday ? "Today's Matches" : "Next Matchday"}</h2>
-            </div>
+            <p className="text-xs font-black uppercase tracking-[0.18em] text-[#B48A00]">{showingToday ? "Today's matches" : "Next matchday"}</p>
             <label className="grid gap-1 text-[10px] font-black uppercase tracking-[0.14em] text-[#0E0C0A]/55">
               Timezone
               <TimezoneSelect variant="light" className="!py-2" />

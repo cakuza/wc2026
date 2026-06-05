@@ -16,7 +16,7 @@ export function TodayMatches({ matches }: { matches: MatchWithTeams[] }) {
   }
 
   return (
-    <div className="grid gap-3 md:grid-cols-2">
+    <div className="grid gap-3">
       {matches.map((match) => {
         const hasVenue = match.venue !== "TBD" && match.city !== "TBD";
         return (
@@ -25,12 +25,16 @@ export function TodayMatches({ matches }: { matches: MatchWithTeams[] }) {
             href={`/cards?template=prediction&match=${match.id}`}
             className="rounded-md border border-[rgba(14,12,10,.10)] bg-[#F6F4F1] p-4 transition hover:bg-white hover:shadow-[0_10px_24px_rgba(14,12,10,.08)]"
           >
-            <div className="flex items-center gap-2">
-              <TeamFlag team={match.homeTeam} width={32} />
-              <span className="min-w-0 truncate text-lg font-black uppercase leading-none text-[#0E0C0A] [font-family:Impact,Arial_Black,sans-serif]">{match.homeTeam.name}</span>
-              <span className="shrink-0 text-base font-black uppercase text-[#0E0C0A]/45 [font-family:Impact,Arial_Black,sans-serif]">vs</span>
-              <span className="min-w-0 truncate text-lg font-black uppercase leading-none text-[#0E0C0A] [font-family:Impact,Arial_Black,sans-serif]">{match.awayTeam.name}</span>
-              <TeamFlag team={match.awayTeam} width={32} />
+            <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-2">
+              <div className="flex min-w-0 items-center justify-end gap-2 text-right">
+                <span className="truncate text-base font-black leading-tight text-[#0E0C0A]">{match.homeTeam.name}</span>
+                <TeamFlag team={match.homeTeam} width={28} />
+              </div>
+              <span className="shrink-0 rounded bg-[#0E0C0A]/[0.06] px-2 py-1 text-xs font-black uppercase text-[#0E0C0A]/45">vs</span>
+              <div className="flex min-w-0 items-center gap-2">
+                <TeamFlag team={match.awayTeam} width={28} />
+                <span className="truncate text-base font-black leading-tight text-[#0E0C0A]">{match.awayTeam.name}</span>
+              </div>
             </div>
             <p className="mt-3 text-sm font-black text-[#B48A00]">
               {match.kickoffUtc ? `${formatKickoff(match.kickoffUtc, timeZone)} · Local time` : "Local time not added yet"}

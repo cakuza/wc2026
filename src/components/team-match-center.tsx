@@ -173,23 +173,14 @@ export function TeamMatchCenter({
         <div className="rounded-lg border border-[rgba(14,12,10,.10)] bg-white p-4 md:p-5">
           <p className="text-xs font-black uppercase tracking-[0.18em] text-[#B48A00]">Group table</p>
           <h2 className="mt-1 text-2xl font-black text-[#0E0C0A]">Group {team.group}</h2>
+          <div className="mt-4 overflow-x-auto">
+            <StandingsTable rows={groupStandings} teams={teams} highlightTeamId={team.id} showFlags qualifyCount={2} />
+          </div>
           {groupNotStarted ? (
-            <div className="mt-4 rounded-lg border border-dashed border-[rgba(14,12,10,.18)] bg-[#F6F4F1] p-5 text-center">
-              <p className="text-sm font-bold leading-6 text-[#0E0C0A]/70">
-                Group stage starts June 11 — check back for live standings or create a prediction card.
-              </p>
-              <Link
-                href={`/cards?template=prediction&team=${team.id}`}
-                className="focus-ring mt-4 inline-flex items-center gap-2 rounded-md bg-[#0E0C0A] px-4 py-2.5 text-sm font-black text-white"
-              >
-                Create a prediction card
-              </Link>
-            </div>
-          ) : (
-            <div className="mt-4 overflow-x-auto">
-              <StandingsTable rows={groupStandings} teams={teams} highlightTeamId={team.id} />
-            </div>
-          )}
+            <p className="mt-2 text-xs text-[#0E0C0A]/50">
+              Pre-tournament table — every team starts level. Standings update automatically once the group stage kicks off on June 11, 2026.
+            </p>
+          ) : null}
         </div>
         <ShareScheduleBox team={team} scheduleUrl={scheduleUrl} whatsappText={whatsappText} onCopy={copyText} status={status} />
       </section>
@@ -197,8 +188,7 @@ export function TeamMatchCenter({
       {playersToWatch.length ? (
         <section className="rounded-lg border border-[rgba(14,12,10,.10)] bg-white p-4 md:p-5">
           <div className="mb-4">
-            <p className="text-xs font-black uppercase tracking-[0.18em] text-[#B48A00]">Players to watch</p>
-            <h2 className="text-2xl font-black text-[#0E0C0A]">{team.name} key names</h2>
+            <h2 className="text-2xl font-black text-[#0E0C0A]">Players to watch</h2>
           </div>
           <div className="grid gap-3 sm:grid-cols-3">
             {playersToWatch.map((player) => (
