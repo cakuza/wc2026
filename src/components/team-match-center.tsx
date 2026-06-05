@@ -12,7 +12,7 @@ import { TimezoneSelect } from "@/components/timezone-select";
 import { useTimezone } from "@/components/timezone-provider";
 import type { MatchWithTeams, Standing, Team } from "@/lib/types";
 import { formatKickoff } from "@/lib/timezones";
-import { getPlayersToWatch, getSquadByPosition, getStarPlayer, playerSlug, positionCode } from "@/lib/squads";
+import { getPlayersToWatch, getSquadByPosition, playerSlug, positionCode } from "@/lib/squads";
 
 const readableName = "break-normal [hyphens:none] [overflow-wrap:normal] [word-break:normal]";
 
@@ -30,8 +30,6 @@ export function TeamMatchCenter({
   const { timeZone: timezone } = useTimezone();
   const [status, setStatus] = useState("");
   const sortedFixtures = useMemo(() => [...fixtures].sort((a, b) => Date.parse(a.date) - Date.parse(b.date)), [fixtures]);
-  const nextMatch = sortedFixtures[0];
-  const nextOpponent = nextMatch ? opponentFor(nextMatch, team) : undefined;
   const squadGroups = getSquadByPosition(team.id);
   const playersToWatch = getPlayersToWatch(team.id, team.featuredPlayer);
   const summary = useMemo(() => buildTeamSummary(team, sortedFixtures, teams), [team, sortedFixtures, teams]);
@@ -239,8 +237,6 @@ export function TeamMatchCenter({
         </section>
       ) : null}
 
-      {nextOpponent ? <OpponentWatch opponent={nextOpponent} teams={teams} /> : null}
-
       <TriviaWidget />
     </div>
   );
@@ -276,41 +272,6 @@ function ShareScheduleBox({
       </div>
       <p className="mt-3 text-sm text-[#0E0C0A]/50">{status || "Ready for fan groups."}</p>
     </div>
-  );
-}
-
-function OpponentWatch({ opponent, teams }: { opponent: Team; teams: Team[] }) {
-  const groupTeams = teams.filter((item) => item.group === opponent.group);
-  const potIndex = groupTeams.findIndex((item) => item.id === opponent.id);
-  const pot = ["Pot 1 (seed)", "Pot 2", "Pot 3", "Pot 4"][potIndex] || "Pot 4";
-  const star = getStarPlayer(opponent.id);
-  const facts: Array<{ label: string; value: string }> = [
-    { label: "Group position", value: `Group ${opponent.group} - ${pot}` },
-    { label: "Confederation", value: opponent.confederation },
-    { label: "Player to watch", value: star ? `${star.name} (${star.position})` : opponent.name }
-  ];
-  return (
-    <section className="relative overflow-hidden rounded-lg bg-[#0E0C0A] p-5 text-white">
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(60%_50%_at_85%_12%,rgba(255,45,107,.30),transparent_70%)]" />
-      <div className="relative">
-        <p className="text-xs font-black uppercase tracking-[0.18em] text-[#E7C36B]">Opponent watch - next up</p>
-        <div className="mt-4 flex items-center gap-4">
-          <TeamFlag team={opponent} width={72} />
-          <h2 className={`${readableName} text-4xl font-black uppercase leading-[.9] [font-family:Impact,Arial_Black,sans-serif]`}>{opponent.name}</h2>
-        </div>
-        <div className="mt-5 grid gap-3 sm:grid-cols-3">
-          {facts.map((fact) => (
-            <div key={fact.label} className="rounded-md bg-white/8 p-3">
-              <p className="text-[10px] font-black uppercase tracking-[0.14em] text-white/48">{fact.label}</p>
-              <p className="mt-1 text-sm font-bold leading-5 text-white/82">{fact.value}</p>
-            </div>
-          ))}
-        </div>
-        <Link href={`/teams/${opponent.slug}-world-cup-schedule`} className="focus-ring mt-5 inline-flex rounded-md bg-[#E7C36B] px-4 py-3 text-sm font-black text-[#0E0C0A]">
-          View {opponent.name} hub →
-        </Link>
-      </div>
-    </section>
   );
 }
 

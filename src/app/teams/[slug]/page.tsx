@@ -88,9 +88,7 @@ export default async function TeamPage({ params }: Props) {
         <RelatedLinks
           links={[
             { href: "/matches", label: "Full schedule" },
-            { href: "/standings", label: "Group standings" },
-            { href: `/cards?template=team-schedule&team=${data.team.id}`, label: "Create team card" },
-            { href: `/cards?template=player-watch&team=${data.team.id}`, label: "Create player watch" }
+            { href: "/standings", label: "Group standings" }
           ]}
         />
       </div>
@@ -107,7 +105,7 @@ export default async function TeamPage({ params }: Props) {
             },
             {
               question: "Is this live tournament data?",
-              answer: "Yes — these are the official WC2026 group stage fixtures from the final draw, shown in your local timezone."
+              answer: "No. Fixtures are the official WC2026 group stage schedule. Match times are converted to your local timezone. Live scores and standings will update once the tournament begins on June 11."
             }
           ]}
         />
