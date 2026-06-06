@@ -4,6 +4,8 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { Sparkles } from "lucide-react";
 import triviaData from "../../data/worldCupTrivia.json";
+import { useLang } from "@/components/language-provider";
+import { t, TRIVIA_TRANSLATIONS } from "@/lib/i18n";
 
 type TriviaCard = {
   id: string;
@@ -28,14 +30,25 @@ function pickWeighted(items: TriviaCard[]): TriviaCard {
 }
 
 export function TriviaWidget() {
-  // Pick on the client after mount so the weighted random choice never causes a hydration
-  // mismatch. Until then we render a stable shell.
+  const { lang } = useLang();
   const [card, setCard] = useState<TriviaCard | null>(null);
   const [revealed, setRevealed] = useState(false);
 
+  // Pick on the client after mount so the weighted random choice never causes a
+  // hydration mismatch. Until then we render a stable shell.
   useEffect(() => {
     setCard(pickWeighted(cards));
   }, []);
+
+  // Apply translation overlay: use translated teaser/reveal if available for the
+  // current language, otherwise fall back to the English original from the JSON.
+  const localCard = card
+    ? {
+        ...card,
+        teaser: TRIVIA_TRANSLATIONS[card.id]?.[lang]?.teaser ?? card.teaser,
+        reveal: TRIVIA_TRANSLATIONS[card.id]?.[lang]?.reveal ?? card.reveal,
+      }
+    : null;
 
   return (
     <section className="relative overflow-hidden rounded-xl border border-[#E7C36B]/55 bg-[#FDF6E3] p-5 shadow-[0_10px_28px_rgba(180,138,0,.10)] md:p-6">
@@ -46,18 +59,18 @@ export function TriviaWidget() {
       <div className="relative">
         <p className="inline-flex items-center gap-2 text-xs font-black uppercase tracking-[0.2em] text-[#B48A00]">
           <Sparkles size={15} className="fill-[#F2C94C] text-[#B48A00]" />
-          World Cup trivia
+          {t("trivia_title", lang)}
         </p>
 
         <div className="mt-4 flex flex-col gap-5 md:flex-row md:items-start md:justify-between">
           <div className="min-w-0 flex-1">
             <p className="text-xl font-black leading-snug text-[#0E0C0A] md:text-2xl">
-              {card ? card.teaser : "Loading a World Cup teaser…"}
+              {localCard ? localCard.teaser : t("trivia_loading", lang)}
             </p>
 
-            {card && revealed ? (
+            {localCard && revealed ? (
               <p className="mt-4 rounded-lg border border-[#E7C36B]/45 bg-white/70 p-4 text-sm font-bold leading-6 text-[#0E0C0A]/85">
-                {card.reveal}
+                {localCard.reveal}
               </p>
             ) : null}
           </div>
@@ -66,11 +79,11 @@ export function TriviaWidget() {
             <button
               type="button"
               onClick={() => setRevealed(true)}
-              disabled={!card}
+              disabled={!localCard}
               className="focus-ring inline-flex shrink-0 items-center justify-center gap-2 rounded-lg bg-[#0E0C0A] px-5 py-3 text-sm font-black text-white shadow-[0_6px_16px_rgba(14,12,10,.18)] transition hover:bg-[#23201c] disabled:opacity-50 md:self-center"
             >
               <Sparkles size={15} className="text-[#F2C94C]" />
-              Reveal answer
+              {t("trivia_reveal", lang)}
             </button>
           ) : null}
         </div>
@@ -80,7 +93,7 @@ export function TriviaWidget() {
             href="/world-cup-quiz"
             className="focus-ring inline-flex items-center gap-1.5 rounded-md px-1 text-sm font-black text-[#B48A00] transition hover:text-[#8A6400]"
           >
-            Take the World Cup quiz →
+            {t("trivia_quiz_link", lang)}
           </Link>
         </div>
       </div>
