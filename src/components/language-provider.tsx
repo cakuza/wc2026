@@ -16,18 +16,29 @@ export const LANGUAGES: { code: Lang; label: string; flag: string }[] = [
 ];
 
 const STORAGE_KEY = "wc26.lang";
+const VALID_LANGS = new Set<string>(LANGUAGES.map((l) => l.code));
+
+function readStoredLang(): Lang | null {
+  try {
+    const s = localStorage.getItem(STORAGE_KEY);
+    return s && VALID_LANGS.has(s) ? (s as Lang) : null;
+  } catch {
+    return null;
+  }
+}
 
 type LangContextValue = { lang: Lang; setLang: (l: Lang) => void };
 const LangContext = createContext<LangContextValue>({ lang: "en", setLang: () => {} });
 
 export function LanguageProvider({ children }: { children: ReactNode }) {
+  // SSR + first-paint always "en" so Google crawls English content.
+  // After mount we apply any saved preference (valid lang codes only).
   const [lang, setLangState] = useState<Lang>("en");
 
   useEffect(() => {
-    try {
-      const s = localStorage.getItem(STORAGE_KEY);
-      if (s) setLangState(s as Lang);
-    } catch {}
+    const stored = readStoredLang();
+    if (stored) setLangState(stored);
+    // No stored preference → stays "en".
   }, []);
 
   useEffect(() => {
