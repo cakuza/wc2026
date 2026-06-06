@@ -7,7 +7,7 @@ const requiredFiles = [
   "src/app/robots.ts",
   "src/app/page.tsx",
   "src/app/stats/page.tsx",
-  "src/app/matches/[id]/page.tsx",
+  "src/app/matches/[slug]/page.tsx",
   "src/app/local-time/[country]/page.tsx",
   "src/app/launch-checklist/page.tsx",
   "src/app/operations/page.tsx",

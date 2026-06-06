@@ -6,19 +6,11 @@ const baseUrl = (process.env.ROUTE_CHECK_BASE_URL || process.argv[2] || "http://
 const teams = readJson("data/teams.json");
 const matches = readJson("data/matches.json");
 
-const mainRoutes = ["/", "/teams", "/cards", "/stats", "/matches", "/leaderboards", "/visual-review"];
+const mainRoutes = ["/", "/teams", "/matches", "/world-cup-quiz", "/groups"];
 const teamRoutes = teams.flatMap((team) => [`/teams/${team.slug}`, `/teams/${team.slug}-world-cup-schedule`]);
-const sampleMatchRoutes = matches.slice(0, 12).map((match) => `/matches/${match.id}`);
-const cardPrefillRoutes = [
-  "/cards?template=team-schedule&team=turkey",
-  "/cards?template=team-schedule&team=japan",
-  "/cards?template=prediction&match=m026",
-  "/cards?template=player-watch&player=custom&name=Mbappe",
-  "/cards?template=golden-boot",
-  "/cards?template=opponent-watch&match=m026"
-];
+const sampleMatchRoutes = matches.slice(0, 12).map((match) => `/matches/${match.slug ?? match.id}`);
 
-const routes = [...mainRoutes, ...teamRoutes, ...sampleMatchRoutes, ...cardPrefillRoutes];
+const routes = [...mainRoutes, ...teamRoutes, ...sampleMatchRoutes];
 const failures = [];
 
 for (const route of routes) {

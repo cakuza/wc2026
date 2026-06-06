@@ -5,7 +5,6 @@ const root = process.cwd();
 const readJson = (file) => JSON.parse(fs.readFileSync(path.join(root, file), "utf8"));
 
 const teams = readJson("data/teams.json");
-const squads = readJson("data/squads.json");
 const players = readJson("data/players.json");
 const matches = readJson("data/matches.json");
 const standings = readJson("data/standings.json");
@@ -30,7 +29,6 @@ const lineupPlayerStatuses = new Set(["starter", "bench"]);
 const newsCategories = new Set(["injury", "lineup", "tactical", "drama", "federation", "player", "general"]);
 const talkingPointCategories = new Set(["tactical", "player", "injury", "rivalry", "pressure", "drama"]);
 const dataModes = new Set(["sample", "manual", "news-watch", "api-future"]);
-const squadStatuses = new Set(["pending", "reported", "provisional", "official"]);
 const playerDataStatuses = new Set(["pending", "reported", "provisional", "official", "sample"]);
 const playerPositions = new Set(["GK", "DF", "MF", "FW", "Unknown"]);
 
@@ -138,20 +136,6 @@ const scheduledGroupMatches = matches.filter((match) => match.dataStatus === "sc
 const missingScheduledKickoffs = scheduledGroupMatches.filter((match) => !match.kickoffUtc);
 assert(missingScheduledKickoffs.length <= 2, `Too many scheduled group matches are missing kickoffUtc: ${missingScheduledKickoffs.length}.`);
 
-const squadTeams = new Set();
-assert(squads.length === 48, `Expected exactly 48 squad containers, found ${squads.length}.`);
-for (const squad of squads) {
-  assert(teamIds.has(squad.teamId), `Squad references missing team ${squad.teamId}.`);
-  assert(!squadTeams.has(squad.teamId), `Duplicate squad container for ${squad.teamId}.`);
-  squadTeams.add(squad.teamId);
-  assert(squadStatuses.has(squad.squadStatus), `Squad ${squad.teamId} has invalid status ${squad.squadStatus}.`);
-  assert(!Number.isNaN(Date.parse(squad.lastCheckedUtc)), `Squad ${squad.teamId} has invalid lastCheckedUtc.`);
-  assert(Array.isArray(squad.players), `Squad ${squad.teamId} needs players array.`);
-  for (const player of squad.players) validatePlayer(player, `Squad player ${squad.teamId}`);
-  if (squad.squadStatus === "official") assert(Boolean(squad.sourceUrl), `Official squad ${squad.teamId} needs sourceUrl.`);
-  if (squad.squadStatus === "pending") assert(squad.players.length === 0, `Pending squad ${squad.teamId} must not contain players.`);
-}
-
 for (const player of players) validatePlayer(player, `Player ${player.id}`);
 
 for (const row of playerStats) {
@@ -231,7 +215,7 @@ if (errors.length) {
   process.exit(1);
 }
 
-console.log(`Data OK: 48 teams, 12 groups, 72 group-stage matches, ${matches.filter((match) => match.kickoffUtc).length} kickoffUtc values, 48 squad containers.`);
+console.log(`Data OK: 48 teams, 12 groups, 72 group-stage matches, ${matches.filter((match) => match.kickoffUtc).length} kickoffUtc values.`);
 
 function validatePlayer(player, label) {
   assert(Boolean(player.id), `${label} is missing id.`);

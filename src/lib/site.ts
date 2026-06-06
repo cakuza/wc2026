@@ -1,8 +1,8 @@
-export const SITE_NAME = "WC26 Hub";
+export const SITE_NAME = "WorldCupMatchDay";
 
 // Canonical production host. Set NEXT_PUBLIC_SITE_URL in Vercel to override (e.g. a custom
 // domain); otherwise this is pinned to the live deployment so canonicals are deterministic.
-export const SITE_URL = "https://wc2026-wine.vercel.app";
+export const SITE_URL = "https://worldcupmatchday.vercel.app";
 
 export function getSiteUrl() {
   const explicit = process.env.NEXT_PUBLIC_SITE_URL;
