@@ -23,6 +23,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${BASE}/bracket`,       lastModified: new Date(), changeFrequency: "daily",   priority: 0.85 },
     { url: `${BASE}/stats`,         lastModified: new Date(), changeFrequency: "daily",   priority: 0.85 },
     { url: `${BASE}/teams`,         lastModified: new Date(), changeFrequency: "weekly",  priority: 0.8 },
+    { url: `${BASE}/faq`,           lastModified: new Date(), changeFrequency: "weekly",  priority: 0.6 },
     { url: `${BASE}/quiz`,          lastModified: new Date(), changeFrequency: "weekly",  priority: 0.7 },
     { url: `${BASE}/about`,         lastModified: new Date(), changeFrequency: "monthly", priority: 0.4 },
     { url: `${BASE}/contact`,       lastModified: new Date(), changeFrequency: "monthly", priority: 0.4 },

@@ -36,6 +36,11 @@ export const T: Record<Lang, Record<string, string>> = {
     lbl_firstMatch: "First Match", btn_matchCenter: "Match Center", lbl_group: "Group", lbl_pts: "PTS",
     flt_allGroups: "All Groups", search_ph: "Search teams...", ticker_label: "UPCOMING · NEXT 7 DAYS",
     sched_title: "Match Schedule", groups_title: "Groups", teams_title: "All Teams",
+    sched_intro: "Full FIFA World Cup 2026 match schedule with dates, kickoff times, teams, groups and venues.",
+    groups_intro: "The 12 FIFA World Cup 2026 groups, each with four teams.",
+    teams_intro: "All 48 FIFA World Cup 2026 qualified teams across 12 groups.",
+    today_intro: "Today's World Cup matches with kickoff times and venues. If no matches today, next upcoming matches are shown.",
+    bracket_intro: "World Cup 2026 bracket. Slots are placeholders until group-stage results are confirmed.",
     vs: "vs", tbd: "To be confirmed",
     sec_groupMatches: "Group Matches", sec_allGroupMatches: "All Group {group} Matches", sec_standings: "Standings", lbl_backTeams: "All Teams",
     q_questionOf: "Question {n} of {total}", q_yourScore: "Your Score", q_playAgain: "Play Again", q_correct: "Correct", q_wrong: "Wrong",
@@ -129,7 +134,7 @@ export const T: Record<Lang, Record<string, string>> = {
     stats_detail_most_finals: "Germany / West Germany",
     stats_detail_biggest_win: "Hungary vs El Salvador",
     stats_detail_hosts_1: "Uruguay, Italy, England,",
-    stats_sub_hosts: "W.Germany, Argentina, France",
+    stats_sub_hosts: "West Germany, Argentina, France",
     about_tagline: "FIFA World Cup 2026",
     about_title: "About WorldCupMatchDay",
     about_p1: "WorldCupMatchDay is an independent fan-made guide to the FIFA World Cup 2026 — the biggest tournament in football history. 48 teams. 12 groups. 104 matches. Three host nations.",
@@ -149,7 +154,7 @@ export const T: Record<Lang, Record<string, string>> = {
     stats_detail_messi: "Argentina · 2006–2022",
     stats_detail_pele: "Brazil · 1958 Final",
     stats_sub_biggest_win: "1982 · Elche, Spain",
-    stats_detail_hosts_list: "Uruguay, Italy, England, W.Germany, Argentina, France"
+    stats_detail_hosts_list: "Uruguay, Italy, England, West Germany, Argentina, France"
   },
   tr: {
     brand: "WC2026 HUB",

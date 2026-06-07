@@ -19,9 +19,10 @@ export default function SchedulePage() {
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-8">
-      <h1 className="mb-6 font-heading text-4xl font-extrabold uppercase tracking-wide text-white">
+      <h1 className="mb-2 font-heading text-4xl font-extrabold uppercase tracking-wide text-white">
         {t("sched_title")}
       </h1>
+      <p className="mb-6 max-w-3xl text-sm text-white/50">{t("sched_intro")}</p>
 
       <div className="space-y-8">
         {days.map(({ date, matches }) => (

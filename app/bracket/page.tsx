@@ -124,6 +124,7 @@ export default function BracketPage() {
           FIFA World Cup 2026
         </span>
       </div>
+      <p className="mb-1 max-w-3xl text-sm text-white/50">{t("bracket_intro")}</p>
       <p className="mb-6 text-sm text-white/40">{t("bracket_note")}</p>
 
       {/* Scrollable bracket canvas */}

@@ -45,10 +45,11 @@ export function TodayMatches() {
 
   return (
     <div className="rounded-xl border border-white/10 bg-navyCard p-5 shadow-2xl sm:p-6">
-      <div className="mb-4 flex items-center justify-between">
+      <div className="mb-2 flex items-center justify-between">
         <p className="font-heading text-sm font-extrabold uppercase tracking-[0.2em] text-accent">{t(md.labelKey)}</p>
         <span className="font-heading text-xs font-bold uppercase tracking-wide text-white/50">{dateLabel}</span>
       </div>
+      <p className="mb-4 text-[11px] leading-snug text-white/35">{t("today_intro")}</p>
 
       {/* Multi-day mode: group matches under date subheaders — fully expanded, no scroll */}
       {md.days ? (

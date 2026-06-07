@@ -4,30 +4,42 @@ import { useEffect, useState } from "react";
 import { useLang } from "@/components/LanguageProvider";
 import { matchUtcDate, type Match } from "@/lib/matches";
 
+// US Eastern is FIFA's reference timezone for 2026 — a fixed IANA zone (not the runtime's
+// local zone), so this label is identical on server and client → no hydration mismatch.
+function easternKickoff(match: Match): string {
+  return (
+    new Intl.DateTimeFormat("en-US", {
+      hour: "numeric",
+      minute: "2-digit",
+      hour12: true,
+      timeZone: "America/New_York",
+    }).format(matchUtcDate(match)) + " ET"
+  );
+}
+
 /**
  * Renders a fixture's kickoff time.
  *
- * SSR + first client paint: the venue-local kickoff (`match.time`). This is a deterministic
- * value, identical on the server and the first client render, so the time is present in the raw
- * HTML (good for SEO, no-JS users and AI crawlers) with no hydration mismatch.
+ * SSR + first client paint: the kickoff in US Eastern, e.g. "3:00 PM ET". This is deterministic
+ * (fixed timezone) and identical on server and client, so a real time is always present in the
+ * raw HTML — good for SEO, AI crawlers and no-JS users — with no hydration mismatch.
  *
- * After hydration: an effect re-renders the *same instant* in the viewer's own timezone (Türkiye
- * sees UTC+3, Japan UTC+9, etc.). The absolute kickoff is unchanged — only the wall-clock label.
+ * After hydration: an effect appends the viewer's own local time, e.g. "3:00 PM ET · 21:00
+ * local". The ET anchor stays for everyone; the absolute kickoff instant never changes.
  */
 export function MatchTime({ match, className }: { match: Match; className?: string }) {
   const { locale } = useLang();
-  // Server-rendered fallback = venue-local time; replaced with viewer-local time post-hydration.
-  const [time, setTime] = useState<string>(match.time ?? "");
+  // Server-rendered fallback = ET; after hydration we append the viewer's local time.
+  const [time, setTime] = useState<string>(() => (match.time ? easternKickoff(match) : ""));
 
   useEffect(() => {
     if (!match.time) return;
-    setTime(
-      new Intl.DateTimeFormat(locale, {
-        hour: "2-digit",
-        minute: "2-digit",
-        hourCycle: "h23", // 24-hour "22:00" format, viewer's local timezone
-      }).format(matchUtcDate(match))
-    );
+    const local = new Intl.DateTimeFormat(locale, {
+      hour: "2-digit",
+      minute: "2-digit",
+      hourCycle: "h23", // 24-hour "21:00" in the viewer's own timezone
+    }).format(matchUtcDate(match));
+    setTime(`${easternKickoff(match)} · ${local} local`);
   }, [match, locale]);
 
   if (!match.time) return null;

@@ -41,9 +41,10 @@ export default function GroupsPage() {
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-8">
-      <h1 className="mb-6 font-heading text-4xl font-extrabold uppercase tracking-wide text-white">
+      <h1 className="mb-2 font-heading text-4xl font-extrabold uppercase tracking-wide text-white">
         {t("groups_title")}
       </h1>
+      <p className="mb-6 max-w-3xl text-sm text-white/50">{t("groups_intro")}</p>
 
       <div className="grid gap-5 lg:grid-cols-2">
         {GROUP_LETTERS.map((g) => {
