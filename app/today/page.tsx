@@ -149,6 +149,9 @@ export default function TodayPage() {
           <Link href="/groups" className="rounded-lg border border-white/15 bg-navyCard px-4 py-2 font-heading text-xs font-bold uppercase tracking-wide text-white/70 transition hover:border-white/30 hover:text-white">
             Groups
           </Link>
+          <Link href="/world-cup-schedule-local-time" className="rounded-lg border border-white/15 bg-navyCard px-4 py-2 font-heading text-xs font-bold uppercase tracking-wide text-white/70 transition hover:border-white/30 hover:text-white">
+            Schedule by Time Zone
+          </Link>
         </div>
 
         {/* FAQ */}

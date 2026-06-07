@@ -22,10 +22,15 @@ export default function SchedulePage() {
       <h1 className="mb-2 font-heading text-4xl font-extrabold uppercase tracking-wide text-white">
         {t("sched_title")}
       </h1>
-      <p className="mb-6 max-w-3xl text-sm text-white/50">
+      <p className="mb-2 max-w-3xl text-sm text-white/50">
         {t("sched_intro")}{" "}
         <Link href="/today" className="font-semibold text-accent underline underline-offset-2 hover:text-white">
           {t("nav_today")} →
+        </Link>
+      </p>
+      <p className="mb-6 text-sm">
+        <Link href="/world-cup-schedule-local-time" className="font-semibold text-accent underline underline-offset-2 hover:text-white">
+          View the schedule in your time zone →
         </Link>
       </p>
 

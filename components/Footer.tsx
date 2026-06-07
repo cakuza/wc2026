@@ -2,9 +2,15 @@
 
 import Link from "next/link";
 import { useLang } from "@/components/LanguageProvider";
+import { TIMEZONES } from "@/lib/timezones";
 
 export function Footer() {
   const { t } = useLang();
+
+  const GUIDE_LINKS = [
+    { href: "/world-cup-schedule-local-time", label: "Schedule by Time Zone" },
+    ...TIMEZONES.map((z) => ({ href: `/schedule/${z.slug}`, label: z.label })),
+  ];
 
   const NAV_LINKS = [
     { href: "/today",    label: t("nav_today")    },
@@ -33,6 +39,24 @@ export function Footer() {
           {/* Nav links */}
           <nav className="flex flex-wrap justify-center gap-x-4 gap-y-2 sm:justify-end">
             {NAV_LINKS.map((l) => (
+              <Link
+                key={l.href}
+                href={l.href}
+                className="font-heading text-xs font-bold uppercase tracking-wide text-white/40 transition hover:text-white/80"
+              >
+                {l.label}
+              </Link>
+            ))}
+          </nav>
+        </div>
+
+        {/* Popular guides — time-zone schedule landing pages */}
+        <div className="mt-6 border-t border-white/5 pt-5">
+          <p className="mb-2 text-center font-heading text-[11px] font-extrabold uppercase tracking-widest text-white/40 sm:text-start">
+            Popular Guides
+          </p>
+          <nav className="flex flex-wrap justify-center gap-x-4 gap-y-2 sm:justify-start">
+            {GUIDE_LINKS.map((l) => (
               <Link
                 key={l.href}
                 href={l.href}
