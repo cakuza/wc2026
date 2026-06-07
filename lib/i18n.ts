@@ -1072,17 +1072,13 @@ export const COUNTRIES: Record<string, Record<Lang, string>> = {
   capeVerde: { en: "Cape Verde", tr: "Cabo Verde", es: "Cabo Verde", fr: "Cap-Vert", de: "Kap Verde", pt: "Cabo Verde", ar: "الرأس الأخضر", ja: "カーボベルデ" },
   paraguay: { en: "Paraguay", tr: "Paraguay", es: "Paraguay", fr: "Paraguay", de: "Paraguay", pt: "Paraguai", ar: "باراغواي", ja: "パラグアイ" },
   scotland: { en: "Scotland", tr: "İskoçya", es: "Escocia", fr: "Écosse", de: "Schottland", pt: "Escócia", ar: "اسكتلندا", ja: "スコットランド" },
-  cameroon: { en: "Cameroon", tr: "Kamerun", es: "Camerún", fr: "Cameroun", de: "Kamerun", pt: "Camarões", ar: "الكاميرون", ja: "カメルーン" },
   switzerland: { en: "Switzerland", tr: "İsviçre", es: "Suiza", fr: "Suisse", de: "Schweiz", pt: "Suíça", ar: "سويسرا", ja: "スイス" },
   uruguay: { en: "Uruguay", tr: "Uruguay", es: "Uruguay", fr: "Uruguay", de: "Uruguay", pt: "Uruguai", ar: "الأوروغواي", ja: "ウルグアイ" },
   colombia: { en: "Colombia", tr: "Kolombiya", es: "Colombia", fr: "Colombie", de: "Kolumbien", pt: "Colômbia", ar: "كولومبيا", ja: "コロンビア" },
-  serbia: { en: "Serbia", tr: "Sırbistan", es: "Serbia", fr: "Serbie", de: "Serbien", pt: "Sérvia", ar: "صربيا", ja: "セルビア" },
   belgium: { en: "Belgium", tr: "Belçika", es: "Bélgica", fr: "Belgique", de: "Belgien", pt: "Bélgica", ar: "بلجيكا", ja: "ベルギー" },
-  denmark: { en: "Denmark", tr: "Danimarka", es: "Dinamarca", fr: "Danemark", de: "Dänemark", pt: "Dinamarca", ar: "الدنمارك", ja: "デンマーク" },
   norway: { en: "Norway", tr: "Norveç", es: "Noruega", fr: "Norvège", de: "Norwegen", pt: "Noruega", ar: "النرويج", ja: "ノルウェー" },
   egypt: { en: "Egypt", tr: "Mısır", es: "Egipto", fr: "Égypte", de: "Ägypten", pt: "Egito", ar: "مصر", ja: "エジプト" },
   sweden: { en: "Sweden", tr: "İsveç", es: "Suecia", fr: "Suède", de: "Schweden", pt: "Suécia", ar: "السويد", ja: "スウェーデン" },
-  nigeria: { en: "Nigeria", tr: "Nijerya", es: "Nigeria", fr: "Nigéria", de: "Nigeria", pt: "Nigéria", ar: "نيجيريا", ja: "ナイジェリア" },
   ecuador: { en: "Ecuador", tr: "Ekvador", es: "Ecuador", fr: "Équateur", de: "Ecuador", pt: "Equador", ar: "الإكوادور", ja: "エクアドル" },
   ivoryCoast: { en: "Ivory Coast", tr: "Fildişi Sahili", es: "Costa de Marfil", fr: "Côte d'Ivoire", de: "Elfenbeinküste", pt: "Costa do Marfim", ar: "ساحل العاج", ja: "コートジボワール" },
   iran: { en: "Iran", tr: "İran", es: "Irán", fr: "Iran", de: "Iran", pt: "Irã", ar: "إيران", ja: "イラン" },
@@ -1095,9 +1091,7 @@ export const COUNTRIES: Record<string, Record<Lang, string>> = {
   jordan: { en: "Jordan", tr: "Ürdün", es: "Jordania", fr: "Jordanie", de: "Jordanien", pt: "Jordânia", ar: "الأردن", ja: "ヨルダン" },
   panama: { en: "Panama", tr: "Panama", es: "Panamá", fr: "Panama", de: "Panama", pt: "Panamá", ar: "بنما", ja: "パナマ" },
   ghana: { en: "Ghana", tr: "Gana", es: "Ghana", fr: "Ghana", de: "Ghana", pt: "Gana", ar: "غانا", ja: "ガーナ" },
-  jamaica: { en: "Jamaica", tr: "Jamaika", es: "Jamaica", fr: "Jamaïque", de: "Jamaika", pt: "Jamaica", ar: "جامايكا", ja: "ジャマイカ" },
   tunisia: { en: "Tunisia", tr: "Tunus", es: "Túnez", fr: "Tunisie", de: "Tunesien", pt: "Tunísia", ar: "تونس", ja: "チュニジア" },
-  ukraine: { en: "Ukraine", tr: "Ukrayna", es: "Ucrania", fr: "Ukraine", de: "Ukraine", pt: "Ucrânia", ar: "أوكرانيا", ja: "ウクライナ" }
 };
 
 export function countryName(key: string, lang: Lang): string {
