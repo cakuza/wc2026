@@ -7,7 +7,7 @@ export function Footer() {
   const { t } = useLang();
 
   const NAV_LINKS = [
-    { href: "/",         label: t("nav_today")    },
+    { href: "/today",    label: t("nav_today")    },
     { href: "/teams",    label: t("nav_teams")    },
     { href: "/groups",   label: t("nav_groups")   },
     { href: "/schedule", label: t("nav_schedule") },

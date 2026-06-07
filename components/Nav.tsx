@@ -12,7 +12,7 @@ export function Nav() {
   const [menuOpen, setMenuOpen] = useState(false);
 
   const links = [
-    { href: "/", key: "nav_today" },
+    { href: "/today", key: "nav_today" },
     { href: "/teams", key: "nav_teams" },
     { href: "/groups", key: "nav_groups" },
     { href: "/schedule", key: "nav_schedule" },

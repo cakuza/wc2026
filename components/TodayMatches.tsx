@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { Flag } from "@/components/Flag";
 import { MatchTime } from "@/components/MatchTime";
 import { useLang } from "@/components/LanguageProvider";
@@ -75,6 +76,13 @@ export function TodayMatches() {
           ))}
         </div>
       )}
+
+      <Link
+        href="/today"
+        className="mt-4 block text-center font-heading text-xs font-bold uppercase tracking-wide text-accent transition hover:text-white"
+      >
+        {t("nav_today")} →
+      </Link>
     </div>
   );
 }

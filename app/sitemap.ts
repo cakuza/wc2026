@@ -19,6 +19,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
   return [
     { url: BASE,                    lastModified: new Date(), changeFrequency: "hourly",  priority: 1.0 },
     { url: `${BASE}/groups`,        lastModified: new Date(), changeFrequency: "daily",   priority: 0.9 },
+    { url: `${BASE}/today`,         lastModified: new Date(), changeFrequency: "hourly",  priority: 0.9 },
     { url: `${BASE}/schedule`,      lastModified: new Date(), changeFrequency: "daily",   priority: 0.9 },
     { url: `${BASE}/bracket`,       lastModified: new Date(), changeFrequency: "daily",   priority: 0.85 },
     { url: `${BASE}/stats`,         lastModified: new Date(), changeFrequency: "daily",   priority: 0.85 },
