@@ -18,6 +18,7 @@ export function Nav() {
     { href: "/teams", key: "nav_teams" },
     { href: "/bracket", key: "nav_bracket" },
     { href: "/stats", key: "nav_stats" },
+    { href: "/quiz", key: "nav_quiz" },
     { href: "/matchday-hub", key: "nav_matchdayHub" }
   ];
 
