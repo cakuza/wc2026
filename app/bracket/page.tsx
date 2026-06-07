@@ -59,8 +59,19 @@ function MatchCard({ m, isFinal = false }: { m: BMatch; isFinal?: boolean }) {
   );
 }
 
+const FINAL_DATE: Record<string, string> = {
+  en: "19 July 2026",
+  tr: "19 Temmuz 2026",
+  es: "19 de julio de 2026",
+  fr: "19 juillet 2026",
+  de: "19. Juli 2026",
+  pt: "19 de julho de 2026",
+  ar: "19 يوليو 2026",
+  ja: "2026年7月19日",
+};
+
 export default function BracketPage() {
-  const { t } = useLang();
+  const { t, lang } = useLang();
 
   const best3rd = t("bracket_3rd");
   const tbd     = t("bracket_tbd");
@@ -202,7 +213,7 @@ export default function BracketPage() {
       {/* Final info */}
       <div className="mt-5 rounded-xl border border-accent/20 bg-accent/5 p-4 text-sm text-white/60">
         <span className="font-heading text-xs font-bold uppercase tracking-widest text-accent/60">{t("bracket_final")}</span>
-        <p className="mt-1">MetLife Stadium · East Rutherford, NJ · <strong className="text-white/80">19 July 2026</strong></p>
+        <p className="mt-1">MetLife Stadium · East Rutherford, NJ · <strong className="text-white/80">{FINAL_DATE[lang] ?? FINAL_DATE["en"]}</strong></p>
       </div>
 
       {/* Format note */}
