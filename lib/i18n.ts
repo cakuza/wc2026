@@ -26,7 +26,7 @@ export const RTL_LANGS: Lang[] = ["ar"];
 export const T: Record<Lang, Record<string, string>> = {
   en: {
     brand: "WC2026 HUB",
-    nav_today: "Today", nav_teams: "Teams", nav_groups: "Groups", nav_schedule: "Schedule", nav_stats: "Stats", nav_quiz: "Quiz", nav_bracket: "Bracket",
+    nav_today: "Today", nav_teams: "Teams", nav_groups: "Groups", nav_schedule: "Schedule", nav_stats: "Stats", nav_quiz: "Quiz", nav_bracket: "Bracket", nav_matchdayHub: "Matchday Hub",
     bracket_title: "Knockout Bracket", bracket_r32: "Round of 32", bracket_r16: "Round of 16", bracket_qf: "Quarter-finals", bracket_sf: "Semi-finals", bracket_final: "Final", bracket_note: "Slots fill after group stage · 2 Jul 2026", bracket_tbd: "TBD", bracket_3rd: "Best 3rd",
     quiz_title: "World Cup Quiz", quiz_soon: "Coming Soon", quiz_sub: "Test your World Cup knowledge — launching soon.",
     hero_kickoffIn: "KICKOFF IN", hero_days: "DAYS", hero_tagline: "FIFA World Cup 2026",

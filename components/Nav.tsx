@@ -13,12 +13,12 @@ export function Nav() {
 
   const links = [
     { href: "/today", key: "nav_today" },
-    { href: "/teams", key: "nav_teams" },
-    { href: "/groups", key: "nav_groups" },
     { href: "/schedule", key: "nav_schedule" },
-    { href: "/stats", key: "nav_stats" },
+    { href: "/groups", key: "nav_groups" },
+    { href: "/teams", key: "nav_teams" },
     { href: "/bracket", key: "nav_bracket" },
-    { href: "/quiz", key: "nav_quiz" }
+    { href: "/stats", key: "nav_stats" },
+    { href: "/matchday-hub", key: "nav_matchdayHub" }
   ];
 
   return (

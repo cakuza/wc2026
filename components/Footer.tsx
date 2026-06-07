@@ -8,6 +8,7 @@ export function Footer() {
   const { t } = useLang();
 
   const GUIDE_LINKS = [
+    { href: "/matchday-hub", label: "Matchday Hub" },
     { href: "/world-cup-schedule-local-time", label: "Schedule by Time Zone" },
     ...TIMEZONES.map((z) => ({ href: `/schedule/${z.slug}`, label: z.label })),
   ];
@@ -53,7 +54,7 @@ export function Footer() {
         {/* Popular guides — time-zone schedule landing pages */}
         <div className="mt-6 border-t border-white/5 pt-5">
           <p className="mb-2 text-center font-heading text-[11px] font-extrabold uppercase tracking-widest text-white/40 sm:text-start">
-            Popular Guides
+            Matchday Tools
           </p>
           <nav className="flex flex-wrap justify-center gap-x-4 gap-y-2 sm:justify-start">
             {GUIDE_LINKS.map((l) => (

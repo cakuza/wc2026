@@ -29,6 +29,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${BASE}/groups`,        lastModified: new Date(), changeFrequency: "daily",   priority: 0.9 },
     { url: `${BASE}/today`,         lastModified: new Date(), changeFrequency: "hourly",  priority: 0.9 },
     { url: `${BASE}/schedule`,      lastModified: new Date(), changeFrequency: "daily",   priority: 0.9 },
+    { url: `${BASE}/matchday-hub`,  lastModified: new Date(), changeFrequency: "weekly",  priority: 0.7 },
     { url: `${BASE}/world-cup-schedule-local-time`, lastModified: new Date(), changeFrequency: "daily", priority: 0.8 },
     { url: `${BASE}/bracket`,       lastModified: new Date(), changeFrequency: "daily",   priority: 0.85 },
     { url: `${BASE}/stats`,         lastModified: new Date(), changeFrequency: "daily",   priority: 0.85 },
