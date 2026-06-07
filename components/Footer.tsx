@@ -10,7 +10,7 @@ export function Footer() {
   const GUIDE_LINKS = [
     { href: "/matchday-hub", label: t("nav_matchdayHub") },
     { href: "/world-cup-schedule-local-time", label: t("footer_scheduleByZone") },
-    ...TIMEZONES.map((z) => ({ href: `/schedule/${z.slug}`, label: z.label })),
+    ...TIMEZONES.map((z) => ({ href: `/schedule/${z.slug}`, label: t(`tz_${z.slug}`) })),
   ];
 
   const NAV_LINKS = [

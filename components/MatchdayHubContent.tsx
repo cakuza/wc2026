@@ -58,7 +58,7 @@ export function MatchdayHubContent() {
     },
     ...TIMEZONES.map((z) => ({
       href: `/schedule/${z.slug}`,
-      label: z.label,
+      label: t(`tz_${z.slug}`),
       note: z.zoneNote,
       icon: TZ_FLAG[z.slug] ?? "🕒",
     })),

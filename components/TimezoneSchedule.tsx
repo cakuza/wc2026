@@ -1,12 +1,16 @@
+"use client";
+
 import Link from "next/link";
 import { Flag } from "@/components/Flag";
+import { useLang } from "@/components/LanguageProvider";
 import { MATCHES, matchSlug, matchUtcDate, type Match } from "@/lib/matches";
-import { countryName } from "@/lib/i18n";
 
-// All formatting is done server-side from each match's absolute UTC instant, in the given IANA
-// timezone — so both the date and the kickoff time reflect the target zone (handling day
-// rollovers, e.g. a late US night match falling on the next calendar day in Tokyo).
+// Grouping/sorting is done from each match's absolute UTC instant in the target IANA timezone, so
+// both the date bucket and the kickoff time reflect that zone (handling day rollovers, e.g. a late
+// US night match falling on the next calendar day in Tokyo). Only the *display* of the date heading
+// is localized to the active UI language — the date itself stays computed in the schedule's timezone.
 
+// Stable, language-independent grouping key (always the target-zone calendar date).
 function dateKey(d: Date, iana: string): string {
   return new Intl.DateTimeFormat("en-CA", {
     timeZone: iana,
@@ -16,8 +20,10 @@ function dateKey(d: Date, iana: string): string {
   }).format(d);
 }
 
-function dateLabel(d: Date, iana: string): string {
-  return new Intl.DateTimeFormat("en-GB", {
+// Localized date heading in the target timezone, e.g. en-GB "Thursday 11 June",
+// tr-TR "Perşembe 11 Haziran", ja-JP "6月11日木曜日".
+function dateLabel(d: Date, iana: string, locale: string): string {
+  return new Intl.DateTimeFormat(locale, {
     timeZone: iana,
     weekday: "long",
     day: "numeric",
@@ -25,6 +31,7 @@ function dateLabel(d: Date, iana: string): string {
   }).format(d);
 }
 
+// Kickoff time in the target timezone — numeric 24h with the zone abbreviation, language-neutral.
 function timeLabel(d: Date, iana: string): string {
   return new Intl.DateTimeFormat("en-GB", {
     timeZone: iana,
@@ -39,6 +46,8 @@ type Row = { m: Match; num: number; time: string };
 type DayGroup = { key: string; label: string; rows: Row[] };
 
 export function TimezoneSchedule({ iana }: { iana: string }) {
+  const { t, country, locale } = useLang();
+
   const sorted = [...MATCHES].sort(
     (a, b) => matchUtcDate(a).getTime() - matchUtcDate(b).getTime()
   );
@@ -49,7 +58,7 @@ export function TimezoneSchedule({ iana }: { iana: string }) {
     const key = dateKey(d, iana);
     let g = groups.find((x) => x.key === key);
     if (!g) {
-      g = { key, label: dateLabel(d, iana), rows: [] };
+      g = { key, label: dateLabel(d, iana, locale), rows: [] };
       groups.push(g);
     }
     g.rows.push({ m, num: i + 1, time: timeLabel(d, iana) });
@@ -64,8 +73,8 @@ export function TimezoneSchedule({ iana }: { iana: string }) {
           </h2>
           <div className="space-y-2">
             {g.rows.map(({ m, num, time }) => {
-              const home = countryName(m.homeKey, "en");
-              const away = countryName(m.awayKey, "en");
+              const home = country(m.homeKey);
+              const away = country(m.awayKey);
               return (
                 <Link
                   key={`${g.key}-${num}`}
@@ -80,7 +89,7 @@ export function TimezoneSchedule({ iana }: { iana: string }) {
                     <Flag code={m.homeCode} name={home} width={28} height={20} />
                   </div>
                   <span className="shrink-0 rounded bg-navy px-2 py-1 font-heading text-[11px] font-bold uppercase text-white/50">
-                    vs
+                    {t("vs")}
                   </span>
                   <div className="flex flex-1 items-center gap-2">
                     <Flag code={m.awayCode} name={away} width={28} height={20} />
@@ -89,7 +98,7 @@ export function TimezoneSchedule({ iana }: { iana: string }) {
                   <div className="ms-2 hidden w-40 shrink-0 text-end text-xs text-white/55 sm:block">
                     <div className="font-semibold text-white/85">{time}</div>
                     <div className="text-white/45">
-                      {m.group ? `Group ${m.group}` : ""}
+                      {m.group ? `${t("lbl_group")} ${m.group}` : ""}
                       {m.group && m.venue ? " · " : ""}
                       {m.venue ?? ""}
                     </div>
