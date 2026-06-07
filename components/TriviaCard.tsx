@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { TRIVIA } from "@/lib/trivia";
+import { TRIVIA_T } from "@/lib/i18n";
 import { useLang } from "@/components/LanguageProvider";
 
 const CATEGORY_STYLES: Record<string, string> = {
@@ -25,7 +26,7 @@ function pickRandom(exclude = -1): number {
 }
 
 export function TriviaCard() {
-  const { t } = useLang();
+  const { t, lang } = useLang();
   const [idx, setIdx] = useState<number | null>(null);
   const [revealed, setRevealed] = useState(false);
 
@@ -46,7 +47,11 @@ export function TriviaCard() {
 
   if (idx === null) return null;
 
-  const card = TRIVIA[idx];
+  const rawCard = TRIVIA[idx];
+  const translation = TRIVIA_T[rawCard.id]?.[lang];
+  const card = translation
+    ? { ...rawCard, teaser: translation.teaser, reveal: translation.reveal }
+    : rawCard;
   const catStyle = CATEGORY_STYLES[card.category] ?? "border-white/20 bg-white/10 text-white/60";
   const difficultyLabel: Record<string, string> = {
     easy: t("trivia_easy"),
