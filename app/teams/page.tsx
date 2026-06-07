@@ -31,14 +31,21 @@ export default function TeamsPage() {
 
       <TeamsByConfederation />
 
-      <p className="mt-8 text-sm">
-        <Link
-          href="/world-cup-2026-teams-by-confederation"
-          className="font-semibold text-accent underline underline-offset-2 hover:text-white"
-        >
-          About the confederations →
-        </Link>
-      </p>
+      <div className="mt-8 flex flex-wrap gap-3 text-sm">
+        {[
+          { href: "/groups", label: "Groups" },
+          { href: "/schedule", label: "Schedule" },
+          { href: "/world-cup-2026-teams-by-confederation", label: "About the confederations" },
+        ].map((l) => (
+          <Link
+            key={l.href}
+            href={l.href}
+            className="rounded-lg border border-white/15 bg-navyCard px-4 py-2 font-heading text-xs font-bold uppercase tracking-wide text-white/70 transition hover:border-white/30 hover:text-white"
+          >
+            {l.label}
+          </Link>
+        ))}
+      </div>
     </div>
   );
 }

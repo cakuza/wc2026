@@ -37,6 +37,7 @@ export default function StatsContent() {
         <h1 className="mt-1 font-heading text-3xl font-extrabold uppercase tracking-tight text-white sm:text-4xl">
           {t("stats_page_title")}
         </h1>
+        <p className="mt-2 max-w-3xl text-sm text-white/50">{t("stats_intro")}</p>
       </div>
 
       {/* ══════════════════════════════════════════════════════════════════

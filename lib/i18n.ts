@@ -41,6 +41,8 @@ export const T: Record<Lang, Record<string, string>> = {
     teams_intro: "All 48 FIFA World Cup 2026 qualified teams across 12 groups.",
     today_intro: "Today's World Cup matches with kickoff times and venues. If no matches today, next upcoming matches are shown.",
     bracket_intro: "World Cup 2026 bracket. Slots are placeholders until group-stage results are confirmed.",
+    home_intro: "Follow the FIFA World Cup 2026 with live fixtures, kickoff times in your timezone, group standings and all 48 teams.",
+    stats_intro: "World Cup all-time records plus a 2026 tournament stat board for goals, assists, cards and clean sheets — updated as matches are played.",
     vs: "vs", tbd: "To be confirmed",
     sec_groupMatches: "Group Matches", sec_allGroupMatches: "All Group {group} Matches", sec_standings: "Standings", lbl_backTeams: "All Teams",
     q_questionOf: "Question {n} of {total}", q_yourScore: "Your Score", q_playAgain: "Play Again", q_correct: "Correct", q_wrong: "Wrong",

@@ -65,6 +65,7 @@ export function Hero() {
             <p className="mt-3 font-heading text-xs font-bold uppercase tracking-widest text-white/35">
               {t("hero_subline")}
             </p>
+            <p className="mt-4 max-w-xl text-sm text-white/55">{t("home_intro")}</p>
           </div>
         </div>
 
