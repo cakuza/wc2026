@@ -1,6 +1,7 @@
 import { TEAMS, GROUPS, GROUP_LETTERS } from "./teams";
 import { MATCHES, matchSlug } from "./matches";
 import { COUNTRIES } from "./i18n";
+import { CONFEDERATION_BY_TEAM, CONFEDERATIONS } from "./confederations";
 
 // Teams that were in an earlier (incorrect) draw and must never reappear in any public
 // World Cup 2026 data surface: team set, fixtures, group source, country names, or the
@@ -62,6 +63,17 @@ export function assertWorldCupData(): void {
   for (const t of TEAMS) {
     if (!COUNTRIES[t.key]) {
       errors.push(`Team "${t.key}" has no COUNTRIES entry in lib/i18n.ts.`);
+    }
+  }
+
+  // Every team must map to a known confederation (used by the by-confederation page).
+  const confCodes = new Set(CONFEDERATIONS.map((c) => c.code));
+  for (const t of TEAMS) {
+    const conf = CONFEDERATION_BY_TEAM[t.key];
+    if (!conf) {
+      errors.push(`Team "${t.key}" has no confederation in lib/confederations.ts.`);
+    } else if (!confCodes.has(conf)) {
+      errors.push(`Team "${t.key}" has unknown confederation "${conf}".`);
     }
   }
 
