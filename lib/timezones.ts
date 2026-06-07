@@ -22,7 +22,7 @@ export const TIMEZONES: TimezoneConfig[] = [
     iana: "Europe/Istanbul",
     zoneNote: "Turkey Time · UTC+3 · Europe/Istanbul",
     context: "Turkey are in Group D with the United States, Paraguay and Australia.",
-    title: "World Cup 2026 Schedule in Turkey Time | WorldCupMatchDay",
+    title: "World Cup 2026 Schedule in Turkey Time",
     description:
       "World Cup 2026 group-stage schedule in Turkey Time (UTC+3): every listed fixture with dates, kickoff times, groups and venues.",
   },
@@ -32,7 +32,7 @@ export const TIMEZONES: TimezoneConfig[] = [
     iana: "Europe/London",
     zoneNote: "UK Time · BST during the tournament · Europe/London",
     context: "England and Scotland fixtures are included in this schedule.",
-    title: "World Cup 2026 Schedule in UK Time | WorldCupMatchDay",
+    title: "World Cup 2026 Schedule in UK Time",
     description:
       "World Cup 2026 group-stage schedule in UK Time (BST): every listed fixture with dates, kickoff times, groups and venues.",
   },
@@ -42,7 +42,7 @@ export const TIMEZONES: TimezoneConfig[] = [
     iana: "America/New_York",
     zoneNote: "Eastern Time (EDT, UTC−4) · America/New_York",
     context: "This page is useful for fans in the eastern United States and Canada.",
-    title: "World Cup 2026 Schedule in Eastern Time (EDT) | WorldCupMatchDay",
+    title: "World Cup 2026 Schedule in Eastern Time (EDT)",
     description:
       "World Cup 2026 group-stage schedule in Eastern Time (EDT, UTC−4) — Eastern Daylight Time fixtures with dates, kickoff times, groups and venues.",
   },
@@ -52,7 +52,7 @@ export const TIMEZONES: TimezoneConfig[] = [
     iana: "Asia/Kolkata",
     zoneNote: "India Standard Time · IST · Asia/Kolkata",
     context: "This page helps fans in India follow every listed match in India Standard Time.",
-    title: "World Cup 2026 Schedule in India Time (IST) | WorldCupMatchDay",
+    title: "World Cup 2026 Schedule in India Time (IST)",
     description:
       "World Cup 2026 group-stage schedule in India Standard Time (IST): every listed fixture with dates, kickoff times, groups and venues.",
   },
@@ -62,7 +62,7 @@ export const TIMEZONES: TimezoneConfig[] = [
     iana: "Asia/Tokyo",
     zoneNote: "Japan Standard Time · JST · Asia/Tokyo",
     context: "Japan are in Group F with the Netherlands, Sweden and Tunisia.",
-    title: "World Cup 2026 Schedule in Japan Time (JST) | WorldCupMatchDay",
+    title: "World Cup 2026 Schedule in Japan Time (JST)",
     description:
       "World Cup 2026 group-stage schedule in Japan Standard Time (JST): every listed fixture with dates, kickoff times, groups and venues.",
   },
@@ -72,7 +72,7 @@ export const TIMEZONES: TimezoneConfig[] = [
     iana: "America/Sao_Paulo",
     zoneNote: "Brasília Time · BRT · America/Sao_Paulo",
     context: "Brazil are in Group C with Morocco, Haiti and Scotland.",
-    title: "World Cup 2026 Schedule in Brazil Time (BRT) | WorldCupMatchDay",
+    title: "World Cup 2026 Schedule in Brazil Time (BRT)",
     description:
       "World Cup 2026 group-stage schedule in Brasília Time (BRT): every listed fixture with dates, kickoff times, groups and venues.",
   },
@@ -82,7 +82,7 @@ export const TIMEZONES: TimezoneConfig[] = [
     iana: "Australia/Sydney",
     zoneNote: "Sydney Time · AEST · Australia/Sydney",
     context: "Australia are in Group D with the United States, Paraguay and Turkey.",
-    title: "World Cup 2026 Schedule in Australia Time (AEST) | WorldCupMatchDay",
+    title: "World Cup 2026 Schedule in Australia Time (AEST)",
     description:
       "World Cup 2026 group-stage schedule in Sydney Time (AEST): every listed fixture with dates, kickoff times, groups and venues.",
   },

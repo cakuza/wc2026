@@ -6,7 +6,7 @@ import { MATCHES } from "@/lib/matches";
 const BASE_URL = "https://www.worldcupmatchday.com";
 
 export const metadata: Metadata = {
-  title: "World Cup 2026 Schedule in Your Local Time | WorldCupMatchDay",
+  title: "World Cup 2026 Schedule in Your Local Time",
   description:
     "World Cup 2026 group-stage schedule converted to local time zones — Turkey, UK, US Eastern, India, Japan, Brazil and Australia — with kickoff times, teams, groups and venues.",
   alternates: { canonical: `${BASE_URL}/world-cup-schedule-local-time` },
