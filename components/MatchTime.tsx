@@ -7,9 +7,9 @@ import { matchUtcDate, type Match } from "@/lib/matches";
 /**
  * Renders a fixture's kickoff time in the *viewer's* own timezone.
  *
- * The kickoff is stored venue-local (+ a venue UTC offset), so the absolute instant is the
- * same for everyone; only the displayed wall-clock differs. A visitor in Türkiye sees the
- * UTC+3 time, one in Japan the UTC+9 time, etc.
+ * The kickoff is stored in EDT (FIFA's reference timezone) plus a UTC offset, so the absolute
+ * instant is the same for everyone; only the displayed wall-clock differs. A visitor in Türkiye
+ * sees the UTC+3 time, one in Japan the UTC+9 time, etc.
  *
  * Server (and the first client paint) render nothing so the markup matches and there's no
  * hydration mismatch — the real time fills in from the effect once the browser timezone and

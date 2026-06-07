@@ -4,33 +4,17 @@ export type Match = {
   awayKey: string;
   awayCode: string;
   date: string; // YYYY-MM-DD
-  time?: string; // HH:mm venue-local
+  time?: string; // HH:mm in US Eastern (EDT) — FIFA's reference timezone for 2026
   venue?: string;
   group?: string;
   opener?: boolean;
-  utcOffset?: number; // venue UTC offset in hours on match day (e.g. EDT = -4, PDT = -7)
+  utcOffset?: number; // UTC offset (hours) of `time`; -4 for all matches since times are EDT
 };
 
-// Stadium → UTC offset (hours) during the tournament. Kickoff times in the data below are
-// venue-local; this map lets us convert each kickoff into an absolute instant so the UI can
-// render it in the *viewer's* timezone.
-const VENUE_UTC_OFFSET: Record<string, number> = {
-  "Estadio Azteca": -6,          // Mexico City (CST — Mexico dropped DST in 2022)
-  "Estadio BBVA": -6,            // Monterrey (CST — Mexico dropped DST in 2022)
-  "AT&T Stadium": -5,            // Dallas (CDT)
-  "NRG Stadium": -5,             // Houston (CDT)
-  "Arrowhead Stadium": -5,       // Kansas City (CDT)
-  "MetLife Stadium": -4,         // New York / New Jersey (EDT)
-  "Gillette Stadium": -4,        // Boston (EDT)
-  "Lincoln Financial Field": -4, // Philadelphia (EDT)
-  "Hard Rock Stadium": -4,       // Miami (EDT)
-  "Mercedes-Benz Stadium": -4,   // Atlanta (EDT)
-  "BMO Field": -4,               // Toronto (EDT)
-  "BC Place": -7,                // Vancouver (PDT)
-  "Lumen Field": -7,             // Seattle (PDT)
-  "SoFi Stadium": -7,            // Los Angeles (PDT)
-  "Levi's Stadium": -7,          // San Francisco Bay Area (PDT)
-};
+// FIFA publishes every 2026 kickoff in US Eastern (EDT = UTC-4), and the `time` field below
+// stores that EDT wall-clock. A single uniform offset therefore converts them all to absolute
+// instants — each stadium's own timezone is irrelevant to the math (venue is a display label).
+const FIFA_UTC_OFFSET = -4;
 
 // Matchday 1 — every group plays its two opening fixtures. All matches are intra-group so
 // the schedule, group tables and team "first match" all stay consistent.
@@ -71,7 +55,7 @@ const RAW_MATCHES: Match[] = [
   // ── Group D ──────────────────────────────────────────────────────────────
   // MD1
   { homeKey: "unitedStates", homeCode: "us", awayKey: "paraguay", awayCode: "py", date: "2026-06-13", time: "22:00", venue: "SoFi Stadium", group: "D" },
-  { homeKey: "turkey", homeCode: "tr", awayKey: "australia", awayCode: "au", date: "2026-06-14", time: "19:00", venue: "AT&T Stadium", group: "D" },
+  { homeKey: "turkey", homeCode: "tr", awayKey: "australia", awayCode: "au", date: "2026-06-14", time: "19:00", venue: "BC Place", group: "D" },
   // MD2
   { homeKey: "turkey", homeCode: "tr", awayKey: "paraguay", awayCode: "py", date: "2026-06-19", time: "15:00", venue: "AT&T Stadium", group: "D" },
   { homeKey: "unitedStates", homeCode: "us", awayKey: "australia", awayCode: "au", date: "2026-06-19", time: "22:00", venue: "SoFi Stadium", group: "D" },
@@ -168,16 +152,16 @@ const RAW_MATCHES: Match[] = [
   { homeKey: "croatia", homeCode: "hr", awayKey: "tunisia", awayCode: "tn", date: "2026-06-26", time: "22:00", venue: "Lincoln Financial Field", group: "L" }
 ];
 
-// Attach each fixture's venue UTC offset (derived from its stadium) so callers don't have to.
+// Default every fixture to FIFA's EDT reference offset (a per-match utcOffset can still override).
 export const MATCHES: Match[] = RAW_MATCHES.map((m) => ({
   ...m,
-  utcOffset: m.utcOffset ?? VENUE_UTC_OFFSET[m.venue ?? ""],
+  utcOffset: m.utcOffset ?? FIFA_UTC_OFFSET,
 }));
 
 export const OPENING_MATCH = MATCHES.find((m) => m.opener)!;
 export const KICKOFF_TARGET = "2026-06-11T22:00:00";
 
-/** Convert a fixture's venue-local kickoff into an absolute UTC instant. */
+/** Convert a fixture's EDT kickoff into an absolute UTC instant. */
 export function matchUtcDate(m: Match): Date {
   const [h, min] = (m.time ?? "00:00").split(":").map(Number);
   const d = new Date(`${m.date}T00:00:00Z`);
