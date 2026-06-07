@@ -1,10 +1,16 @@
 import type { Metadata } from "next";
+import Script from "next/script";
 import { Barlow, Barlow_Condensed } from "next/font/google";
 import { LanguageProvider } from "@/components/LanguageProvider";
 import { Nav } from "@/components/Nav";
 import { Footer } from "@/components/Footer";
 import { SchemaScripts } from "@/components/SchemaScripts";
 import "./globals.css";
+
+// Google AdSense publisher ID (e.g. "ca-pub-1234567890123456").
+// Set NEXT_PUBLIC_ADSENSE_CLIENT_ID in the environment once the account is approved.
+// Until then nothing is rendered — no placeholder ID, no ad slots, no layout impact.
+const ADSENSE_CLIENT_ID = process.env.NEXT_PUBLIC_ADSENSE_CLIENT_ID;
 
 const barlow = Barlow({
   subsets: ["latin"],
@@ -77,6 +83,15 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" dir="ltr">
       <SchemaScripts />
+      {ADSENSE_CLIENT_ID ? (
+        <Script
+          id="google-adsense"
+          async
+          strategy="afterInteractive"
+          crossOrigin="anonymous"
+          src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${ADSENSE_CLIENT_ID}`}
+        />
+      ) : null}
       <body className={`${barlow.variable} ${barlowCondensed.variable} font-body bg-navy text-white antialiased`}>
         <LanguageProvider>
           <Nav />
