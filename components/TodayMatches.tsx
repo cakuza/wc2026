@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Flag } from "@/components/Flag";
+import { MatchTime } from "@/components/MatchTime";
 import { useLang } from "@/components/LanguageProvider";
 import { getDisplayMatchday, type Match } from "@/lib/matches";
 
@@ -21,7 +22,7 @@ function MatchRow({ m }: { m: Match }) {
         </div>
       </div>
       <div className="mt-1.5 flex items-center justify-center gap-2 text-[11px] text-white/50">
-        {m.time ? <span className="font-semibold text-white/75">{m.time}</span> : null}
+        <MatchTime match={m} className="font-semibold text-white/75" />
         {m.time && m.venue ? <span className="opacity-50">·</span> : null}
         {m.venue ? <span className="truncate">{m.venue}</span> : null}
       </div>

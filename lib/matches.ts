@@ -4,15 +4,37 @@ export type Match = {
   awayKey: string;
   awayCode: string;
   date: string; // YYYY-MM-DD
-  time?: string; // HH:mm local
+  time?: string; // HH:mm venue-local
   venue?: string;
   group?: string;
   opener?: boolean;
+  utcOffset?: number; // venue UTC offset in hours on match day (e.g. EDT = -4, PDT = -7)
+};
+
+// Stadium → UTC offset (hours) during the tournament. Kickoff times in the data below are
+// venue-local; this map lets us convert each kickoff into an absolute instant so the UI can
+// render it in the *viewer's* timezone.
+const VENUE_UTC_OFFSET: Record<string, number> = {
+  "Estadio Azteca": -6,          // Mexico City (CST — Mexico dropped DST in 2022)
+  "Estadio BBVA": -6,            // Monterrey (CST — Mexico dropped DST in 2022)
+  "AT&T Stadium": -5,            // Dallas (CDT)
+  "NRG Stadium": -5,             // Houston (CDT)
+  "Arrowhead Stadium": -5,       // Kansas City (CDT)
+  "MetLife Stadium": -4,         // New York / New Jersey (EDT)
+  "Gillette Stadium": -4,        // Boston (EDT)
+  "Lincoln Financial Field": -4, // Philadelphia (EDT)
+  "Hard Rock Stadium": -4,       // Miami (EDT)
+  "Mercedes-Benz Stadium": -4,   // Atlanta (EDT)
+  "BMO Field": -4,               // Toronto (EDT)
+  "BC Place": -7,                // Vancouver (PDT)
+  "Lumen Field": -7,             // Seattle (PDT)
+  "SoFi Stadium": -7,            // Los Angeles (PDT)
+  "Levi's Stadium": -7,          // San Francisco Bay Area (PDT)
 };
 
 // Matchday 1 — every group plays its two opening fixtures. All matches are intra-group so
 // the schedule, group tables and team "first match" all stay consistent.
-export const MATCHES: Match[] = [
+const RAW_MATCHES: Match[] = [
   // ── Group A ──────────────────────────────────────────────────────────────
   // MD1
   { homeKey: "mexico", homeCode: "mx", awayKey: "southAfrica", awayCode: "za", date: "2026-06-11", time: "22:00", venue: "Estadio Azteca", group: "A", opener: true },
@@ -146,8 +168,22 @@ export const MATCHES: Match[] = [
   { homeKey: "croatia", homeCode: "hr", awayKey: "tunisia", awayCode: "tn", date: "2026-06-26", time: "22:00", venue: "Lincoln Financial Field", group: "L" }
 ];
 
+// Attach each fixture's venue UTC offset (derived from its stadium) so callers don't have to.
+export const MATCHES: Match[] = RAW_MATCHES.map((m) => ({
+  ...m,
+  utcOffset: m.utcOffset ?? VENUE_UTC_OFFSET[m.venue ?? ""],
+}));
+
 export const OPENING_MATCH = MATCHES.find((m) => m.opener)!;
 export const KICKOFF_TARGET = "2026-06-11T22:00:00";
+
+/** Convert a fixture's venue-local kickoff into an absolute UTC instant. */
+export function matchUtcDate(m: Match): Date {
+  const [h, min] = (m.time ?? "00:00").split(":").map(Number);
+  const d = new Date(`${m.date}T00:00:00Z`);
+  d.setUTCHours(h - (m.utcOffset ?? 0), min, 0, 0);
+  return d;
+}
 
 function sortKey(m: Match) {
   return `${m.date}T${m.time ?? "00:00"}`;

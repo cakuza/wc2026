@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { Flag } from "@/components/Flag";
+import { MatchTime } from "@/components/MatchTime";
 import { useLang } from "@/components/LanguageProvider";
 import { matchesByDate, matchSlug } from "@/lib/matches";
 
@@ -63,7 +64,7 @@ export default function SchedulePage() {
                     </span>
                   </div>
                   <div className="ms-2 hidden w-28 shrink-0 text-end text-xs text-white/50 sm:block">
-                    <div className="font-semibold text-white/80">{m.time ?? ""}</div>
+                    <MatchTime match={m} className="font-semibold text-white/80" />
                     <div>{m.venue ?? formatDate(m.date)}</div>
                   </div>
                 </Link>

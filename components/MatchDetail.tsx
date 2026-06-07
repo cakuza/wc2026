@@ -2,8 +2,9 @@
 
 import Link from "next/link";
 import { Flag } from "@/components/Flag";
+import { MatchTime } from "@/components/MatchTime";
 import { useLang } from "@/components/LanguageProvider";
-import type { Match } from "@/lib/matches";
+import { matchUtcDate, type Match } from "@/lib/matches";
 import type { MatchEvents } from "@/lib/matchEvents";
 
 interface Props {
@@ -13,7 +14,7 @@ interface Props {
 
 function useMatchStatus(match: Match) {
   const now = new Date();
-  const matchStart = new Date(`${match.date}T${match.time ?? "12:00"}:00`);
+  const matchStart = matchUtcDate(match); // absolute instant, correct for any viewer timezone
   const matchEnd = new Date(matchStart.getTime() + 110 * 60 * 1000); // ~110 min
   if (now < matchStart) return "upcoming" as const;
   if (now >= matchStart && now <= matchEnd) return "live" as const;
@@ -172,7 +173,7 @@ export function MatchDetail({ match, events }: Props) {
             {match.time && (
               <>
                 <span>·</span>
-                <span>{match.time} local</span>
+                <MatchTime match={match} />
               </>
             )}
             {match.venue && (
@@ -198,7 +199,7 @@ export function MatchDetail({ match, events }: Props) {
             <p className="mt-1 text-sm text-white/80">
               <span className="font-semibold text-white">{formatDate(match.date)}</span>
               {match.time && (
-                <> · <span className="font-semibold text-white">{match.time}</span> {t("match_local_time")}</>
+                <> · <MatchTime match={match} className="font-semibold text-white" /> {t("match_local_time")}</>
               )}
             </p>
           </div>

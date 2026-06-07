@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { Flag } from "@/components/Flag";
+import { MatchTime } from "@/components/MatchTime";
 import { useLang } from "@/components/LanguageProvider";
 import { slugFor, type Team } from "@/lib/teams";
 import type { Match } from "@/lib/matches";
@@ -163,9 +164,7 @@ export function TeamDetail({
                 {/* Date + time */}
                 <div className="mt-2 text-[11px] leading-snug text-white/45">
                   {formatDate(m.date)}
-                  {m.time ? (
-                    <span className="ml-1 font-semibold text-white/60">{m.time}</span>
-                  ) : null}
+                  <MatchTime match={m} className="ml-1 font-semibold text-white/60" />
                 </div>
               </Link>
             );
@@ -295,7 +294,8 @@ export function TeamDetail({
                 <div className="mt-1.5 text-center text-xs text-white/50">
                   <span className="font-semibold text-white/75">
                     {formatDate(m.date)}
-                    {m.time ? ` · ${m.time}` : ""}
+                    {m.time ? " · " : ""}
+                    <MatchTime match={m} />
                   </span>
                   {m.venue ? (
                     <span className="ml-2 truncate">{m.venue}</span>
