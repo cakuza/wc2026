@@ -25,7 +25,7 @@ export function TeamsByConfederationPreview() {
     <section className="mx-auto max-w-7xl px-4 py-10">
       <div className="mb-5 flex items-end justify-between gap-3">
         <h2 className="font-heading text-3xl font-extrabold uppercase tracking-wide text-white">
-          {t("sec_allTeams")}
+          {t("sec_teamsByConfederation")}
         </h2>
         <Link
           href="/teams"

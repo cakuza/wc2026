@@ -30,7 +30,7 @@ export function ScheduleContent() {
       </p>
       <p className="mb-6 text-sm">
         <Link href="/world-cup-schedule-local-time" className="font-semibold text-accent underline underline-offset-2 hover:text-white">
-          View the schedule in your time zone →
+          {t("sched_viewByZone")} →
         </Link>
         <span className="text-white/30"> · </span>
         <Link href="/groups" className="font-semibold text-accent underline underline-offset-2 hover:text-white">
