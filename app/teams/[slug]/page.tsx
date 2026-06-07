@@ -36,7 +36,7 @@ export async function generateMetadata({
   const name = countryName(team.key, "en");
   const squad = squadFor(team.key);
   const playerCount = squad?.length ?? 0;
-  const BASE = "https://worldcupmatchday.vercel.app";
+  const BASE = "https://www.worldcupmatchday.com";
   const url = `${BASE}/teams/${slug}`;
   const flagUrl = `https://flagcdn.com/w320/${team.code}.png`;
 
@@ -113,7 +113,7 @@ export default async function TeamPage({ params }: { params: Promise<{ slug: str
     "@type": "SportsOrganization",
     name: `${name} national football team`,
     sport: "Association football",
-    url: `https://worldcupmatchday.vercel.app/teams/${slugFor(team.key)}`,
+    url: `https://www.worldcupmatchday.com/teams/${slugFor(team.key)}`,
     logo: `https://flagcdn.com/w160/${team.code}.png`,
     memberOf: {
       "@type": "SportsEvent",

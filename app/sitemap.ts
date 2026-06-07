@@ -1,7 +1,7 @@
 import type { MetadataRoute } from "next";
 import { TEAMS, slugFor } from "@/lib/teams";
 
-const BASE = "https://worldcupmatchday.vercel.app";
+const BASE = "https://www.worldcupmatchday.com";
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const teamPages: MetadataRoute.Sitemap = TEAMS.map((t) => ({

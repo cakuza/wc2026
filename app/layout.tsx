@@ -19,7 +19,7 @@ const barlowCondensed = Barlow_Condensed({
   display: "swap"
 });
 
-const BASE_URL = "https://worldcupmatchday.vercel.app";
+const BASE_URL = "https://www.worldcupmatchday.com";
 
 export const metadata: Metadata = {
   metadataBase: new URL(BASE_URL),

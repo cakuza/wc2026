@@ -4,7 +4,7 @@ export const metadata: Metadata = {
   title: "Privacy Policy — WorldCupMatchDay",
   description:
     "Privacy policy for WorldCupMatchDay. This fan site does not collect personal data. Learn about Google AdSense cookies and third-party services.",
-  alternates: { canonical: "https://worldcupmatchday.vercel.app/privacy" },
+  alternates: { canonical: "https://www.worldcupmatchday.com/privacy" },
 };
 
 const SECTIONS = [

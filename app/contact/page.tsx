@@ -4,7 +4,7 @@ export const metadata: Metadata = {
   title: "Contact WorldCupMatchDay",
   description:
     "Get in touch with WorldCupMatchDay — feedback, corrections, or general enquiries about our FIFA World Cup 2026 fan site.",
-  alternates: { canonical: "https://worldcupmatchday.vercel.app/contact" },
+  alternates: { canonical: "https://www.worldcupmatchday.com/contact" },
 };
 
 export default function ContactPage() {

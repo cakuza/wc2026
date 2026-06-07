@@ -24,7 +24,7 @@ export async function generateMetadata({
 
   const home = countryName(match.homeKey, "en");
   const away = countryName(match.awayKey, "en");
-  const BASE = "https://worldcupmatchday.vercel.app";
+  const BASE = "https://www.worldcupmatchday.com";
 
   return {
     title: `${home} vs ${away} — FIFA World Cup 2026`,

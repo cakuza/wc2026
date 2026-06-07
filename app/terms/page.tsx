@@ -4,7 +4,7 @@ export const metadata: Metadata = {
   title: "Terms of Use — WorldCupMatchDay",
   description:
     "Terms of use for WorldCupMatchDay. Fan site, not affiliated with FIFA. Content provided for informational purposes only.",
-  alternates: { canonical: "https://worldcupmatchday.vercel.app/terms" },
+  alternates: { canonical: "https://www.worldcupmatchday.com/terms" },
 };
 
 const SECTIONS = [
