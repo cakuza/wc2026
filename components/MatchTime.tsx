@@ -7,7 +7,7 @@ import { matchUtcDate, type Match } from "@/lib/matches";
 /**
  * Renders a fixture's kickoff time in the *viewer's* own timezone.
  *
- * The kickoff is stored in EDT (FIFA's reference timezone) plus a UTC offset, so the absolute
+ * The kickoff is stored as a venue-local time plus that venue's UTC offset, so the absolute
  * instant is the same for everyone; only the displayed wall-clock differs. A visitor in Türkiye
  * sees the UTC+3 time, one in Japan the UTC+9 time, etc.
  *

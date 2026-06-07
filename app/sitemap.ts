@@ -1,9 +1,14 @@
 import type { MetadataRoute } from "next";
 import { TEAMS, slugFor } from "@/lib/teams";
+import { assertWorldCupData } from "@/lib/dataIntegrity";
 
 const BASE = "https://www.worldcupmatchday.com";
 
 export default function sitemap(): MetadataRoute.Sitemap {
+  // Build-time guard: fails `next build` if team/group/match data is invalid or contains a
+  // denylisted team. The sitemap only ever emits the 48 valid team URLs (derived from TEAMS).
+  assertWorldCupData();
+
   const teamPages: MetadataRoute.Sitemap = TEAMS.map((t) => ({
     url: `${BASE}/teams/${slugFor(t.key)}`,
     lastModified: new Date(),

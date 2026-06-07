@@ -27,7 +27,7 @@ export const TRIVIA: TriviaCard[] = [
   { id: "t017", teaser: "Who won the 2022 World Cup in Qatar?", reveal: "Argentina, beating France on penalties after a 3–3 draw.", category: "history", difficulty: "easy", rotationWeight: 1 },
   { id: "t018", teaser: "Which European nation has won the most World Cups?", reveal: "Germany and Italy are tied on 4 titles each.", category: "records", difficulty: "medium", rotationWeight: 1 },
   { id: "t019", teaser: "Who scored a hat-trick in a World Cup final?", reveal: "Geoff Hurst of England, in the 1966 final against West Germany.", category: "history", difficulty: "hard", rotationWeight: 1 },
-  { id: "t020", teaser: "Which African nation first reached a World Cup quarter-final?", reveal: "Cameroon, at Italy 1990.", category: "history", difficulty: "hard", rotationWeight: 1 },
+  { id: "t020", teaser: "Which is the only nation to have played in every FIFA World Cup?", reveal: "Brazil — present at all 22 editions of the tournament.", category: "history", difficulty: "hard", rotationWeight: 1 },
   { id: "t021", teaser: "Who is the youngest player ever to play at a World Cup?", reveal: "Norman Whiteside of Northern Ireland, aged 17 in 1982.", category: "players", difficulty: "hard", rotationWeight: 1 },
   { id: "t022", teaser: "Which goalkeeper is famous for the 'Hand of God' concession?", reveal: "Peter Shilton of England, beaten by Maradona in 1986.", category: "history", difficulty: "medium", rotationWeight: 1 },
   { id: "t023", teaser: "Who scored the 'Goal of the Century' in 1986?", reveal: "Diego Maradona, dribbling past England from his own half.", category: "history", difficulty: "medium", rotationWeight: 1 },
