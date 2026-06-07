@@ -15,23 +15,23 @@ const anton = Anton({ weight: "400", subsets: ["latin"], variable: "--font-anton
 export const metadata: Metadata = {
   metadataBase: new URL(getSiteUrl()),
   title: {
-    default: "WC26 Hub - World Cup 2026 Schedule, Groups, Standings and Teams",
-    template: "%s | WC26 Hub"
+    default: "WorldCupMatchDay - World Cup 2026 Schedule, Groups, Standings and Teams",
+    template: "%s | WorldCupMatchDay"
   },
   description: "Your World Cup 2026 hub: fixtures in your local time, all 12 groups, squads for every team, group tables and qualification scenarios.",
   alternates: {
     canonical: absoluteUrl("/")
   },
   openGraph: {
-    title: "WC26 Hub",
+    title: "WorldCupMatchDay",
     description: "World Cup 2026 fixtures in your local time, groups, standings, squads and qualification scenarios.",
     url: absoluteUrl("/"),
-    siteName: "WC26 Hub",
+    siteName: "WorldCupMatchDay",
     type: "website"
   },
   twitter: {
     card: "summary_large_image",
-    title: "WC26 Hub",
+    title: "WorldCupMatchDay",
     description: "World Cup 2026 fixtures in your local time, groups, standings, squads and qualification scenarios."
   }
 };

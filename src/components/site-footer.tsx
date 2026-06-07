@@ -8,7 +8,7 @@ const footerLinks = [
   { href: "/privacy-policy", label: "Privacy Policy" }
 ];
 
-// Subtle site-wide footer. WC26 Hub is an unofficial fan project.
+// Subtle site-wide footer. WorldCupMatchDay is an unofficial fan project.
 export function SiteFooter() {
   return (
     <footer className="mx-auto w-full max-w-7xl px-4 py-8 text-center">
@@ -20,7 +20,7 @@ export function SiteFooter() {
         ))}
       </nav>
       <p className="text-xs leading-5 text-[#0E0C0A]/45">
-        WC26 Hub is a fan-made site. Not affiliated with FIFA or any official organization.
+        WorldCupMatchDay is a fan-made site. Not affiliated with FIFA or any official organization.
       </p>
     </footer>
   );
