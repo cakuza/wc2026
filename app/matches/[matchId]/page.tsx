@@ -16,9 +16,10 @@ export const dynamicParams = false;
 export async function generateMetadata({
   params,
 }: {
-  params: { matchId: string };
+  params: Promise<{ matchId: string }>;
 }): Promise<Metadata> {
-  const match = matchBySlug(params.matchId);
+  const { matchId } = await params;
+  const match = matchBySlug(matchId);
   if (!match) return {};
 
   const home = countryName(match.homeKey, "en");
@@ -28,11 +29,11 @@ export async function generateMetadata({
   return {
     title: `${home} vs ${away} — FIFA World Cup 2026`,
     description: `${home} vs ${away} · Group ${match.group} · ${match.date}${match.venue ? ` · ${match.venue}` : ""} · WorldCupMatchDay`,
-    alternates: { canonical: `${BASE}/matches/${params.matchId}` },
+    alternates: { canonical: `${BASE}/matches/${matchId}` },
     openGraph: {
       title: `${home} vs ${away} — FIFA World Cup 2026`,
       description: `Group ${match.group} · ${match.date} · WorldCupMatchDay`,
-      url: `${BASE}/matches/${params.matchId}`,
+      url: `${BASE}/matches/${matchId}`,
       type: "website",
     },
   };
@@ -44,12 +45,13 @@ function longDate(iso: string) {
   }).format(new Date(`${iso}T00:00:00`));
 }
 
-export default function MatchPage({
+export default async function MatchPage({
   params,
 }: {
-  params: { matchId: string };
+  params: Promise<{ matchId: string }>;
 }) {
-  const match = matchBySlug(params.matchId);
+  const { matchId } = await params;
+  const match = matchBySlug(matchId);
   if (!match) notFound();
 
   // events: null until football-data.org match IDs are mapped.

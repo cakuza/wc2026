@@ -27,16 +27,17 @@ function longDate(iso: string) {
 export async function generateMetadata({
   params,
 }: {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
-  const team = teamBySlug(params.slug);
+  const { slug } = await params;
+  const team = teamBySlug(slug);
   if (!team) return {};
 
   const name = countryName(team.key, "en");
   const squad = squadFor(team.key);
   const playerCount = squad?.length ?? 0;
   const BASE = "https://worldcupmatchday.vercel.app";
-  const url = `${BASE}/teams/${params.slug}`;
+  const url = `${BASE}/teams/${slug}`;
   const flagUrl = `https://flagcdn.com/w320/${team.code}.png`;
 
   // Opponents for richer description
@@ -82,8 +83,9 @@ export async function generateMetadata({
 
 // ── page ───────────────────────────────────────────────────────────────────
 
-export default function TeamPage({ params }: { params: { slug: string } }) {
-  const team = teamBySlug(params.slug);
+export default async function TeamPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+  const team = teamBySlug(slug);
   if (!team) notFound();
 
   const groupTeams = teamsInGroup(team.group);
