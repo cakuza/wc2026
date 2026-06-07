@@ -5,25 +5,22 @@ import { useLang } from "@/components/LanguageProvider";
 import { matchUtcDate, type Match } from "@/lib/matches";
 
 /**
- * Renders a fixture's kickoff time in the *viewer's* own timezone.
+ * Renders a fixture's kickoff time.
  *
- * The kickoff is stored as a venue-local time plus that venue's UTC offset, so the absolute
- * instant is the same for everyone; only the displayed wall-clock differs. A visitor in Türkiye
- * sees the UTC+3 time, one in Japan the UTC+9 time, etc.
+ * SSR + first client paint: the venue-local kickoff (`match.time`). This is a deterministic
+ * value, identical on the server and the first client render, so the time is present in the raw
+ * HTML (good for SEO, no-JS users and AI crawlers) with no hydration mismatch.
  *
- * Server (and the first client paint) render nothing so the markup matches and there's no
- * hydration mismatch — the real time fills in from the effect once the browser timezone and
- * Intl APIs are available.
+ * After hydration: an effect re-renders the *same instant* in the viewer's own timezone (Türkiye
+ * sees UTC+3, Japan UTC+9, etc.). The absolute kickoff is unchanged — only the wall-clock label.
  */
 export function MatchTime({ match, className }: { match: Match; className?: string }) {
   const { locale } = useLang();
-  const [time, setTime] = useState<string>("");
+  // Server-rendered fallback = venue-local time; replaced with viewer-local time post-hydration.
+  const [time, setTime] = useState<string>(match.time ?? "");
 
   useEffect(() => {
-    if (!match.time) {
-      setTime("");
-      return;
-    }
+    if (!match.time) return;
     setTime(
       new Intl.DateTimeFormat(locale, {
         hour: "2-digit",
