@@ -1,0 +1,84 @@
+import type { Metadata } from "next";
+import { Barlow, Barlow_Condensed } from "next/font/google";
+import { LanguageProvider } from "@/components/LanguageProvider";
+import { Nav } from "@/components/Nav";
+import { Footer } from "@/components/Footer";
+import "./globals.css";
+
+const barlow = Barlow({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-barlow",
+  display: "swap"
+});
+
+const barlowCondensed = Barlow_Condensed({
+  subsets: ["latin"],
+  weight: ["600", "700", "800"],
+  variable: "--font-barlow-condensed",
+  display: "swap"
+});
+
+const BASE_URL = "https://worldcupmatchday.vercel.app";
+
+export const metadata: Metadata = {
+  metadataBase: new URL(BASE_URL),
+  title: {
+    default: "WorldCupMatchDay — FIFA World Cup 2026",
+    template: "%s | WorldCupMatchDay"
+  },
+  description:
+    "Your home for FIFA World Cup 2026 — live scores, groups, fixtures, squads for all 48 teams. USA · Canada · Mexico.",
+  keywords: [
+    "FIFA World Cup 2026", "World Cup 2026", "WC2026", "football", "soccer",
+    "World Cup fixtures", "World Cup schedule", "World Cup squads", "World Cup groups",
+    "World Cup standings", "USA 2026", "Canada 2026", "Mexico 2026"
+  ],
+  authors: [{ name: "WorldCupMatchDay" }],
+  creator: "WorldCupMatchDay",
+  openGraph: {
+    type: "website",
+    siteName: "WorldCupMatchDay",
+    url: BASE_URL,
+    title: "WorldCupMatchDay — FIFA World Cup 2026",
+    description:
+      "Your home for FIFA World Cup 2026 — live scores, groups, fixtures, squads for all 48 teams.",
+    images: [
+      {
+        url: `${BASE_URL}/og-default.png`,
+        width: 1200,
+        height: 630,
+        alt: "WorldCupMatchDay — FIFA World Cup 2026"
+      }
+    ]
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "WorldCupMatchDay — FIFA World Cup 2026",
+    description:
+      "Live scores, groups, fixtures & squads for all 48 World Cup 2026 teams.",
+    images: [`${BASE_URL}/og-default.png`]
+  },
+  alternates: {
+    canonical: BASE_URL
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: { index: true, follow: true }
+  }
+};
+
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <html lang="en" dir="ltr">
+      <body className={`${barlow.variable} ${barlowCondensed.variable} font-body bg-navy text-white antialiased`}>
+        <LanguageProvider>
+          <Nav />
+          <main>{children}</main>
+          <Footer />
+        </LanguageProvider>
+      </body>
+    </html>
+  );
+}

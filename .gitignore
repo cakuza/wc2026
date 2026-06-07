@@ -1,9 +1,12 @@
 node_modules
 .next
-out
 dist
-.vercel
-*.log
 *.tsbuildinfo
 .env*
 !.env.example
+.vercel
+.claude/
+recovered-deployment-*
+recovery-backups/
+wc2026/
+wc2026-audit-copy/

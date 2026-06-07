@@ -1,0 +1,37 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+}
+
+html,
+body {
+  background-color: #0a1628;
+  color: #ffffff;
+}
+
+body {
+  font-family: var(--font-barlow), system-ui, sans-serif;
+}
+
+/* Scrolling ticker marquee. The track is rendered twice, so translating by -50%
+   produces a seamless, infinite loop. */
+@keyframes ticker-scroll {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-ticker {
+  animation: ticker-scroll 40s linear infinite;
+}
+
+/* In RTL the same translate visually scrolls the opposite way, which is correct. */
+[dir="rtl"] .animate-ticker {
+  animation-direction: reverse;
+}

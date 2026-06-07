@@ -1,37 +1,27 @@
 {
-  "name": "world-cup-2026-hype-hub",
+  "name": "worldcupmatchday",
   "version": "0.1.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint .",
-    "typecheck": "tsc --noEmit",
-    "generate:content": "node scripts/generate-content.mjs",
-    "import:schedule": "node scripts/import-schedule.mjs",
-    "import:squads": "node scripts/import-squads.mjs",
-    "validate:data": "node scripts/validate-data.mjs",
-    "validate:launch": "node scripts/validate-launch.mjs",
-    "check:routes": "node scripts/check-routes.mjs",
-    "prelaunch": "npm run validate:data && npm run lint && npm run typecheck && npm run build && npm run validate:launch"
+    "lint": "next lint"
   },
   "dependencies": {
-    "html-to-image": "^1.11.13",
-    "lucide-react": "^0.475.0",
-    "next": "^15.1.6",
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "next": "^14.2.35",
+    "react": "18.3.1",
+    "react-dom": "18.3.1"
   },
   "devDependencies": {
-    "@types/node": "^22.10.7",
-    "@types/react": "^19.0.7",
-    "@types/react-dom": "^19.0.3",
-    "autoprefixer": "^10.4.20",
-    "eslint": "^9.18.0",
-    "eslint-config-next": "^15.1.6",
-    "postcss": "^8.5.14",
-    "tailwindcss": "^3.4.17",
-    "typescript": "^5.7.3"
+    "@types/node": "20.14.10",
+    "@types/react": "18.3.3",
+    "@types/react-dom": "18.3.0",
+    "autoprefixer": "10.4.19",
+    "eslint": "^8.57.1",
+    "eslint-config-next": "^14.2.35",
+    "postcss": "8.4.39",
+    "tailwindcss": "3.4.6",
+    "typescript": "5.5.3"
   }
 }
