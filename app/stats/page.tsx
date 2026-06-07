@@ -2,13 +2,13 @@ import type { Metadata } from "next";
 import StatsContent from "@/components/StatsContent";
 
 export const metadata: Metadata = {
-  title: "World Cup 2026 Stats — All-Time Records & Tournament Statistics",
+  title: "World Cup 2026 Stats - Records & Tournament Board",
   description:
-    "World Cup all-time records: most titles, top scorers, fastest goals, most appearances, highest scores, and 2026 live tournament statistics including goals, assists, cards and clean sheets.",
+    "World Cup all-time records plus a tournament-ready stat board for goals, assists, cards and clean sheets once the 2026 matches begin.",
   alternates: { canonical: "https://worldcupmatchday.vercel.app/stats" },
   openGraph: {
-    title: "World Cup 2026 Stats — All-Time Records",
-    description: "All-time World Cup records and live 2026 tournament statistics.",
+    title: "World Cup 2026 Stats - Records & Tournament Board",
+    description: "All-time World Cup records and a matchday-ready 2026 tournament stat board.",
     url: "https://worldcupmatchday.vercel.app/stats",
     type: "website",
   },
@@ -19,7 +19,7 @@ const jsonLd = {
   "@type": "WebPage",
   name: "FIFA World Cup 2026 Statistics",
   description:
-    "All-time World Cup records and live FIFA World Cup 2026 tournament statistics.",
+    "All-time World Cup records and a tournament stat board for FIFA World Cup 2026.",
   url: "https://worldcupmatchday.vercel.app/stats",
   about: {
     "@type": "SportsEvent",

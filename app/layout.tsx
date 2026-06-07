@@ -24,11 +24,11 @@ const BASE_URL = "https://worldcupmatchday.vercel.app";
 export const metadata: Metadata = {
   metadataBase: new URL(BASE_URL),
   title: {
-    default: "WorldCupMatchDay — FIFA World Cup 2026",
+    default: "WorldCupMatchDay - FIFA World Cup 2026",
     template: "%s | WorldCupMatchDay"
   },
   description:
-    "Your home for FIFA World Cup 2026 — live scores, groups, fixtures, squads for all 48 teams. USA · Canada · Mexico.",
+    "A World Cup 2026 matchday command center: fixtures, group paths, squads, country pages, countdowns and fan-ready tournament context for all 48 teams.",
   keywords: [
     "FIFA World Cup 2026", "World Cup 2026", "WC2026", "football", "soccer",
     "World Cup fixtures", "World Cup schedule", "World Cup squads", "World Cup groups",
@@ -40,23 +40,23 @@ export const metadata: Metadata = {
     type: "website",
     siteName: "WorldCupMatchDay",
     url: BASE_URL,
-    title: "WorldCupMatchDay — FIFA World Cup 2026",
+    title: "WorldCupMatchDay - FIFA World Cup 2026",
     description:
-      "Your home for FIFA World Cup 2026 — live scores, groups, fixtures, squads for all 48 teams.",
+      "Fixtures, group paths, squads, country pages, countdowns and fan-ready World Cup 2026 context for all 48 teams.",
     images: [
       {
         url: `${BASE_URL}/og-default.png`,
         width: 1200,
         height: 630,
-        alt: "WorldCupMatchDay — FIFA World Cup 2026"
+        alt: "WorldCupMatchDay - FIFA World Cup 2026"
       }
     ]
   },
   twitter: {
     card: "summary_large_image",
-    title: "WorldCupMatchDay — FIFA World Cup 2026",
+    title: "WorldCupMatchDay - FIFA World Cup 2026",
     description:
-      "Live scores, groups, fixtures & squads for all 48 World Cup 2026 teams.",
+      "Matchday fixtures, group paths, squads and country pages for all 48 World Cup 2026 teams.",
     images: [`${BASE_URL}/og-default.png`]
   },
   alternates: {
