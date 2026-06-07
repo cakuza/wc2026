@@ -2,91 +2,26 @@
 
 import { useLang } from "@/components/LanguageProvider";
 import { GROUP_LETTERS, teamsInGroup } from "@/lib/teams";
+import { matchesInGroup } from "@/lib/matches";
 import { StandingsTable } from "@/components/StandingsTable";
 
-// Structured MD1 preview data — one entry per team per group.
-// teamKey / opponentKey must match COUNTRIES keys in lib/i18n.ts.
-// contextKey must be one of: "ctx_sets_the_tone" | "ctx_must_not_lose" | "ctx_is_crucial"
 type PreviewEntry = {
   teamKey: string;
   opponentKey: string;
   contextKey: "ctx_sets_the_tone" | "ctx_must_not_lose" | "ctx_is_crucial";
 };
 
-const GROUP_PREVIEWS: Record<string, PreviewEntry[]> = {
-  A: [
-    { teamKey: "mexico",      opponentKey: "southAfrica",  contextKey: "ctx_sets_the_tone" },
-    { teamKey: "southAfrica", opponentKey: "mexico",       contextKey: "ctx_is_crucial" },
-    { teamKey: "southKorea",  opponentKey: "czechia",      contextKey: "ctx_must_not_lose" },
-    { teamKey: "czechia",     opponentKey: "southKorea",   contextKey: "ctx_sets_the_tone" },
-  ],
-  B: [
-    { teamKey: "canada",      opponentKey: "bosnia",       contextKey: "ctx_sets_the_tone" },
-    { teamKey: "bosnia",      opponentKey: "canada",       contextKey: "ctx_is_crucial" },
-    { teamKey: "morocco",     opponentKey: "switzerland",  contextKey: "ctx_sets_the_tone" },
-    { teamKey: "switzerland", opponentKey: "morocco",      contextKey: "ctx_sets_the_tone" },
-  ],
-  C: [
-    { teamKey: "brazil",   opponentKey: "uruguay",   contextKey: "ctx_sets_the_tone" },
-    { teamKey: "uruguay",  opponentKey: "brazil",    contextKey: "ctx_is_crucial" },
-    { teamKey: "colombia", opponentKey: "serbia",    contextKey: "ctx_must_not_lose" },
-    { teamKey: "serbia",   opponentKey: "colombia",  contextKey: "ctx_is_crucial" },
-  ],
-  D: [
-    { teamKey: "unitedStates", opponentKey: "paraguay",     contextKey: "ctx_sets_the_tone" },
-    { teamKey: "paraguay",     opponentKey: "unitedStates",  contextKey: "ctx_is_crucial" },
-    { teamKey: "turkey",       opponentKey: "australia",    contextKey: "ctx_sets_the_tone" },
-    { teamKey: "australia",    opponentKey: "turkey",       contextKey: "ctx_is_crucial" },
-  ],
-  E: [
-    { teamKey: "germany", opponentKey: "curacao",  contextKey: "ctx_sets_the_tone" },
-    { teamKey: "curacao", opponentKey: "germany",  contextKey: "ctx_is_crucial" },
-    { teamKey: "belgium", opponentKey: "denmark",  contextKey: "ctx_is_crucial" },
-    { teamKey: "denmark", opponentKey: "belgium",  contextKey: "ctx_must_not_lose" },
-  ],
-  F: [
-    { teamKey: "netherlands", opponentKey: "scotland",    contextKey: "ctx_sets_the_tone" },
-    { teamKey: "scotland",    opponentKey: "netherlands",  contextKey: "ctx_is_crucial" },
-    { teamKey: "norway",      opponentKey: "egypt",        contextKey: "ctx_must_not_lose" },
-    { teamKey: "egypt",       opponentKey: "norway",       contextKey: "ctx_is_crucial" },
-  ],
-  G: [
-    { teamKey: "japan",    opponentKey: "cameroon", contextKey: "ctx_sets_the_tone" },
-    { teamKey: "cameroon", opponentKey: "japan",    contextKey: "ctx_must_not_lose" },
-    { teamKey: "nigeria",  opponentKey: "ecuador",  contextKey: "ctx_is_crucial" },
-    { teamKey: "ecuador",  opponentKey: "nigeria",  contextKey: "ctx_sets_the_tone" },
-  ],
-  H: [
-    { teamKey: "spain",      opponentKey: "capeVerde",   contextKey: "ctx_sets_the_tone" },
-    { teamKey: "capeVerde",  opponentKey: "spain",       contextKey: "ctx_is_crucial" },
-    { teamKey: "ivoryCoast", opponentKey: "iran",        contextKey: "ctx_must_not_lose" },
-    { teamKey: "iran",       opponentKey: "ivoryCoast",  contextKey: "ctx_is_crucial" },
-  ],
-  I: [
-    { teamKey: "france",      opponentKey: "senegal",      contextKey: "ctx_sets_the_tone" },
-    { teamKey: "senegal",     opponentKey: "france",       contextKey: "ctx_is_crucial" },
-    { teamKey: "saudiArabia", opponentKey: "qatar",        contextKey: "ctx_is_crucial" },
-    { teamKey: "qatar",       opponentKey: "saudiArabia",  contextKey: "ctx_must_not_lose" },
-  ],
-  J: [
-    { teamKey: "argentina",  opponentKey: "algeria",     contextKey: "ctx_sets_the_tone" },
-    { teamKey: "algeria",    opponentKey: "argentina",   contextKey: "ctx_is_crucial" },
-    { teamKey: "uzbekistan", opponentKey: "newZealand",  contextKey: "ctx_must_not_lose" },
-    { teamKey: "newZealand", opponentKey: "uzbekistan",  contextKey: "ctx_sets_the_tone" },
-  ],
-  K: [
-    { teamKey: "portugal", opponentKey: "drCongo",  contextKey: "ctx_sets_the_tone" },
-    { teamKey: "drCongo",  opponentKey: "portugal", contextKey: "ctx_is_crucial" },
-    { teamKey: "panama",   opponentKey: "jamaica",  contextKey: "ctx_sets_the_tone" },
-    { teamKey: "jamaica",  opponentKey: "panama",   contextKey: "ctx_sets_the_tone" },
-  ],
-  L: [
-    { teamKey: "england", opponentKey: "croatia", contextKey: "ctx_sets_the_tone" },
-    { teamKey: "croatia", opponentKey: "england", contextKey: "ctx_is_crucial" },
-    { teamKey: "tunisia", opponentKey: "ukraine", contextKey: "ctx_sets_the_tone" },
-    { teamKey: "ukraine", opponentKey: "tunisia", contextKey: "ctx_must_not_lose" },
-  ],
-};
+function groupPreviewEntries(group: string): PreviewEntry[] {
+  return matchesInGroup(group)
+    .slice(0, 2)
+    .flatMap((match, index) => {
+      const firstContext = index === 0 ? "ctx_sets_the_tone" : "ctx_must_not_lose";
+      return [
+        { teamKey: match.homeKey, opponentKey: match.awayKey, contextKey: firstContext },
+        { teamKey: match.awayKey, opponentKey: match.homeKey, contextKey: "ctx_is_crucial" },
+      ] satisfies PreviewEntry[];
+    });
+}
 
 /** Fill {team}, {opponent}, {context} placeholders in the translated template. */
 function buildPreviewLine(
@@ -113,7 +48,7 @@ export default function GroupsPage() {
       <div className="grid gap-5 lg:grid-cols-2">
         {GROUP_LETTERS.map((g) => {
           const teams = teamsInGroup(g);
-          const previews = GROUP_PREVIEWS[g] ?? [];
+          const previews = groupPreviewEntries(g);
           return (
             <div
               key={g}
