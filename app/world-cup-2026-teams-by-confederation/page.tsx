@@ -1,9 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Flag } from "@/components/Flag";
-import { TEAMS, slugFor } from "@/lib/teams";
-import { CONFEDERATIONS, CONFEDERATION_BY_TEAM } from "@/lib/confederations";
-import { countryName } from "@/lib/i18n";
+import { TeamsByConfederation } from "@/components/TeamsByConfederation";
 
 const BASE_URL = "https://www.worldcupmatchday.com";
 
@@ -49,40 +46,7 @@ export default function TeamsByConfederationPage() {
           Here are the 48 World Cup 2026 teams grouped by confederation, with links to each team&apos;s fixtures and group.
         </p>
 
-        <div className="space-y-6">
-          {CONFEDERATIONS.map((conf) => {
-            const teams = TEAMS.filter((t) => CONFEDERATION_BY_TEAM[t.key] === conf.code);
-            if (teams.length === 0) return null;
-            return (
-              <section key={conf.code}>
-                <h2 className="mb-1 flex items-baseline gap-2 border-b-2 border-accent pb-2 font-heading text-xl font-extrabold uppercase tracking-wide text-white">
-                  {conf.name}
-                  <span className="font-heading text-xs font-bold uppercase tracking-widest text-white/40">
-                    {conf.region} · {teams.length}
-                  </span>
-                </h2>
-                <div className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2">
-                  {teams.map((t) => {
-                    const name = countryName(t.key, "en");
-                    return (
-                      <Link
-                        key={t.key}
-                        href={`/teams/${slugFor(t.key)}`}
-                        className="flex items-center gap-3 rounded-lg border border-white/10 bg-navyCard px-4 py-2.5 transition hover:border-white/20 hover:bg-white/5"
-                      >
-                        <Flag code={t.code} name={name} width={28} height={20} />
-                        <span className="flex-1 truncate font-semibold text-white">{name}</span>
-                        <span className="font-heading text-[11px] font-bold uppercase tracking-widest text-white/40">
-                          Group {t.group}
-                        </span>
-                      </Link>
-                    );
-                  })}
-                </div>
-              </section>
-            );
-          })}
-        </div>
+        <TeamsByConfederation />
 
         <div className="mt-8 flex flex-wrap gap-3 text-sm">
           {[
