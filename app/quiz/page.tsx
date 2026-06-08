@@ -1,16 +1,22 @@
-"use client";
+import type { Metadata } from "next";
+import { QuizContent } from "@/components/QuizContent";
 
-import { QuizClient } from "@/components/QuizClient";
-import { useLang } from "@/components/LanguageProvider";
+const BASE_URL = "https://www.worldcupmatchday.com";
+
+export const metadata: Metadata = {
+  title: "World Cup Quiz — Test Your 2026 Knowledge",
+  description:
+    "Take a quick interactive World Cup quiz covering tournament history, records and the 2026 edition. See how well you know the beautiful game.",
+  alternates: { canonical: `${BASE_URL}/quiz` },
+  openGraph: {
+    title: "World Cup Quiz — Test Your 2026 Knowledge",
+    description:
+      "A quick interactive quiz on World Cup history, records and the 2026 tournament.",
+    url: `${BASE_URL}/quiz`,
+    type: "website",
+  },
+};
 
 export default function QuizPage() {
-  const { t } = useLang();
-  return (
-    <div className="mx-auto max-w-3xl px-4 py-10">
-      <h1 className="mb-8 text-center font-heading text-4xl font-extrabold uppercase tracking-tight text-white sm:text-5xl">
-        {t("quiz_title")}
-      </h1>
-      <QuizClient />
-    </div>
-  );
+  return <QuizContent />;
 }
