@@ -1,6 +1,3 @@
-import { countryName } from "./i18n";
-import { MATCHES } from "./matches";
-
 const BASE_URL = "https://www.worldcupmatchday.com";
 
 export function websiteSchema() {
@@ -19,33 +16,6 @@ export function websiteSchema() {
       "query-input": "required name=search_term_string",
     },
   };
-}
-
-function englishCountryName(key: string) {
-  return countryName(key, "en");
-}
-
-export function matchSchemas() {
-  return MATCHES.map((m) => {
-    const home = englishCountryName(m.homeKey);
-    const away = englishCountryName(m.awayKey);
-
-    return {
-      "@context": "https://schema.org",
-      "@type": "SportsEvent",
-      name: `${home} vs ${away} - FIFA World Cup 2026`,
-      startDate: m.time ? `${m.date}T${m.time}:00` : `${m.date}T00:00:00`,
-      eventStatus: "https://schema.org/EventScheduled",
-      eventAttendanceMode: "https://schema.org/OfflineEventAttendanceMode",
-      location: m.venue ? { "@type": "Place", name: m.venue } : undefined,
-      competitor: [
-        { "@type": "SportsTeam", name: home },
-        { "@type": "SportsTeam", name: away },
-      ],
-      superEvent: { "@id": `${BASE_URL}/#tournament` },
-      sport: "Football",
-    };
-  });
 }
 
 export function breadcrumbSchema(items: { name: string; url: string }[]) {

@@ -115,13 +115,6 @@ export default async function TeamPage({ params }: { params: Promise<{ slug: str
     sport: "Association football",
     url: `https://www.worldcupmatchday.com/teams/${slugFor(team.key)}`,
     logo: `https://flagcdn.com/w160/${team.code}.png`,
-    memberOf: {
-      "@type": "SportsEvent",
-      name: "FIFA World Cup 2026",
-      startDate: "2026-06-11",
-      endDate: "2026-07-19",
-      location: { "@type": "Place", name: "USA, Canada, Mexico" },
-    },
   };
 
   // ── JSON-LD: FAQPage ─────────────────────────────────────────────────────
