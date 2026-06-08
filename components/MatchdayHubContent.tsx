@@ -1,22 +1,24 @@
 "use client";
 
 import Link from "next/link";
+import { Flag } from "@/components/Flag";
 import { useLang } from "@/components/LanguageProvider";
 import { TIMEZONES } from "@/lib/timezones";
 
-type LinkItem = { href: string; label: string; note?: string; icon: string };
+type LinkItem = { href: string; label: string; note?: string; icon?: string; flag?: string };
 
-// Flag/marker per timezone landing page. Zone labels stay as their English
-// proper-noun names (matching the SEO landing pages); the flag + localized
-// section heading provide the context.
-const TZ_FLAG: Record<string, string> = {
-  "turkey-time": "🇹🇷",
-  "uk-time": "🇬🇧",
-  "eastern-time": "🇺🇸",
-  "india-time": "🇮🇳",
-  "japan-time": "🇯🇵",
-  "brazil-time": "🇧🇷",
-  "australia-time": "🇦🇺",
+// Representative flag (country code for flagcdn) per timezone landing page. Using real flag
+// images instead of emoji so flags render consistently on every platform (Windows renders
+// regional-indicator emoji as plain letter pairs like "TR"/"GB"). Zone labels stay as their
+// localized names; the flag + localized section heading provide the context.
+const TZ_FLAG_CODE: Record<string, string> = {
+  "turkey-time": "tr",
+  "uk-time": "gb",
+  "eastern-time": "us",
+  "india-time": "in",
+  "japan-time": "jp",
+  "brazil-time": "br",
+  "australia-time": "au",
 };
 
 function CardGrid({ items }: { items: LinkItem[] }) {
@@ -28,11 +30,12 @@ function CardGrid({ items }: { items: LinkItem[] }) {
           href={l.href}
           className="flex items-center gap-3 rounded-xl border border-white/10 bg-navyCard px-4 py-4 transition hover:border-white/25 hover:bg-white/5"
         >
-          <span
-            aria-hidden="true"
-            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-white/5 text-lg"
-          >
-            {l.icon}
+          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-white/5 text-lg">
+            {l.flag ? (
+              <Flag code={l.flag} name={l.label} width={24} height={18} />
+            ) : (
+              <span aria-hidden="true">{l.icon}</span>
+            )}
           </span>
           <div className="min-w-0">
             <div className="font-heading text-base font-extrabold uppercase tracking-wide text-white">
@@ -49,20 +52,14 @@ function CardGrid({ items }: { items: LinkItem[] }) {
 export function MatchdayHubContent() {
   const { t } = useLang();
 
-  const scheduleLinks: LinkItem[] = [
-    {
-      href: "/world-cup-schedule-local-time",
-      label: t("hub_localTimeSchedules"),
-      note: t("hub_note_allZones"),
-      icon: "🌐",
-    },
-    ...TIMEZONES.map((z) => ({
-      href: `/schedule/${z.slug}`,
-      label: t(`tz_${z.slug}`),
-      note: z.zoneNote,
-      icon: TZ_FLAG[z.slug] ?? "🕒",
-    })),
-  ];
+  // The 7 direct timezone schedule cards (the redundant "all local times" card was removed —
+  // these cards already cover that purpose and the full page lives at /world-cup-schedule-local-time).
+  const scheduleLinks: LinkItem[] = TIMEZONES.map((z) => ({
+    href: `/schedule/${z.slug}`,
+    label: t(`tz_${z.slug}`),
+    note: z.zoneNote,
+    flag: TZ_FLAG_CODE[z.slug],
+  }));
 
   const guideLinks: LinkItem[] = [
     {
