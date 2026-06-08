@@ -31,11 +31,11 @@ const BASE_URL = "https://www.worldcupmatchday.com";
 export const metadata: Metadata = {
   metadataBase: new URL(BASE_URL),
   title: {
-    default: "WorldCupMatchDay - FIFA World Cup 2026",
+    default: "World Cup 2026 Matchday Guide – Fixtures, Groups, Teams & Kickoff Times",
     template: "%s | WorldCupMatchDay"
   },
   description:
-    "A World Cup 2026 matchday command center: fixtures, group paths, squads, country pages, countdowns and fan-ready tournament context for all 48 teams.",
+    "Follow the World Cup 2026 with today's matches, full schedule, groups, teams, local-time kickoff pages, bracket tools and fan-made tournament explainers.",
   keywords: [
     "FIFA World Cup 2026", "World Cup 2026", "WC2026", "football", "soccer",
     "World Cup fixtures", "World Cup schedule", "World Cup squads", "World Cup groups",
@@ -47,9 +47,9 @@ export const metadata: Metadata = {
     type: "website",
     siteName: "WorldCupMatchDay",
     url: BASE_URL,
-    title: "WorldCupMatchDay - FIFA World Cup 2026",
+    title: "World Cup 2026 Matchday Guide – Fixtures, Groups, Teams & Kickoff Times",
     description:
-      "Fixtures, group paths, squads, country pages, countdowns and fan-ready World Cup 2026 context for all 48 teams.",
+      "Follow the World Cup 2026 with today's matches, full schedule, groups, teams, local-time kickoff pages, bracket tools and fan-made tournament explainers.",
     images: [
       {
         url: `${BASE_URL}/og-default.png`,
@@ -61,9 +61,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "WorldCupMatchDay - FIFA World Cup 2026",
+    title: "World Cup 2026 Matchday Guide – Fixtures, Groups, Teams & Kickoff Times",
     description:
-      "Matchday fixtures, group paths, squads and country pages for all 48 World Cup 2026 teams.",
+      "Today's matches, full schedule, groups, teams, local-time kickoff pages and fan-made World Cup 2026 explainers.",
     images: [`${BASE_URL}/og-default.png`]
   },
   alternates: {
