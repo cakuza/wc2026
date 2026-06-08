@@ -21,12 +21,6 @@ const jsonLd = {
   description:
     "All-time World Cup records and a tournament stat board for FIFA World Cup 2026.",
   url: "https://www.worldcupmatchday.com/stats",
-  about: {
-    "@type": "SportsEvent",
-    name: "FIFA World Cup 2026",
-    startDate: "2026-06-11",
-    endDate: "2026-07-19",
-  },
 };
 
 export default function StatsPage() {

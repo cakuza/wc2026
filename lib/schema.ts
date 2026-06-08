@@ -21,30 +21,6 @@ export function websiteSchema() {
   };
 }
 
-export function tournamentSchema() {
-  return {
-    "@context": "https://schema.org",
-    "@type": "SportsEvent",
-    "@id": `${BASE_URL}/#tournament`,
-    name: "FIFA World Cup 2026",
-    alternateName: ["WC2026", "World Cup 2026", "FIFA WC 2026"],
-    description:
-      "The 23rd FIFA World Cup, hosted by the United States, Canada and Mexico, featuring 48 teams and 104 matches.",
-    startDate: "2026-06-11",
-    endDate: "2026-07-19",
-    eventStatus: "https://schema.org/EventScheduled",
-    eventAttendanceMode: "https://schema.org/OfflineEventAttendanceMode",
-    location: [
-      { "@type": "Country", name: "United States" },
-      { "@type": "Country", name: "Canada" },
-      { "@type": "Country", name: "Mexico" },
-    ],
-    organizer: { "@type": "SportsOrganization", name: "FIFA", url: "https://www.fifa.com" },
-    sport: "Football",
-    url: BASE_URL,
-  };
-}
-
 function englishCountryName(key: string) {
   return countryName(key, "en");
 }
