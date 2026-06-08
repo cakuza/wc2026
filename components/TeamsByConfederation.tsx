@@ -37,9 +37,14 @@ export function TeamsByConfederationPreview() {
       <div className="space-y-5">
         {sections.map(({ conf, teams }) => (
           <div key={conf.code}>
-            <p className="mb-2 font-heading text-[11px] font-extrabold uppercase tracking-[0.2em] text-white/40">
-              {conf.name} · {teams.length}
-            </p>
+            <div className="mb-2">
+              <p className="font-heading text-[11px] font-extrabold uppercase tracking-[0.2em] text-white/50">
+                {conf.name} · {teams.length}
+              </p>
+              <p className="text-[10px] leading-tight text-white/35">
+                {t(`conf_full_${conf.code}`)}
+              </p>
+            </div>
             <div className="flex flex-wrap gap-2">
               {teams.map((tm) => {
                 const name = country(tm.key);
@@ -70,10 +75,17 @@ export function TeamsByConfederation() {
     <div className="space-y-6">
       {sections.map(({ conf, teams }) => (
         <section key={conf.code}>
-          <h2 className="mb-1 flex items-baseline gap-2 border-b-2 border-accent pb-2 font-heading text-xl font-extrabold uppercase tracking-wide text-white">
-            {conf.name}
-            <span className="font-heading text-xs font-bold uppercase tracking-widest text-white/40">
-              {conf.region} · {teams.length}
+          <h2 className="mb-1 border-b-2 border-accent pb-2">
+            <span className="flex items-baseline gap-2">
+              <span className="font-heading text-xl font-extrabold uppercase tracking-wide text-white">
+                {conf.name}
+              </span>
+              <span className="font-heading text-xs font-bold uppercase tracking-widest text-white/40">
+                · {teams.length}
+              </span>
+            </span>
+            <span className="mt-0.5 block text-xs font-medium leading-snug text-white/40">
+              {t(`conf_full_${conf.code}`)}
             </span>
           </h2>
           <div className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2">
