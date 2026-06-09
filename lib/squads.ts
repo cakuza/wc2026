@@ -1,4 +1,4 @@
-﻿// Squad data sourced from the original World Cup project's data/squads.json (Transfermarkt-based).
+// Squad data sourced from the original World Cup project's data/squads.json (Transfermarkt-based).
 // Re-keyed to worldcupmatchday team keys. 42 of 48 teams have squads; the rest are added later.
 // Available fields only: name, number, position (GK/DEF/MID/FWD), detailedPosition.
 
@@ -14,7 +14,7 @@ export type SquadPlayer = {
 export const SQUADS: Record<string, SquadPlayer[]> = {
   "mexico": [
     {
-      "name": "RaÃºl Rangel",
+      "name": "Raúl Rangel",
       "number": 1,
       "position": "GK",
       "detailedPosition": "Goalkeeper"
@@ -32,7 +32,7 @@ export const SQUADS: Record<string, SquadPlayer[]> = {
       "detailedPosition": "Goalkeeper"
     },
     {
-      "name": "Jorge SÃ¡nchez",
+      "name": "Jorge Sánchez",
       "number": 2,
       "position": "DEF",
       "detailedPosition": "Right-Back"
@@ -44,31 +44,31 @@ export const SQUADS: Record<string, SquadPlayer[]> = {
       "detailedPosition": "Right-Back"
     },
     {
-      "name": "CÃ©sar Montes",
+      "name": "César Montes",
       "number": 3,
       "position": "DEF",
       "detailedPosition": "Centre-Back"
     },
     {
-      "name": "Johan VÃ¡squez",
+      "name": "Johan Vásquez",
       "number": 5,
       "position": "DEF",
       "detailedPosition": "Centre-Back"
     },
     {
-      "name": "JesÃºs Gallardo",
+      "name": "Jesús Gallardo",
       "number": 23,
       "position": "DEF",
       "detailedPosition": "Left-Back"
     },
     {
-      "name": "Mateo ChÃ¡vez",
+      "name": "Mateo Chávez",
       "number": 20,
       "position": "DEF",
       "detailedPosition": "Left-Back"
     },
     {
-      "name": "Edson Ãlvarez",
+      "name": "Edson Álvarez",
       "number": 4,
       "position": "MID",
       "detailedPosition": "Defensive Midfield"
@@ -80,19 +80,19 @@ export const SQUADS: Record<string, SquadPlayer[]> = {
       "detailedPosition": "Defensive Midfield"
     },
     {
-      "name": "OrbelÃ­n Pineda",
+      "name": "Orbelín Pineda",
       "number": 17,
       "position": "MID",
       "detailedPosition": "Central Midfield"
     },
     {
-      "name": "Ãlvaro Fidalgo",
+      "name": "Álvaro Fidalgo",
       "number": 8,
       "position": "MID",
       "detailedPosition": "Central Midfield"
     },
     {
-      "name": "Brian GutiÃ©rrez",
+      "name": "Brian Gutiérrez",
       "number": 26,
       "position": "MID",
       "detailedPosition": "Attacking Midfield"
@@ -116,7 +116,7 @@ export const SQUADS: Record<string, SquadPlayer[]> = {
       "detailedPosition": "Attacking Midfield"
     },
     {
-      "name": "Luis ChÃ¡vez",
+      "name": "Luis Chávez",
       "number": 24,
       "position": "MID",
       "detailedPosition": "Defensive Midfield"
@@ -128,7 +128,7 @@ export const SQUADS: Record<string, SquadPlayer[]> = {
       "detailedPosition": "Right Winger"
     },
     {
-      "name": "CÃ©sar Huerta",
+      "name": "César Huerta",
       "number": 21,
       "position": "FWD",
       "detailedPosition": "Left Winger"
@@ -140,31 +140,31 @@ export const SQUADS: Record<string, SquadPlayer[]> = {
       "detailedPosition": "Left Winger"
     },
     {
-      "name": "JuliÃ¡n QuiÃ±ones",
+      "name": "Julián Quiñones",
       "number": 16,
       "position": "FWD",
       "detailedPosition": "Centre-Forward"
     },
     {
-      "name": "Guillermo MartÃ­nez",
+      "name": "Guillermo Martínez",
       "number": 22,
       "position": "FWD",
       "detailedPosition": "Centre-Forward"
     },
     {
-      "name": "Armando GonzÃ¡lez",
+      "name": "Armando González",
       "number": 14,
       "position": "FWD",
       "detailedPosition": "Centre-Forward"
     },
     {
-      "name": "Santiago GimÃ©nez",
+      "name": "Santiago Giménez",
       "number": 11,
       "position": "FWD",
       "detailedPosition": "Centre-Forward"
     },
     {
-      "name": "RaÃºl JimÃ©nez",
+      "name": "Raúl Jiménez",
       "number": 9,
       "position": "FWD",
       "detailedPosition": "Centre-Forward"
@@ -488,25 +488,25 @@ export const SQUADS: Record<string, SquadPlayer[]> = {
   ],
   "czechia": [
     {
-      "name": "LukÃ¡Å¡ HornÃ­Äek",
+      "name": "Lukáš Horníček",
       "number": 23,
       "position": "GK",
       "detailedPosition": "Goalkeeper"
     },
     {
-      "name": "MatÄ›j KovÃ¡Å™",
+      "name": "Matěj Kovář",
       "number": 1,
       "position": "GK",
       "detailedPosition": "Goalkeeper"
     },
     {
-      "name": "JindÅ™ich StÃ¡nek",
+      "name": "Jindřich Stánek",
       "number": 16,
       "position": "GK",
       "detailedPosition": "Goalkeeper"
     },
     {
-      "name": "VladimÃ­r Coufal",
+      "name": "Vladimír Coufal",
       "number": 5,
       "position": "DEF",
       "detailedPosition": "Right-Back"
@@ -518,31 +518,31 @@ export const SQUADS: Record<string, SquadPlayer[]> = {
       "detailedPosition": "Right Midfield"
     },
     {
-      "name": "TomÃ¡Å¡ HoleÅ¡",
+      "name": "Tomáš Holeš",
       "number": 3,
       "position": "DEF",
       "detailedPosition": "Centre-Back"
     },
     {
-      "name": "Robin HranÃ¡Ä",
+      "name": "Robin Hranáč",
       "number": 4,
       "position": "DEF",
       "detailedPosition": "Centre-Back"
     },
     {
-      "name": "Å tÄ›pÃ¡n Chaloupek",
+      "name": "Štěpán Chaloupek",
       "number": 6,
       "position": "DEF",
       "detailedPosition": "Centre-Back"
     },
     {
-      "name": "David JurÃ¡sek",
+      "name": "David Jurásek",
       "number": 14,
       "position": "DEF",
       "detailedPosition": "Left-Back"
     },
     {
-      "name": "Ladislav KrejÄÃ­",
+      "name": "Ladislav Krejčí",
       "number": 7,
       "position": "DEF",
       "detailedPosition": "Centre-Back"
@@ -566,19 +566,19 @@ export const SQUADS: Record<string, SquadPlayer[]> = {
       "detailedPosition": "Central Midfield"
     },
     {
-      "name": "VladimÃ­r Darida",
+      "name": "Vladimír Darida",
       "number": 8,
       "position": "MID",
       "detailedPosition": "Central Midfield"
     },
     {
-      "name": "LukÃ¡Å¡ Provod",
+      "name": "Lukáš Provod",
       "number": 17,
       "position": "FWD",
       "detailedPosition": "Left Winger"
     },
     {
-      "name": "Michal SadÃ­lek",
+      "name": "Michal Sadílek",
       "number": 18,
       "position": "MID",
       "detailedPosition": "Central Midfield"
@@ -596,13 +596,13 @@ export const SQUADS: Record<string, SquadPlayer[]> = {
       "detailedPosition": "Central Midfield"
     },
     {
-      "name": "TomÃ¡Å¡ SouÄek",
+      "name": "Tomáš Souček",
       "number": 22,
       "position": "MID",
       "detailedPosition": "Defensive Midfield"
     },
     {
-      "name": "Pavel Å ulc",
+      "name": "Pavel Šulc",
       "number": 15,
       "position": "MID",
       "detailedPosition": "Attacking Midfield"
@@ -614,19 +614,19 @@ export const SQUADS: Record<string, SquadPlayer[]> = {
       "detailedPosition": "Attacking Midfield"
     },
     {
-      "name": "Adam HloÅ¾ek",
+      "name": "Adam Hložek",
       "number": 9,
       "position": "FWD",
       "detailedPosition": "Centre-Forward"
     },
     {
-      "name": "TomÃ¡Å¡ ChorÃ½",
+      "name": "Tomáš Chorý",
       "number": 19,
       "position": "FWD",
       "detailedPosition": "Centre-Forward"
     },
     {
-      "name": "MojmÃ­r Chytil",
+      "name": "Mojmír Chytil",
       "number": 13,
       "position": "FWD",
       "detailedPosition": "Centre-Forward"
@@ -783,7 +783,7 @@ export const SQUADS: Record<string, SquadPlayer[]> = {
       "detailedPosition": "Centre-Forward"
     },
     {
-      "name": "Brahim DÃ­az",
+      "name": "Brahim Díaz",
       "number": 10,
       "position": "FWD",
       "detailedPosition": "Right Winger"
@@ -966,12 +966,12 @@ export const SQUADS: Record<string, SquadPlayer[]> = {
       "detailedPosition": "Goalkeeper"
     },
     {
-      "name": "Osman HadÅ¾ikiÄ‡",
+      "name": "Osman Hadžikić",
       "number": null,
       "position": "GK"
     },
     {
-      "name": "Sead KolaÅ¡inac",
+      "name": "Sead Kolašinac",
       "number": 5,
       "position": "DEF",
       "detailedPosition": "Centre-Back"
@@ -1007,7 +1007,7 @@ export const SQUADS: Record<string, SquadPlayer[]> = {
       "detailedPosition": "Centre-Back"
     },
     {
-      "name": "Dennis HadÅ¾ikaduniÄ‡",
+      "name": "Dennis Hadžikadunić",
       "number": 3,
       "position": "DEF",
       "detailedPosition": "Centre-Back"
@@ -1019,13 +1019,13 @@ export const SQUADS: Record<string, SquadPlayer[]> = {
       "detailedPosition": "Centre-Back"
     },
     {
-      "name": "Amir HadÅ¾iahmetoviÄ‡",
+      "name": "Amir Hadžiahmetović",
       "number": 16,
       "position": "MID",
       "detailedPosition": "Defensive Midfield"
     },
     {
-      "name": "Ivan Å unjiÄ‡",
+      "name": "Ivan Šunjić",
       "number": 14,
       "position": "MID",
       "detailedPosition": "Defensive Midfield"
@@ -1037,13 +1037,13 @@ export const SQUADS: Record<string, SquadPlayer[]> = {
       "detailedPosition": "Central Midfield"
     },
     {
-      "name": "DÅ¾enis BurniÄ‡",
+      "name": "Dženis Burnić",
       "number": 17,
       "position": "MID",
       "detailedPosition": "Defensive Midfield"
     },
     {
-      "name": "Ermin MahmiÄ‡",
+      "name": "Ermin Mahmić",
       "number": 26,
       "position": "MID",
       "detailedPosition": "Attacking Midfield"
@@ -1055,31 +1055,31 @@ export const SQUADS: Record<string, SquadPlayer[]> = {
       "detailedPosition": "Central Midfield"
     },
     {
-      "name": "Amar MemiÄ‡",
+      "name": "Amar Memić",
       "number": 15,
       "position": "MID",
       "detailedPosition": "Right Midfield"
     },
     {
-      "name": "Armin GigoviÄ‡",
+      "name": "Armin Gigović",
       "number": 8,
       "position": "MID",
       "detailedPosition": "Central Midfield"
     },
     {
-      "name": "Kerim AlajbegoviÄ‡",
+      "name": "Kerim Alajbegović",
       "number": 19,
       "position": "FWD",
       "detailedPosition": "Left Winger"
     },
     {
-      "name": "Esmir BajraktareviÄ‡",
+      "name": "Esmir Bajraktarević",
       "number": 20,
       "position": "FWD",
       "detailedPosition": "Right Winger"
     },
     {
-      "name": "Ermedin DemiroviÄ‡",
+      "name": "Ermedin Demirović",
       "number": 10,
       "position": "FWD",
       "detailedPosition": "Centre-Forward"
@@ -1097,13 +1097,13 @@ export const SQUADS: Record<string, SquadPlayer[]> = {
       "detailedPosition": "Centre-Forward"
     },
     {
-      "name": "Haris TabakoviÄ‡",
+      "name": "Haris Tabaković",
       "number": 23,
       "position": "FWD",
       "detailedPosition": "Centre-Forward"
     },
     {
-      "name": "Edin DÅ¾eko",
+      "name": "Edin Džeko",
       "number": 11,
       "position": "FWD",
       "detailedPosition": "Centre-Forward"
@@ -1141,7 +1141,7 @@ export const SQUADS: Record<string, SquadPlayer[]> = {
       "detailedPosition": "Centre-Back"
     },
     {
-      "name": "Eray CÃ¶mert",
+      "name": "Eray Cömert",
       "number": 18,
       "position": "DEF",
       "detailedPosition": "Centre-Back"
@@ -1165,7 +1165,7 @@ export const SQUADS: Record<string, SquadPlayer[]> = {
       "detailedPosition": "Left-Back"
     },
     {
-      "name": "Ricardo RodrÃ­guez",
+      "name": "Ricardo Rodríguez",
       "number": 13,
       "position": "DEF",
       "detailedPosition": "Left-Back"
@@ -1311,7 +1311,7 @@ export const SQUADS: Record<string, SquadPlayer[]> = {
       "detailedPosition": "Left-Back"
     },
     {
-      "name": "Gabriel MagalhÃ£es",
+      "name": "Gabriel Magalhães",
       "number": 3,
       "position": "DEF",
       "detailedPosition": "Centre-Back"
@@ -1341,7 +1341,7 @@ export const SQUADS: Record<string, SquadPlayer[]> = {
       "detailedPosition": "Right-Back"
     },
     {
-      "name": "Bruno GuimarÃ£es",
+      "name": "Bruno Guimarães",
       "number": 8,
       "position": "MID",
       "detailedPosition": "Central Midfield"
@@ -1365,7 +1365,7 @@ export const SQUADS: Record<string, SquadPlayer[]> = {
       "detailedPosition": "Defensive Midfield"
     },
     {
-      "name": "Lucas PaquetÃ¡",
+      "name": "Lucas Paquetá",
       "number": 20,
       "position": "MID",
       "detailedPosition": "Attacking Midfield"
@@ -1419,7 +1419,7 @@ export const SQUADS: Record<string, SquadPlayer[]> = {
       "detailedPosition": "Right Winger"
     },
     {
-      "name": "VinÃ­cius JÃºnior",
+      "name": "Vinícius Júnior",
       "number": 7,
       "position": "FWD",
       "detailedPosition": "Left Winger"
@@ -1451,13 +1451,13 @@ export const SQUADS: Record<string, SquadPlayer[]> = {
       "detailedPosition": "Right-Back"
     },
     {
-      "name": "Ronald AraÃºjo",
+      "name": "Ronald Araújo",
       "number": 4,
       "position": "DEF",
       "detailedPosition": "Centre-Back"
     },
     {
-      "name": "JosÃ© MarÃ­a GimÃ©nez",
+      "name": "José María Giménez",
       "number": 2,
       "position": "DEF",
       "detailedPosition": "Centre-Back"
@@ -1469,31 +1469,31 @@ export const SQUADS: Record<string, SquadPlayer[]> = {
       "detailedPosition": "Centre-Back"
     },
     {
-      "name": "SebastiÃ¡n CÃ¡ceres",
+      "name": "Sebastián Cáceres",
       "number": 3,
       "position": "DEF",
       "detailedPosition": "Centre-Back"
     },
     {
-      "name": "MathÃ­as Olivera",
+      "name": "Mathías Olivera",
       "number": 16,
       "position": "DEF",
       "detailedPosition": "Left-Back"
     },
     {
-      "name": "JoaquÃ­n Piquerez",
+      "name": "Joaquín Piquerez",
       "number": 22,
       "position": "DEF",
       "detailedPosition": "Left-Back"
     },
     {
-      "name": "MatÃ­as ViÃ±a",
+      "name": "Matías Viña",
       "number": 17,
       "position": "DEF",
       "detailedPosition": "Left-Back"
     },
     {
-      "name": "Maximiliano AraÃºjo",
+      "name": "Maximiliano Araújo",
       "number": 20,
       "position": "FWD",
       "detailedPosition": "Left Winger"
@@ -1511,19 +1511,19 @@ export const SQUADS: Record<string, SquadPlayer[]> = {
       "detailedPosition": "Defensive Midfield"
     },
     {
-      "name": "AgustÃ­n Canobbio",
+      "name": "Agustín Canobbio",
       "number": 14,
       "position": "FWD",
       "detailedPosition": "Left Winger"
     },
     {
-      "name": "NicolÃ¡s de la Cruz",
+      "name": "Nicolás de la Cruz",
       "number": 7,
       "position": "MID",
       "detailedPosition": "Central Midfield"
     },
     {
-      "name": "Emiliano MartÃ­nez",
+      "name": "Emiliano Martínez",
       "number": 15,
       "position": "MID",
       "detailedPosition": "Defensive Midfield"
@@ -1535,7 +1535,7 @@ export const SQUADS: Record<string, SquadPlayer[]> = {
       "detailedPosition": "Right Winger"
     },
     {
-      "name": "Brian RodrÃ­guez",
+      "name": "Brian Rodríguez",
       "number": 18,
       "position": "FWD",
       "detailedPosition": "Left Winger"
@@ -1571,13 +1571,13 @@ export const SQUADS: Record<string, SquadPlayer[]> = {
       "detailedPosition": "Centre-Forward"
     },
     {
-      "name": "Federico ViÃ±as",
+      "name": "Federico Viñas",
       "number": 21,
       "position": "FWD",
       "detailedPosition": "Centre-Forward"
     },
     {
-      "name": "Darwin NÃºÃ±ez",
+      "name": "Darwin Núñez",
       "number": 9,
       "position": "FWD",
       "detailedPosition": "Centre-Forward"
@@ -1591,7 +1591,7 @@ export const SQUADS: Record<string, SquadPlayer[]> = {
       "detailedPosition": "Goalkeeper"
     },
     {
-      "name": "Ãlvaro Montero",
+      "name": "Álvaro Montero",
       "number": 24,
       "position": "GK",
       "detailedPosition": "Goalkeeper"
@@ -1603,13 +1603,13 @@ export const SQUADS: Record<string, SquadPlayer[]> = {
       "detailedPosition": "Goalkeeper"
     },
     {
-      "name": "Davinson SÃ¡nchez",
+      "name": "Davinson Sánchez",
       "number": 23,
       "position": "DEF",
       "detailedPosition": "Centre-Back"
     },
     {
-      "name": "Jhon LucumÃ­",
+      "name": "Jhon Lucumí",
       "number": 3,
       "position": "DEF",
       "detailedPosition": "Centre-Back"
@@ -1627,7 +1627,7 @@ export const SQUADS: Record<string, SquadPlayer[]> = {
       "detailedPosition": "Centre-Back"
     },
     {
-      "name": "Daniel MuÃ±oz",
+      "name": "Daniel Muñoz",
       "number": 2,
       "position": "DEF",
       "detailedPosition": "Right-Back"
@@ -1663,7 +1663,7 @@ export const SQUADS: Record<string, SquadPlayer[]> = {
       "detailedPosition": "Defensive Midfield"
     },
     {
-      "name": "Kevin CastaÃ±o",
+      "name": "Kevin Castaño",
       "number": 5,
       "position": "MID",
       "detailedPosition": "Defensive Midfield"
@@ -1699,7 +1699,7 @@ export const SQUADS: Record<string, SquadPlayer[]> = {
       "detailedPosition": "Attacking Midfield"
     },
     {
-      "name": "James RodrÃ­guez",
+      "name": "James Rodríguez",
       "number": 10,
       "position": "MID",
       "detailedPosition": "Attacking Midfield"
@@ -1711,29 +1711,29 @@ export const SQUADS: Record<string, SquadPlayer[]> = {
       "detailedPosition": "Left Winger"
     },
     {
-      "name": "Juan Camilo HernÃ¡ndez",
+      "name": "Juan Camilo Hernández",
       "number": null,
       "position": "FWD"
     },
     {
-      "name": "Luis DÃ­az",
+      "name": "Luis Díaz",
       "number": 7,
       "position": "FWD",
       "detailedPosition": "Left Winger"
     },
     {
-      "name": "Luis SuÃ¡rez",
+      "name": "Luis Suárez",
       "number": 25,
       "position": "FWD",
       "detailedPosition": "Centre-Forward"
     },
     {
-      "name": "Carlos GÃ³mez",
+      "name": "Carlos Gómez",
       "number": null,
       "position": "FWD"
     },
     {
-      "name": "Jhon CÃ³rdoba",
+      "name": "Jhon Córdoba",
       "number": 9,
       "position": "FWD",
       "detailedPosition": "Centre-Forward"
@@ -1741,43 +1741,43 @@ export const SQUADS: Record<string, SquadPlayer[]> = {
   ],
   "turkey": [
     {
-      "name": "Altay BayÄ±ndÄ±r",
+      "name": "Altay Bayındır",
       "number": 12,
       "position": "GK",
       "detailedPosition": "Goalkeeper"
     },
     {
-      "name": "Mert GÃ¼nok",
+      "name": "Mert Günok",
       "number": 1,
       "position": "GK",
       "detailedPosition": "Goalkeeper"
     },
     {
-      "name": "UÄŸurcan Ã‡akÄ±r",
+      "name": "Uğurcan Çakır",
       "number": 23,
       "position": "GK",
       "detailedPosition": "Goalkeeper"
     },
     {
-      "name": "AbdÃ¼lkerim BardakcÄ±",
+      "name": "Abdülkerim Bardakcı",
       "number": 14,
       "position": "DEF",
       "detailedPosition": "Centre-Back"
     },
     {
-      "name": "Ã‡aÄŸlar SÃ¶yÃ¼ncÃ¼",
+      "name": "Çağlar Söyüncü",
       "number": 4,
       "position": "DEF",
       "detailedPosition": "Centre-Back"
     },
     {
-      "name": "Eren ElmalÄ±",
+      "name": "Eren Elmalı",
       "number": 13,
       "position": "DEF",
       "detailedPosition": "Left-Back"
     },
     {
-      "name": "Ferdi KadÄ±oÄŸlu",
+      "name": "Ferdi Kadıoğlu",
       "number": 20,
       "position": "DEF",
       "detailedPosition": "Full-Back"
@@ -1789,7 +1789,7 @@ export const SQUADS: Record<string, SquadPlayer[]> = {
       "detailedPosition": "Centre-Back"
     },
     {
-      "name": "Mert MÃ¼ldÃ¼r",
+      "name": "Mert Müldür",
       "number": 18,
       "position": "DEF",
       "detailedPosition": "Right-Back"
@@ -1801,25 +1801,25 @@ export const SQUADS: Record<string, SquadPlayer[]> = {
       "detailedPosition": "Centre-Back"
     },
     {
-      "name": "Samet AkaydÄ±n",
+      "name": "Samet Akaydın",
       "number": 25,
       "position": "DEF",
       "detailedPosition": "Centre-Back"
     },
     {
-      "name": "Zeki Ã‡elik",
+      "name": "Zeki Çelik",
       "number": 2,
       "position": "DEF",
       "detailedPosition": "Right-Back"
     },
     {
-      "name": "Hakan Ã‡alhanoÄŸlu",
+      "name": "Hakan Çalhanoğlu",
       "number": 10,
       "position": "MID",
       "detailedPosition": "Defensive Midfield"
     },
     {
-      "name": "Ä°smail YÃ¼ksek",
+      "name": "İsmail Yüksek",
       "number": 16,
       "position": "MID",
       "detailedPosition": "Defensive Midfield"
@@ -1831,25 +1831,25 @@ export const SQUADS: Record<string, SquadPlayer[]> = {
       "detailedPosition": "Defensive Midfield"
     },
     {
-      "name": "Orkun KÃ¶kcÃ¼",
+      "name": "Orkun Kökcü",
       "number": 6,
       "position": "MID",
       "detailedPosition": "Central Midfield"
     },
     {
-      "name": "Salih Ã–zcan",
+      "name": "Salih Özcan",
       "number": 5,
       "position": "MID",
       "detailedPosition": "Defensive Midfield"
     },
     {
-      "name": "Arda GÃ¼ler",
+      "name": "Arda Güler",
       "number": 8,
       "position": "MID",
       "detailedPosition": "Attacking Midfield"
     },
     {
-      "name": "BarÄ±ÅŸ Alper YÄ±lmaz",
+      "name": "Barış Alper Yılmaz",
       "number": 21,
       "position": "FWD",
       "detailedPosition": "Left Winger"
@@ -1861,37 +1861,37 @@ export const SQUADS: Record<string, SquadPlayer[]> = {
       "detailedPosition": "Attacking Midfield"
     },
     {
-      "name": "Deniz GÃ¼l",
+      "name": "Deniz Gül",
       "number": 9,
       "position": "FWD",
       "detailedPosition": "Centre-Forward"
     },
     {
-      "name": "Ä°rfan Can Kahveci",
+      "name": "İrfan Can Kahveci",
       "number": 17,
       "position": "FWD",
       "detailedPosition": "Right Winger"
     },
     {
-      "name": "Kenan YÄ±ldÄ±z",
+      "name": "Kenan Yıldız",
       "number": 11,
       "position": "MID",
       "detailedPosition": "Attacking Midfield"
     },
     {
-      "name": "Kerem AktÃ¼rkoÄŸlu",
+      "name": "Kerem Aktürkoğlu",
       "number": 7,
       "position": "FWD",
       "detailedPosition": "Left Winger"
     },
     {
-      "name": "OÄŸuz AydÄ±n",
+      "name": "Oğuz Aydın",
       "number": 24,
       "position": "FWD",
       "detailedPosition": "Right Winger"
     },
     {
-      "name": "Yunus AkgÃ¼n",
+      "name": "Yunus Akgün",
       "number": 19,
       "position": "FWD",
       "detailedPosition": "Right Winger"
@@ -2219,30 +2219,30 @@ export const SQUADS: Record<string, SquadPlayer[]> = {
       "detailedPosition": "Goalkeeper"
     },
     {
-      "name": "Roberto FernÃ¡ndez",
+      "name": "Roberto Fernández",
       "number": null,
       "position": "GK",
       "detailedPosition": "Goalkeeper"
     },
     {
-      "name": "GastÃ³n Olveira",
+      "name": "Gastón Olveira",
       "number": 22,
       "position": "GK",
       "detailedPosition": "Goalkeeper"
     },
     {
-      "name": "Juan CÃ¡ceres",
+      "name": "Juan Cáceres",
       "number": null,
       "position": "DEF"
     },
     {
-      "name": "Gustavo VelÃ¡zquez",
+      "name": "Gustavo Velázquez",
       "number": 2,
       "position": "DEF",
       "detailedPosition": "Centre-Back"
     },
     {
-      "name": "Gustavo GÃ³mez",
+      "name": "Gustavo Gómez",
       "number": 15,
       "position": "DEF",
       "detailedPosition": "Centre-Back"
@@ -2254,7 +2254,7 @@ export const SQUADS: Record<string, SquadPlayer[]> = {
       "detailedPosition": "Centre-Back"
     },
     {
-      "name": "JosÃ© Canale",
+      "name": "José Canale",
       "number": 13,
       "position": "DEF",
       "detailedPosition": "Centre-Back"
@@ -2272,24 +2272,24 @@ export const SQUADS: Record<string, SquadPlayer[]> = {
       "detailedPosition": "Left-Back"
     },
     {
-      "name": "FabiÃ¡n Balbuena",
+      "name": "Fabián Balbuena",
       "number": 5,
       "position": "DEF",
       "detailedPosition": "Centre-Back"
     },
     {
-      "name": "Diego GÃ³mez",
+      "name": "Diego Gómez",
       "number": 8,
       "position": "MID",
       "detailedPosition": "Central Midfield"
     },
     {
-      "name": "Mauricio MagalhÃ£es",
+      "name": "Mauricio Magalhães",
       "number": null,
       "position": "MID"
     },
     {
-      "name": "DamiÃ¡n Bobadilla",
+      "name": "Damián Bobadilla",
       "number": 16,
       "position": "MID",
       "detailedPosition": "Central Midfield"
@@ -2301,13 +2301,13 @@ export const SQUADS: Record<string, SquadPlayer[]> = {
       "detailedPosition": "Defensive Midfield"
     },
     {
-      "name": "AndrÃ©s Cubas",
+      "name": "Andrés Cubas",
       "number": 14,
       "position": "MID",
       "detailedPosition": "Defensive Midfield"
     },
     {
-      "name": "MatÃ­as Galarza",
+      "name": "Matías Galarza",
       "number": 23,
       "position": "MID",
       "detailedPosition": "Central Midfield"
@@ -2324,7 +2324,7 @@ export const SQUADS: Record<string, SquadPlayer[]> = {
       "detailedPosition": "Left Winger"
     },
     {
-      "name": "RamÃ³n Sosa",
+      "name": "Ramón Sosa",
       "number": 7,
       "position": "FWD",
       "detailedPosition": "Centre-Forward"
@@ -2342,13 +2342,13 @@ export const SQUADS: Record<string, SquadPlayer[]> = {
       "detailedPosition": "Centre-Forward"
     },
     {
-      "name": "Gabriel Ãvalos",
+      "name": "Gabriel Ávalos",
       "number": 21,
       "position": "FWD",
       "detailedPosition": "Centre-Forward"
     },
     {
-      "name": "Miguel AlmirÃ³n",
+      "name": "Miguel Almirón",
       "number": 10,
       "position": "FWD",
       "detailedPosition": "Right Winger"
@@ -2380,7 +2380,7 @@ export const SQUADS: Record<string, SquadPlayer[]> = {
       "detailedPosition": "Goalkeeper"
     },
     {
-      "name": "Alexander NÃ¼bel",
+      "name": "Alexander Nübel",
       "number": 21,
       "position": "GK",
       "detailedPosition": "Goalkeeper"
@@ -2428,7 +2428,7 @@ export const SQUADS: Record<string, SquadPlayer[]> = {
       "detailedPosition": "Centre-Back"
     },
     {
-      "name": "Antonio RÃ¼diger",
+      "name": "Antonio Rüdiger",
       "number": 2,
       "position": "DEF",
       "detailedPosition": "Centre-Back"
@@ -2482,7 +2482,7 @@ export const SQUADS: Record<string, SquadPlayer[]> = {
       "detailedPosition": "Attacking Midfield"
     },
     {
-      "name": "Leroy SanÃ©",
+      "name": "Leroy Sané",
       "number": 19,
       "position": "FWD",
       "detailedPosition": "Right Winger"
@@ -2750,7 +2750,7 @@ export const SQUADS: Record<string, SquadPlayer[]> = {
       "detailedPosition": "Left-Back"
     },
     {
-      "name": "Arthur ThÃ©ate",
+      "name": "Arthur Théate",
       "number": 3,
       "position": "DEF",
       "detailedPosition": "Centre-Back"
@@ -2798,7 +2798,7 @@ export const SQUADS: Record<string, SquadPlayer[]> = {
       "detailedPosition": "Attacking Midfield"
     },
     {
-      "name": "JÃ©rÃ©my Doku",
+      "name": "Jérémy Doku",
       "number": 11,
       "position": "FWD",
       "detailedPosition": "Left Winger"
@@ -2860,7 +2860,7 @@ export const SQUADS: Record<string, SquadPlayer[]> = {
       "detailedPosition": "Goalkeeper"
     },
     {
-      "name": "Nathan AkÃ©",
+      "name": "Nathan Aké",
       "number": 5,
       "position": "DEF",
       "detailedPosition": "Centre-Back"
@@ -2884,7 +2884,7 @@ export const SQUADS: Record<string, SquadPlayer[]> = {
       "detailedPosition": "Centre-Back"
     },
     {
-      "name": "JurriÃ«n Timber",
+      "name": "Jurriën Timber",
       "number": 2,
       "position": "DEF",
       "detailedPosition": "Centre-Back"
@@ -3157,7 +3157,7 @@ export const SQUADS: Record<string, SquadPlayer[]> = {
   ],
   "norway": [
     {
-      "name": "Ã˜rjan Haskjold Nyland",
+      "name": "Ørjan Haskjold Nyland",
       "number": null,
       "position": "GK"
     },
@@ -3179,7 +3179,7 @@ export const SQUADS: Record<string, SquadPlayer[]> = {
       "position": "DEF"
     },
     {
-      "name": "Fredrik BjÃ¸rkan",
+      "name": "Fredrik Bjørkan",
       "number": null,
       "position": "DEF",
       "detailedPosition": "Left-Back"
@@ -3197,7 +3197,7 @@ export const SQUADS: Record<string, SquadPlayer[]> = {
       "detailedPosition": "Centre-Back"
     },
     {
-      "name": "TorbjÃ¸rn Heggem",
+      "name": "Torbjørn Heggem",
       "number": 17,
       "position": "DEF",
       "detailedPosition": "Centre-Back"
@@ -3221,7 +3221,7 @@ export const SQUADS: Record<string, SquadPlayer[]> = {
       "detailedPosition": "Left-Back"
     },
     {
-      "name": "Leo Ã˜stigÃ¥rd",
+      "name": "Leo Østigård",
       "number": 4,
       "position": "DEF",
       "detailedPosition": "Centre-Back"
@@ -3286,7 +3286,7 @@ export const SQUADS: Record<string, SquadPlayer[]> = {
       "detailedPosition": "Central Midfield"
     },
     {
-      "name": "Martin Ã˜degaard",
+      "name": "Martin Ødegaard",
       "number": 10,
       "position": "MID",
       "detailedPosition": "Central Midfield"
@@ -3298,13 +3298,13 @@ export const SQUADS: Record<string, SquadPlayer[]> = {
       "detailedPosition": "Centre-Forward"
     },
     {
-      "name": "Alexander SÃ¸rloth",
+      "name": "Alexander Sørloth",
       "number": 7,
       "position": "FWD",
       "detailedPosition": "Centre-Forward"
     },
     {
-      "name": "JÃ¸rgen Strand Larsen",
+      "name": "Jørgen Strand Larsen",
       "number": 11,
       "position": "FWD",
       "detailedPosition": "Centre-Forward"
@@ -3544,7 +3544,7 @@ export const SQUADS: Record<string, SquadPlayer[]> = {
       "detailedPosition": "Right Winger"
     },
     {
-      "name": "Wataru EndÅ",
+      "name": "Wataru Endō",
       "number": 6,
       "position": "MID",
       "detailedPosition": "Defensive Midfield"
@@ -3624,13 +3624,13 @@ export const SQUADS: Record<string, SquadPlayer[]> = {
   ],
   "ecuador": [
     {
-      "name": "HernÃ¡n GalÃ­ndez",
+      "name": "Hernán Galíndez",
       "number": 1,
       "position": "GK",
       "detailedPosition": "Goalkeeper"
     },
     {
-      "name": "MoisÃ©s RamÃ­rez",
+      "name": "Moisés Ramírez",
       "number": 12,
       "position": "GK",
       "detailedPosition": "Goalkeeper"
@@ -3642,7 +3642,7 @@ export const SQUADS: Record<string, SquadPlayer[]> = {
       "detailedPosition": "Goalkeeper"
     },
     {
-      "name": "Piero HincapiÃ©",
+      "name": "Piero Hincapié",
       "number": 3,
       "position": "DEF",
       "detailedPosition": "Centre-Back"
@@ -3654,19 +3654,19 @@ export const SQUADS: Record<string, SquadPlayer[]> = {
       "detailedPosition": "Centre-Back"
     },
     {
-      "name": "Pervis EstupiÃ±Ã¡n",
+      "name": "Pervis Estupiñán",
       "number": 7,
       "position": "DEF",
       "detailedPosition": "Left-Back"
     },
     {
-      "name": "FÃ©lix Torres",
+      "name": "Félix Torres",
       "number": 2,
       "position": "DEF",
       "detailedPosition": "Centre-Back"
     },
     {
-      "name": "Joel OrdÃ³Ã±ez",
+      "name": "Joel Ordóñez",
       "number": 4,
       "position": "DEF",
       "detailedPosition": "Centre-Back"
@@ -3678,7 +3678,7 @@ export const SQUADS: Record<string, SquadPlayer[]> = {
       "detailedPosition": "Centre-Back"
     },
     {
-      "name": "Ãngelo Preciado",
+      "name": "Ángelo Preciado",
       "number": 17,
       "position": "DEF",
       "detailedPosition": "Right-Back"
@@ -3690,7 +3690,7 @@ export const SQUADS: Record<string, SquadPlayer[]> = {
       "detailedPosition": "Left-Back"
     },
     {
-      "name": "MoisÃ©s Caicedo",
+      "name": "Moisés Caicedo",
       "number": 23,
       "position": "MID",
       "detailedPosition": "Defensive Midfield"
@@ -3702,7 +3702,7 @@ export const SQUADS: Record<string, SquadPlayer[]> = {
       "detailedPosition": "Central Midfield"
     },
     {
-      "name": "Kendry PÃ¡ez",
+      "name": "Kendry Páez",
       "number": 10,
       "position": "MID",
       "detailedPosition": "Attacking Midfield"
@@ -3720,7 +3720,7 @@ export const SQUADS: Record<string, SquadPlayer[]> = {
       "detailedPosition": "Attacking Midfield"
     },
     {
-      "name": "Jordy AlcÃ­var",
+      "name": "Jordy Alcívar",
       "number": 5,
       "position": "MID",
       "detailedPosition": "Defensive Midfield"
@@ -3750,13 +3750,13 @@ export const SQUADS: Record<string, SquadPlayer[]> = {
       "detailedPosition": "Right Winger"
     },
     {
-      "name": "Ã‰nner Valencia",
+      "name": "Énner Valencia",
       "number": 13,
       "position": "FWD",
       "detailedPosition": "Forward"
     },
     {
-      "name": "Kevin RodrÃ­guez",
+      "name": "Kevin Rodríguez",
       "number": 11,
       "position": "FWD",
       "detailedPosition": "Centre-Forward"
@@ -3774,7 +3774,7 @@ export const SQUADS: Record<string, SquadPlayer[]> = {
       "detailedPosition": "Right Winger"
     },
     {
-      "name": "JÃ©rÃ©my ArÃ©valo",
+      "name": "Jérémy Arévalo",
       "number": 24,
       "position": "FWD",
       "detailedPosition": "Centre-Forward"
@@ -3782,7 +3782,7 @@ export const SQUADS: Record<string, SquadPlayer[]> = {
   ],
   "spain": [
     {
-      "name": "Unai SimÃ³n",
+      "name": "Unai Simón",
       "number": 23,
       "position": "GK",
       "detailedPosition": "Goalkeeper"
@@ -3806,7 +3806,7 @@ export const SQUADS: Record<string, SquadPlayer[]> = {
       "detailedPosition": "Left-Back"
     },
     {
-      "name": "Pau CubarsÃ­",
+      "name": "Pau Cubarsí",
       "number": 22,
       "position": "DEF",
       "detailedPosition": "Centre-Back"
@@ -3872,7 +3872,7 @@ export const SQUADS: Record<string, SquadPlayer[]> = {
       "detailedPosition": "Defensive Midfield"
     },
     {
-      "name": "FabiÃ¡n Ruiz",
+      "name": "Fabián Ruiz",
       "number": 8,
       "position": "MID",
       "detailedPosition": "Central Midfield"
@@ -3932,7 +3932,7 @@ export const SQUADS: Record<string, SquadPlayer[]> = {
       "detailedPosition": "Centre-Forward"
     },
     {
-      "name": "VÃ­ctor MuÃ±oz",
+      "name": "Víctor Muñoz",
       "number": 25,
       "position": "FWD",
       "detailedPosition": "Left Winger"
@@ -4180,7 +4180,7 @@ export const SQUADS: Record<string, SquadPlayer[]> = {
       "detailedPosition": "Central Midfield"
     },
     {
-      "name": "Franck KessiÃ©",
+      "name": "Franck Kessié",
       "number": 8,
       "position": "MID",
       "detailedPosition": "Central Midfield"
@@ -4192,7 +4192,7 @@ export const SQUADS: Record<string, SquadPlayer[]> = {
       "detailedPosition": "Defensive Midfield"
     },
     {
-      "name": "Jean-MichaÃ«l SÃ©ri",
+      "name": "Jean-Michaël Séri",
       "number": 4,
       "position": "MID",
       "detailedPosition": "Defensive Midfield"
@@ -4216,7 +4216,7 @@ export const SQUADS: Record<string, SquadPlayer[]> = {
       "detailedPosition": "Right Winger"
     },
     {
-      "name": "Oumar DiakitÃ©",
+      "name": "Oumar Diakité",
       "number": 14,
       "position": "FWD",
       "detailedPosition": "Centre-Forward"
@@ -4234,7 +4234,7 @@ export const SQUADS: Record<string, SquadPlayer[]> = {
       "detailedPosition": "Right Winger"
     },
     {
-      "name": "Nicolas PÃ©pÃ©",
+      "name": "Nicolas Pépé",
       "number": 19,
       "position": "FWD",
       "detailedPosition": "Right Winger"
@@ -4447,13 +4447,13 @@ export const SQUADS: Record<string, SquadPlayer[]> = {
       "detailedPosition": "Left-Back"
     },
     {
-      "name": "ThÃ©o Hernandez",
+      "name": "Théo Hernandez",
       "number": 19,
       "position": "DEF",
       "detailedPosition": "Left-Back"
     },
     {
-      "name": "Ibrahima KonatÃ©",
+      "name": "Ibrahima Konaté",
       "number": 15,
       "position": "DEF",
       "detailedPosition": "Centre-Back"
@@ -4465,7 +4465,7 @@ export const SQUADS: Record<string, SquadPlayer[]> = {
       "detailedPosition": "Centre-Back"
     },
     {
-      "name": "Jules KoundÃ©",
+      "name": "Jules Koundé",
       "number": 5,
       "position": "DEF",
       "detailedPosition": "Right-Back"
@@ -4483,7 +4483,7 @@ export const SQUADS: Record<string, SquadPlayer[]> = {
       "detailedPosition": "Centre-Back"
     },
     {
-      "name": "N'Golo KantÃ©",
+      "name": "N'Golo Kanté",
       "number": 13,
       "position": "MID",
       "detailedPosition": "Defensive Midfield"
@@ -4501,7 +4501,7 @@ export const SQUADS: Record<string, SquadPlayer[]> = {
       "detailedPosition": "Central Midfield"
     },
     {
-      "name": "AurÃ©lien TchouamÃ©ni",
+      "name": "Aurélien Tchouaméni",
       "number": 8,
       "position": "MID",
       "detailedPosition": "Defensive Midfield"
@@ -4531,13 +4531,13 @@ export const SQUADS: Record<string, SquadPlayer[]> = {
       "detailedPosition": "Attacking Midfield"
     },
     {
-      "name": "Ousmane DembÃ©lÃ©",
+      "name": "Ousmane Dembélé",
       "number": 7,
       "position": "FWD",
       "detailedPosition": "Centre-Forward"
     },
     {
-      "name": "DÃ©sirÃ© DouÃ©",
+      "name": "Désiré Doué",
       "number": 20,
       "position": "FWD",
       "detailedPosition": "Right Winger"
@@ -4549,7 +4549,7 @@ export const SQUADS: Record<string, SquadPlayer[]> = {
       "detailedPosition": "Right Winger"
     },
     {
-      "name": "Kylian MbappÃ©",
+      "name": "Kylian Mbappé",
       "number": 10,
       "position": "FWD",
       "detailedPosition": "Centre-Forward"
@@ -4569,7 +4569,7 @@ export const SQUADS: Record<string, SquadPlayer[]> = {
   ],
   "senegal": [
     {
-      "name": "Ã‰douard Mendy",
+      "name": "Édouard Mendy",
       "number": 16,
       "position": "GK",
       "detailedPosition": "Goalkeeper"
@@ -4640,7 +4640,7 @@ export const SQUADS: Record<string, SquadPlayer[]> = {
       "position": "MID"
     },
     {
-      "name": "Pape GuÃ¨ye",
+      "name": "Pape Guèye",
       "number": 26,
       "position": "MID",
       "detailedPosition": "Central Midfield"
@@ -4676,13 +4676,13 @@ export const SQUADS: Record<string, SquadPlayer[]> = {
       "detailedPosition": "Central Midfield"
     },
     {
-      "name": "Sadio ManÃ©",
+      "name": "Sadio Mané",
       "number": 10,
       "position": "FWD",
       "detailedPosition": "Left Winger"
     },
     {
-      "name": "IsmaÃ¯la Sarr",
+      "name": "Ismaïla Sarr",
       "number": 18,
       "position": "FWD",
       "detailedPosition": "Right Winger"
@@ -5038,13 +5038,13 @@ export const SQUADS: Record<string, SquadPlayer[]> = {
   ],
   "argentina": [
     {
-      "name": "Emiliano MartÃ­nez",
+      "name": "Emiliano Martínez",
       "number": 23,
       "position": "GK",
       "detailedPosition": "Goalkeeper"
     },
     {
-      "name": "GerÃ³nimo Rulli",
+      "name": "Gerónimo Rulli",
       "number": 12,
       "position": "GK",
       "detailedPosition": "Goalkeeper"
@@ -5068,13 +5068,13 @@ export const SQUADS: Record<string, SquadPlayer[]> = {
       "detailedPosition": "Right-Back"
     },
     {
-      "name": "NicolÃ¡s Tagliafico",
+      "name": "Nicolás Tagliafico",
       "number": 3,
       "position": "DEF",
       "detailedPosition": "Left-Back"
     },
     {
-      "name": "Lisandro MartÃ­nez",
+      "name": "Lisandro Martínez",
       "number": 6,
       "position": "DEF",
       "detailedPosition": "Centre-Back"
@@ -5086,7 +5086,7 @@ export const SQUADS: Record<string, SquadPlayer[]> = {
       "detailedPosition": "Centre-Back"
     },
     {
-      "name": "NicolÃ¡s Otamendi",
+      "name": "Nicolás Otamendi",
       "number": 19,
       "position": "DEF",
       "detailedPosition": "Centre-Back"
@@ -5116,7 +5116,7 @@ export const SQUADS: Record<string, SquadPlayer[]> = {
       "detailedPosition": "Central Midfield"
     },
     {
-      "name": "ValentÃ­n Barco",
+      "name": "Valentín Barco",
       "number": 8,
       "position": "MID",
       "detailedPosition": "Central Midfield"
@@ -5140,13 +5140,13 @@ export const SQUADS: Record<string, SquadPlayer[]> = {
       "detailedPosition": "Central Midfield"
     },
     {
-      "name": "Enzo FernÃ¡ndez",
+      "name": "Enzo Fernández",
       "number": 24,
       "position": "MID",
       "detailedPosition": "Central Midfield"
     },
     {
-      "name": "JuliÃ¡n Ãlvarez",
+      "name": "Julián Álvarez",
       "number": 9,
       "position": "FWD",
       "detailedPosition": "Centre-Forward"
@@ -5158,7 +5158,7 @@ export const SQUADS: Record<string, SquadPlayer[]> = {
       "detailedPosition": "Right Winger"
     },
     {
-      "name": "NicolÃ¡s GonzÃ¡lez",
+      "name": "Nicolás González",
       "number": 15,
       "position": "FWD",
       "detailedPosition": "Right Winger"
@@ -5176,18 +5176,18 @@ export const SQUADS: Record<string, SquadPlayer[]> = {
       "detailedPosition": "Right Winger"
     },
     {
-      "name": "NicolÃ¡s Paz",
+      "name": "Nicolás Paz",
       "number": null,
       "position": "FWD"
     },
     {
-      "name": "JosÃ© Manuel LÃ³pez",
+      "name": "José Manuel López",
       "number": 21,
       "position": "FWD",
       "detailedPosition": "Centre-Forward"
     },
     {
-      "name": "Lautaro MartÃ­nez",
+      "name": "Lautaro Martínez",
       "number": 22,
       "position": "FWD",
       "detailedPosition": "Centre-Forward"
@@ -5669,7 +5669,7 @@ export const SQUADS: Record<string, SquadPlayer[]> = {
       "detailedPosition": "Goalkeeper"
     },
     {
-      "name": "JosÃ© SÃ¡",
+      "name": "José Sá",
       "number": 12,
       "position": "GK",
       "detailedPosition": "Goalkeeper"
@@ -5681,13 +5681,13 @@ export const SQUADS: Record<string, SquadPlayer[]> = {
       "detailedPosition": "Goalkeeper"
     },
     {
-      "name": "TomÃ¡s AraÃºjo",
+      "name": "Tomás Araújo",
       "number": 4,
       "position": "DEF",
       "detailedPosition": "Centre-Back"
     },
     {
-      "name": "JoÃ£o Cancelo",
+      "name": "João Cancelo",
       "number": 20,
       "position": "DEF",
       "detailedPosition": "Right-Back"
@@ -5699,13 +5699,13 @@ export const SQUADS: Record<string, SquadPlayer[]> = {
       "detailedPosition": "Right-Back"
     },
     {
-      "name": "RÃºben Dias",
+      "name": "Rúben Dias",
       "number": 3,
       "position": "DEF",
       "detailedPosition": "Centre-Back"
     },
     {
-      "name": "GonÃ§alo InÃ¡cio",
+      "name": "Gonçalo Inácio",
       "number": 14,
       "position": "DEF",
       "detailedPosition": "Centre-Back"
@@ -5747,13 +5747,13 @@ export const SQUADS: Record<string, SquadPlayer[]> = {
       "detailedPosition": "Attacking Midfield"
     },
     {
-      "name": "JoÃ£o Neves",
+      "name": "João Neves",
       "number": 15,
       "position": "MID",
       "detailedPosition": "Central Midfield"
     },
     {
-      "name": "RÃºben Neves",
+      "name": "Rúben Neves",
       "number": 21,
       "position": "MID",
       "detailedPosition": "Defensive Midfield"
@@ -5771,25 +5771,25 @@ export const SQUADS: Record<string, SquadPlayer[]> = {
       "detailedPosition": "Defensive Midfield"
     },
     {
-      "name": "Francisco ConceiÃ§Ã£o",
+      "name": "Francisco Conceição",
       "number": 26,
       "position": "FWD",
       "detailedPosition": "Right Winger"
     },
     {
-      "name": "JoÃ£o FÃ©lix",
+      "name": "João Félix",
       "number": 11,
       "position": "FWD",
       "detailedPosition": "Centre-Forward"
     },
     {
-      "name": "GonÃ§alo Guedes",
+      "name": "Gonçalo Guedes",
       "number": 19,
       "position": "FWD",
       "detailedPosition": "Left Winger"
     },
     {
-      "name": "Rafael LeÃ£o",
+      "name": "Rafael Leão",
       "number": 17,
       "position": "FWD",
       "detailedPosition": "Left Winger"
@@ -5801,7 +5801,7 @@ export const SQUADS: Record<string, SquadPlayer[]> = {
       "detailedPosition": "Right Winger"
     },
     {
-      "name": "GonÃ§alo Ramos",
+      "name": "Gonçalo Ramos",
       "number": 9,
       "position": "FWD",
       "detailedPosition": "Centre-Forward"
@@ -5813,7 +5813,7 @@ export const SQUADS: Record<string, SquadPlayer[]> = {
       "detailedPosition": "Centre-Forward"
     },
     {
-      "name": "Francisco TrincÃ£o",
+      "name": "Francisco Trincão",
       "number": 16,
       "position": "MID",
       "detailedPosition": "Attacking Midfield"
@@ -6039,7 +6039,7 @@ export const SQUADS: Record<string, SquadPlayer[]> = {
       "detailedPosition": "Centre-Back"
     },
     {
-      "name": "Ã‰ric Davis",
+      "name": "Éric Davis",
       "number": 15,
       "position": "DEF",
       "detailedPosition": "Left-Back"
@@ -6111,7 +6111,7 @@ export const SQUADS: Record<string, SquadPlayer[]> = {
       "detailedPosition": "Centre-Forward"
     },
     {
-      "name": "Ismael DÃ­az",
+      "name": "Ismael Díaz",
       "number": 10,
       "position": "FWD",
       "detailedPosition": "Left Winger"
@@ -6123,7 +6123,7 @@ export const SQUADS: Record<string, SquadPlayer[]> = {
       "detailedPosition": "Centre-Forward"
     },
     {
-      "name": "JosÃ© Fajardo",
+      "name": "José Fajardo",
       "number": 17,
       "position": "FWD",
       "detailedPosition": "Centre-Forward"
@@ -6295,7 +6295,7 @@ export const SQUADS: Record<string, SquadPlayer[]> = {
   ],
   "croatia": [
     {
-      "name": "Dominik LivakoviÄ‡",
+      "name": "Dominik Livaković",
       "number": 1,
       "position": "GK",
       "detailedPosition": "Goalkeeper"
@@ -6313,73 +6313,73 @@ export const SQUADS: Record<string, SquadPlayer[]> = {
       "detailedPosition": "Goalkeeper"
     },
     {
-      "name": "JoÅ¡ko Gvardiol",
+      "name": "Joško Gvardiol",
       "number": 4,
       "position": "DEF",
       "detailedPosition": "Centre-Back"
     },
     {
-      "name": "Duje Ä†aleta-Car",
+      "name": "Duje Ćaleta-Car",
       "number": 5,
       "position": "DEF",
       "detailedPosition": "Centre-Back"
     },
     {
-      "name": "Josip Å utalo",
+      "name": "Josip Šutalo",
       "number": 6,
       "position": "DEF",
       "detailedPosition": "Centre-Back"
     },
     {
-      "name": "Josip StaniÅ¡iÄ‡",
+      "name": "Josip Stanišić",
       "number": 2,
       "position": "DEF",
       "detailedPosition": "Right-Back"
     },
     {
-      "name": "Marin PongraÄiÄ‡",
+      "name": "Marin Pongračić",
       "number": 3,
       "position": "DEF",
       "detailedPosition": "Centre-Back"
     },
     {
-      "name": "Martin ErliÄ‡",
+      "name": "Martin Erlić",
       "number": 25,
       "position": "DEF",
       "detailedPosition": "Centre-Back"
     },
     {
-      "name": "Luka VuÅ¡koviÄ‡",
+      "name": "Luka Vušković",
       "number": 22,
       "position": "DEF",
       "detailedPosition": "Centre-Back"
     },
     {
-      "name": "Luka ModriÄ‡",
+      "name": "Luka Modrić",
       "number": 10,
       "position": "MID",
       "detailedPosition": "Central Midfield"
     },
     {
-      "name": "Mateo KovaÄiÄ‡",
+      "name": "Mateo Kovačić",
       "number": 8,
       "position": "MID",
       "detailedPosition": "Central Midfield"
     },
     {
-      "name": "Mario PaÅ¡aliÄ‡",
+      "name": "Mario Pašalić",
       "number": 15,
       "position": "MID",
       "detailedPosition": "Central Midfield"
     },
     {
-      "name": "Nikola VlaÅ¡iÄ‡",
+      "name": "Nikola Vlašić",
       "number": 13,
       "position": "MID",
       "detailedPosition": "Attacking Midfield"
     },
     {
-      "name": "Luka SuÄiÄ‡",
+      "name": "Luka Sučić",
       "number": 21,
       "position": "MID",
       "detailedPosition": "Central Midfield"
@@ -6391,13 +6391,13 @@ export const SQUADS: Record<string, SquadPlayer[]> = {
       "detailedPosition": "Attacking Midfield"
     },
     {
-      "name": "Kristijan JakiÄ‡",
+      "name": "Kristijan Jakić",
       "number": 18,
       "position": "MID",
       "detailedPosition": "Defensive Midfield"
     },
     {
-      "name": "Petar SuÄiÄ‡",
+      "name": "Petar Sučić",
       "number": 17,
       "position": "MID",
       "detailedPosition": "Central Midfield"
@@ -6415,13 +6415,13 @@ export const SQUADS: Record<string, SquadPlayer[]> = {
       "detailedPosition": "Attacking Midfield"
     },
     {
-      "name": "Ivan PeriÅ¡iÄ‡",
+      "name": "Ivan Perišić",
       "number": 14,
       "position": "FWD",
       "detailedPosition": "Left Winger"
     },
     {
-      "name": "Andrej KramariÄ‡",
+      "name": "Andrej Kramarić",
       "number": 9,
       "position": "MID",
       "detailedPosition": "Attacking Midfield"
@@ -6433,7 +6433,7 @@ export const SQUADS: Record<string, SquadPlayer[]> = {
       "detailedPosition": "Centre-Forward"
     },
     {
-      "name": "Marco PaÅ¡aliÄ‡",
+      "name": "Marco Pašalić",
       "number": 24,
       "position": "FWD",
       "detailedPosition": "Right Winger"
