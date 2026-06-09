@@ -146,7 +146,7 @@ export function BracketContent() {
                   className="absolute text-center"
                   style={{ left: rx, width: CARD_W, top: 0 }}
                 >
-                  <span className={`font-heading text-[10px] font-bold uppercase tracking-widest ${isFinal ? "text-accent/70" : "text-white/30"}`}>
+                  <span className={`font-heading text-[10px] font-bold uppercase tracking-widest ${isFinal ? "text-accent" : "text-white/50"}`}>
                     {ROUND_LABELS[ri]}
                   </span>
                 </div>
@@ -204,22 +204,22 @@ export function BracketContent() {
       </div>
 
       {/* Legend */}
-      <div className="mt-4 flex flex-wrap items-center gap-4 text-[11px] text-white/35">
-        <span><span className="font-bold text-white/55">1A</span> = {t("bracket_legend_1st")}</span>
-        <span><span className="font-bold text-white/55">2B</span> = {t("bracket_legend_2nd")}</span>
-        <span><span className="font-bold text-white/55">{t("bracket_3rd")}</span> = {t("bracket_legend_best3rd")}</span>
-        <span><span className="font-bold text-white/55">{t("bracket_tbd")}</span> = {t("bracket_legend_tbd_desc")}</span>
+      <div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-2 text-[11px] text-white/55">
+        <span><span className="font-bold text-white">1A</span> · {t("bracket_legend_1st")}</span>
+        <span><span className="font-bold text-white">2B</span> · {t("bracket_legend_2nd")}</span>
+        <span><span className="font-bold text-white">{t("bracket_3rd")}</span> · {t("bracket_legend_best3rd")}</span>
+        <span><span className="font-bold text-white">{t("bracket_tbd")}</span> · {t("bracket_legend_tbd_desc")}</span>
       </div>
 
       {/* Final info */}
       <div className="mt-5 rounded-xl border border-accent/20 bg-accent/5 p-4 text-sm text-white/60">
-        <span className="font-heading text-xs font-bold uppercase tracking-widest text-accent/60">{t("bracket_final")}</span>
+        <span className="font-heading text-xs font-bold uppercase tracking-widest text-accent">{t("bracket_final")}</span>
         <p className="mt-1">MetLife Stadium · East Rutherford, NJ · <strong className="text-white/80">{FINAL_DATE[lang] ?? FINAL_DATE["en"]}</strong></p>
       </div>
 
       {/* Format note */}
       <div className="mt-4 rounded-xl border border-white/10 bg-navyCard p-4 text-sm text-white/50">
-        <p className="mb-1 font-heading text-[10px] font-bold uppercase tracking-widest text-white/30">{t("bracket_format_heading")}</p>
+        <p className="mb-1 font-heading text-[10px] font-bold uppercase tracking-widest text-white/50">{t("bracket_format_heading")}</p>
         <p>{t("bracket_format_text")}</p>
       </div>
     </div>

@@ -4,7 +4,7 @@ import Link from "next/link";
 import { Flag } from "@/components/Flag";
 import { MatchTime } from "@/components/MatchTime";
 import { useLang } from "@/components/LanguageProvider";
-import { slugFor, type Team } from "@/lib/teams";
+import { slugFor, withArticle, type Team } from "@/lib/teams";
 import type { Match } from "@/lib/matches";
 import { matchSlug } from "@/lib/matches";
 import { squadByPosition } from "@/lib/squads";
@@ -191,11 +191,11 @@ export function TeamDetail({
             return (
               <div className="rounded-lg border border-white/8 bg-navyCard/60 px-4 py-3">
                 <p className="font-heading text-[11px] font-extrabold uppercase tracking-wide text-white/40">
-                  {fill(t("qa_first_match_q"), { team: teamName })}
+                  {fill(t("qa_first_match_q"), { team: withArticle(teamName) })}
                 </p>
                 <p className="mt-1 text-sm text-white/80">
                   {fill(t("qa_first_match_a"), {
-                    team: teamName,
+                    team: withArticle(teamName, true),
                     opponent: oppName,
                     date: dateStr,
                     time: timeStr,
@@ -216,11 +216,11 @@ export function TeamDetail({
             return (
               <div className="rounded-lg border border-white/8 bg-navyCard/60 px-4 py-3">
                 <p className="font-heading text-[11px] font-extrabold uppercase tracking-wide text-white/40">
-                  {fill(t("qa_group_q"), { team: teamName })}
+                  {fill(t("qa_group_q"), { team: withArticle(teamName) })}
                 </p>
                 <p className="mt-1 text-sm text-white/80">
                   {fill(t("qa_group_a"), {
-                    team: teamName,
+                    team: withArticle(teamName, true),
                     group: team.group,
                     teammates: teammatesStr,
                   })}
@@ -235,10 +235,10 @@ export function TeamDetail({
             return (
               <div className="rounded-lg border border-white/8 bg-navyCard/60 px-4 py-3">
                 <p className="font-heading text-[11px] font-extrabold uppercase tracking-wide text-white/40">
-                  {fill(t("qa_qualify_q"), { team: teamName })}
+                  {fill(t("qa_qualify_q"), { team: withArticle(teamName) })}
                 </p>
                 <p className="mt-1 text-sm text-white/80">
-                  {fill(t("qa_qualify_a"), { team: teamName, group: team.group })}
+                  {fill(t("qa_qualify_a"), { team: withArticle(teamName, true), group: team.group })}
                 </p>
               </div>
             );
@@ -385,7 +385,7 @@ export function TeamDetail({
         {/* Opener note */}
         {teamMatches[0] && (
           <p className="mt-4 font-heading text-[11px] font-bold uppercase tracking-widest text-white/30">
-            {fill(t("path_opener_note"), { team: country(team.key) })}
+            {fill(t("path_opener_note"), { team: withArticle(country(team.key)) })}
           </p>
         )}
       </section>
@@ -425,11 +425,11 @@ export function TeamDetail({
                     {block.players.map((p) => (
                       <tr key={p.name} className="border-t border-white/5">
                         <td className="px-3 py-2 font-heading font-bold tabular-nums text-white/40">
-                          {p.number ?? "–"}
+                          {p.number ?? "—"}
                         </td>
                         <td className="px-2 py-2 font-semibold text-white">{p.name}</td>
                         <td className="px-3 py-2 text-end text-xs text-white/55">
-                          {p.detailedPosition || t(`pos_${p.position}`)}
+                          {p.detailedPosition || t(`posOne_${p.position}`)}
                         </td>
                       </tr>
                     ))}

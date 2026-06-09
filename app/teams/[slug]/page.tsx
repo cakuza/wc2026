@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { TeamDetail } from "@/components/TeamDetail";
-import { TEAMS, slugFor, teamBySlug, teamsInGroup } from "@/lib/teams";
+import { TEAMS, slugFor, teamBySlug, teamsInGroup, withArticle } from "@/lib/teams";
 import { matchesInGroup } from "@/lib/matches";
 import { squadFor } from "@/lib/squads";
 import { countryName } from "@/lib/i18n";
@@ -127,30 +127,30 @@ export default async function TeamPage({ params }: { params: Promise<{ slug: str
     const venueStr = teamFirstMatch.venue ? ` at ${teamFirstMatch.venue}` : "";
     faqEntities.push({
       "@type": "Question",
-      name: `When is ${name}'s first match at the 2026 FIFA World Cup?`,
+      name: `When do ${withArticle(name)} play their first match at the 2026 FIFA World Cup?`,
       acceptedAnswer: {
         "@type": "Answer",
-        text: `${name} play ${opponentName} on ${dateStr}${timeStr}${venueStr}.`,
+        text: `${withArticle(name, true)} play ${opponentName} on ${dateStr}${timeStr}${venueStr}.`,
       },
     });
   }
 
   faqEntities.push({
     "@type": "Question",
-    name: `What group is ${name} in at the 2026 World Cup?`,
+    name: `What group are ${withArticle(name)} in at the 2026 World Cup?`,
     acceptedAnswer: {
       "@type": "Answer",
-      text: `${name} are in Group ${team.group} with ${teammates.join(", ")}.`,
+      text: `${withArticle(name, true)} are in Group ${team.group} with ${teammates.join(", ")}.`,
     },
   });
 
   faqEntities.push({
     "@type": "Question",
-    name: `How can ${name} qualify for the knockout stage at World Cup 2026?`,
+    name: `How can ${withArticle(name)} qualify for the knockout stage at World Cup 2026?`,
     acceptedAnswer: {
       "@type": "Answer",
       text:
-        `${name} qualify automatically by finishing 1st or 2nd in Group ${team.group}. ` +
+        `${withArticle(name, true)} qualify automatically by finishing 1st or 2nd in Group ${team.group}. ` +
         `They may also advance as one of the 8 best third-placed teams across all groups.`,
     },
   });

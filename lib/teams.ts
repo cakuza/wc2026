@@ -107,3 +107,27 @@ export function teamBySlug(slug: string): Team | undefined {
 }
 
 export const STRIP_GROUPS = ["A", "B", "D", "E"];
+
+// English nations that read with a definite article ("the United States play…").
+// Keyed on the English display name only, so localized names (e.g. "Vereinigte
+// Staaten", "Pays-Bas") pass through untouched — those languages handle their own
+// grammar. "Czech Republic" is included for completeness even though the current
+// data labels the team "Czechia" (which takes no article).
+const EN_DEFINITE_ARTICLE_NAMES = new Set([
+  "United States",
+  "Netherlands",
+  "Czech Republic",
+]);
+
+/**
+ * Prefix a country's English display name with the definite article when it needs
+ * one ("the United States"). Returns the name unchanged for every other nation and
+ * for any non-English (localized) name. Pass `capitalize` for sentence-initial use
+ * ("The United States are in Group D…").
+ */
+export function withArticle(name: string, capitalize = false): string {
+  if (EN_DEFINITE_ARTICLE_NAMES.has(name)) {
+    return `${capitalize ? "The" : "the"} ${name}`;
+  }
+  return name;
+}
