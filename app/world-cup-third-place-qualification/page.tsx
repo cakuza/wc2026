@@ -74,15 +74,37 @@ export default function ThirdPlaceQualificationPage() {
           </Step>
         </div>
 
-        {/* Ranking criteria */}
-        <section className="mt-6 rounded-xl border border-white/10 bg-navyCard p-4">
-          <h2 className="mb-2 font-heading text-base font-extrabold uppercase tracking-wide text-white">
-            How the third-placed teams are ranked
+        {/* H2: How many third-place teams qualify */}
+        <section className="mt-6">
+          <h2 className="mb-2 font-heading text-xl font-extrabold uppercase tracking-wide text-white">
+            How many third-place teams qualify?
           </h2>
           <p className="text-sm leading-relaxed text-white/70">
-            The 12 third-placed teams are compared against each other and the best 8 qualify. Typical ranking factors
-            include points, goal difference, goals scored and fair play / official tiebreakers. The exact order can only
-            be calculated once all group matches are complete.
+            Eight of the twelve third-placed teams qualify for the knockout stage. The other four are eliminated after the group stage.
+          </p>
+        </section>
+
+        {/* H2: Why third place matters */}
+        <section className="mt-6">
+          <h2 className="mb-2 font-heading text-xl font-extrabold uppercase tracking-wide text-white">
+            Why third place matters
+          </h2>
+          <p className="text-sm leading-relaxed text-white/70">
+            A team can finish 3rd in its group and still reach the Round of 32, but it must rank among the eight best
+            third-placed teams across all 12 groups. That means every point and every goal in the group stage can matter,
+            even in a match that doesn&apos;t decide first or second place.
+          </p>
+        </section>
+
+        {/* H2: What decides the best third-placed teams */}
+        <section className="mt-6 rounded-xl border border-white/10 bg-navyCard p-4">
+          <h2 className="mb-2 font-heading text-base font-extrabold uppercase tracking-wide text-white">
+            What decides the best third-placed teams?
+          </h2>
+          <p className="text-sm leading-relaxed text-white/70">
+            Best third-placed teams are ranked using tournament tie-breakers such as points, goal difference and goals
+            scored. The exact tie-breaker order should be checked against the official competition rules. The final
+            ranking can only be determined once all group-stage matches are complete — no results are shown here in advance.
           </p>
         </section>
 

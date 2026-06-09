@@ -12,14 +12,14 @@ const BASE_URL = "https://www.worldcupmatchday.com";
 export const revalidate = 1800;
 
 export const metadata: Metadata = {
-  title: "World Cup Matches Today – Fixtures, Kickoff Times & Venues",
+  title: "World Cup Matches Today — Schedule & Local Kickoff Times",
   description:
-    "See today's World Cup 2026 matches with teams, kickoff times, groups and venues.",
+    "See today's World Cup matches, kickoff times in your selected timezone, venues and group context.",
   alternates: { canonical: `${BASE_URL}/today` },
   openGraph: {
-    title: "World Cup Matches Today – Fixtures, Kickoff Times & Venues",
+    title: "World Cup Matches Today — Schedule & Local Kickoff Times",
     description:
-      "See today's World Cup 2026 matches with teams, kickoff times, groups and venues.",
+      "See today's World Cup matches, kickoff times in your selected timezone, venues and group context.",
     url: `${BASE_URL}/today`,
     type: "website",
   },
@@ -73,13 +73,13 @@ function MatchRow({ m }: { m: Match }) {
     >
       <div className="flex flex-1 items-center justify-end gap-2 text-end">
         <span className="truncate font-semibold text-white">{home}</span>
-        <Flag code={m.homeCode} name={home} width={30} height={22} />
+        <Flag code={m.homeCode} alt="" width={30} height={22} />
       </div>
       <span className="shrink-0 rounded bg-navy px-2 py-1 font-heading text-xs font-bold uppercase text-white/50">
         vs
       </span>
       <div className="flex flex-1 items-center gap-2">
-        <Flag code={m.awayCode} name={away} width={30} height={22} />
+        <Flag code={m.awayCode} alt="" width={30} height={22} />
         <span className="truncate font-semibold text-white">{away}</span>
       </div>
       <div className="ms-2 hidden w-32 shrink-0 text-end text-xs text-white/50 sm:block">
@@ -111,8 +111,9 @@ export default function TodayPage() {
           {isToday ? "World Cup Matches Today" : "No World Cup Matches Today"}
         </h1>
         <p className="mb-6 max-w-3xl text-sm text-white/50">
-          See today&apos;s World Cup 2026 matches, kickoff times, teams, groups and venues. If no
-          matches are scheduled today, the next upcoming fixtures are shown.
+          This page shows today&apos;s World Cup matches, kickoff times in your selected timezone,
+          venues and group context. If no matches are scheduled today, the next upcoming matchday is
+          shown instead.
         </p>
 
         {!isToday && (

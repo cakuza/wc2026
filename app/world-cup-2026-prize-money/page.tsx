@@ -106,14 +106,15 @@ export default function PrizeMoneyPage() {
 
         <p className="mt-4 text-xs leading-relaxed text-white/45">
           Note: FIFA pays the participating member associations rather than players directly. Amounts are in US dollars
-          as published by FIFA and are not adjusted for currency conversion.
+          as published by FIFA and are not adjusted for currency conversion. Prize money figures may be updated as
+          information becomes available — always verify amounts before citing them.
         </p>
 
         <div className="mt-8 flex flex-wrap gap-3 text-sm">
           {[
-            { href: "/teams", label: "Teams" },
-            { href: "/bracket", label: "Bracket" },
+            { href: "/schedule", label: "Schedule" },
             { href: "/groups", label: "Groups" },
+            { href: "/bracket", label: "Bracket" },
           ].map((l) => (
             <Link key={l.href} href={l.href} className="rounded-lg border border-white/15 bg-navyCard px-4 py-2 font-heading text-xs font-bold uppercase tracking-wide text-white/70 transition hover:border-white/30 hover:text-white">
               {l.label}
