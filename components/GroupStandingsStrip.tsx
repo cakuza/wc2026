@@ -18,12 +18,12 @@ export function GroupStandingsStrip() {
                 <span className="font-heading text-lg font-extrabold uppercase text-white">
                   {t("lbl_group")} {g}
                 </span>
-                <span className="text-xs font-bold uppercase tracking-wider text-white/40">{t("lbl_pts")}</span>
+                <span className="text-xs font-bold uppercase tracking-wider text-white/55">{t("lbl_pts")}</span>
               </div>
               <ul className="space-y-1">
                 {teamsInGroup(g).map((team) => (
                   <li key={team.key} className="flex items-center gap-2 rounded px-1 py-1.5">
-                    <Flag code={team.code} name={country(team.key)} width={26} height={19} className="rounded-sm" />
+                    <Flag code={team.code} alt="" width={26} height={19} className="rounded-sm" />
                     <span className="flex-1 truncate text-sm font-semibold text-white">{country(team.key)}</span>
                     <span className="font-heading text-sm font-bold tabular-nums text-white/70">0</span>
                   </li>

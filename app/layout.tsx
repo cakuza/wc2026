@@ -85,6 +85,8 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" dir="ltr">
+      {/* Preconnect to flag CDN so flag images resolve faster (low-risk LCP aid) */}
+      <link rel="preconnect" href="https://flagcdn.com" />
       <SchemaScripts />
       {ADSENSE_CLIENT_ID ? (
         <Script

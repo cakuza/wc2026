@@ -67,7 +67,7 @@ export function TriviaCard() {
           <h2 className="font-heading text-lg font-extrabold uppercase tracking-wide text-white">
             {t("trivia_title")}
           </h2>
-          <span className="font-heading text-xs font-bold uppercase tracking-widest text-white/30">
+          <span className="font-heading text-xs font-bold uppercase tracking-widest text-white/50">
             {t("trivia_autorotate")}
           </span>
         </div>
@@ -91,7 +91,7 @@ export function TriviaCard() {
               <span className="rounded-full border border-white/10 bg-white/5 px-2.5 py-0.5 font-heading text-[10px] font-bold uppercase tracking-widest text-white/40">
                 {difficultyLabel[card.difficulty] ?? card.difficulty}
               </span>
-              <span className="ms-auto font-heading text-[10px] font-bold uppercase tracking-widest text-white/20">
+              <span className="ms-auto font-heading text-[10px] font-bold uppercase tracking-widest text-white/45">
                 {idx + 1} / {TRIVIA.length}
               </span>
             </div>

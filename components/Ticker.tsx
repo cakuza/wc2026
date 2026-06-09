@@ -55,10 +55,10 @@ function TickerItems({ items }: { items: typeof MATCHES }) {
           key={i}
           className="mx-4 flex items-center gap-2 whitespace-nowrap text-sm font-semibold text-white"
         >
-          <Flag code={m.homeCode} name={country(m.homeKey)} width={22} height={16} className="rounded-sm" />
+          <Flag code={m.homeCode} alt="" width={22} height={16} className="rounded-sm" />
           <span>{country(m.homeKey)}</span>
           <span className="opacity-70">{t("vs")}</span>
-          <Flag code={m.awayCode} name={country(m.awayKey)} width={22} height={16} className="rounded-sm" />
+          <Flag code={m.awayCode} alt="" width={22} height={16} className="rounded-sm" />
           <span>{country(m.awayKey)}</span>
           <span className="opacity-70">·</span>
           <span className="opacity-80">{formatDate(m.date)}</span>

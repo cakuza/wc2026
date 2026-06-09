@@ -14,11 +14,11 @@ function MatchRow({ m }: { m: Match }) {
       <div className="flex items-center gap-2">
         <div className="flex min-w-0 flex-1 items-center justify-end gap-2">
           <span className="min-w-0 truncate text-sm font-bold text-white">{country(m.homeKey)}</span>
-          <Flag code={m.homeCode} name={country(m.homeKey)} width={28} height={20} />
+          <Flag code={m.homeCode} alt="" width={28} height={20} />
         </div>
-        <span className="shrink-0 px-1 font-heading text-[11px] font-bold uppercase text-white/40">{t("vs")}</span>
+        <span className="shrink-0 px-1 font-heading text-[11px] font-bold uppercase text-white/55">{t("vs")}</span>
         <div className="flex min-w-0 flex-1 items-center gap-2">
-          <Flag code={m.awayCode} name={country(m.awayKey)} width={28} height={20} />
+          <Flag code={m.awayCode} alt="" width={28} height={20} />
           <span className="min-w-0 truncate text-sm font-bold text-white">{country(m.awayKey)}</span>
         </div>
       </div>
@@ -50,14 +50,14 @@ export function TodayMatches() {
         <p className="font-heading text-sm font-extrabold uppercase tracking-[0.2em] text-accent">{t(md.labelKey)}</p>
         <span className="font-heading text-xs font-bold uppercase tracking-wide text-white/50">{dateLabel}</span>
       </div>
-      <p className="mb-4 text-[11px] leading-snug text-white/35">{t("today_intro")}</p>
+      <p className="mb-4 text-[11px] leading-snug text-white/55">{t("today_intro")}</p>
 
       {/* Multi-day mode: group matches under date subheaders — fully expanded, no scroll */}
       {md.days ? (
         <div className="space-y-4">
           {md.days.map(({ date, matches }) => (
             <div key={date}>
-              <p className="mb-2 font-heading text-[11px] font-bold uppercase tracking-widest text-white/40">
+              <p className="mb-2 font-heading text-[11px] font-bold uppercase tracking-widest text-white/55">
                 {formatDate(date)}
               </p>
               <div className="space-y-2">

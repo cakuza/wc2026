@@ -43,7 +43,7 @@ export function Footer() {
               <Link
                 key={l.href}
                 href={l.href}
-                className="font-heading text-xs font-bold uppercase tracking-wide text-white/40 transition hover:text-white/80"
+                className="font-heading text-xs font-bold uppercase tracking-wide text-white/55 transition hover:text-white"
               >
                 {l.label}
               </Link>
@@ -53,7 +53,7 @@ export function Footer() {
 
         {/* Popular guides — time-zone schedule landing pages */}
         <div className="mt-6 border-t border-white/5 pt-5">
-          <p className="mb-2 text-center font-heading text-[11px] font-extrabold uppercase tracking-widest text-white/40 sm:text-start">
+          <p className="mb-2 text-center font-heading text-[11px] font-extrabold uppercase tracking-widest text-white/55 sm:text-start">
             {t("footer_tools")}
           </p>
           <nav className="flex flex-wrap justify-center gap-x-4 gap-y-2 sm:justify-start">
@@ -61,7 +61,7 @@ export function Footer() {
               <Link
                 key={l.href}
                 href={l.href}
-                className="font-heading text-xs font-bold uppercase tracking-wide text-white/40 transition hover:text-white/80"
+                className="font-heading text-xs font-bold uppercase tracking-wide text-white/55 transition hover:text-white"
               >
                 {l.label}
               </Link>
@@ -70,7 +70,7 @@ export function Footer() {
         </div>
 
         <div className="mt-6 border-t border-white/5 pt-5 flex flex-col items-center gap-3 sm:flex-row sm:justify-between">
-          <p className="font-heading text-[11px] font-bold uppercase tracking-widest text-white/20">
+          <p className="font-heading text-[11px] font-bold uppercase tracking-widest text-white/45">
             © 2026 WorldCupMatchDay · Fan-made · Not affiliated with FIFA
           </p>
           <nav className="flex flex-wrap justify-center gap-x-4 gap-y-1">
@@ -83,7 +83,7 @@ export function Footer() {
               <Link
                 key={l.href}
                 href={l.href}
-                className="font-heading text-[11px] font-bold uppercase tracking-widest text-white/20 transition hover:text-white/50"
+                className="font-heading text-[11px] font-bold uppercase tracking-widest text-white/45 transition hover:text-white/70"
               >
                 {l.label}
               </Link>

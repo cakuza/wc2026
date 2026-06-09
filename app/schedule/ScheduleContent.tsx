@@ -57,7 +57,7 @@ export function ScheduleContent() {
                     </span>
                     <Flag
                       code={m.homeCode}
-                      name={country(m.homeKey)}
+                      alt=""
                       width={30}
                       height={22}
                       className="rounded-sm"
@@ -69,7 +69,7 @@ export function ScheduleContent() {
                   <div className="flex flex-1 items-center gap-2">
                     <Flag
                       code={m.awayCode}
-                      name={country(m.awayKey)}
+                      alt=""
                       width={30}
                       height={22}
                       className="rounded-sm"

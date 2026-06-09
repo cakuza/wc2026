@@ -51,7 +51,7 @@ export function Hero() {
                 <div key={h.code} className="flex items-center gap-2">
                   <Flag
                     code={h.code}
-                    name={h.name}
+                    alt=""
                     width={28}
                     height={20}
                     className="rounded-sm shadow-sm"
@@ -62,10 +62,10 @@ export function Hero() {
                 </div>
               ))}
             </div>
-            <p className="mt-3 font-heading text-xs font-bold uppercase tracking-widest text-white/35">
+            <p className="mt-3 font-heading text-xs font-bold uppercase tracking-widest text-white/50">
               {t("hero_subline")}
             </p>
-            <p className="mt-4 max-w-xl text-sm text-white/55">{t("home_intro")}</p>
+            <p className="mt-4 max-w-xl text-sm text-white/70">{t("home_intro")}</p>
           </div>
         </div>
 

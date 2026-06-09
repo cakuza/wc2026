@@ -17,7 +17,7 @@ export function TeamCard({ team }: { team: Team }) {
     >
       {/* Top row: large flag + group badge */}
       <div className="flex items-start justify-between">
-        <Flag code={team.code} name={country(team.key)} width={56} height={40} className="shadow" />
+        <Flag code={team.code} alt="" width={56} height={40} className="shadow" />
         <span className="rounded bg-accent px-2 py-1 font-heading text-xs font-extrabold uppercase tracking-wide text-white">
           {t("lbl_group")} {team.group}
         </span>
@@ -32,7 +32,7 @@ export function TeamCard({ team }: { team: Team }) {
         <div className="mt-2 flex items-center gap-2">
           {firstMatch ? (
             <>
-              <Flag code={firstMatch.opponentCode} name={country(firstMatch.opponentKey)} width={28} height={20} />
+              <Flag code={firstMatch.opponentCode} alt="" width={28} height={20} />
               <span className="truncate text-sm font-semibold text-white">{country(firstMatch.opponentKey)}</span>
             </>
           ) : (
