@@ -186,19 +186,10 @@ export function MatchDetail({ match, events, live }: Props) {
                   </span>
                 </div>
               ) : (
-                <div className="flex items-center gap-2 rounded-xl bg-navy/80 px-5 py-3">
-                  <span className="font-heading text-3xl font-black tabular-nums text-white/30">
-                    –
-                  </span>
-                  <span className="font-heading text-base font-extrabold uppercase tracking-widest text-white/30">
-                    {t("vs")}
-                  </span>
-                  <span className="font-heading text-3xl font-black tabular-nums text-white/30">
-                    –
-                  </span>
-                </div>
+                <span className="font-heading text-base font-extrabold uppercase tracking-widest text-white/30">
+                  {t("vs")}
+                </span>
               )}
-              <StatusBadge status={status} t={t} />
             </div>
 
             {/* Away team */}
@@ -214,6 +205,11 @@ export function MatchDetail({ match, events, live }: Props) {
                 {country(match.awayKey)}
               </span>
             </div>
+          </div>
+
+          {/* Status badge */}
+          <div className="mt-4 flex justify-center">
+            <StatusBadge status={status} t={t} />
           </div>
 
           {/* Date / time / venue */}
