@@ -117,6 +117,10 @@ export const OPENING_MATCH = MATCHES.find((m) => m.opener)!;
 // Absolute instant of the opener (Mexico vs South Africa, 13:00 in Mexico City, UTC−6).
 export const KICKOFF_TARGET = "2026-06-11T19:00:00Z";
 
+// Final matchday — exact kickoff time TBC, so this marks end-of-day for countdown purposes.
+export const TOURNAMENT_FINAL_DATE = "19 July 2026";
+export const TOURNAMENT_END_TARGET = "2026-07-20T04:00:00Z";
+
 /** Convert a fixture's venue-local kickoff into an absolute UTC instant. */
 export function matchUtcDate(m: Match): Date {
   const [h, min] = (m.time ?? "00:00").split(":").map(Number);

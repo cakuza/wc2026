@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Flag } from "@/components/Flag";
 import { MatchTime } from "@/components/MatchTime";
-import { TimezoneLabel } from "@/components/TimezoneLabel";
+import { TimezonePicker } from "@/components/TimezoneLabel";
 import { getDisplayMatchday, matchSlug, type Match } from "@/lib/matches";
 import { countryName } from "@/lib/i18n";
 
@@ -33,7 +33,7 @@ const FAQS: { q: string; a: string }[] = [
   },
   {
     q: "What time are today's World Cup matches?",
-    a: "Kickoff times are shown in US Eastern (ET) and, in your browser, in your own local timezone. The tournament's opening match kicks off at 3:00 PM ET on 11 June 2026.",
+    a: "Kickoff times are shown in your selected timezone (defaults to your device's timezone, with US Eastern as the fallback, and can be changed using the timezone selector). The tournament's opening match kicked off at 3:00 PM ET / 1:00 PM Mexico City time on 11 June 2026.",
   },
   {
     q: "Where can I see the full World Cup schedule?",
@@ -70,21 +70,23 @@ function MatchRow({ m }: { m: Match }) {
   return (
     <Link
       href={`/matches/${matchSlug(m)}`}
-      className="flex items-center gap-3 rounded-lg border border-white/10 bg-navyCard px-4 py-3 transition hover:border-white/20 hover:bg-white/5"
+      className="flex flex-col gap-2 rounded-lg border border-white/10 bg-navyCard px-4 py-3 transition hover:border-white/20 hover:bg-white/5 sm:flex-row sm:items-center sm:gap-3"
     >
-      <div className="flex flex-1 items-center justify-end gap-2 text-end">
-        <span className="truncate font-semibold text-white">{home}</span>
-        <Flag code={m.homeCode} alt="" width={30} height={22} />
+      <div className="flex items-center gap-3 sm:flex-1">
+        <div className="flex flex-1 items-center justify-end gap-2 text-end">
+          <span className="truncate font-semibold text-white">{home}</span>
+          <Flag code={m.homeCode} alt="" width={30} height={22} />
+        </div>
+        <span className="shrink-0 rounded bg-navy px-2 py-1 font-heading text-xs font-bold uppercase text-white/50">
+          vs
+        </span>
+        <div className="flex flex-1 items-center gap-2">
+          <Flag code={m.awayCode} alt="" width={30} height={22} />
+          <span className="truncate font-semibold text-white">{away}</span>
+        </div>
       </div>
-      <span className="shrink-0 rounded bg-navy px-2 py-1 font-heading text-xs font-bold uppercase text-white/50">
-        vs
-      </span>
-      <div className="flex flex-1 items-center gap-2">
-        <Flag code={m.awayCode} alt="" width={30} height={22} />
-        <span className="truncate font-semibold text-white">{away}</span>
-      </div>
-      <div className="ms-2 hidden w-32 shrink-0 text-end text-xs text-white/50 sm:block">
-        <MatchTime match={m} className="font-semibold text-white/80" />
+      <div className="flex items-center justify-between text-xs text-white/50 sm:ms-2 sm:w-36 sm:shrink-0 sm:flex-col sm:items-end sm:text-end">
+        <MatchTime match={m} withZone className="font-semibold text-white/80" />
         <div>
           {m.group ? `Group ${m.group}` : ""}
           {m.group && m.venue ? " · " : ""}
@@ -115,7 +117,7 @@ export default function TodayPage() {
           See today&apos;s World Cup matches, kickoff times in your selected timezone, venues and
           group context. If there are no matches today, the next upcoming matchday is shown.
         </p>
-        <TimezoneLabel className="mb-6 text-[11px] text-white/55" />
+        <TimezonePicker className="mb-6 flex flex-wrap items-center gap-2 text-[11px] text-white/55" />
 
         {!isToday && (
           <div className="mb-6 rounded-xl border border-white/10 bg-navyCard px-4 py-4 text-sm text-white/60">

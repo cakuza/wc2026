@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Script from "next/script";
 import { Barlow, Barlow_Condensed } from "next/font/google";
 import { LanguageProvider } from "@/components/LanguageProvider";
+import { TimezoneProvider } from "@/components/TimezoneProvider";
 import { Nav } from "@/components/Nav";
 import { Footer } from "@/components/Footer";
 import { SchemaScripts } from "@/components/SchemaScripts";
@@ -99,9 +100,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       ) : null}
       <body className={`${barlow.variable} ${barlowCondensed.variable} font-body bg-navy text-white antialiased`}>
         <LanguageProvider>
-          <Nav />
-          <main>{children}</main>
-          <Footer />
+          <TimezoneProvider>
+            <Nav />
+            <main>{children}</main>
+            <Footer />
+          </TimezoneProvider>
         </LanguageProvider>
       </body>
     </html>

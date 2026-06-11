@@ -7,26 +7,48 @@ import { MatchTime } from "@/components/MatchTime";
 import { TimezoneLabel } from "@/components/TimezoneLabel";
 import { OPENING_MATCH, matchSlug, matchUtcDate } from "@/lib/matches";
 
+type Phase = "before" | "live" | "after";
+
+const MATCH_DURATION_MS = 150 * 60 * 1000; // ~2.5 hours, kickoff to full-time
+
 const OPENER_DATE_LABEL = new Intl.DateTimeFormat("en-GB", {
   weekday: "long",
   day: "numeric",
   month: "long",
 }).format(new Date(`${OPENING_MATCH.date}T00:00:00`));
 
+function getPhase(): Phase {
+  const kickoff = matchUtcDate(OPENING_MATCH).getTime();
+  const now = Date.now();
+  if (now < kickoff) return "before";
+  if (now < kickoff + MATCH_DURATION_MS) return "live";
+  return "after";
+}
+
+const TITLES: Record<Phase, string> = {
+  before: "Opening match today",
+  live: "Opening match now",
+  after: "Opening match complete",
+};
+
 /**
  * Compact "opening match" banner for the homepage. Visible by default (matches the SSR
- * render, which is correct on the opener's matchday); hides itself once the opener has
- * finished, based on the viewer's clock.
+ * render, correct for the opener's matchday); switches title based on the kickoff time
+ * window, and hides itself a day after the opener has finished.
  */
 export function OpeningMatchBanner() {
-  const [visible, setVisible] = useState(true);
+  // SSR/first paint: "before" — correct for the opener's matchday before kickoff.
+  const [phase, setPhase] = useState<Phase>("before");
 
   useEffect(() => {
-    const matchEnd = matchUtcDate(OPENING_MATCH).getTime() + 110 * 60 * 1000;
-    setVisible(Date.now() < matchEnd);
+    setPhase(getPhase());
+    const id = setInterval(() => setPhase(getPhase()), 60 * 1000);
+    return () => clearInterval(id);
   }, []);
 
-  if (!visible) return null;
+  // Hide the banner a full day after the opener has finished.
+  const hideAfter = matchUtcDate(OPENING_MATCH).getTime() + MATCH_DURATION_MS + 24 * 60 * 60 * 1000;
+  if (Date.now() > hideAfter) return null;
 
   return (
     <Link
@@ -36,11 +58,14 @@ export function OpeningMatchBanner() {
       <div className="mx-auto flex max-w-7xl flex-wrap items-center gap-x-4 gap-y-2 px-4 py-3">
         <div className="min-w-0">
           <p className="font-heading text-xs font-extrabold uppercase tracking-widest text-accent">
-            Opening match today
+            {TITLES[phase]}
           </p>
           <p className="mt-0.5 max-w-2xl text-sm text-white/80">
-            Mexico vs South Africa opens the World Cup 2026. Check kickoff time, venue and
-            matchday context in your selected timezone.
+            Mexico vs South Africa{" "}
+            {phase === "after"
+              ? "opened the World Cup 2026."
+              : "opens the World Cup 2026."}{" "}
+            Check kickoff time, venue and matchday context in your selected timezone.
           </p>
         </div>
 
@@ -54,7 +79,7 @@ export function OpeningMatchBanner() {
           <div>
             {OPENER_DATE_LABEL} · {OPENING_MATCH.venue}
           </div>
-          <MatchTime match={OPENING_MATCH} className="font-semibold text-white" />
+          <MatchTime match={OPENING_MATCH} withZone className="font-semibold text-white" />
           <TimezoneLabel className="text-[10px] text-white/45" />
         </div>
       </div>

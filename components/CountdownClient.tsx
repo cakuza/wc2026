@@ -1,46 +1,65 @@
 "use client";
 
+import Link from "next/link";
 import { useCountdown, CountdownTimer } from "@/components/Countdown";
 import { useLang } from "@/components/LanguageProvider";
+import { TOURNAMENT_FINAL_DATE } from "@/lib/matches";
 
 /**
- * Client-only countdown island.
+ * Client-only countdown island. Computed from Date.now() on both server and client (see
+ * useCountdown), so the correct phase is shown immediately — no placeholder/zero state.
  *
- * Previously returned null until the first useEffect tick, which caused a
- * ~200 px CLS: post-hydration the block was inserted, pushing host-nations
- * flags and the intro paragraph down.
- *
- * Fix: always render the full DOM structure so the space is reserved in the
- * initial HTML (and in the first client render, which must match SSR).
- * visibility:hidden hides the content before real values are known without
- * collapsing the reserved height.  The parent static h1 ("Kickoff: 11 June
- * 2026") remains visible at all times as the no-JS / SEO anchor.
+ * Phases:
+ *  - before kickoff: "Kickoff in / N DAYS"
+ *  - tournament live: "World Cup ends in / N DAYS" + "Final matchday · 19 July 2026"
+ *  - after the final: "Tournament complete" + links to results/standings
  */
 export function CountdownClient() {
   const { t } = useLang();
-  const parts = useCountdown(); // null on server + first client render; real value after effect
+  const { phase, parts } = useCountdown();
 
-  // Use placeholder zeros while parts is unknown so SSR and first client
-  // render produce identical markup (no hydration mismatch).
-  const p = parts ?? { days: 0, hours: 0, minutes: 0, seconds: 0 };
+  if (phase === "after") {
+    return (
+      <div className="mt-1">
+        <h1 className="font-heading font-extrabold uppercase leading-[0.85] text-white">
+          <span className="block text-2xl tracking-wide text-white/80 sm:text-3xl">
+            Tournament complete
+          </span>
+        </h1>
+        <div className="mt-4 flex flex-wrap gap-3 text-sm">
+          <Link
+            href="/bracket"
+            className="rounded-lg border border-white/15 bg-navyCard px-4 py-2 font-heading text-xs font-bold uppercase tracking-wide text-white/70 transition hover:border-white/30 hover:text-white"
+          >
+            Results &amp; Bracket
+          </Link>
+          <Link
+            href="/groups"
+            className="rounded-lg border border-white/15 bg-navyCard px-4 py-2 font-heading text-xs font-bold uppercase tracking-wide text-white/70 transition hover:border-white/30 hover:text-white"
+          >
+            Final Standings
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div
-      className="mt-1"
-      // visibility:hidden preserves layout dimensions (no CLS) while keeping
-      // the block invisible until real countdown values are available.
-      style={{ visibility: parts !== null ? "visible" : "hidden" }}
-      aria-hidden={parts === null}
-    >
+    <div className="mt-1" suppressHydrationWarning>
       <h1 className="font-heading font-extrabold uppercase leading-[0.85] text-white">
         <span className="block text-2xl tracking-wide text-white/80">
-          {t("hero_kickoffIn")}
+          {phase === "before" ? t("hero_kickoffIn") : "World Cup ends in"}
         </span>
-        <span className="block text-[52px] leading-none tracking-tight sm:text-7xl" suppressHydrationWarning>
-          {p.days}{" "}
+        <span className="block text-[52px] leading-none tracking-tight sm:text-7xl">
+          {parts.days}{" "}
           <span className="text-accent">{t("hero_days")}</span>
         </span>
       </h1>
+      {phase === "during" && (
+        <p className="mt-2 font-heading text-xs font-bold uppercase tracking-widest text-white/50">
+          Final matchday · {TOURNAMENT_FINAL_DATE}
+        </p>
+      )}
       <div className="mt-6">
         <CountdownTimer />
       </div>

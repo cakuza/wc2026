@@ -2,8 +2,7 @@
 
 import Link from "next/link";
 import { Flag } from "@/components/Flag";
-import { MatchTime } from "@/components/MatchTime";
-import { TimezoneLabel } from "@/components/TimezoneLabel";
+import { KickoffDateTime } from "@/components/MatchTime";
 import { useLang } from "@/components/LanguageProvider";
 import { matchUtcDate, type Match } from "@/lib/matches";
 import type { MatchEvents } from "@/lib/matchEvents";
@@ -170,12 +169,10 @@ export function MatchDetail({ match, events }: Props) {
 
           {/* Date / time / venue */}
           <div className="mt-6 flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-sm text-white/50">
-            <span className="font-semibold text-white/80">{formatDate(match.date)}</span>
-            {match.time && (
-              <>
-                <span>·</span>
-                <MatchTime match={match} />
-              </>
+            {match.time ? (
+              <KickoffDateTime match={match} className="font-semibold text-white/80" />
+            ) : (
+              <span className="font-semibold text-white/80">{formatDate(match.date)}</span>
             )}
             {match.venue && (
               <>
@@ -184,7 +181,6 @@ export function MatchDetail({ match, events }: Props) {
               </>
             )}
           </div>
-          {match.time && <TimezoneLabel className="mt-1 text-center text-[11px] text-white/45" />}
         </div>
       </div>
 
@@ -199,9 +195,10 @@ export function MatchDetail({ match, events }: Props) {
               {t("match_qa_when")}
             </p>
             <p className="mt-1 text-sm text-white/80">
-              <span className="font-semibold text-white">{formatDate(match.date)}</span>
-              {match.time && (
-                <> · <MatchTime match={match} className="font-semibold text-white" /></>
+              {match.time ? (
+                <KickoffDateTime match={match} className="font-semibold text-white" />
+              ) : (
+                <span className="font-semibold text-white">{formatDate(match.date)}</span>
               )}
             </p>
           </div>

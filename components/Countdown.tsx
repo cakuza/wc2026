@@ -2,9 +2,11 @@
 
 import { useEffect, useState } from "react";
 import { useLang } from "@/components/LanguageProvider";
-import { KICKOFF_TARGET } from "@/lib/matches";
+import { KICKOFF_TARGET, TOURNAMENT_END_TARGET } from "@/lib/matches";
 
+export type CountdownPhase = "before" | "during" | "after";
 type Parts = { days: number; hours: number; minutes: number; seconds: number };
+type CountdownState = { phase: CountdownPhase; parts: Parts };
 
 function diff(target: number): Parts {
   const ms = Math.max(0, target - Date.now());
@@ -16,15 +18,32 @@ function diff(target: number): Parts {
   };
 }
 
-export function useCountdown() {
-  const target = new Date(KICKOFF_TARGET).getTime();
-  const [parts, setParts] = useState<Parts | null>(null);
+const KICKOFF = new Date(KICKOFF_TARGET).getTime();
+const TOURNAMENT_END = new Date(TOURNAMENT_END_TARGET).getTime();
+
+function computeState(): CountdownState {
+  const now = Date.now();
+  if (now < KICKOFF) return { phase: "before", parts: diff(KICKOFF) };
+  if (now < TOURNAMENT_END) return { phase: "during", parts: diff(TOURNAMENT_END) };
+  return { phase: "after", parts: diff(TOURNAMENT_END) };
+}
+
+/**
+ * Phase-based countdown:
+ *  - "before"  → counting down to the opening kickoff
+ *  - "during"  → tournament is live, counting down to the final matchday
+ *  - "after"   → tournament has concluded
+ *
+ * Computed from Date.now() on both server and client, so the initial render already
+ * reflects the correct phase (no placeholder/zero state).
+ */
+export function useCountdown(): CountdownState {
+  const [state, setState] = useState<CountdownState>(computeState);
   useEffect(() => {
-    setParts(diff(target));
-    const id = setInterval(() => setParts(diff(target)), 1000);
+    const id = setInterval(() => setState(computeState()), 1000);
     return () => clearInterval(id);
-  }, [target]);
-  return parts;
+  }, []);
+  return state;
 }
 
 function pad(n: number) {
@@ -33,13 +52,12 @@ function pad(n: number) {
 
 export function CountdownTimer() {
   const { t } = useLang();
-  const parts = useCountdown();
-  const p = parts ?? { days: 0, hours: 0, minutes: 0, seconds: 0 };
+  const { parts } = useCountdown();
   const cells: { value: string; label: string }[] = [
-    { value: pad(p.days), label: t("cd_days") },
-    { value: pad(p.hours), label: t("cd_hrs") },
-    { value: pad(p.minutes), label: t("cd_min") },
-    { value: pad(p.seconds), label: t("cd_sec") }
+    { value: pad(parts.days), label: t("cd_days") },
+    { value: pad(parts.hours), label: t("cd_hrs") },
+    { value: pad(parts.minutes), label: t("cd_min") },
+    { value: pad(parts.seconds), label: t("cd_sec") }
   ];
 
   return (
