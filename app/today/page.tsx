@@ -5,6 +5,7 @@ import { MatchTime } from "@/components/MatchTime";
 import { TimezonePicker } from "@/components/TimezoneLabel";
 import { getDisplayMatchday, matchSlug, type Match } from "@/lib/matches";
 import { countryName } from "@/lib/i18n";
+import { fetchLiveMatchData } from "@/lib/liveMatchData";
 
 const BASE_URL = "https://www.worldcupmatchday.com";
 
@@ -64,9 +65,14 @@ function longDate(iso: string) {
   }).format(new Date(`${iso}T00:00:00`));
 }
 
-function MatchRow({ m }: { m: Match }) {
+async function MatchRow({ m }: { m: Match }) {
   const home = countryName(m.homeKey, "en");
   const away = countryName(m.awayKey, "en");
+  const live = await fetchLiveMatchData(m.providerIds?.footballData);
+  const hasScore = live && live.homeScore !== null && live.awayScore !== null;
+  const isLive = live?.status === "IN_PLAY" || live?.status === "PAUSED";
+  const isFinished = live?.status === "FINISHED";
+
   return (
     <Link
       href={`/matches/${matchSlug(m)}`}
@@ -86,7 +92,25 @@ function MatchRow({ m }: { m: Match }) {
         </div>
       </div>
       <div className="flex items-center justify-between text-xs text-white/50 sm:ms-2 sm:w-36 sm:shrink-0 sm:flex-col sm:items-end sm:text-end">
-        <MatchTime match={m} withZone className="font-semibold text-white/80" />
+        <div className="flex items-center gap-2">
+          {hasScore ? (
+            <span className="font-heading text-sm font-extrabold tabular-nums text-white">
+              {live!.homeScore}–{live!.awayScore}
+            </span>
+          ) : (
+            <MatchTime match={m} withZone className="font-semibold text-white/80" />
+          )}
+          {isLive && (
+            <span className="rounded bg-red-600 px-1.5 py-0.5 font-heading text-[10px] font-extrabold uppercase tracking-widest text-white">
+              {live?.status === "PAUSED" ? "HT" : "Live"}
+            </span>
+          )}
+          {isFinished && (
+            <span className="rounded bg-white/10 px-1.5 py-0.5 font-heading text-[10px] font-extrabold uppercase tracking-widest text-white/60">
+              FT
+            </span>
+          )}
+        </div>
         <div>
           {m.group ? `Group ${m.group}` : ""}
           {m.group && m.venue ? " · " : ""}

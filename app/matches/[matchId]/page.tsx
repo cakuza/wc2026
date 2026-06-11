@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { MATCHES, matchSlug, matchBySlug } from "@/lib/matches";
 import { MatchDetail } from "@/components/MatchDetail";
 import { countryName } from "@/lib/i18n";
+import { fetchLiveMatchData } from "@/lib/liveMatchData";
 
 // ISR: revalidate every 30 s so live scores update quickly once data arrives.
 export const revalidate = 30;
@@ -58,6 +59,8 @@ export default async function MatchPage({
   // Once the tournament starts, call fetchMatchEvents(fdMatchId) here.
   const events = null;
 
+  const live = await fetchLiveMatchData(match.providerIds?.footballData);
+
   const home = countryName(match.homeKey, "en");
   const away = countryName(match.awayKey, "en");
   const dateStr = longDate(match.date);
@@ -102,7 +105,7 @@ export default async function MatchPage({
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(faqLd) }}
       />
-      <MatchDetail match={match} events={events} />
+      <MatchDetail match={match} events={events} live={live} />
     </>
   );
 }

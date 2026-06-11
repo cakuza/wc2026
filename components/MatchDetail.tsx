@@ -4,24 +4,48 @@ import Link from "next/link";
 import { Flag } from "@/components/Flag";
 import { KickoffDateTime } from "@/components/MatchTime";
 import { useLang } from "@/components/LanguageProvider";
+import { useTimezone } from "@/components/TimezoneProvider";
 import { matchUtcDate, type Match } from "@/lib/matches";
+import { formatKickoffTime } from "@/lib/timezone";
 import type { MatchEvents } from "@/lib/matchEvents";
+import type { LiveMatchData } from "@/lib/liveMatchData";
 
 interface Props {
   match: Match;
   events?: MatchEvents | null;
+  live?: LiveMatchData | null;
 }
 
-function useMatchStatus(match: Match) {
+type DisplayStatus = "upcoming" | "live" | "halftime" | "finished" | "syncing";
+
+function useMatchStatus(match: Match): DisplayStatus {
   const now = new Date();
   const matchStart = matchUtcDate(match); // absolute instant, correct for any viewer timezone
   const matchEnd = new Date(matchStart.getTime() + 110 * 60 * 1000); // ~110 min
-  if (now < matchStart) return "upcoming" as const;
-  if (now >= matchStart && now <= matchEnd) return "live" as const;
-  return "finished" as const;
+  if (now < matchStart) return "upcoming";
+  if (now >= matchStart && now <= matchEnd) return "live";
+  return "finished";
 }
 
-function StatusBadge({ status, t }: { status: "upcoming" | "live" | "finished"; t: (k: string) => string }) {
+/** Map a football-data.org status onto our display states. Returns null for
+ *  statuses that should fall back to the time-based estimate (e.g. POSTPONED). */
+function liveStatusToDisplay(status: LiveMatchData["status"]): DisplayStatus | null {
+  switch (status) {
+    case "SCHEDULED":
+    case "TIMED":
+      return "upcoming";
+    case "IN_PLAY":
+      return "live";
+    case "PAUSED":
+      return "halftime";
+    case "FINISHED":
+      return "finished";
+    default:
+      return null;
+  }
+}
+
+function StatusBadge({ status, t }: { status: DisplayStatus; t: (k: string) => string }) {
   if (status === "live") {
     return (
       <span className="inline-flex animate-pulse items-center gap-1.5 rounded-full bg-red-600 px-3 py-1 font-heading text-xs font-extrabold uppercase tracking-widest text-white">
@@ -30,10 +54,24 @@ function StatusBadge({ status, t }: { status: "upcoming" | "live" | "finished"; 
       </span>
     );
   }
+  if (status === "halftime") {
+    return (
+      <span className="inline-flex items-center gap-1.5 rounded-full bg-red-600/70 px-3 py-1 font-heading text-xs font-extrabold uppercase tracking-widest text-white">
+        {t("match_halftime")}
+      </span>
+    );
+  }
   if (status === "finished") {
     return (
       <span className="inline-flex items-center rounded-full bg-white/10 px-3 py-1 font-heading text-xs font-extrabold uppercase tracking-widest text-white/60">
         {t("match_final")}
+      </span>
+    );
+  }
+  if (status === "syncing") {
+    return (
+      <span className="inline-flex items-center rounded-full bg-white/10 px-3 py-1 font-heading text-xs font-extrabold uppercase tracking-widest text-white/40">
+        {t("match_syncing")}
       </span>
     );
   }
@@ -70,13 +108,24 @@ function EmptyEvents({ note }: { note: string }) {
   return <p className="text-sm text-white/40">{note}</p>;
 }
 
-export function MatchDetail({ match, events }: Props) {
+export function MatchDetail({ match, events, live }: Props) {
   const { t, country, formatDate } = useLang();
-  const status = useMatchStatus(match);
+  const { timeZone } = useTimezone();
+  const timeBasedStatus = useMatchStatus(match);
+  const liveStatus = live ? liveStatusToDisplay(live.status) : null;
+  // If the provider still says "upcoming" (SCHEDULED/TIMED) but the kickoff time has
+  // already passed, that's stale/unsynced data — show a neutral "syncing" state rather
+  // than misleadingly claiming the match hasn't started.
+  const status: DisplayStatus =
+    liveStatus === "upcoming" && timeBasedStatus !== "upcoming"
+      ? "syncing"
+      : liveStatus ?? timeBasedStatus;
 
-  const homeScore = events?.score.home ?? null;
-  const awayScore = events?.score.away ?? null;
+  const homeScore = live?.homeScore ?? events?.score.home ?? null;
+  const awayScore = live?.awayScore ?? events?.score.away ?? null;
   const hasScore = homeScore !== null && awayScore !== null;
+
+  const lastSyncedTime = live ? formatKickoffTime(new Date(live.lastSyncedAt), timeZone) : null;
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-8">
@@ -181,6 +230,14 @@ export function MatchDetail({ match, events }: Props) {
               </>
             )}
           </div>
+
+          {/* Sync note */}
+          {live && (
+            <p className="mt-2 text-center text-xs text-white/30">
+              {t("match_scoreSyncNote")}
+              {lastSyncedTime && ` ${t("match_lastSynced").replace("{time}", lastSyncedTime)}`}
+            </p>
+          )}
         </div>
       </div>
 

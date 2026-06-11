@@ -9,6 +9,9 @@ export type Match = {
   group?: string;
   opener?: boolean;
   utcOffset?: number; // venue UTC offset (hours): EDT -4, CDT -5, Mexico CST -6, PDT -7
+  providerIds?: {
+    footballData?: number; // football-data.org v4 match id
+  };
 };
 
 // Official 2026 FIFA World Cup group stage — 72 fixtures, sourced from the per-group
@@ -17,7 +20,7 @@ export type Match = {
 // viewer's timezone (see matchUtcDate / MatchTime).
 export const MATCHES: Match[] = [
   // ── Group A ──────────────────────────────────────────────────────────────
-  { homeKey: "mexico", homeCode: "mx", awayKey: "southAfrica", awayCode: "za", date: "2026-06-11", time: "13:00", venue: "Estadio Azteca", group: "A", utcOffset: -6, opener: true },
+  { homeKey: "mexico", homeCode: "mx", awayKey: "southAfrica", awayCode: "za", date: "2026-06-11", time: "13:00", venue: "Estadio Azteca", group: "A", utcOffset: -6, opener: true, providerIds: { footballData: 537327 } },
   { homeKey: "southKorea", homeCode: "kr", awayKey: "czechia", awayCode: "cz", date: "2026-06-11", time: "20:00", venue: "Estadio Akron", group: "A", utcOffset: -6 },
   { homeKey: "czechia", homeCode: "cz", awayKey: "southAfrica", awayCode: "za", date: "2026-06-18", time: "12:00", venue: "Mercedes-Benz Stadium", group: "A", utcOffset: -4 },
   { homeKey: "mexico", homeCode: "mx", awayKey: "southKorea", awayCode: "kr", date: "2026-06-18", time: "19:00", venue: "Estadio Akron", group: "A", utcOffset: -6 },
