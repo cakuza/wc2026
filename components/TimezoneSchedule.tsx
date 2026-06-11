@@ -81,18 +81,18 @@ export function TimezoneSchedule({ iana }: { iana: string }) {
                   href={`/matches/${matchSlug(m)}`}
                   className="flex items-center gap-3 rounded-lg border border-white/10 bg-navyCard px-3 py-3 transition hover:border-white/20 hover:bg-white/5 sm:px-4"
                 >
-                  <span className="w-6 shrink-0 text-center font-heading text-xs font-bold tabular-nums text-white/30">
+                  <span className="w-6 shrink-0 text-center font-heading text-xs font-bold tabular-nums text-white/50">
                     {num}
                   </span>
                   <div className="flex flex-1 items-center justify-end gap-2 text-end">
                     <span className="truncate font-semibold text-white">{home}</span>
-                    <Flag code={m.homeCode} name={home} width={28} height={20} />
+                    <Flag code={m.homeCode} alt="" width={28} height={20} />
                   </div>
                   <span className="shrink-0 rounded bg-navy px-2 py-1 font-heading text-[11px] font-bold uppercase text-white/50">
                     {t("vs")}
                   </span>
                   <div className="flex flex-1 items-center gap-2">
-                    <Flag code={m.awayCode} name={away} width={28} height={20} />
+                    <Flag code={m.awayCode} alt="" width={28} height={20} />
                     <span className="truncate font-semibold text-white">{away}</span>
                   </div>
                   <div className="ms-2 hidden w-40 shrink-0 text-end text-xs text-white/55 sm:block">

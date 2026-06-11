@@ -203,12 +203,12 @@ export function BracketContent() {
         </div>
       </div>
 
-      {/* Legend */}
+      {/* Legend — block-level items so text extractors see clear separation */}
       <div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-2 text-[11px] text-white/55">
-        <span><span className="font-bold text-white">1A</span> · {t("bracket_legend_1st")}</span>
-        <span><span className="font-bold text-white">2B</span> · {t("bracket_legend_2nd")}</span>
-        <span><span className="font-bold text-white">{t("bracket_3rd")}</span> · {t("bracket_legend_best3rd")}</span>
-        <span><span className="font-bold text-white">{t("bracket_tbd")}</span> · {t("bracket_legend_tbd_desc")}</span>
+        <div><span className="font-bold text-white">1A</span> · {t("bracket_legend_1st")}</div>
+        <div><span className="font-bold text-white">2B</span> · {t("bracket_legend_2nd")}</div>
+        <div><span className="font-bold text-white">{t("bracket_3rd")}</span> · {t("bracket_legend_best3rd")}</div>
+        <div><span className="font-bold text-white">{t("bracket_tbd")}</span> · {t("bracket_legend_tbd_desc")}</div>
       </div>
 
       {/* Final info */}

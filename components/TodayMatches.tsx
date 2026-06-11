@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Flag } from "@/components/Flag";
 import { MatchTime } from "@/components/MatchTime";
+import { TimezoneLabel } from "@/components/TimezoneLabel";
 import { useLang } from "@/components/LanguageProvider";
 import { getDisplayMatchday, type Match } from "@/lib/matches";
 
@@ -50,7 +51,8 @@ export function TodayMatches() {
         <p className="font-heading text-sm font-extrabold uppercase tracking-[0.2em] text-accent">{t(md.labelKey)}</p>
         <span className="font-heading text-xs font-bold uppercase tracking-wide text-white/50">{dateLabel}</span>
       </div>
-      <p className="mb-4 text-[11px] leading-snug text-white/55">{t("today_intro")}</p>
+      <p className="mb-1 text-[11px] leading-snug text-white/55">{t("today_intro")}</p>
+      <TimezoneLabel className="mb-4 text-[11px] text-white/55" />
 
       {/* Multi-day mode: group matches under date subheaders — fully expanded, no scroll */}
       {md.days ? (

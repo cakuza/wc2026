@@ -38,10 +38,10 @@ export function TeamsByConfederationPreview() {
         {sections.map(({ conf, teams }) => (
           <div key={conf.code}>
             <div className="mb-2">
-              <p className="font-heading text-[11px] font-extrabold uppercase tracking-[0.2em] text-white/50">
+              <p className="font-heading text-[11px] font-extrabold uppercase tracking-[0.2em] text-white/60">
                 {conf.name} · {teams.length}
               </p>
-              <p className="text-[10px] leading-tight text-white/35">
+              <p className="text-[10px] leading-tight text-white/50">
                 {t(`conf_full_${conf.code}`)}
               </p>
             </div>
@@ -54,7 +54,7 @@ export function TeamsByConfederationPreview() {
                     href={`/teams/${slugFor(tm.key)}`}
                     className="flex items-center gap-2 rounded-lg border border-white/10 bg-navyCard px-3 py-1.5 text-sm transition hover:border-white/25 hover:bg-white/5"
                   >
-                    <Flag code={tm.code} name={name} width={22} height={16} />
+                    <Flag code={tm.code} alt="" width={22} height={16} />
                     <span className="font-semibold text-white">{name}</span>
                   </Link>
                 );
@@ -84,7 +84,7 @@ export function TeamsByConfederation() {
                 · {teams.length}
               </span>
             </span>
-            <span className="mt-0.5 block text-xs font-medium leading-snug text-white/40">
+            <span className="mt-0.5 block text-xs font-medium leading-snug text-white/55">
               {t(`conf_full_${conf.code}`)}
             </span>
           </h2>
@@ -97,9 +97,9 @@ export function TeamsByConfederation() {
                   href={`/teams/${slugFor(tm.key)}`}
                   className="flex items-center gap-3 rounded-lg border border-white/10 bg-navyCard px-4 py-2.5 transition hover:border-white/20 hover:bg-white/5"
                 >
-                  <Flag code={tm.code} name={name} width={28} height={20} />
+                  <Flag code={tm.code} alt="" width={28} height={20} />
                   <span className="flex-1 truncate font-semibold text-white">{name}</span>
-                  <span className="font-heading text-[11px] font-bold uppercase tracking-widest text-white/40">
+                  <span className="font-heading text-[11px] font-bold uppercase tracking-widest text-white/55">
                     {t("lbl_group")} {tm.group}
                   </span>
                 </Link>

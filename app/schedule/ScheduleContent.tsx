@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { Flag } from "@/components/Flag";
 import { MatchTime } from "@/components/MatchTime";
+import { TimezoneLabel } from "@/components/TimezoneLabel";
 import { useLang } from "@/components/LanguageProvider";
 import { matchesByDate, matchSlug } from "@/lib/matches";
 
@@ -37,6 +38,7 @@ export function ScheduleContent() {
           {t("nav_groups")} →
         </Link>
       </p>
+      <TimezoneLabel className="mb-6 text-[11px] text-white/55" />
 
       <div className="space-y-8">
         {days.map(({ date, matches }) => (

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Flag } from "@/components/Flag";
 import { MatchTime } from "@/components/MatchTime";
+import { TimezoneLabel } from "@/components/TimezoneLabel";
 import { getDisplayMatchday, matchSlug, type Match } from "@/lib/matches";
 import { countryName } from "@/lib/i18n";
 
@@ -12,14 +13,14 @@ const BASE_URL = "https://www.worldcupmatchday.com";
 export const revalidate = 1800;
 
 export const metadata: Metadata = {
-  title: "World Cup Matches Today — Schedule & Local Kickoff Times",
+  title: "World Cup Matches Today — Fixtures, Kickoff Times & Venues",
   description:
-    "See today's World Cup matches, kickoff times in your selected timezone, venues and group context.",
+    "See today's World Cup matches with kickoff times in your selected timezone, venues and group context.",
   alternates: { canonical: `${BASE_URL}/today` },
   openGraph: {
-    title: "World Cup Matches Today — Schedule & Local Kickoff Times",
+    title: "World Cup Matches Today — Fixtures, Kickoff Times & Venues",
     description:
-      "See today's World Cup matches, kickoff times in your selected timezone, venues and group context.",
+      "See today's World Cup matches with kickoff times in your selected timezone, venues and group context.",
     url: `${BASE_URL}/today`,
     type: "website",
   },
@@ -110,11 +111,11 @@ export default function TodayPage() {
         <h1 className="mb-2 font-heading text-4xl font-extrabold uppercase tracking-wide text-white">
           {isToday ? "World Cup Matches Today" : "No World Cup Matches Today"}
         </h1>
-        <p className="mb-6 max-w-3xl text-sm text-white/50">
-          This page shows today&apos;s World Cup matches, kickoff times in your selected timezone,
-          venues and group context. If no matches are scheduled today, the next upcoming matchday is
-          shown instead.
+        <p className="mb-2 max-w-3xl text-sm text-white/50">
+          See today&apos;s World Cup matches, kickoff times in your selected timezone, venues and
+          group context. If there are no matches today, the next upcoming matchday is shown.
         </p>
+        <TimezoneLabel className="mb-6 text-[11px] text-white/55" />
 
         {!isToday && (
           <div className="mb-6 rounded-xl border border-white/10 bg-navyCard px-4 py-4 text-sm text-white/60">

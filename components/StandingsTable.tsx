@@ -92,7 +92,7 @@ export function StandingsTable({
                     >
                       <Flag
                         code={gt.code}
-                        name={country(gt.key)}
+                        alt=""
                         width={24}
                         height={18}
                       />

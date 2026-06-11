@@ -65,7 +65,7 @@ export function TimezoneSchedulePageContent({
         {facts.map((f) => (
           <div key={f.k} className="rounded-xl border border-white/10 bg-navyCard px-4 py-3">
             <div className="font-heading text-lg font-extrabold text-white">{f.v}</div>
-            <div className="font-heading text-[10px] font-bold uppercase tracking-widest text-white/40">
+            <div className="font-heading text-[10px] font-bold uppercase tracking-widest text-white/55">
               {f.k}
             </div>
           </div>
@@ -89,7 +89,7 @@ export function TimezoneSchedulePageContent({
 
       {/* Other time zones */}
       <section className="mt-8">
-        <p className="mb-2 font-heading text-[10px] font-extrabold uppercase tracking-[0.25em] text-white/30">
+        <p className="mb-2 font-heading text-[10px] font-extrabold uppercase tracking-[0.25em] text-white/50">
           {t("tz_otherZones")}
         </p>
         <div className="flex flex-wrap gap-2">

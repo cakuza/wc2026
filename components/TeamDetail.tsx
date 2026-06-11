@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { Flag } from "@/components/Flag";
 import { MatchTime } from "@/components/MatchTime";
+import { TimezoneLabel } from "@/components/TimezoneLabel";
 import { useLang } from "@/components/LanguageProvider";
 import { slugFor, withArticle, type Team } from "@/lib/teams";
 import type { Match } from "@/lib/matches";
@@ -171,6 +172,7 @@ export function TeamDetail({
           })}
         </div>
       )}
+      {teamMatches.length > 0 && <TimezoneLabel className="mt-2 text-[11px] text-white/45" />}
 
       {/* ── QUICK ANSWERS (FAQ for Google AI Overview) ──────────────────── */}
       <section className="mt-4" aria-label="Quick answers">
@@ -411,7 +413,7 @@ export function TeamDetail({
                   <thead>
                     <tr className="text-[11px] uppercase tracking-wider text-white/40">
                       <th className="w-10 px-3 py-2 text-start font-semibold">
-                        {t("col_no")}
+                        {t("col_no")}{" "}
                       </th>
                       <th className="px-2 py-2 text-start font-semibold">
                         {t("col_player")}

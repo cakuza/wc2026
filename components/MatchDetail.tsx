@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { Flag } from "@/components/Flag";
 import { MatchTime } from "@/components/MatchTime";
+import { TimezoneLabel } from "@/components/TimezoneLabel";
 import { useLang } from "@/components/LanguageProvider";
 import { matchUtcDate, type Match } from "@/lib/matches";
 import type { MatchEvents } from "@/lib/matchEvents";
@@ -183,6 +184,7 @@ export function MatchDetail({ match, events }: Props) {
               </>
             )}
           </div>
+          {match.time && <TimezoneLabel className="mt-1 text-center text-[11px] text-white/45" />}
         </div>
       </div>
 
@@ -199,7 +201,7 @@ export function MatchDetail({ match, events }: Props) {
             <p className="mt-1 text-sm text-white/80">
               <span className="font-semibold text-white">{formatDate(match.date)}</span>
               {match.time && (
-                <> · <MatchTime match={match} className="font-semibold text-white" /> {t("match_local_time")}</>
+                <> · <MatchTime match={match} className="font-semibold text-white" /></>
               )}
             </p>
           </div>
