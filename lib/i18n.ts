@@ -117,7 +117,7 @@ export const T: Record<Lang, Record<string, string>> = {
     footer_dates: "June 11 – July 19",
     qa_section: "Quick Answers",
     qa_first_match_q: "When do {team} play their first match?",
-    qa_first_match_a: "{team} play {opponent} on {date} at {time} local time at {venue}.",
+    qa_first_match_a: "{team} play {opponent} on {date} at {venue}, kickoff {time} venue local time.",
     qa_group_q: "What group are {team} in?",
     qa_group_a: "{team} are in Group {group} with {teammates}.",
     qa_qualify_q: "How can {team} qualify for the knockout stage?",

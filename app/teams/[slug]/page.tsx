@@ -123,14 +123,14 @@ export default async function TeamPage({ params }: { params: Promise<{ slug: str
   if (teamFirstMatch && firstOpponentKey) {
     const opponentName = countryName(firstOpponentKey, "en");
     const dateStr = longDate(teamFirstMatch.date);
-    const timeStr = teamFirstMatch.time ? ` at ${teamFirstMatch.time} local time` : "";
     const venueStr = teamFirstMatch.venue ? ` at ${teamFirstMatch.venue}` : "";
+    const timeStr = teamFirstMatch.time ? `, kickoff ${teamFirstMatch.time} venue local time` : "";
     faqEntities.push({
       "@type": "Question",
       name: `When do ${withArticle(name)} play their first match at the 2026 FIFA World Cup?`,
       acceptedAnswer: {
         "@type": "Answer",
-        text: `${withArticle(name, true)} play ${opponentName} on ${dateStr}${timeStr}${venueStr}.`,
+        text: `${withArticle(name, true)} play ${opponentName} on ${dateStr}${venueStr}${timeStr}.`,
       },
     });
   }

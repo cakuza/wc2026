@@ -61,8 +61,8 @@ export default async function MatchPage({
   const home = countryName(match.homeKey, "en");
   const away = countryName(match.awayKey, "en");
   const dateStr = longDate(match.date);
-  const timeStr = match.time ? ` at ${match.time} local time` : "";
   const venueStr = match.venue ?? "venue TBC";
+  const timeStr = match.time ? `, kickoff ${match.time} venue local time (${venueStr})` : "";
 
   // ── FAQPage JSON-LD ──────────────────────────────────────────────────────
   const faqLd = {
