@@ -32,16 +32,14 @@ const TITLES: Record<Phase, string> = {
 };
 
 /**
- * Compact "opening match" banner for the homepage. Visible by default (matches the SSR
- * render, correct for the opener's matchday); switches title based on the kickoff time
- * window, and hides itself a day after the opener has finished.
+ * Compact "opening match" banner for the homepage. Phase is computed from Date.now() on
+ * both server and client (like useCountdown), so the title reflects the real kickoff
+ * window immediately. Hides itself a day after the opener has finished.
  */
 export function OpeningMatchBanner() {
-  // SSR/first paint: "before" — correct for the opener's matchday before kickoff.
-  const [phase, setPhase] = useState<Phase>("before");
+  const [phase, setPhase] = useState<Phase>(getPhase);
 
   useEffect(() => {
-    setPhase(getPhase());
     const id = setInterval(() => setPhase(getPhase()), 60 * 1000);
     return () => clearInterval(id);
   }, []);
@@ -55,7 +53,7 @@ export function OpeningMatchBanner() {
       href={`/matches/${matchSlug(OPENING_MATCH)}`}
       className="block border-b border-white/10 bg-accent/10 transition hover:bg-accent/15"
     >
-      <div className="mx-auto flex max-w-7xl flex-wrap items-center gap-x-4 gap-y-2 px-4 py-3">
+      <div className="mx-auto flex max-w-7xl flex-wrap items-center gap-x-4 gap-y-2 px-4 py-3" suppressHydrationWarning>
         <div className="min-w-0">
           <p className="font-heading text-xs font-extrabold uppercase tracking-widest text-accent">
             {TITLES[phase]}
