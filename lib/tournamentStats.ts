@@ -1,10 +1,11 @@
 /**
  * Tournament-level stats computed from confirmed FINISHED match scores only.
- * No player/event data — only what can be derived from final scorelines.
+ * Player stats only computed when provider event data is available.
  */
 
 import { MATCHES } from "./matches";
 import type { LiveMatchData } from "./liveMatchData";
+import type { StandingRow } from "./groupStandings";
 
 export type MatchResult = {
   homeKey: string;
@@ -21,6 +22,20 @@ export type TournamentStats = {
   biggestWin: (MatchResult & { margin: number }) | null;
   cleanSheets: number;
   lastSyncedAt: string | null;
+};
+
+export type TeamLeaderboard = { teamKey: string; value: number };
+
+export type TeamLeaderboards = {
+  topScoringTeams: TeamLeaderboard[];
+  mostPoints: TeamLeaderboard[];
+  mostWins: TeamLeaderboard[];
+};
+
+export type PlayerGoalStat = {
+  playerName: string;
+  teamName: string | null;
+  goals: number;
 };
 
 export function computeTournamentStats(
@@ -85,4 +100,51 @@ export function computeTournamentStats(
     cleanSheets,
     lastSyncedAt,
   };
+}
+
+/** Compute team leaderboards from group standings. Only includes teams that have played. */
+export function computeTeamLeaderboards(
+  standings: Record<string, StandingRow[]>,
+): TeamLeaderboards {
+  const allRows = Object.values(standings).flat().filter((r) => r.played > 0);
+
+  const topScoringTeams = [...allRows]
+    .sort((a, b) => b.goalsFor - a.goalsFor || b.points - a.points)
+    .slice(0, 5)
+    .map((r) => ({ teamKey: r.teamKey, value: r.goalsFor }));
+
+  const mostPoints = [...allRows]
+    .sort((a, b) => b.points - a.points || b.goalDifference - a.goalDifference)
+    .slice(0, 5)
+    .map((r) => ({ teamKey: r.teamKey, value: r.points }));
+
+  const mostWins = [...allRows]
+    .sort((a, b) => b.wins - a.wins || b.points - a.points)
+    .slice(0, 5)
+    .map((r) => ({ teamKey: r.teamKey, value: r.wins }));
+
+  return { topScoringTeams, mostPoints, mostWins };
+}
+
+/** Compile top scorers from event data. Only counts when eventDataAvailable = true. */
+export function computeTopScorers(
+  liveData: ReadonlyMap<number, LiveMatchData>,
+): PlayerGoalStat[] {
+  const scorerMap = new Map<string, PlayerGoalStat>();
+
+  for (const data of liveData.values()) {
+    if (!data.eventDataAvailable || !data.goals) continue;
+    for (const goal of data.goals) {
+      if (!goal.playerName || goal.type === "OWN_GOAL") continue;
+      const key = goal.playerName;
+      if (!scorerMap.has(key)) {
+        scorerMap.set(key, { playerName: goal.playerName, teamName: goal.teamName, goals: 0 });
+      }
+      scorerMap.get(key)!.goals++;
+    }
+  }
+
+  return [...scorerMap.values()]
+    .sort((a, b) => b.goals - a.goals)
+    .slice(0, 10);
 }

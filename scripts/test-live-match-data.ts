@@ -52,14 +52,25 @@ async function main() {
   }
 
   console.log("\nLiveMatchData:");
-  console.log(`  providerMatchId: ${live.providerMatchId}`);
-  console.log(`  rawStatus:       ${live.rawStatus}`);
-  console.log(`  status:          ${live.status}`);
-  console.log(`  homeScore:       ${live.homeScore}`);
-  console.log(`  awayScore:       ${live.awayScore}`);
-  console.log(`  winner:          ${live.winner}`);
-  console.log(`  utcDate:         ${live.utcDate}`);
-  console.log(`  lastSyncedAt:    ${live.lastSyncedAt}`);
+  console.log(`  providerMatchId:    ${live.providerMatchId}`);
+  console.log(`  rawStatus:          ${live.rawStatus}`);
+  console.log(`  status:             ${live.status}`);
+  console.log(`  homeScore:          ${live.homeScore}`);
+  console.log(`  awayScore:          ${live.awayScore}`);
+  console.log(`  winner:             ${live.winner}`);
+  console.log(`  utcDate:            ${live.utcDate}`);
+  console.log(`  lastSyncedAt:       ${live.lastSyncedAt}`);
+  console.log(`  eventDataAvailable: ${live.eventDataAvailable}`);
+  console.log(`  goals count:        ${live.goals?.length ?? "n/a"}`);
+  console.log(`  bookings count:     ${live.bookings?.length ?? "n/a"}`);
+  console.log(`  substitutions count:${live.substitutions?.length ?? "n/a"}`);
+
+  if (live.eventDataAvailable && live.goals && live.goals.length > 0) {
+    console.log("\n  Goals:");
+    for (const g of live.goals) {
+      console.log(`    ${g.minute ?? "?"}' ${g.playerName ?? "unknown"} (${g.teamName ?? "?"}) [${g.type}]`);
+    }
+  }
 
   console.log("\nResult: API integration OK.");
 }

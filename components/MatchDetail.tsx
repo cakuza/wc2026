@@ -317,23 +317,27 @@ export function MatchDetail({ match, events, live }: Props) {
           <>
             {/* Goals */}
             <EventSection title={t("match_goals")} icon="⚽">
-              {events?.goals && events.goals.length > 0 ? (
+              {live?.eventDataAvailable && live.goals && live.goals.length > 0 ? (
                 <ul className="space-y-2">
-                  {events.goals.map((g, i) => (
+                  {live.goals.map((g, i) => (
                     <li key={i} className="flex items-center gap-3 text-sm">
                       <span className="w-8 shrink-0 text-right font-heading font-bold tabular-nums text-white/50">
-                        {g.minute}&apos;
+                        {g.minute != null ? `${g.minute}'` : "—"}
                       </span>
-                      <span className="font-semibold text-white">{g.scorer}</span>
+                      <span className="font-semibold text-white">{g.playerName ?? "—"}</span>
                       {g.type === "OWN_GOAL" && (
                         <span className="text-xs text-red-400">(OG)</span>
                       )}
-                      {g.type === "PENALTY" && (
+                      {g.type === "PENALTY_GOAL" && (
                         <span className="text-xs text-yellow-400">(P)</span>
                       )}
                     </li>
                   ))}
                 </ul>
+              ) : live?.eventDataAvailable ? (
+                <EmptyEvents note="No goals recorded" />
+              ) : hasScore ? (
+                <EmptyEvents note="Goal scorer details are not available from the current data sync." />
               ) : (
                 <EmptyEvents note={t("match_noEvents")} />
               )}
@@ -341,25 +345,27 @@ export function MatchDetail({ match, events, live }: Props) {
 
             {/* Cards */}
             <EventSection title={t("match_bookings")} icon="🟨">
-              {events?.cards && events.cards.length > 0 ? (
+              {live?.eventDataAvailable && live.bookings && live.bookings.length > 0 ? (
                 <ul className="space-y-2">
-                  {events.cards.map((c, i) => (
+                  {live.bookings.map((b, i) => (
                     <li key={i} className="flex items-center gap-3 text-sm">
                       <span className="w-8 shrink-0 text-right font-heading font-bold tabular-nums text-white/50">
-                        {c.minute}&apos;
+                        {b.minute != null ? `${b.minute}'` : "—"}
                       </span>
                       <span
                         className={`h-4 w-3 shrink-0 rounded-sm ${
-                          c.type === "RED" ? "bg-red-500" :
-                          c.type === "YELLOW_RED" ? "bg-orange-500" :
-                          "bg-yellow-400"
+                          b.type === "RED_CARD" ? "bg-red-500" : "bg-yellow-400"
                         }`}
-                        aria-label={c.type}
+                        aria-label={b.type}
                       />
-                      <span className="font-semibold text-white">{c.player}</span>
+                      <span className="font-semibold text-white">{b.playerName ?? "—"}</span>
                     </li>
                   ))}
                 </ul>
+              ) : live?.eventDataAvailable ? (
+                <EmptyEvents note="No bookings recorded" />
+              ) : hasScore ? (
+                <EmptyEvents note="Detailed event data is not available from the current data sync." />
               ) : (
                 <EmptyEvents note={t("match_noEvents")} />
               )}
@@ -367,21 +373,25 @@ export function MatchDetail({ match, events, live }: Props) {
 
             {/* Substitutions */}
             <EventSection title={t("match_subs")} icon="🔄">
-              {events?.substitutions && events.substitutions.length > 0 ? (
+              {live?.eventDataAvailable && live.substitutions && live.substitutions.length > 0 ? (
                 <ul className="space-y-2">
-                  {events.substitutions.map((s, i) => (
+                  {live.substitutions.map((s, i) => (
                     <li key={i} className="flex items-center gap-3 text-sm">
                       <span className="w-8 shrink-0 text-right font-heading font-bold tabular-nums text-white/50">
-                        {s.minute}&apos;
+                        {s.minute != null ? `${s.minute}'` : "—"}
                       </span>
                       <span className="text-green-400">↑</span>
-                      <span className="font-semibold text-white">{s.playerIn}</span>
+                      <span className="font-semibold text-white">{s.playerName ?? "—"}</span>
                       <span className="text-white/30">/</span>
                       <span className="text-red-400">↓</span>
-                      <span className="text-white/60">{s.playerOut}</span>
+                      <span className="text-white/60">{s.detail ?? "—"}</span>
                     </li>
                   ))}
                 </ul>
+              ) : live?.eventDataAvailable ? (
+                <EmptyEvents note="No substitutions recorded" />
+              ) : hasScore ? (
+                <EmptyEvents note="Detailed event data is not available from the current data sync." />
               ) : (
                 <EmptyEvents note={t("match_noEvents")} />
               )}

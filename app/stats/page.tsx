@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import StatsContent from "@/components/StatsContent";
 import { fetchAllLiveData } from "@/lib/fetchAllLiveData";
-import { computeTournamentStats } from "@/lib/tournamentStats";
+import { computeTournamentStats, computeTeamLeaderboards, computeTopScorers } from "@/lib/tournamentStats";
+import { computeGroupStandings } from "@/lib/groupStandings";
 
 export const revalidate = 60;
 
@@ -30,6 +31,10 @@ const jsonLd = {
 export default async function StatsPage() {
   const liveData = await fetchAllLiveData();
   const tournamentStats = computeTournamentStats(liveData);
+  const standings = computeGroupStandings(liveData);
+  const teamLeaderboards = computeTeamLeaderboards(standings);
+  const topScorers = computeTopScorers(liveData);
+  const hasEventData = Array.from(liveData.values()).some((d) => d.eventDataAvailable && d.goals && d.goals.length > 0);
 
   return (
     <>
@@ -37,7 +42,12 @@ export default async function StatsPage() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <StatsContent tournamentStats={tournamentStats} />
+      <StatsContent
+        tournamentStats={tournamentStats}
+        teamLeaderboards={teamLeaderboards}
+        topScorers={topScorers}
+        hasEventData={hasEventData}
+      />
     </>
   );
 }

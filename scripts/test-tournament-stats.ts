@@ -29,6 +29,7 @@ const mockData: ReadonlyMap<number, LiveMatchData> = new Map([
       awayScore: 0,
       winner: "HOME_TEAM",
       lastSyncedAt: new Date().toISOString(),
+      eventDataAvailable: false,
     },
   ],
 ]);

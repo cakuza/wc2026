@@ -1,13 +1,16 @@
 "use client";
 
 import { useLang } from "@/components/LanguageProvider";
-import type { TournamentStats } from "@/lib/tournamentStats";
+import type { TournamentStats, TeamLeaderboards, PlayerGoalStat } from "@/lib/tournamentStats";
 
 interface Props {
   tournamentStats: TournamentStats;
+  teamLeaderboards: TeamLeaderboards;
+  topScorers: PlayerGoalStat[];
+  hasEventData: boolean;
 }
 
-export default function StatsContent({ tournamentStats }: Props) {
+export default function StatsContent({ tournamentStats, teamLeaderboards, topScorers, hasEventData }: Props) {
   const { t, country } = useLang();
 
   const ALL_TIME_RECORDS = [
@@ -27,12 +30,10 @@ export default function StatsContent({ tournamentStats }: Props) {
 
   const hasData = matchesPlayed > 0;
 
-  // Format a match result as "Team A N–N Team B"
   function fmtResult(r: { homeKey: string; awayKey: string; homeScore: number; awayScore: number }) {
     return `${country(r.homeKey)} ${r.homeScore}–${r.awayScore} ${country(r.awayKey)}`;
   }
 
-  // Format last-synced timestamp as HH:MM UTC
   function fmtSynced(iso: string): string {
     const d = new Date(iso);
     const hh = String(d.getUTCHours()).padStart(2, "0");
@@ -42,14 +43,16 @@ export default function StatsContent({ tournamentStats }: Props) {
 
   const liveStats = hasData
     ? [
-        { label: "Matches Played",         value: String(matchesPlayed),                             icon: "🏟️" },
-        { label: "Total Goals",            value: String(totalGoals),                                icon: "⚽" },
-        { label: "Avg Goals / Match",      value: averageGoalsPerMatch.toFixed(1),                   icon: "📈" },
-        { label: "Highest Scoring",        value: highestScoringMatch ? fmtResult(highestScoringMatch) : "—", icon: "🔥" },
-        { label: "Biggest Win",            value: biggestWin ? fmtResult(biggestWin) : "—",          icon: "📊" },
-        { label: "Clean Sheets",           value: String(cleanSheets),                               icon: "🧤" },
+        { label: "Matches Played",    value: String(matchesPlayed),                             icon: "🏟️" },
+        { label: "Total Goals",       value: String(totalGoals),                                icon: "⚽" },
+        { label: "Avg Goals / Match", value: averageGoalsPerMatch.toFixed(1),                   icon: "📈" },
+        { label: "Highest Scoring",   value: highestScoringMatch ? fmtResult(highestScoringMatch) : "—", icon: "🔥" },
+        { label: "Biggest Win",       value: biggestWin ? fmtResult(biggestWin) : "—",          icon: "📊" },
+        { label: "Clean Sheets",      value: String(cleanSheets),                               icon: "🧤" },
       ]
     : null;
+
+  const hasTeamData = teamLeaderboards.mostPoints.length > 0;
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-10">
@@ -65,48 +68,9 @@ export default function StatsContent({ tournamentStats }: Props) {
       </div>
 
       {/* ══════════════════════════════════════════════════════════════════
-          SECTION A — World Cup All-Time Records
+          SECTION A — 2026 Tournament Stats
       ══════════════════════════════════════════════════════════════════ */}
       <section className="mb-12">
-        <div className="mb-4 flex items-center gap-3">
-          <h2 className="font-heading text-lg font-extrabold uppercase tracking-widest text-white">
-            {t("stats_all_time_header")}
-          </h2>
-          <div className="h-px flex-1 bg-white/10" />
-        </div>
-
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {ALL_TIME_RECORDS.map((rec) => (
-            <div
-              key={rec.key}
-              className="flex gap-4 rounded-xl border border-white/10 bg-navyCard p-5"
-            >
-              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-accent/10 text-2xl">
-                {rec.icon}
-              </div>
-              <div className="min-w-0">
-                <p className="font-heading text-xs font-bold uppercase tracking-widest text-white/50">
-                  {t(rec.key)}
-                </p>
-                <p className="mt-0.5 font-heading text-2xl font-extrabold leading-none text-accent">
-                  {rec.value}
-                </p>
-                <p className="mt-1 font-heading text-sm font-bold text-white">
-                  {rec.detail}
-                </p>
-                <p className="mt-0.5 font-heading text-xs text-white/50">
-                  {rec.sub}
-                </p>
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* ══════════════════════════════════════════════════════════════════
-          SECTION B — 2026 Tournament Stats
-      ══════════════════════════════════════════════════════════════════ */}
-      <section>
         <div className="mb-4 flex items-center gap-3">
           <h2 className="font-heading text-lg font-extrabold uppercase tracking-widest text-white">
             {t("stats_tournament_header")}
@@ -145,7 +109,6 @@ export default function StatsContent({ tournamentStats }: Props) {
           </>
         ) : (
           <>
-            {/* Placeholder grid — shown before any synced completed match */}
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {[
                 { label: "Matches Played", icon: "🏟️" },
@@ -192,10 +155,183 @@ export default function StatsContent({ tournamentStats }: Props) {
             </div>
 
             <p className="mt-4 font-heading text-xs font-bold uppercase tracking-widest text-white/30">
-              Live tournament totals will appear here after completed matches are synced.
+              2026 tournament totals update after completed matches are synced.
             </p>
           </>
         )}
+      </section>
+
+      {/* ══════════════════════════════════════════════════════════════════
+          SECTION B — 2026 Team Stats
+      ══════════════════════════════════════════════════════════════════ */}
+      {hasTeamData && (
+        <section className="mb-12">
+          <div className="mb-4 flex items-center gap-3">
+            <h2 className="font-heading text-lg font-extrabold uppercase tracking-widest text-white">
+              2026 Team Stats
+            </h2>
+            <div className="h-px flex-1 bg-white/10" />
+          </div>
+
+          <div className="grid gap-6 sm:grid-cols-3">
+            {/* Most Points */}
+            <div className="rounded-xl border border-white/10 bg-navyCard overflow-hidden">
+              <div className="border-b border-white/10 bg-navy/50 px-4 py-3">
+                <p className="font-heading text-xs font-extrabold uppercase tracking-widest text-white/60">
+                  Most Points
+                </p>
+              </div>
+              <ul className="divide-y divide-white/5">
+                {teamLeaderboards.mostPoints.map((row, i) => (
+                  <li key={row.teamKey} className="flex items-center gap-3 px-4 py-2.5">
+                    <span className="w-5 shrink-0 font-heading text-xs font-bold text-white/30">
+                      {i + 1}
+                    </span>
+                    <span className="flex-1 truncate font-semibold text-white text-sm">
+                      {country(row.teamKey)}
+                    </span>
+                    <span className="font-heading text-sm font-extrabold tabular-nums text-accent">
+                      {row.value}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {/* Most Goals */}
+            <div className="rounded-xl border border-white/10 bg-navyCard overflow-hidden">
+              <div className="border-b border-white/10 bg-navy/50 px-4 py-3">
+                <p className="font-heading text-xs font-extrabold uppercase tracking-widest text-white/60">
+                  Most Goals Scored
+                </p>
+              </div>
+              <ul className="divide-y divide-white/5">
+                {teamLeaderboards.topScoringTeams.map((row, i) => (
+                  <li key={row.teamKey} className="flex items-center gap-3 px-4 py-2.5">
+                    <span className="w-5 shrink-0 font-heading text-xs font-bold text-white/30">
+                      {i + 1}
+                    </span>
+                    <span className="flex-1 truncate font-semibold text-white text-sm">
+                      {country(row.teamKey)}
+                    </span>
+                    <span className="font-heading text-sm font-extrabold tabular-nums text-white">
+                      {row.value}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {/* Most Wins */}
+            <div className="rounded-xl border border-white/10 bg-navyCard overflow-hidden">
+              <div className="border-b border-white/10 bg-navy/50 px-4 py-3">
+                <p className="font-heading text-xs font-extrabold uppercase tracking-widest text-white/60">
+                  Most Wins
+                </p>
+              </div>
+              <ul className="divide-y divide-white/5">
+                {teamLeaderboards.mostWins.map((row, i) => (
+                  <li key={row.teamKey} className="flex items-center gap-3 px-4 py-2.5">
+                    <span className="w-5 shrink-0 font-heading text-xs font-bold text-white/30">
+                      {i + 1}
+                    </span>
+                    <span className="flex-1 truncate font-semibold text-white text-sm">
+                      {country(row.teamKey)}
+                    </span>
+                    <span className="font-heading text-sm font-extrabold tabular-nums text-white">
+                      {row.value}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* ══════════════════════════════════════════════════════════════════
+          SECTION C — 2026 Player Stats
+      ══════════════════════════════════════════════════════════════════ */}
+      <section className="mb-12">
+        <div className="mb-4 flex items-center gap-3">
+          <h2 className="font-heading text-lg font-extrabold uppercase tracking-widest text-white">
+            2026 Player Stats
+          </h2>
+          <div className="h-px flex-1 bg-white/10" />
+        </div>
+
+        {hasEventData && topScorers.length > 0 ? (
+          <div className="rounded-xl border border-white/10 bg-navyCard overflow-hidden">
+            <div className="border-b border-white/10 bg-navy/50 px-4 py-3">
+              <p className="font-heading text-xs font-extrabold uppercase tracking-widest text-white/60">
+                Top Scorers
+              </p>
+            </div>
+            <ul className="divide-y divide-white/5">
+              {topScorers.map((scorer, i) => (
+                <li key={scorer.playerName} className="flex items-center gap-3 px-4 py-3">
+                  <span className="w-5 shrink-0 font-heading text-xs font-bold text-white/30">
+                    {i + 1}
+                  </span>
+                  <div className="flex-1 min-w-0">
+                    <p className="truncate font-semibold text-white text-sm">{scorer.playerName}</p>
+                    {scorer.teamName && (
+                      <p className="text-xs text-white/40">{scorer.teamName}</p>
+                    )}
+                  </div>
+                  <span className="font-heading text-sm font-extrabold tabular-nums text-accent">
+                    {scorer.goals} {scorer.goals === 1 ? t("stats_unit_goals").replace(/s$/, "") : t("stats_unit_goals")}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ) : (
+          <div className="rounded-xl border border-white/10 bg-navyCard p-6 text-center">
+            <p className="font-heading text-xs font-bold uppercase tracking-widest text-white/30">
+              Player stats will appear when goal scorer data is available from the match sync.
+            </p>
+          </div>
+        )}
+      </section>
+
+      {/* ══════════════════════════════════════════════════════════════════
+          SECTION D — World Cup All-Time Records
+      ══════════════════════════════════════════════════════════════════ */}
+      <section>
+        <div className="mb-4 flex items-center gap-3">
+          <h2 className="font-heading text-lg font-extrabold uppercase tracking-widest text-white">
+            {t("stats_all_time_header")}
+          </h2>
+          <div className="h-px flex-1 bg-white/10" />
+        </div>
+
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {ALL_TIME_RECORDS.map((rec) => (
+            <div
+              key={rec.key}
+              className="flex gap-4 rounded-xl border border-white/10 bg-navyCard p-5"
+            >
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-accent/10 text-2xl">
+                {rec.icon}
+              </div>
+              <div className="min-w-0">
+                <p className="font-heading text-xs font-bold uppercase tracking-widest text-white/50">
+                  {t(rec.key)}
+                </p>
+                <p className="mt-0.5 font-heading text-2xl font-extrabold leading-none text-accent">
+                  {rec.value}
+                </p>
+                <p className="mt-1 font-heading text-sm font-bold text-white">
+                  {rec.detail}
+                </p>
+                <p className="mt-0.5 font-heading text-xs text-white/50">
+                  {rec.sub}
+                </p>
+              </div>
+            </div>
+          ))}
+        </div>
       </section>
     </div>
   );

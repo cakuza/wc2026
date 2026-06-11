@@ -7,7 +7,7 @@
  */
 
 import { MATCHES } from "./matches";
-import type { LiveMatchData, LiveMatchStatus } from "./liveMatchData";
+import type { LiveMatchData, LiveMatchEvent, LiveMatchStatus } from "./liveMatchData";
 
 const BASE = "https://api.football-data.org/v4";
 const COMPETITION_ID = 2000; // FIFA World Cup
@@ -16,6 +16,77 @@ const KNOWN_STATUSES: readonly string[] = [
   "SCHEDULED", "TIMED", "IN_PLAY", "PAUSED", "FINISHED", "POSTPONED", "CANCELLED",
 ];
 const KNOWN_WINNERS = ["HOME_TEAM", "AWAY_TEAM", "DRAW"];
+
+function safeStr(v: unknown): string | null {
+  return typeof v === "string" && (v as string).length > 0 ? (v as string) : null;
+}
+
+function safeInt(v: unknown): number | null {
+  return typeof v === "number" ? (v as number) : null;
+}
+
+function mapGoalType(t: unknown): LiveMatchEvent["type"] {
+  switch (t) {
+    case "NORMAL": return "GOAL";
+    case "OWN_GOAL": return "OWN_GOAL";
+    case "PENALTY": return "PENALTY_GOAL";
+    default: return "UNKNOWN";
+  }
+}
+
+function mapCardType(t: unknown): LiveMatchEvent["type"] {
+  switch (t) {
+    case "YELLOW": return "YELLOW_CARD";
+    case "RED": return "RED_CARD";
+    default: return "UNKNOWN";
+  }
+}
+
+function parseGoals(raw: unknown[]): LiveMatchEvent[] {
+  return raw.map((g) => {
+    const gObj = g as Record<string, unknown>;
+    const scorer = gObj.scorer as Record<string, unknown> | null | undefined;
+    const assist = gObj.assist as Record<string, unknown> | null | undefined;
+    const team = gObj.team as Record<string, unknown> | null | undefined;
+    return {
+      type: mapGoalType(gObj.type),
+      minute: safeInt(gObj.minute),
+      teamName: safeStr(team?.name),
+      playerName: safeStr(scorer?.name),
+      assistName: safeStr(assist?.name),
+    };
+  });
+}
+
+function parseBookings(raw: unknown[]): LiveMatchEvent[] {
+  return raw.map((b) => {
+    const bObj = b as Record<string, unknown>;
+    const player = bObj.player as Record<string, unknown> | null | undefined;
+    const team = bObj.team as Record<string, unknown> | null | undefined;
+    return {
+      type: mapCardType(bObj.card),
+      minute: safeInt(bObj.minute),
+      teamName: safeStr(team?.name),
+      playerName: safeStr(player?.name),
+    };
+  });
+}
+
+function parseSubs(raw: unknown[]): LiveMatchEvent[] {
+  return raw.map((s) => {
+    const sObj = s as Record<string, unknown>;
+    const playerIn = sObj.playerIn as Record<string, unknown> | null | undefined;
+    const playerOut = sObj.playerOut as Record<string, unknown> | null | undefined;
+    const team = sObj.team as Record<string, unknown> | null | undefined;
+    return {
+      type: "SUBSTITUTION" as const,
+      minute: safeInt(sObj.minute),
+      teamName: safeStr(team?.name),
+      playerName: safeStr(playerIn?.name),
+      detail: safeStr(playerOut?.name),
+    };
+  });
+}
 
 export async function fetchAllLiveData(): Promise<Map<number, LiveMatchData>> {
   const key = process.env.FOOTBALL_DATA_API_KEY;
@@ -63,6 +134,11 @@ export async function fetchAllLiveData(): Promise<Map<number, LiveMatchData>> {
           ? (rawWinner as "HOME_TEAM" | "AWAY_TEAM" | "DRAW")
           : null;
 
+      const rawGoals = Array.isArray(entry.goals) ? entry.goals as unknown[] : null;
+      const rawBookings = Array.isArray(entry.bookings) ? entry.bookings as unknown[] : null;
+      const rawSubs = Array.isArray(entry.substitutions) ? entry.substitutions as unknown[] : null;
+      const eventDataAvailable = rawGoals !== null;
+
       result.set(id, {
         provider: "football-data.org",
         providerMatchId: id,
@@ -73,6 +149,10 @@ export async function fetchAllLiveData(): Promise<Map<number, LiveMatchData>> {
         utcDate: typeof entry.utcDate === "string" ? entry.utcDate : undefined,
         lastSyncedAt: now,
         rawStatus,
+        eventDataAvailable,
+        goals: rawGoals ? parseGoals(rawGoals) : undefined,
+        bookings: rawBookings ? parseBookings(rawBookings) : undefined,
+        substitutions: rawSubs ? parseSubs(rawSubs) : undefined,
       });
     }
 
