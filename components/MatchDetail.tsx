@@ -113,17 +113,18 @@ export function MatchDetail({ match, events, live }: Props) {
   const { timeZone } = useTimezone();
   const timeBasedStatus = useMatchStatus(match);
   const liveStatus = live ? liveStatusToDisplay(live.status) : null;
-  // If the provider still says "upcoming" (SCHEDULED/TIMED) but the kickoff time has
-  // already passed, that's stale/unsynced data — show a neutral "syncing" state rather
-  // than misleadingly claiming the match hasn't started.
-  const status: DisplayStatus =
-    liveStatus === "upcoming" && timeBasedStatus !== "upcoming"
-      ? "syncing"
-      : liveStatus ?? timeBasedStatus;
 
   const homeScore = live?.homeScore ?? events?.score.home ?? null;
   const awayScore = live?.awayScore ?? events?.score.away ?? null;
   const hasScore = homeScore !== null && awayScore !== null;
+
+  // "syncing": provider says SCHEDULED/TIMED but kickoff already passed (stale data),
+  // OR provider says IN_PLAY but no score available yet — never show "vs + LIVE".
+  const status: DisplayStatus =
+    (liveStatus === "upcoming" && timeBasedStatus !== "upcoming") ||
+    (liveStatus === "live" && !hasScore)
+      ? "syncing"
+      : liveStatus ?? timeBasedStatus;
 
   const lastSyncedTime = live ? formatKickoffTime(new Date(live.lastSyncedAt), timeZone) : null;
 

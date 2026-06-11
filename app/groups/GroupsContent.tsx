@@ -5,6 +5,7 @@ import { useLang } from "@/components/LanguageProvider";
 import { GROUP_LETTERS, teamsInGroup } from "@/lib/teams";
 import { matchesInGroup } from "@/lib/matches";
 import { StandingsTable } from "@/components/StandingsTable";
+import type { StandingRow } from "@/lib/groupStandings";
 
 type PreviewEntry = {
   teamKey: string;
@@ -24,12 +25,11 @@ function groupPreviewEntries(group: string): PreviewEntry[] {
     });
 }
 
-/** Fill {team}, {opponent}, {context} placeholders in the translated template. */
 function buildPreviewLine(
   template: string,
   teamName: string,
   opponentName: string,
-  context: string
+  context: string,
 ): string {
   return template
     .replace("{team}", teamName)
@@ -37,7 +37,11 @@ function buildPreviewLine(
     .replace("{context}", context);
 }
 
-export function GroupsContent() {
+interface GroupsContentProps {
+  standings: Record<string, StandingRow[]>;
+}
+
+export function GroupsContent({ standings }: GroupsContentProps) {
   const { t, country } = useLang();
 
   return (
@@ -51,6 +55,7 @@ export function GroupsContent() {
         {GROUP_LETTERS.map((g) => {
           const teams = teamsInGroup(g);
           const previews = groupPreviewEntries(g);
+          const rows = standings[g];
           return (
             <div
               key={g}
@@ -63,11 +68,11 @@ export function GroupsContent() {
                 </span>
               </div>
 
-              {/* Premium standings table + qualification legend */}
-              <StandingsTable teams={teams} showQualInfo />
+              {/* Standings table — rows prop carries live data when available */}
+              <StandingsTable teams={teams} rows={rows} showQualInfo />
 
-              {/* Group preview */}
-              {previews.length > 0 && (
+              {/* Group preview (only while no match has been played in this group) */}
+              {previews.length > 0 && (!rows || rows.every((r) => r.played === 0)) && (
                 <div className="border-t border-white/8 px-4 pb-4 pt-3">
                   <p className="mb-2 font-heading text-[10px] font-extrabold uppercase tracking-[0.25em] text-white/25">
                     {t("group_preview_title")}
@@ -79,7 +84,7 @@ export function GroupsContent() {
                           t("group_preview_template"),
                           country(entry.teamKey),
                           country(entry.opponentKey),
-                          t(entry.contextKey)
+                          t(entry.contextKey),
                         )}
                       </li>
                     ))}
@@ -91,8 +96,13 @@ export function GroupsContent() {
         })}
       </div>
 
+      {/* Standings sync note */}
+      <p className="mt-4 font-heading text-[11px] font-bold uppercase tracking-widest text-white/30">
+        Standings update after completed matches are synced.
+      </p>
+
       {/* Related links */}
-      <div className="mt-8 flex flex-wrap gap-3 text-sm">
+      <div className="mt-4 flex flex-wrap gap-3 text-sm">
         {[
           { href: "/schedule", label: t("nav_schedule") },
           { href: "/bracket", label: t("nav_bracket") },

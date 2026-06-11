@@ -4,35 +4,57 @@ import Link from "next/link";
 import { Flag } from "@/components/Flag";
 import { useLang } from "@/components/LanguageProvider";
 import { slugFor, type Team } from "@/lib/teams";
+import type { StandingRow } from "@/lib/groupStandings";
 
-const COLS = ["P", "W", "D", "L", "GF", "GA", "GD"];
+const COLS = ["P", "W", "D", "L", "GF", "GA", "GD"] as const;
 
-/** Left-border colour per rank position. */
+type ColKey = (typeof COLS)[number];
+
+function colValue(col: ColKey, row: StandingRow): number {
+  switch (col) {
+    case "P": return row.played;
+    case "W": return row.wins;
+    case "D": return row.draws;
+    case "L": return row.losses;
+    case "GF": return row.goalsFor;
+    case "GA": return row.goalsAgainst;
+    case "GD": return row.goalDifference;
+  }
+}
+
+function fmtGD(n: number): string {
+  return n > 0 ? `+${n}` : String(n);
+}
+
 function zoneColor(rank: number): string {
-  if (rank <= 2) return "#22c55e"; // auto-qualify
-  if (rank === 3) return "#f59e0b"; // potential 3rd
-  return "#ef4444";                 // eliminated
+  if (rank <= 2) return "#22c55e";
+  if (rank === 3) return "#f59e0b";
+  return "#ef4444";
 }
 
 interface StandingsTableProps {
   teams: Team[];
-  /** When set, that team's row gets a primary-colour tint + accent name. */
+  /** Sorted standings rows with live data. When provided, display real stats and order. */
+  rows?: StandingRow[];
   currentTeamKey?: string;
-  /** Render the qualification legend below the table. */
   showQualInfo?: boolean;
 }
 
-/**
- * Premium standings table — shared between TeamDetail and GroupsPage.
- * Renders: zone bar · table · optional qualification info legend.
- * The caller is responsible for the outer rounded card container.
- */
 export function StandingsTable({
   teams,
+  rows,
   currentTeamKey,
   showQualInfo = false,
 }: StandingsTableProps) {
   const { t, country } = useLang();
+
+  // Build display list: if rows provided, use their order; otherwise keep teams order.
+  type Entry = { team: Team; row: StandingRow | null };
+  const entries: Entry[] = rows
+    ? rows
+        .map((row) => ({ team: teams.find((t) => t.key === row.teamKey)!, row }))
+        .filter((e) => e.team !== undefined)
+    : teams.map((team) => ({ team, row: null }));
 
   return (
     <>
@@ -62,21 +84,17 @@ export function StandingsTable({
             </tr>
           </thead>
           <tbody>
-            {teams.map((gt, idx) => {
+            {entries.map(({ team, row }, idx) => {
               const rank = idx + 1;
-              const isCurrent = gt.key === currentTeamKey;
+              const isCurrent = team.key === currentTeamKey;
               const zc = zoneColor(rank);
               return (
                 <tr
-                  key={gt.key}
+                  key={team.key}
                   className="border-t border-white/5 transition hover:bg-white/5"
-                  style={
-                    isCurrent
-                      ? { backgroundColor: `${gt.primaryColor}22` }
-                      : undefined
-                  }
+                  style={isCurrent ? { backgroundColor: `${team.primaryColor}22` } : undefined}
                 >
-                  {/* Rank — carries the coloured left border */}
+                  {/* Rank */}
                   <td
                     className="px-3 py-3 font-heading font-bold text-white/50"
                     style={{ borderLeft: `3px solid ${zc}` }}
@@ -84,18 +102,13 @@ export function StandingsTable({
                     {rank}
                   </td>
 
-                  {/* Flag + name (always a link to team page) */}
+                  {/* Flag + name */}
                   <td className="px-2 py-3">
                     <Link
-                      href={`/teams/${slugFor(gt.key)}`}
+                      href={`/teams/${slugFor(team.key)}`}
                       className="group flex items-center gap-2"
                     >
-                      <Flag
-                        code={gt.code}
-                        alt=""
-                        width={24}
-                        height={18}
-                      />
+                      <Flag code={team.code} alt="" width={24} height={18} />
                       <span
                         className={`font-semibold transition ${
                           isCurrent
@@ -103,24 +116,35 @@ export function StandingsTable({
                             : "text-white group-hover:text-accent"
                         }`}
                       >
-                        {country(gt.key)}
+                        {country(team.key)}
                       </span>
                     </Link>
                   </td>
 
-                  {/* Stat columns — all zeroed until live data arrives */}
-                  {COLS.map((c) => (
-                    <td
-                      key={c}
-                      className="px-2 py-3 text-center tabular-nums text-white/60"
-                    >
-                      0
-                    </td>
-                  ))}
+                  {/* Stat columns */}
+                  {COLS.map((c) => {
+                    const val = row ? colValue(c, row) : 0;
+                    const display = c === "GD" ? fmtGD(val) : String(val);
+                    const isHighlight = c === "GD" && row && val !== 0;
+                    return (
+                      <td
+                        key={c}
+                        className={`px-2 py-3 text-center tabular-nums ${
+                          isHighlight
+                            ? val > 0
+                              ? "font-semibold text-green-400"
+                              : "font-semibold text-red-400"
+                            : "text-white/60"
+                        }`}
+                      >
+                        {display}
+                      </td>
+                    );
+                  })}
 
                   {/* Points */}
                   <td className="px-3 py-3 text-center font-heading font-bold tabular-nums text-white">
-                    0
+                    {row ? row.points : 0}
                   </td>
                 </tr>
               );

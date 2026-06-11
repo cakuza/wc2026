@@ -1,10 +1,14 @@
 import type { Metadata } from "next";
 import StatsContent from "@/components/StatsContent";
+import { fetchAllLiveData } from "@/lib/fetchAllLiveData";
+import { computeTournamentStats } from "@/lib/tournamentStats";
+
+export const revalidate = 60;
 
 export const metadata: Metadata = {
   title: "World Cup 2026 Stats - Records & Tournament Board",
   description:
-    "World Cup all-time records plus a tournament-ready stat board for goals, assists, cards and clean sheets once the 2026 matches begin.",
+    "World Cup all-time records plus a live 2026 tournament stat board for goals, clean sheets and match results — updated after each completed match.",
   alternates: { canonical: "https://www.worldcupmatchday.com/stats" },
   openGraph: {
     title: "World Cup 2026 Stats - Records & Tournament Board",
@@ -23,14 +27,17 @@ const jsonLd = {
   url: "https://www.worldcupmatchday.com/stats",
 };
 
-export default function StatsPage() {
+export default async function StatsPage() {
+  const liveData = await fetchAllLiveData();
+  const tournamentStats = computeTournamentStats(liveData);
+
   return (
     <>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <StatsContent />
+      <StatsContent tournamentStats={tournamentStats} />
     </>
   );
 }

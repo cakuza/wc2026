@@ -11,7 +11,7 @@ const BASE_URL = "https://www.worldcupmatchday.com";
 
 // Recompute "today" periodically so the page stays fresh across day boundaries while still
 // being statically served (and present in raw HTML) for crawlers.
-export const revalidate = 1800;
+export const revalidate = 60;
 
 export const metadata: Metadata = {
   title: "World Cup Matches Today — Fixtures, Kickoff Times & Venues",
@@ -100,9 +100,14 @@ async function MatchRow({ m }: { m: Match }) {
           ) : (
             <MatchTime match={m} withZone className="font-semibold text-white/80" />
           )}
-          {isLive && (
+          {isLive && hasScore && (
             <span className="rounded bg-red-600 px-1.5 py-0.5 font-heading text-[10px] font-extrabold uppercase tracking-widest text-white">
               {live?.status === "PAUSED" ? "HT" : "Live"}
+            </span>
+          )}
+          {isLive && !hasScore && (
+            <span className="rounded bg-white/5 px-1.5 py-0.5 font-heading text-[10px] font-extrabold uppercase tracking-widest text-white/30">
+              Syncing
             </span>
           )}
           {isFinished && (

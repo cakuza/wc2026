@@ -1,5 +1,9 @@
 import type { Metadata } from "next";
 import { GroupsContent } from "./GroupsContent";
+import { fetchAllLiveData } from "@/lib/fetchAllLiveData";
+import { computeGroupStandings } from "@/lib/groupStandings";
+
+export const revalidate = 60;
 
 const BASE_URL = "https://www.worldcupmatchday.com";
 
@@ -17,6 +21,8 @@ export const metadata: Metadata = {
   },
 };
 
-export default function GroupsPage() {
-  return <GroupsContent />;
+export default async function GroupsPage() {
+  const liveData = await fetchAllLiveData();
+  const standings = computeGroupStandings(liveData);
+  return <GroupsContent standings={standings} />;
 }
