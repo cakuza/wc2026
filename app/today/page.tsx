@@ -110,7 +110,7 @@ async function MatchRow({ m }: { m: Match }) {
               FT
             </span>
           )}
-          {!hasScore && (
+          {!hasScore && !isLive && !isFinished && (
             <span className="rounded bg-white/5 px-1.5 py-0.5 font-heading text-[10px] font-extrabold uppercase tracking-widest text-white/30">
               Scheduled
             </span>
