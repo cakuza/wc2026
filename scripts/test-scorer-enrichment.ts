@@ -156,5 +156,46 @@ assert(topList[1].goals === 1, "second scorer has 1 goal");
 const emptyTop = aggregateTopScorers([]);
 assert(emptyTop.length === 0, "empty goals → empty top scorers");
 
-console.log(`\n${passed} passed, ${failed} failed`);
-if (failed > 0) process.exitCode = 1;
+// ── E) Shared scorer enrichment map (live network check) ─────────────────────
+async function runSharedMapTests() {
+  console.log("\nE) Shared scorer enrichment map:");
+
+  const { getScorerEventsByInternalMatchId } = await import("../lib/worldcup26Provider");
+  const { MATCHES, matchSlug } = await import("../lib/matches");
+  const { countryName } = await import("../lib/i18n");
+
+  const scorerMap = await getScorerEventsByInternalMatchId();
+
+  const mexMatch = MATCHES.find(
+    (m) => countryName(m.homeKey, "en") === "Mexico" && countryName(m.awayKey, "en") === "South Africa",
+  );
+  const korMatch = MATCHES.find(
+    (m) => countryName(m.homeKey, "en") === "South Korea" && countryName(m.awayKey, "en") === "Czechia",
+  );
+
+  if (mexMatch) {
+    const slug = matchSlug(mexMatch);
+    assert(scorerMap.has(slug), `shared map contains "${slug}"`);
+  }
+
+  if (korMatch) {
+    const slug = matchSlug(korMatch);
+    assert(scorerMap.has(slug), `shared map contains "${slug}"`);
+    const events = scorerMap.get(slug) ?? [];
+    if (scorerMap.has(slug)) {
+      assert(events.length === 3, `${slug} has 3 scorer events (got ${events.length})`);
+      const teamNames = new Set(events.map((e) => e.teamName));
+      assert(teamNames.has("South Korea"), `${slug} events use internal display name "South Korea"`);
+      assert(teamNames.has("Czechia"), `${slug} events use internal display name "Czechia" (alias for provider's "Czech Republic")`);
+      assert(!teamNames.has("Czech Republic"), `${slug} events do NOT use raw provider name "Czech Republic"`);
+    }
+  }
+
+  console.log(`\n${passed} passed, ${failed} failed`);
+  if (failed > 0) process.exitCode = 1;
+}
+
+runSharedMapTests().catch((err) => {
+  console.error("Script error:", err);
+  process.exit(1);
+});

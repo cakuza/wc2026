@@ -30,6 +30,7 @@ export type WorldCup26Game = {
   finished: boolean;
   homeScorers: GoalScorerEvent[];
   awayScorers: GoalScorerEvent[];
+  localDate: string | null;
 };
 
 // Matches scorer strings like: "J. Quinones 9'" or "R. Jimenez 67'" or "Lamine Yamal 31"
@@ -130,6 +131,7 @@ function parseGame(raw: RawGame): WorldCup26Game | null {
     finished,
     homeScorers: parseScorers(raw.home_scorers, homeTeamName),
     awayScorers: parseScorers(raw.away_scorers, awayTeamName),
+    localDate: typeof raw.local_date === "string" ? raw.local_date : null,
   };
 }
 
@@ -205,4 +207,84 @@ export async function fetchScorersForMatch(
   if (game.homeScorers.length === 0 && game.awayScorers.length === 0) return null;
 
   return { homeScorers: game.homeScorers, awayScorers: game.awayScorers };
+}
+
+// ── Shared scorer-enrichment map (used by both /stats and match detail pages) ──
+
+/**
+ * Some teams are named differently by worldcup26.ir than by this site's i18n
+ * display names. Map the provider's normalized name to this site's normalized
+ * name so the two sources match up to the same internal fixture.
+ */
+const TEAM_NAME_ALIASES: Record<string, string> = {
+  czechrepublic: "czechia",
+  bosniaandherzegovina: "bosniaherzegovina",
+  cotedivoire: "ivorycoast",
+  capeverdeislands: "capeverde",
+  democraticrepublicofthecongo: "drcongo",
+  congodr: "drcongo",
+  korearepublic: "southkorea",
+};
+
+function normalizeTeamName(name: string): string {
+  const norm = name
+    .normalize("NFD")
+    .replace(/[̀-ͯ]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]/g, "");
+  return TEAM_NAME_ALIASES[norm] ?? norm;
+}
+
+let cachedScorerMap: Map<string, GoalScorerEvent[]> | null = null;
+let scorerMapExpiresAt = 0;
+
+/**
+ * Build a single source-of-truth map of worldcup26.ir scorer events keyed by
+ * this site's internal match slug (e.g. "south-korea-vs-czechia-jun11").
+ *
+ * Both /stats and individual match pages must read from this map so they
+ * never disagree about which matches have parsed scorer data.
+ *
+ * Team names on the returned events are mapped to this site's internal
+ * display names (via countryName), not the provider's raw names.
+ */
+export async function getScorerEventsByInternalMatchId(): Promise<Map<string, GoalScorerEvent[]>> {
+  const now = Date.now();
+  if (cachedScorerMap && now < scorerMapExpiresAt) return cachedScorerMap;
+
+  const result = new Map<string, GoalScorerEvent[]>();
+  const games = await fetchWorldCup26Games();
+  if (!games) return result;
+
+  const { MATCHES, matchSlug } = await import("./matches");
+  const { countryName } = await import("./i18n");
+
+  for (const match of MATCHES) {
+    const homeDisplay = countryName(match.homeKey, "en");
+    const awayDisplay = countryName(match.awayKey, "en");
+    const homeKey = normalizeTeamName(homeDisplay);
+    const awayKey = normalizeTeamName(awayDisplay);
+
+    const game = games.find((g) => {
+      const gHome = normalizeTeamName(g.homeTeamName);
+      const gAway = normalizeTeamName(g.awayTeamName);
+      return gHome === homeKey && gAway === awayKey;
+    });
+
+    if (!game) continue;
+
+    const homeEvents = game.homeScorers.map((e) => ({ ...e, teamName: homeDisplay }));
+    const awayEvents = game.awayScorers.map((e) => ({ ...e, teamName: awayDisplay }));
+    const events = [...homeEvents, ...awayEvents];
+    if (events.length === 0) continue;
+
+    result.set(
+      matchSlug(match),
+      events.sort((a, b) => (a.minute ?? 999) - (b.minute ?? 999)),
+    );
+  }
+
+  cachedScorerMap = result;
+  scorerMapExpiresAt = now + CACHE_TTL_MS;
+  return result;
 }

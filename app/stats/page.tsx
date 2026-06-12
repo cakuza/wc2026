@@ -3,7 +3,7 @@ import StatsContent from "@/components/StatsContent";
 import { fetchAllLiveData } from "@/lib/fetchAllLiveData";
 import { computeTournamentStats, computeTeamLeaderboards, computeTopScorers } from "@/lib/tournamentStats";
 import { computeGroupStandings } from "@/lib/groupStandings";
-import { fetchWorldCup26Games } from "@/lib/worldcup26Provider";
+import { getScorerEventsByInternalMatchId } from "@/lib/worldcup26Provider";
 
 export const revalidate = 60;
 
@@ -41,11 +41,11 @@ export default async function StatsPage() {
   let topScorers = computeTopScorers(liveData);
 
   if (topScorers.length === 0) {
-    const w26Games = await fetchWorldCup26Games();
-    if (w26Games && w26Games.length > 0) {
+    const scorerEventsByMatch = await getScorerEventsByInternalMatchId();
+    if (scorerEventsByMatch.size > 0) {
       const scorerMap = new Map<string, { playerName: string; teamName: string | null; goals: number }>();
-      for (const game of w26Games) {
-        for (const g of [...game.homeScorers, ...game.awayScorers]) {
+      for (const events of scorerEventsByMatch.values()) {
+        for (const g of events) {
           const key = g.playerName;
           const existing = scorerMap.get(key);
           if (existing) {

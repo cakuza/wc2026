@@ -17,7 +17,9 @@ export {};
  *   1 — provider unreachable or response not parseable
  */
 
-import { fetchWorldCup26Games } from "../lib/worldcup26Provider";
+import { fetchWorldCup26Games, getScorerEventsByInternalMatchId } from "../lib/worldcup26Provider";
+import { MATCHES, matchSlug } from "../lib/matches";
+import { countryName } from "../lib/i18n";
 
 const ENDPOINT = "https://worldcup26.ir/get/games";
 
@@ -120,6 +122,50 @@ async function main() {
     console.log(`Away team:        ${kor.awayTeamName}`);
     console.log(`Score:            ${kor.homeScore}–${kor.awayScore}`);
     console.log(`Finished:         ${kor.finished}`);
+    console.log(`Home scorers (${kor.homeScorers.length}):`);
+    for (const g of kor.homeScorers) {
+      console.log(`  ${g.minute ?? "?"}' ${g.playerName} [${g.confidence}]`);
+    }
+    console.log(`Away scorers (${kor.awayScorers.length}):`);
+    for (const g of kor.awayScorers) {
+      console.log(`  ${g.minute ?? "?"}' ${g.playerName} [${g.confidence}]`);
+    }
+  }
+
+  // ── Shared scorer enrichment map ────────────────────────────────────────────
+  console.log("\n─── Shared scorer enrichment map (internal match ids) ───");
+  const scorerMap = await getScorerEventsByInternalMatchId();
+  console.log(`Matches with scorer events: ${scorerMap.size}`);
+
+  const mexMatch = MATCHES.find(
+    (m) => countryName(m.homeKey, "en") === "Mexico" && countryName(m.awayKey, "en") === "South Africa",
+  );
+  const korMatch = MATCHES.find(
+    (m) => countryName(m.homeKey, "en") === "South Korea" && countryName(m.awayKey, "en") === "Czechia",
+  );
+
+  if (mexMatch) {
+    const slug = matchSlug(mexMatch);
+    const events = scorerMap.get(slug);
+    console.log(`\n${slug}:`);
+    console.log(`  Raw provider names: ${mex?.homeTeamName ?? "?"} vs ${mex?.awayTeamName ?? "?"}`);
+    if (events) {
+      for (const e of events) console.log(`  ${e.minute ?? "?"}' ${e.playerName} (${e.teamName})`);
+    } else {
+      console.log("  NOT FOUND in shared map");
+    }
+  }
+
+  if (korMatch) {
+    const slug = matchSlug(korMatch);
+    const events = scorerMap.get(slug);
+    console.log(`\n${slug}:`);
+    console.log(`  Raw provider names: ${kor?.homeTeamName ?? "?"} vs ${kor?.awayTeamName ?? "?"}`);
+    if (events) {
+      for (const e of events) console.log(`  ${e.minute ?? "?"}' ${e.playerName} (${e.teamName})`);
+    } else {
+      console.log("  NOT FOUND in shared map");
+    }
   }
 
   // ── Summary ───────────────────────────────────────────────────────────────
