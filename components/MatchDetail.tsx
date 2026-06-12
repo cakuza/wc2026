@@ -343,9 +343,9 @@ export function MatchDetail({ match, events, live }: Props) {
               )}
             </EventSection>
 
-            {/* Cards */}
-            <EventSection title={t("match_bookings")} icon="🟨">
-              {live?.eventDataAvailable && live.bookings && live.bookings.length > 0 ? (
+            {/* Cards — only shown when the provider actually returned booking data */}
+            {live?.eventDataAvailable && live.bookings && live.bookings.length > 0 && (
+              <EventSection title={t("match_bookings")} icon="🟨">
                 <ul className="space-y-2">
                   {live.bookings.map((b, i) => (
                     <li key={i} className="flex items-center gap-3 text-sm">
@@ -362,18 +362,12 @@ export function MatchDetail({ match, events, live }: Props) {
                     </li>
                   ))}
                 </ul>
-              ) : live?.eventDataAvailable ? (
-                <EmptyEvents note="No bookings recorded" />
-              ) : hasScore ? (
-                <EmptyEvents note="Detailed event data is not available from the current data sync." />
-              ) : (
-                <EmptyEvents note={t("match_noEvents")} />
-              )}
-            </EventSection>
+              </EventSection>
+            )}
 
-            {/* Substitutions */}
-            <EventSection title={t("match_subs")} icon="🔄">
-              {live?.eventDataAvailable && live.substitutions && live.substitutions.length > 0 ? (
+            {/* Substitutions — only shown when the provider actually returned substitution data */}
+            {live?.eventDataAvailable && live.substitutions && live.substitutions.length > 0 && (
+              <EventSection title={t("match_subs")} icon="🔄">
                 <ul className="space-y-2">
                   {live.substitutions.map((s, i) => (
                     <li key={i} className="flex items-center gap-3 text-sm">
@@ -388,14 +382,8 @@ export function MatchDetail({ match, events, live }: Props) {
                     </li>
                   ))}
                 </ul>
-              ) : live?.eventDataAvailable ? (
-                <EmptyEvents note="No substitutions recorded" />
-              ) : hasScore ? (
-                <EmptyEvents note="Detailed event data is not available from the current data sync." />
-              ) : (
-                <EmptyEvents note={t("match_noEvents")} />
-              )}
-            </EventSection>
+              </EventSection>
+            )}
           </>
         )}
       </div>
