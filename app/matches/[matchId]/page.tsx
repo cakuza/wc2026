@@ -3,7 +3,8 @@ import { notFound } from "next/navigation";
 import { MATCHES, matchSlug, matchBySlug } from "@/lib/matches";
 import { MatchDetail } from "@/components/MatchDetail";
 import { countryName } from "@/lib/i18n";
-import { fetchLiveMatchData } from "@/lib/liveMatchData";
+import { getCachedLiveData } from "@/lib/liveDataCache";
+import { fetchScorersForMatch } from "@/lib/worldcup26Provider";
 
 // ISR: revalidate every 30 s so live scores update quickly once data arrives.
 export const revalidate = 30;
@@ -55,11 +56,33 @@ export default async function MatchPage({
   const match = matchBySlug(matchId);
   if (!match) notFound();
 
-  // events: null until football-data.org match IDs are mapped.
-  // Once the tournament starts, call fetchMatchEvents(fdMatchId) here.
   const events = null;
 
-  const live = await fetchLiveMatchData(match.providerIds?.footballData);
+  // Bulk fetch shared across all match pages — no per-match API calls during build.
+  // Next.js fetch cache deduplicates the HTTP request across 72 static page renders.
+  const liveData = await getCachedLiveData();
+  let live = match.providerIds?.footballData
+    ? (liveData.get(match.providerIds.footballData) ?? null)
+    : null;
+
+  // Enrich with worldcup26.ir scorer data when football-data doesn't provide events.
+  // Only applied for FINISHED matches — never invent scores or standings from this source.
+  if (live && live.status === "FINISHED" && !live.eventDataAvailable) {
+    const homeName = countryName(match.homeKey, "en");
+    const awayName = countryName(match.awayKey, "en");
+    const scorers = await fetchScorersForMatch(homeName, awayName);
+    if (scorers && (scorers.homeScorers.length > 0 || scorers.awayScorers.length > 0)) {
+      const allGoals = [...scorers.homeScorers, ...scorers.awayScorers]
+        .sort((a, b) => (a.minute ?? 999) - (b.minute ?? 999))
+        .map((g) => ({
+          type: g.type as "GOAL",
+          minute: g.minute,
+          teamName: g.teamName,
+          playerName: g.playerName,
+        }));
+      live = { ...live, eventDataAvailable: true, goals: allGoals };
+    }
+  }
 
   const home = countryName(match.homeKey, "en");
   const away = countryName(match.awayKey, "en");

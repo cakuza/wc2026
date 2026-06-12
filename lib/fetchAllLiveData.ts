@@ -3,11 +3,12 @@
  * one per mapped match.  Uses the football-data.org competition/matches
  * endpoint and returns only the entries we have internally mapped.
  *
- * Returns an empty Map on any error or missing key; callers degrade gracefully.
+ * Returns an empty Map on any error, 429, or missing key; callers degrade gracefully.
  */
 
 import { MATCHES } from "./matches";
 import type { LiveMatchData, LiveMatchEvent, LiveMatchStatus } from "./liveMatchData";
+import { providerFetch } from "./providerFetch";
 
 const BASE = "https://api.football-data.org/v4";
 const COMPETITION_ID = 2000; // FIFA World Cup
@@ -99,66 +100,59 @@ export async function fetchAllLiveData(): Promise<Map<number, LiveMatchData>> {
   );
   if (relevantIds.size === 0) return new Map();
 
-  try {
-    const res = await fetch(`${BASE}/competitions/${COMPETITION_ID}/matches`, {
-      headers: { "X-Auth-Token": key },
-      next: { revalidate: 60 },
+  const fetchResult = await providerFetch(
+    `${BASE}/competitions/${COMPETITION_ID}/matches`,
+    key,
+    { revalidate: 60 },
+  );
+  if (!fetchResult.ok) return new Map();
+
+  const data = fetchResult.data as Record<string, unknown>;
+  const raw: unknown[] = Array.isArray(data?.matches) ? (data.matches as unknown[]) : [];
+  const result = new Map<number, LiveMatchData>();
+  const now = new Date().toISOString();
+
+  for (const entry of raw as Record<string, unknown>[]) {
+    const id = typeof entry.id === "number" ? entry.id : null;
+    if (!id || !relevantIds.has(id)) continue;
+
+    const rawStatus = typeof entry.status === "string" ? entry.status : "";
+    const status: LiveMatchStatus = KNOWN_STATUSES.includes(rawStatus)
+      ? (rawStatus as LiveMatchStatus)
+      : "UNKNOWN";
+
+    const score = (entry.score as Record<string, unknown>) ?? {};
+    const fullTime = (score.fullTime as Record<string, unknown>) ?? {};
+    const homeScore = typeof fullTime.home === "number" ? fullTime.home : null;
+    const awayScore = typeof fullTime.away === "number" ? fullTime.away : null;
+
+    const rawWinner = typeof score.winner === "string" ? score.winner : null;
+    const winner =
+      rawWinner && KNOWN_WINNERS.includes(rawWinner)
+        ? (rawWinner as "HOME_TEAM" | "AWAY_TEAM" | "DRAW")
+        : null;
+
+    const rawGoals = Array.isArray(entry.goals) ? (entry.goals as unknown[]) : null;
+    const rawBookings = Array.isArray(entry.bookings) ? (entry.bookings as unknown[]) : null;
+    const rawSubs = Array.isArray(entry.substitutions) ? (entry.substitutions as unknown[]) : null;
+    const eventDataAvailable = rawGoals !== null;
+
+    result.set(id, {
+      provider: "football-data.org",
+      providerMatchId: id,
+      status,
+      homeScore,
+      awayScore,
+      winner,
+      utcDate: typeof entry.utcDate === "string" ? entry.utcDate : undefined,
+      lastSyncedAt: now,
+      rawStatus,
+      eventDataAvailable,
+      goals: rawGoals ? parseGoals(rawGoals) : undefined,
+      bookings: rawBookings ? parseBookings(rawBookings) : undefined,
+      substitutions: rawSubs ? parseSubs(rawSubs) : undefined,
     });
-    if (!res.ok) {
-      console.warn(`[fetchAllLiveData] HTTP ${res.status}`);
-      return new Map();
-    }
-
-    const data = await res.json();
-    const raw: unknown[] = Array.isArray(data?.matches) ? data.matches : [];
-    const result = new Map<number, LiveMatchData>();
-    const now = new Date().toISOString();
-
-    for (const entry of raw as Record<string, unknown>[]) {
-      const id = typeof entry.id === "number" ? entry.id : null;
-      if (!id || !relevantIds.has(id)) continue;
-
-      const rawStatus = typeof entry.status === "string" ? entry.status : "";
-      const status: LiveMatchStatus = KNOWN_STATUSES.includes(rawStatus)
-        ? (rawStatus as LiveMatchStatus)
-        : "UNKNOWN";
-
-      const score = (entry.score as Record<string, unknown>) ?? {};
-      const fullTime = (score.fullTime as Record<string, unknown>) ?? {};
-      const homeScore = typeof fullTime.home === "number" ? fullTime.home : null;
-      const awayScore = typeof fullTime.away === "number" ? fullTime.away : null;
-
-      const rawWinner = typeof score.winner === "string" ? score.winner : null;
-      const winner =
-        rawWinner && KNOWN_WINNERS.includes(rawWinner)
-          ? (rawWinner as "HOME_TEAM" | "AWAY_TEAM" | "DRAW")
-          : null;
-
-      const rawGoals = Array.isArray(entry.goals) ? entry.goals as unknown[] : null;
-      const rawBookings = Array.isArray(entry.bookings) ? entry.bookings as unknown[] : null;
-      const rawSubs = Array.isArray(entry.substitutions) ? entry.substitutions as unknown[] : null;
-      const eventDataAvailable = rawGoals !== null;
-
-      result.set(id, {
-        provider: "football-data.org",
-        providerMatchId: id,
-        status,
-        homeScore,
-        awayScore,
-        winner,
-        utcDate: typeof entry.utcDate === "string" ? entry.utcDate : undefined,
-        lastSyncedAt: now,
-        rawStatus,
-        eventDataAvailable,
-        goals: rawGoals ? parseGoals(rawGoals) : undefined,
-        bookings: rawBookings ? parseBookings(rawBookings) : undefined,
-        substitutions: rawSubs ? parseSubs(rawSubs) : undefined,
-      });
-    }
-
-    return result;
-  } catch (err) {
-    console.warn("[fetchAllLiveData] error:", err);
-    return new Map();
   }
+
+  return result;
 }

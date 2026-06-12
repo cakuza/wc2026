@@ -5,12 +5,11 @@ import { MatchTime } from "@/components/MatchTime";
 import { TimezonePicker } from "@/components/TimezoneLabel";
 import { getDisplayMatchday, matchSlug, type Match } from "@/lib/matches";
 import { countryName } from "@/lib/i18n";
-import { fetchLiveMatchData } from "@/lib/liveMatchData";
+import { getCachedLiveData } from "@/lib/liveDataCache";
+import type { LiveMatchData } from "@/lib/liveMatchData";
 
 const BASE_URL = "https://www.worldcupmatchday.com";
 
-// Recompute "today" periodically so the page stays fresh across day boundaries while still
-// being statically served (and present in raw HTML) for crawlers.
 export const revalidate = 60;
 
 export const metadata: Metadata = {
@@ -65,10 +64,10 @@ function longDate(iso: string) {
   }).format(new Date(`${iso}T00:00:00`));
 }
 
-async function MatchRow({ m }: { m: Match }) {
+// Sync component — live data passed from page-level bulk fetch.
+function MatchRow({ m, live }: { m: Match; live: LiveMatchData | undefined }) {
   const home = countryName(m.homeKey, "en");
   const away = countryName(m.awayKey, "en");
-  const live = await fetchLiveMatchData(m.providerIds?.footballData);
   const hasScore = live && live.homeScore !== null && live.awayScore !== null;
   const isLive = live?.status === "IN_PLAY" || live?.status === "PAUSED";
   const isFinished = live?.status === "FINISHED";
@@ -131,10 +130,13 @@ async function MatchRow({ m }: { m: Match }) {
   );
 }
 
-export default function TodayPage() {
+export default async function TodayPage() {
   const md = getDisplayMatchday();
   const isToday = md.labelKey === "sec_todayMatches";
   const days = md.days ?? [{ date: md.date, matches: md.matches }];
+
+  // One bulk fetch for all today's matches — no per-match API calls.
+  const liveData = await getCachedLiveData();
 
   return (
     <>
@@ -172,7 +174,11 @@ export default function TodayPage() {
               </h2>
               <div className="space-y-2">
                 {matches.map((m, i) => (
-                  <MatchRow key={`${date}-${i}`} m={m} />
+                  <MatchRow
+                    key={`${date}-${i}`}
+                    m={m}
+                    live={m.providerIds?.footballData ? liveData.get(m.providerIds.footballData) : undefined}
+                  />
                 ))}
               </div>
             </section>

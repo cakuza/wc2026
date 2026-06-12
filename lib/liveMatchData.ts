@@ -1,6 +1,8 @@
 // Server-side fetcher for live match score/status/events from football-data.org v4.
 // No invented data — if the provider doesn't expose a field, we leave it out.
 
+import { providerFetch } from "./providerFetch";
+
 const BASE = "https://api.football-data.org/v4";
 
 export type LiveMatchStatus =
@@ -133,36 +135,35 @@ export async function fetchLiveMatchData(
     return null;
   }
 
+  const fetchResult = await providerFetch(
+    `${BASE}/matches/${providerMatchId}`,
+    key,
+    { revalidate: 60 },
+  );
+  if (!fetchResult.ok) return null;
+
   try {
-    const res = await fetch(`${BASE}/matches/${providerMatchId}`, {
-      headers: { "X-Auth-Token": key },
-      next: { revalidate: 60 },
-    });
+    const data = fetchResult.data as Record<string, unknown>;
 
-    if (!res.ok) {
-      console.warn(`[liveMatchData] /matches/${providerMatchId} → HTTP ${res.status}`);
-      return null;
-    }
-
-    const data = await res.json();
-
-    const rawStatus: string | undefined = data?.status;
+    const rawStatus: string | undefined = data?.status as string | undefined;
     const status: LiveMatchStatus = KNOWN_STATUSES.includes(rawStatus ?? "")
       ? (rawStatus as LiveMatchStatus)
       : "UNKNOWN";
 
-    const fullTime = data?.score?.fullTime ?? {};
+    const score = (data.score as Record<string, unknown>) ?? {};
+    const fullTime = (score.fullTime as Record<string, unknown>) ?? {};
     const homeScore = typeof fullTime.home === "number" ? fullTime.home : null;
     const awayScore = typeof fullTime.away === "number" ? fullTime.away : null;
 
-    const rawWinner: string | null = data?.score?.winner ?? null;
-    const winner = KNOWN_WINNERS.includes(rawWinner ?? "")
-      ? (rawWinner as "HOME_TEAM" | "AWAY_TEAM" | "DRAW")
-      : null;
+    const rawWinner = typeof score.winner === "string" ? score.winner : null;
+    const winner =
+      rawWinner && KNOWN_WINNERS.includes(rawWinner)
+        ? (rawWinner as "HOME_TEAM" | "AWAY_TEAM" | "DRAW")
+        : null;
 
-    const rawGoals = Array.isArray(data?.goals) ? data.goals as unknown[] : null;
-    const rawBookings = Array.isArray(data?.bookings) ? data.bookings as unknown[] : null;
-    const rawSubs = Array.isArray(data?.substitutions) ? data.substitutions as unknown[] : null;
+    const rawGoals = Array.isArray(data.goals) ? (data.goals as unknown[]) : null;
+    const rawBookings = Array.isArray(data.bookings) ? (data.bookings as unknown[]) : null;
+    const rawSubs = Array.isArray(data.substitutions) ? (data.substitutions as unknown[]) : null;
     const eventDataAvailable = rawGoals !== null;
 
     return {
@@ -172,7 +173,7 @@ export async function fetchLiveMatchData(
       homeScore,
       awayScore,
       winner,
-      utcDate: typeof data?.utcDate === "string" ? data.utcDate : undefined,
+      utcDate: typeof data.utcDate === "string" ? data.utcDate : undefined,
       lastSyncedAt: new Date().toISOString(),
       rawStatus,
       eventDataAvailable,

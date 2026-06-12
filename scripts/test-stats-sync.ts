@@ -1,3 +1,5 @@
+export {};
+
 /**
  * Stats sync audit / smoke test.
  *
