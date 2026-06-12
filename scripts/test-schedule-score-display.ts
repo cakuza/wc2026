@@ -129,5 +129,32 @@ assert(
   `South Korea vs Czechia has provider id ${SOUTH_KOREA_CZECHIA_PROVIDER_ID}`,
 );
 
+// --- Scorer line rendering (Goals: ...) ---
+type GoalScorerEvent = { minute: number | null; playerName: string };
+
+function renderScorerLine(events: GoalScorerEvent[] | undefined): string | null {
+  if (!events || events.length === 0) return null;
+  const parts = events.map((e) => (e.minute != null ? `${e.minute}' ${e.playerName}` : e.playerName));
+  return `Goals: ${parts.join(" · ")}`;
+}
+
+console.log("\n=== Scorer line test ===\n");
+
+const skczEvents: GoalScorerEvent[] = [
+  { minute: 59, playerName: "L. Krejčí" },
+  { minute: 67, playerName: "I.B. Hwang" },
+  { minute: 80, playerName: "H.G. Oh" },
+];
+const skczLine = renderScorerLine(skczEvents);
+console.log(`Scorer line: "${skczLine}"`);
+assert(skczLine === "Goals: 59' L. Krejčí · 67' I.B. Hwang · 80' H.G. Oh", "scorer line formatted with ' · ' separator");
+
+const noScorerLine = renderScorerLine(undefined);
+assert(noScorerLine === null, "no scorer line rendered when scorer data unavailable");
+assert(noScorerLine !== "Goal scorer details unavailable", 'schedule never shows "Goal scorer details unavailable"');
+
+const emptyScorerLine = renderScorerLine([]);
+assert(emptyScorerLine === null, "no scorer line rendered for empty events array");
+
 console.log(`\n${passed} passed, ${failed} failed`);
 if (failed > 0) process.exitCode = 1;

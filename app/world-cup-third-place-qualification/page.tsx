@@ -1,5 +1,11 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { fetchAllLiveData } from "@/lib/fetchAllLiveData";
+import { computeGroupStandings } from "@/lib/groupStandings";
+import { computeThirdPlaceRanking } from "@/lib/thirdPlaceRanking";
+import { ThirdPlaceTable } from "@/components/ThirdPlaceTable";
+
+export const revalidate = 60;
 
 const BASE_URL = "https://www.worldcupmatchday.com";
 
@@ -20,8 +26,8 @@ export const metadata: Metadata = {
 const FAQS = [
   { q: "How many third-placed teams qualify?", a: "The 8 best third-placed teams across the 12 groups advance to the Round of 32." },
   { q: "How many teams reach the Round of 32?", a: "32 teams: the top two from each of the 12 groups (24 teams) plus the 8 best third-placed teams." },
-  { q: "Do all third-placed teams qualify?", a: "No. There are 12 third-placed teams but only the 8 best-ranked of them qualify; the other 4 are eliminated." },
-  { q: "When will the third-place ranking be known?", a: "Only after the group-stage matches are played. The ranking cannot be determined in advance, so no qualifiers are listed here yet." },
+  { q: "Do all third-placed teams qualify?", a: "No. There are 12 third-placed teams but only the 8 best-ranked of them qualify; the other 4 do not advance." },
+  { q: "When will the third-place ranking be known?", a: "The table on this page updates after completed group matches are synced, but it is only a current snapshot — the final ranking is only known once all group-stage matches are played." },
   { q: "Is this an official FIFA site?", a: "No. WorldCupMatchDay is an independent, fan-made resource and is not affiliated with FIFA." },
 ];
 
@@ -43,7 +49,12 @@ function Step({ n, title, children }: { n: string; title: string; children: Reac
   );
 }
 
-export default function ThirdPlaceQualificationPage() {
+export default async function ThirdPlaceQualificationPage() {
+  const liveData = await fetchAllLiveData();
+  const standings = computeGroupStandings(liveData);
+  const thirdPlaceRanking = computeThirdPlaceRanking(standings);
+  const anyMatchesPlayed = Object.values(standings).some((rows) => rows.some((r) => r.played > 0));
+
   return (
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqLd) }} />
@@ -58,6 +69,30 @@ export default function ThirdPlaceQualificationPage() {
           8 best third-placed teams join them — making up the 32 teams in the Round of 32.
         </p>
 
+        {/* Live ranking of third-placed teams */}
+        <section className="mb-8">
+          <h2 className="mb-1 font-heading text-2xl font-extrabold uppercase tracking-wide text-white">
+            Ranking of third-placed teams
+          </h2>
+          <p className="mb-3 max-w-2xl text-sm text-white/55">
+            The eight best third-placed teams advance to the Round of 32. This table updates after completed
+            group matches are synced.
+          </p>
+          {anyMatchesPlayed ? (
+            <ThirdPlaceTable rows={thirdPlaceRanking} />
+          ) : (
+            <div className="rounded-xl border border-accent/20 bg-accent/5 p-4">
+              <p className="font-heading text-[11px] font-bold uppercase tracking-widest text-accent/70">
+                Third-place ranking
+              </p>
+              <p className="mt-1 text-sm text-white/70">
+                Not available until group matches are played. This table will populate automatically as
+                results are synced.
+              </p>
+            </div>
+          )}
+        </section>
+
         <div className="space-y-3">
           <Step n="1" title="12 groups of four">
             The 48 teams are split into 12 groups (A–L) of four. Every team plays the other three in its group once.
@@ -67,7 +102,7 @@ export default function ThirdPlaceQualificationPage() {
           </Step>
           <Step n="3" title="8 best third-placed teams">
             Each group also has a third-placed team (12 in total). The 8 best-ranked third-placed teams also advance;
-            the remaining 4 are eliminated.
+            the remaining 4 do not.
           </Step>
           <Step n="4" title="32 teams reach the Round of 32">
             24 group winners and runners-up plus the 8 best third-placed teams make up the 32-team knockout bracket.
@@ -80,7 +115,7 @@ export default function ThirdPlaceQualificationPage() {
             How many third-place teams qualify?
           </h2>
           <p className="text-sm leading-relaxed text-white/70">
-            Eight of the twelve third-placed teams qualify for the knockout stage. The other four are eliminated after the group stage.
+            Eight of the twelve third-placed teams qualify for the knockout stage. The other four do not advance past the group stage.
           </p>
         </section>
 
@@ -103,16 +138,8 @@ export default function ThirdPlaceQualificationPage() {
           </h2>
           <p className="text-sm leading-relaxed text-white/70">
             Best third-placed teams are ranked using tournament tie-breakers such as points, goal difference and goals
-            scored. The exact tie-breaker order should be checked against the official competition rules. The final
-            ranking can only be determined once all group-stage matches are complete — no results are shown here in advance.
-          </p>
-        </section>
-
-        {/* Not-available notice */}
-        <section className="mt-4 rounded-xl border border-accent/20 bg-accent/5 p-4">
-          <p className="font-heading text-[11px] font-bold uppercase tracking-widest text-accent/70">Third-place ranking</p>
-          <p className="mt-1 text-sm text-white/70">
-            Not available until the group matches are played. No third-place qualifiers are shown here in advance.
+            scored. The exact tie-breaker order should be checked against the official competition rules. The ranking
+            above updates after completed matches are synced and is not final until all group-stage matches are complete.
           </p>
         </section>
 

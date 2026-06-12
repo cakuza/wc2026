@@ -26,7 +26,7 @@ export const RTL_LANGS: Lang[] = ["ar"];
 export const T: Record<Lang, Record<string, string>> = {
   en: {
     brand: "WC2026 HUB",
-    nav_today: "Today", nav_teams: "Teams", nav_groups: "Groups", nav_schedule: "Schedule", nav_stats: "Stats", nav_quiz: "Quiz", nav_bracket: "Bracket", nav_matchdayHub: "Matchday Hub",
+    nav_today: "Today", nav_teams: "Teams", nav_groups: "Groups", nav_schedule: "Schedule", nav_stats: "Stats", nav_quiz: "Quiz", nav_bracket: "Bracket", nav_matchdayHub: "Matchday Hub", nav_thirdPlace: "3rd-Place",
     sec_teamsByConfederation: "TEAMS BY CONFEDERATION",
     conf_full_UEFA: "Union of European Football Associations", conf_full_CONMEBOL: "South American Football Confederation", conf_full_Concacaf: "Confederation of North, Central America and Caribbean Association Football", conf_full_AFC: "Asian Football Confederation", conf_full_CAF: "Confederation of African Football", conf_full_OFC: "Oceania Football Confederation",
     footer_tools: "Matchday Tools", footer_scheduleByZone: "Schedule by Time Zone", sched_viewByZone: "View the schedule in your time zone",
@@ -188,7 +188,7 @@ export const T: Record<Lang, Record<string, string>> = {
   },
   tr: {
     brand: "WC2026 HUB",
-    nav_today: "Bugün", nav_teams: "Takımlar", nav_groups: "Gruplar", nav_schedule: "Fikstür", nav_stats: "İstatistikler", nav_quiz: "Quiz", nav_bracket: "Tur Tablosu", nav_matchdayHub: "Maç Günü Merkezi",
+    nav_today: "Bugün", nav_teams: "Takımlar", nav_groups: "Gruplar", nav_schedule: "Fikstür", nav_stats: "İstatistikler", nav_quiz: "Quiz", nav_bracket: "Tur Tablosu", nav_matchdayHub: "Maç Günü Merkezi", nav_thirdPlace: "3. Sıra",
     sec_teamsByConfederation: "KONFEDERASYONA GÖRE TAKIMLAR",
     conf_full_UEFA: "Avrupa Futbol Federasyonları Birliği", conf_full_CONMEBOL: "Güney Amerika Futbol Konfederasyonu", conf_full_Concacaf: "Kuzey, Orta Amerika ve Karayipler Futbol Konfederasyonu", conf_full_AFC: "Asya Futbol Konfederasyonu", conf_full_CAF: "Afrika Futbol Konfederasyonu", conf_full_OFC: "Okyanusya Futbol Konfederasyonu",
     footer_tools: "Maç Günü Araçları", footer_scheduleByZone: "Saat Dilimine Göre Fikstür", sched_viewByZone: "Fikstürü kendi saat diliminde gör",
@@ -341,7 +341,7 @@ export const T: Record<Lang, Record<string, string>> = {
   },
   es: {
     brand: "WC2026 HUB",
-    nav_today: "Hoy", nav_teams: "Equipos", nav_groups: "Grupos", nav_schedule: "Calendario", nav_stats: "Estadísticas", nav_quiz: "Quiz", nav_bracket: "Cuadro", nav_matchdayHub: "Centro de Jornada",
+    nav_today: "Hoy", nav_teams: "Equipos", nav_groups: "Grupos", nav_schedule: "Calendario", nav_stats: "Estadísticas", nav_quiz: "Quiz", nav_bracket: "Cuadro", nav_matchdayHub: "Centro de Jornada", nav_thirdPlace: "3ros",
     sec_teamsByConfederation: "EQUIPOS POR CONFEDERACIÓN",
     conf_full_UEFA: "Unión de Federaciones Europeas de Fútbol", conf_full_CONMEBOL: "Confederación Sudamericana de Fútbol", conf_full_Concacaf: "Confederación de Fútbol de Norteamérica, Centroamérica y el Caribe", conf_full_AFC: "Confederación Asiática de Fútbol", conf_full_CAF: "Confederación Africana de Fútbol", conf_full_OFC: "Confederación de Fútbol de Oceanía",
     footer_tools: "Herramientas de Jornada", footer_scheduleByZone: "Calendario por Zona Horaria", sched_viewByZone: "Ver el calendario en tu zona horaria",
@@ -494,7 +494,7 @@ export const T: Record<Lang, Record<string, string>> = {
   },
   fr: {
     brand: "WC2026 HUB",
-    nav_today: "Aujourd'hui", nav_teams: "Équipes", nav_groups: "Groupes", nav_schedule: "Calendrier", nav_stats: "Statistiques", nav_quiz: "Quiz", nav_bracket: "Tableau", nav_matchdayHub: "Centre des Matchs",
+    nav_today: "Aujourd'hui", nav_teams: "Équipes", nav_groups: "Groupes", nav_schedule: "Calendrier", nav_stats: "Statistiques", nav_quiz: "Quiz", nav_bracket: "Tableau", nav_matchdayHub: "Centre des Matchs", nav_thirdPlace: "3èmes",
     sec_teamsByConfederation: "ÉQUIPES PAR CONFÉDÉRATION",
     conf_full_UEFA: "Union des associations européennes de football", conf_full_CONMEBOL: "Confédération sud-américaine de football", conf_full_Concacaf: "Confédération de football d'Amérique du Nord, centrale et des Caraïbes", conf_full_AFC: "Confédération asiatique de football", conf_full_CAF: "Confédération africaine de football", conf_full_OFC: "Confédération du football d'Océanie",
     footer_tools: "Outils des Matchs", footer_scheduleByZone: "Calendrier par Fuseau Horaire", sched_viewByZone: "Voir le calendrier dans votre fuseau horaire",
@@ -647,7 +647,7 @@ export const T: Record<Lang, Record<string, string>> = {
   },
   de: {
     brand: "WC2026 HUB",
-    nav_today: "Heute", nav_teams: "Teams", nav_groups: "Gruppen", nav_schedule: "Spielplan", nav_stats: "Statistiken", nav_quiz: "Quiz", nav_bracket: "Spielbaum", nav_matchdayHub: "Spieltag-Zentrale",
+    nav_today: "Heute", nav_teams: "Teams", nav_groups: "Gruppen", nav_schedule: "Spielplan", nav_stats: "Statistiken", nav_quiz: "Quiz", nav_bracket: "Spielbaum", nav_matchdayHub: "Spieltag-Zentrale", nav_thirdPlace: "3. Plätze",
     sec_teamsByConfederation: "TEAMS NACH KONFÖDERATION",
     conf_full_UEFA: "Union der europäischen Fußballverbände", conf_full_CONMEBOL: "Südamerikanischer Fußballverband", conf_full_Concacaf: "Fußballverband von Nord- und Mittelamerika und der Karibik", conf_full_AFC: "Asiatischer Fußballverband", conf_full_CAF: "Afrikanischer Fußballverband", conf_full_OFC: "Ozeanischer Fußballverband",
     footer_tools: "Spieltag-Tools", footer_scheduleByZone: "Spielplan nach Zeitzone", sched_viewByZone: "Spielplan in deiner Zeitzone ansehen",
@@ -800,7 +800,7 @@ export const T: Record<Lang, Record<string, string>> = {
   },
   pt: {
     brand: "WC2026 HUB",
-    nav_today: "Hoje", nav_teams: "Seleções", nav_groups: "Grupos", nav_schedule: "Calendário", nav_stats: "Estatísticas", nav_quiz: "Quiz", nav_bracket: "Chaveamento", nav_matchdayHub: "Central de Jogos",
+    nav_today: "Hoje", nav_teams: "Seleções", nav_groups: "Grupos", nav_schedule: "Calendário", nav_stats: "Estatísticas", nav_quiz: "Quiz", nav_bracket: "Chaveamento", nav_matchdayHub: "Central de Jogos", nav_thirdPlace: "3ºs",
     sec_teamsByConfederation: "SELEÇÕES POR CONFEDERAÇÃO",
     conf_full_UEFA: "União das Federações Europeias de Futebol", conf_full_CONMEBOL: "Confederação Sul-Americana de Futebol", conf_full_Concacaf: "Confederação de Futebol da América do Norte, Central e Caribe", conf_full_AFC: "Confederação Asiática de Futebol", conf_full_CAF: "Confederação Africana de Futebol", conf_full_OFC: "Confederação de Futebol da Oceania",
     footer_tools: "Ferramentas de Jogo", footer_scheduleByZone: "Calendário por Fuso Horário", sched_viewByZone: "Ver o calendário no seu fuso horário",
@@ -953,7 +953,7 @@ export const T: Record<Lang, Record<string, string>> = {
   },
   ar: {
     brand: "WC2026 HUB",
-    nav_today: "اليوم", nav_teams: "الفرق", nav_groups: "المجموعات", nav_schedule: "الجدول", nav_stats: "إحصائيات", nav_quiz: "اختبار", nav_bracket: "الجدول", nav_matchdayHub: "مركز المباريات",
+    nav_today: "اليوم", nav_teams: "الفرق", nav_groups: "المجموعات", nav_schedule: "الجدول", nav_stats: "إحصائيات", nav_quiz: "اختبار", nav_bracket: "الجدول", nav_matchdayHub: "مركز المباريات", nav_thirdPlace: "الثالث",
     sec_teamsByConfederation: "المنتخبات حسب الاتحاد",
     conf_full_UEFA: "الاتحاد الأوروبي لكرة القدم", conf_full_CONMEBOL: "اتحاد أمريكا الجنوبية لكرة القدم", conf_full_Concacaf: "اتحاد أمريكا الشمالية والوسطى والكاريبي لكرة القدم", conf_full_AFC: "الاتحاد الآسيوي لكرة القدم", conf_full_CAF: "الاتحاد الأفريقي لكرة القدم", conf_full_OFC: "اتحاد أوقيانوسيا لكرة القدم",
     footer_tools: "أدوات المباريات", footer_scheduleByZone: "الجدول حسب المنطقة الزمنية", sched_viewByZone: "اعرض الجدول بتوقيتك المحلي",
@@ -1106,7 +1106,7 @@ export const T: Record<Lang, Record<string, string>> = {
   },
   ja: {
     brand: "WC2026 HUB",
-    nav_today: "今日", nav_teams: "チーム", nav_groups: "グループ", nav_schedule: "日程", nav_stats: "統計", nav_quiz: "クイズ", nav_bracket: "ブラケット", nav_matchdayHub: "マッチデーハブ",
+    nav_today: "今日", nav_teams: "チーム", nav_groups: "グループ", nav_schedule: "日程", nav_stats: "統計", nav_quiz: "クイズ", nav_bracket: "ブラケット", nav_matchdayHub: "マッチデーハブ", nav_thirdPlace: "3位表",
     sec_teamsByConfederation: "連盟別チーム",
     conf_full_UEFA: "欧州サッカー連盟", conf_full_CONMEBOL: "南米サッカー連盟", conf_full_Concacaf: "北中米カリブ海サッカー連盟", conf_full_AFC: "アジアサッカー連盟", conf_full_CAF: "アフリカサッカー連盟", conf_full_OFC: "オセアニアサッカー連盟",
     footer_tools: "マッチデーツール", footer_scheduleByZone: "タイムゾーン別日程", sched_viewByZone: "自分のタイムゾーンで日程を見る",

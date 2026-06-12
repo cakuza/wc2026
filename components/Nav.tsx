@@ -11,16 +11,19 @@ export function Nav() {
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
 
+  // Desktop nav order: Today, Schedule, Stats, 3rd-Place Table, Bracket, Teams, Matchday Hub
   const links = [
     { href: "/today", key: "nav_today" },
     { href: "/schedule", key: "nav_schedule" },
-    { href: "/groups", key: "nav_groups" },
-    { href: "/teams", key: "nav_teams" },
-    { href: "/bracket", key: "nav_bracket" },
     { href: "/stats", key: "nav_stats" },
-    { href: "/quiz", key: "nav_quiz" },
-    { href: "/matchday-hub", key: "nav_matchdayHub" }
+    { href: "/world-cup-third-place-qualification", key: "nav_thirdPlace" },
+    { href: "/bracket", key: "nav_bracket" },
+    { href: "/teams", key: "nav_teams" },
+    { href: "/matchday-hub", key: "nav_matchdayHub" },
   ];
+
+  // Mobile menu also surfaces Groups and Quiz, which were moved out of the desktop nav.
+  const mobileLinks = [...links, { href: "/groups", key: "nav_groups" }, { href: "/quiz", key: "nav_quiz" }];
 
   return (
     <header className="sticky top-0 z-40 border-b-[3px] border-accent bg-navy">
@@ -79,7 +82,7 @@ export function Nav() {
         <nav className="border-t border-white/10 bg-navy md:hidden">
           <div className="mx-auto max-w-7xl px-4 py-3">
             <div className="grid grid-cols-2 gap-2">
-              {links.map((l) => {
+              {mobileLinks.map((l) => {
                 const active = l.href === "/" ? pathname === "/" : pathname.startsWith(l.href);
                 return (
                   <Link

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { ScheduleContent } from "./ScheduleContent";
 import { fetchAllLiveData } from "@/lib/fetchAllLiveData";
+import { getScorerEventsByInternalMatchId, type GoalScorerEvent } from "@/lib/worldcup26Provider";
 import type { LiveMatchStatus } from "@/lib/liveMatchData";
 
 export const revalidate = 60;
@@ -33,5 +34,13 @@ export default async function SchedulePage() {
   for (const [id, data] of liveData) {
     liveScores[id] = { status: data.status, homeScore: data.homeScore, awayScore: data.awayScore };
   }
-  return <ScheduleContent liveScores={liveScores} />;
+
+  // Shared scorer enrichment map — same source of truth as /stats and match pages.
+  const scorerEventsByMatch = await getScorerEventsByInternalMatchId();
+  const scorerLines: Record<string, GoalScorerEvent[]> = {};
+  for (const [slug, events] of scorerEventsByMatch) {
+    scorerLines[slug] = events;
+  }
+
+  return <ScheduleContent liveScores={liveScores} scorerLines={scorerLines} />;
 }

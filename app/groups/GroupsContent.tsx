@@ -106,7 +106,7 @@ export function GroupsContent({ standings }: GroupsContentProps) {
         {[
           { href: "/schedule", label: t("nav_schedule") },
           { href: "/bracket", label: t("nav_bracket") },
-          { href: "/world-cup-third-place-qualification", label: "Third-Place Qualification" },
+          { href: "/world-cup-third-place-qualification", label: "Third-Place Ranking" },
         ].map((l) => (
           <Link
             key={l.href}
