@@ -14,7 +14,7 @@ interface Props {
   scorerLines?: Record<string, GoalScorerEvent[]>;
 }
 
-/** Small status pill shown next to the score — never louder than the score itself. */
+/** Small status pill — always smaller/quieter than the score, never wedged between teams. */
 function StatusPill({ status }: { status: "FT" | "LIVE" | "HT" }) {
   if (status === "LIVE") {
     return (
@@ -37,33 +37,22 @@ function StatusPill({ status }: { status: "FT" | "LIVE" | "HT" }) {
   );
 }
 
-/** Score row: "2–0" plus a compact status pill. Used for finished and live matches. */
+/** Just the score — "2–0". The score is always the strongest element on the row. */
 function ScoreRow({ score }: { score: ScheduleMatchScore }) {
-  const { status, homeScore, awayScore } = score;
-  const isFinished = status === "FINISHED";
-  const isLive = status === "IN_PLAY" || status === "PAUSED";
-
+  const { homeScore, awayScore } = score;
   return (
-    <div className="flex shrink-0 items-center gap-1.5">
-      <span className="font-heading text-base font-extrabold tabular-nums text-white">
-        {homeScore}–{awayScore}
-      </span>
-      {isFinished && <StatusPill status="FT" />}
-      {isLive && <StatusPill status={status === "PAUSED" ? "HT" : "LIVE"} />}
-    </div>
+    <span className="shrink-0 font-heading text-base font-extrabold tabular-nums text-white">
+      {homeScore}–{awayScore}
+    </span>
   );
 }
 
-/** Compact "Goals: 9' J. Quiñones · 67' R. Jiménez" line under a finished match's score. */
-function ScorerLine({ events }: { events: GoalScorerEvent[] }) {
+/** Compact "9' J. Quiñones · 67' R. Jiménez" scorer text, used inside the meta line. */
+function ScorerText({ events }: { events: GoalScorerEvent[] }) {
   const parts = events.map((e) =>
     e.minute != null ? `${e.minute}' ${e.playerName}` : e.playerName,
   );
-  return (
-    <p className="mt-1 truncate text-center text-[11px] text-white/40">
-      Goals: {parts.join(" · ")}
-    </p>
-  );
+  return <>{parts.join(" · ")}</>;
 }
 
 export function ScheduleContent({ liveScores, scorerLines }: Props) {
@@ -113,7 +102,41 @@ export function ScheduleContent({ liveScores, scorerLines }: Props) {
                 const isFinishedOrLive =
                   !!score && (score.status === "FINISHED" || score.status === "IN_PLAY" || score.status === "PAUSED");
                 const isSyncing = !!score && isFinishedOrLive && !hasScore;
-                const events = score?.status === "FINISHED" ? scorerLines?.[matchSlug(m)] : undefined;
+                const isFinished = score?.status === "FINISHED";
+                const isLive = score?.status === "IN_PLAY" || score?.status === "PAUSED";
+                const events = isFinished ? scorerLines?.[matchSlug(m)] : undefined;
+                const hasGoals = !!events && events.length > 0;
+
+                // Meta line under the team/score row — this is where FT/LIVE/syncing live,
+                // never wedged between the score and the away team.
+                let metaLine: React.ReactNode = null;
+                if (hasScore && isFinished) {
+                  metaLine = (
+                    <>
+                      <StatusPill status="FT" />
+                      {hasGoals && (
+                        <span className="truncate">
+                          <span className="text-white/25"> · </span>
+                          Goals: <ScorerText events={events!} />
+                        </span>
+                      )}
+                    </>
+                  );
+                } else if (hasScore && isLive) {
+                  metaLine = (
+                    <>
+                      <StatusPill status={score!.status === "PAUSED" ? "HT" : "LIVE"} />
+                      {hasGoals && (
+                        <span className="truncate">
+                          <span className="text-white/25"> · </span>
+                          Goals: <ScorerText events={events!} />
+                        </span>
+                      )}
+                    </>
+                  );
+                } else if (isSyncing) {
+                  metaLine = <span>{t("match_syncing")}</span>;
+                }
 
                 return (
                   <Link
@@ -137,10 +160,6 @@ export function ScheduleContent({ liveScores, scorerLines }: Props) {
 
                       {hasScore && score ? (
                         <ScoreRow score={score} />
-                      ) : isSyncing ? (
-                        <span className="shrink-0 rounded bg-white/5 px-2 py-1 font-heading text-xs font-bold text-white/40">
-                          {t("match_syncing")}
-                        </span>
                       ) : (
                         <span className="shrink-0 rounded bg-navy px-2 py-1 font-heading text-xs font-bold uppercase text-white/50">
                           {t("vs")}
@@ -168,8 +187,12 @@ export function ScheduleContent({ liveScores, scorerLines }: Props) {
                       </div>
                     </div>
 
-                    {/* Goal scorers — only shown when the shared scorer map has real data */}
-                    {events && events.length > 0 && <ScorerLine events={events} />}
+                    {/* Meta line: FT/LIVE/HT pill + scorer text, or "Score syncing" — never between teams */}
+                    {metaLine && (
+                      <div className="mt-1.5 flex items-center justify-center gap-1.5 text-[11px] text-white/40">
+                        {metaLine}
+                      </div>
+                    )}
                   </Link>
                 );
               })}
