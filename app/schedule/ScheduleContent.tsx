@@ -14,24 +14,31 @@ interface Props {
   scorerLines?: Record<string, GoalScorerEvent[]>;
 }
 
-/** Small status pill — always smaller/quieter than the score, never wedged between teams. */
-function StatusPill({ status }: { status: "FT" | "LIVE" | "HT" }) {
+/** Small status pill — sits where the kickoff time used to be, never louder than the score. */
+function StatusPill({ status }: { status: "FT" | "LIVE" | "HT" | "SYNCING" }) {
   if (status === "LIVE") {
     return (
-      <span className="animate-pulse rounded bg-red-600/20 px-1.5 py-0.5 font-heading text-[9px] font-bold uppercase tracking-wider text-red-400">
+      <span className="animate-pulse rounded bg-red-600/20 px-1.5 py-0.5 font-heading text-[10px] font-bold uppercase tracking-wider text-red-400">
         Live
       </span>
     );
   }
   if (status === "HT") {
     return (
-      <span className="rounded bg-red-600/15 px-1.5 py-0.5 font-heading text-[9px] font-bold uppercase tracking-wider text-red-400/80">
+      <span className="rounded bg-red-600/15 px-1.5 py-0.5 font-heading text-[10px] font-bold uppercase tracking-wider text-red-400/80">
         HT
       </span>
     );
   }
+  if (status === "SYNCING") {
+    return (
+      <span className="rounded bg-white/5 px-1.5 py-0.5 font-heading text-[10px] font-bold uppercase tracking-wider text-white/40">
+        Syncing
+      </span>
+    );
+  }
   return (
-    <span className="rounded bg-white/10 px-1.5 py-0.5 font-heading text-[9px] font-bold uppercase tracking-wider text-white/40">
+    <span className="rounded bg-white/10 px-1.5 py-0.5 font-heading text-[10px] font-bold uppercase tracking-wider text-white/40">
       FT
     </span>
   );
@@ -107,35 +114,15 @@ export function ScheduleContent({ liveScores, scorerLines }: Props) {
                 const events = isFinished ? scorerLines?.[matchSlug(m)] : undefined;
                 const hasGoals = !!events && events.length > 0;
 
-                // Meta line under the team/score row — this is where FT/LIVE/syncing live,
-                // never wedged between the score and the away team.
-                let metaLine: React.ReactNode = null;
+                // Status pill that replaces the kickoff time on the right once a match
+                // has started — never sits on the score line or in the scorer text.
+                let statusPill: React.ReactNode = null;
                 if (hasScore && isFinished) {
-                  metaLine = (
-                    <>
-                      <StatusPill status="FT" />
-                      {hasGoals && (
-                        <span className="truncate">
-                          <span className="text-white/25"> · </span>
-                          Goals: <ScorerText events={events!} />
-                        </span>
-                      )}
-                    </>
-                  );
+                  statusPill = <StatusPill status="FT" />;
                 } else if (hasScore && isLive) {
-                  metaLine = (
-                    <>
-                      <StatusPill status={score!.status === "PAUSED" ? "HT" : "LIVE"} />
-                      {hasGoals && (
-                        <span className="truncate">
-                          <span className="text-white/25"> · </span>
-                          Goals: <ScorerText events={events!} />
-                        </span>
-                      )}
-                    </>
-                  );
+                  statusPill = <StatusPill status={score!.status === "PAUSED" ? "HT" : "LIVE"} />;
                 } else if (isSyncing) {
-                  metaLine = <span>{t("match_syncing")}</span>;
+                  statusPill = <StatusPill status="SYNCING" />;
                 }
 
                 return (
@@ -180,17 +167,27 @@ export function ScheduleContent({ liveScores, scorerLines }: Props) {
                       </div>
 
                       <div className="ms-2 hidden w-28 shrink-0 text-end text-xs text-white/50 sm:block">
-                        {!hasScore && !isSyncing && (
+                        {statusPill ? (
+                          <div className="flex justify-end">{statusPill}</div>
+                        ) : (
                           <MatchTime match={m} className="font-semibold text-white/80" />
                         )}
                         <div>{m.venue ?? formatDate(m.date)}</div>
                       </div>
                     </div>
 
-                    {/* Meta line: FT/LIVE/HT pill + scorer text, or "Score syncing" — never between teams */}
-                    {metaLine && (
-                      <div className="mt-1.5 flex items-center justify-center gap-1.5 text-[11px] text-white/40">
-                        {metaLine}
+                    {/* Goal scorers — separate line, smaller/muted, never shares a line with FT */}
+                    {hasGoals && (
+                      <p className="mt-1.5 truncate text-[11px] text-white/40">
+                        Goals: <ScorerText events={events!} />
+                      </p>
+                    )}
+
+                    {/* Mobile-only status pill (right-side column is hidden below sm) */}
+                    {statusPill && (
+                      <div className="mt-1.5 flex items-center gap-1.5 sm:hidden">
+                        {statusPill}
+                        <span className="truncate text-[11px] text-white/40">{m.venue}</span>
                       </div>
                     )}
                   </Link>
