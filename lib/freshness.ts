@@ -25,3 +25,31 @@ export function formatRelativeAge(generatedAt: string, now: number = Date.now())
   const minutes = Math.round(seconds / 60);
   return `${minutes} minute${minutes === 1 ? "" : "s"} ago`;
 }
+
+/**
+ * Score freshness is about the *primary* (score/status) provider, not the
+ * overall snapshot's generatedAt — generatedAt advances even when the
+ * primary provider is down and we're serving last-known-good data, which
+ * would otherwise hide a real outage behind a healthy-looking "synced now".
+ */
+export function getScoreFreshnessLabel({
+  primaryProviderFetchedAt,
+  primaryProviderOk,
+  now = Date.now(),
+}: {
+  primaryProviderFetchedAt: string | null;
+  primaryProviderOk: boolean;
+  now?: number;
+}): { label: string; state: FreshnessState } {
+  if (!primaryProviderFetchedAt) {
+    return { label: "Scores syncing…", state: "updating" };
+  }
+
+  const age = formatRelativeAge(primaryProviderFetchedAt, now);
+
+  if (!primaryProviderOk) {
+    return { label: `Live scores may be delayed · Last successful sync ${age}`, state: "stale" };
+  }
+
+  return { label: `Scores synced ${age}`, state: getFreshnessState(primaryProviderFetchedAt, now) };
+}

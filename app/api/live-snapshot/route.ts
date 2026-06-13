@@ -18,6 +18,8 @@ export async function GET() {
     updatedAt: snapshot.updatedAt,
     primaryProviderOk: snapshot.primaryProviderOk,
     secondaryProviderOk: snapshot.secondaryProviderOk,
+    primaryProviderFetchedAt: snapshot.primaryProviderFetchedAt,
+    secondaryProviderFetchedAt: snapshot.secondaryProviderFetchedAt,
     matches: Object.fromEntries(
       Object.entries(snapshot.matches).map(([id, m]) => [
         id,

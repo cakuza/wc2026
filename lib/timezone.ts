@@ -26,6 +26,32 @@ export const COMMON_TIMEZONES = [
   "Australia/Sydney",
 ];
 
+/**
+ * Decides whether the client should trigger a one-time router.refresh() after
+ * resolving the viewer's timezone. True only when the resolved timezone differs
+ * from the one the server used for this render AND we haven't already refreshed
+ * for this resolved timezone in this session — prevents infinite refresh loops.
+ */
+export function shouldRefreshForTimeZone(
+  serverTimeZone: string,
+  resolvedTimeZone: string,
+  alreadyRefreshed: boolean,
+): boolean {
+  return serverTimeZone !== resolvedTimeZone && !alreadyRefreshed;
+}
+
+/** Reads the wc2026-tz cookie (the timezone the server used for the current render), if any. */
+export function readTimeZoneCookie(): string | null {
+  try {
+    const match = document.cookie.match(new RegExp(`(?:^|; )${TZ_COOKIE}=([^;]*)`));
+    if (!match) return null;
+    const tz = decodeURIComponent(match[1]);
+    return isValidTimeZone(tz) ? tz : null;
+  } catch {
+    return null;
+  }
+}
+
 export function isValidTimeZone(tz: string): boolean {
   try {
     new Intl.DateTimeFormat("en-US", { timeZone: tz });

@@ -1,9 +1,18 @@
 "use client";
 
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
-import { DEFAULT_TIMEZONE, detectBrowserTimeZone, isValidTimeZone, TZ_COOKIE } from "@/lib/timezone";
+import { useRouter } from "next/navigation";
+import {
+  DEFAULT_TIMEZONE,
+  detectBrowserTimeZone,
+  isValidTimeZone,
+  readTimeZoneCookie,
+  shouldRefreshForTimeZone,
+  TZ_COOKIE,
+} from "@/lib/timezone";
 
 const TZ_KEY = "wc2026-tz";
+const TZ_REFRESH_GUARD_KEY = "wc2026-tz-refreshed";
 
 /** Persist the timezone in a cookie so the server can read it on the next request. */
 function persistTimeZoneCookie(tz: string) {
@@ -35,6 +44,7 @@ const TzContext = createContext<TzContextValue | null>(null);
  */
 export function TimezoneProvider({ children }: { children: ReactNode }) {
   const [timeZone, setTimeZoneState] = useState(DEFAULT_TIMEZONE);
+  const router = useRouter();
 
   useEffect(() => {
     try {
@@ -47,20 +57,36 @@ export function TimezoneProvider({ children }: { children: ReactNode }) {
         return;
       }
 
+      // The timezone the server used to render this page. Mirrors
+      // resolveSelectedTimeZone's fallback: no cookie yet (first anonymous
+      // visit) means the server rendered with DEFAULT_TIMEZONE.
+      const serverTimeZone = readTimeZoneCookie() ?? DEFAULT_TIMEZONE;
+
+      let resolved: string;
       const saved = localStorage.getItem(TZ_KEY);
       if (saved && isValidTimeZone(saved)) {
-        persistTimeZoneCookie(saved);
-        setTimeZoneState(saved);
-        return;
+        resolved = saved;
+      } else {
+        resolved = detectBrowserTimeZone();
       }
 
-      const detected = detectBrowserTimeZone();
-      persistTimeZoneCookie(detected);
-      setTimeZoneState(detected);
+      persistTimeZoneCookie(resolved);
+      setTimeZoneState(resolved);
+
+      // On a first anonymous visit (no cookie yet), the server rendered with
+      // DEFAULT_TIMEZONE. If client detection resolved a different timezone,
+      // the server-rendered matchday/dates may be wrong for this visitor — do
+      // a single refresh so the server re-renders with the now-persisted
+      // cookie. Guarded so this fires at most once per resolved timezone.
+      const guardKey = `${TZ_REFRESH_GUARD_KEY}:${resolved}`;
+      if (shouldRefreshForTimeZone(serverTimeZone, resolved, Boolean(sessionStorage.getItem(guardKey)))) {
+        sessionStorage.setItem(guardKey, "1");
+        router.refresh();
+      }
     } catch {
       // keep DEFAULT_TIMEZONE
     }
-  }, []);
+  }, [router]);
 
   const setTimeZone = (tz: string) => {
     if (!isValidTimeZone(tz)) return;

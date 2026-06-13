@@ -344,7 +344,10 @@ export default async function TodayPage({
         </p>
         <div className="mb-6 flex flex-wrap items-center justify-between gap-2">
           <TimezonePicker className="flex flex-wrap items-center gap-2 text-[11px] text-white/55" />
-          <FreshnessLabel generatedAt={snapshot.generatedAt} />
+          <FreshnessLabel
+            primaryProviderFetchedAt={snapshot.primaryProviderFetchedAt}
+            primaryProviderOk={snapshot.primaryProviderOk}
+          />
         </div>
 
         {isToday && <TodaySummary matches={summaryMatches} liveData={liveData} scorerLines={scorerLines} />}

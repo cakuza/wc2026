@@ -8,9 +8,6 @@ import { getTickerMatches } from "@/lib/matches";
 import { getDisplayMatchdayForTimeZone, resolveSelectedTimeZone } from "@/lib/todaySelection";
 import { TZ_COOKIE } from "@/lib/timezone";
 import { getTournamentLiveSnapshot } from "@/lib/liveSnapshot";
-import { getLiveRefreshPolicy } from "@/lib/liveRefreshPolicy";
-import { LiveDataAutoRefresh } from "@/components/LiveDataAutoRefresh";
-import { matchSlug } from "@/lib/matches";
 
 const BASE_URL = "https://www.worldcupmatchday.com";
 
@@ -46,21 +43,9 @@ export default async function TodayPage({
   const tickerMatches = getTickerMatches(now);
   const initialMatchday = getDisplayMatchdayForTimeZone({ now, timeZone: selectedTimeZone });
   const snapshot = await getTournamentLiveSnapshot();
-  const todayMatches = initialMatchday.days ? initialMatchday.days.flatMap((d) => d.matches) : initialMatchday.matches;
-  const refreshPolicy = getLiveRefreshPolicy(
-    todayMatches.map((match) => {
-      const snap = snapshot.matches[matchSlug(match)];
-      return {
-        match,
-        status: snap?.status ?? "SCHEDULED",
-        providerUpdatedAt: snap?.providerUpdatedAt,
-      };
-    }),
-  );
 
   return (
     <>
-      <LiveDataAutoRefresh intervalMs={refreshPolicy.intervalMs} />
       <Ticker items={tickerMatches} />
       <Hero initialMatchday={initialMatchday} snapshot={snapshot} />
       <HomeTrivia />

@@ -17,6 +17,8 @@ function toTodayLiveSnapshot(snapshot: TournamentLiveSnapshot): TodayLiveSnapsho
     generatedAt: snapshot.generatedAt,
     liveDataByProviderId: snapshot.liveDataByProviderId,
     scorersByMatchId,
+    primaryProviderFetchedAt: snapshot.primaryProviderFetchedAt,
+    primaryProviderOk: snapshot.primaryProviderOk,
   };
 }
 

@@ -18,6 +18,8 @@ export type TodayLiveSnapshot = {
   generatedAt: string;
   liveDataByProviderId: Record<string, LiveMatchData>;
   scorersByMatchId: Record<string, GoalScorerEvent[]>;
+  primaryProviderFetchedAt: string | null;
+  primaryProviderOk: boolean;
 };
 
 function shortScorerName(playerName: string) {
@@ -37,14 +39,6 @@ function scorerText(events: GoalScorerEvent[] | undefined) {
     .join(" · ");
 }
 
-function liveMinuteLabel(live: LiveMatchData): string | null {
-  // football-data.org doesn't expose a clock directly here; fall back to a
-  // generic LIVE/HT badge when we don't have a reliable elapsed minute.
-  if (live.status === "PAUSED") return "HT";
-  const lastGoalMinute = live.goals?.[live.goals.length - 1]?.minute;
-  return lastGoalMinute != null ? `${lastGoalMinute}'+` : null;
-}
-
 function MatchRow({
   m,
   live,
@@ -59,7 +53,6 @@ function MatchRow({
   const isLive = live?.status === "IN_PLAY" || live?.status === "PAUSED";
   const isFinished = live?.status === "FINISHED";
   const goals = scorerText(scorers);
-  const minute = isLive ? liveMinuteLabel(live!) : null;
 
   return (
     <Link
@@ -90,7 +83,7 @@ function MatchRow({
         {isLive && (
           <span className="flex items-center gap-1 rounded bg-red-600 px-1.5 py-0.5 font-heading text-[10px] font-extrabold uppercase tracking-widest text-white">
             <span className="inline-block h-1.5 w-1.5 animate-pulse rounded-full bg-white" />
-            {minute ?? (live!.status === "PAUSED" ? "HT" : "Live")}
+            {live!.status === "PAUSED" ? "HT" : "Live"}
           </span>
         )}
         {isFinished && (
@@ -103,8 +96,8 @@ function MatchRow({
       </div>
 
       {goals ? <p className="mt-1 truncate text-center text-[11px] text-white/40">Goals: {goals}</p> : null}
-      {isLive && !hasScore ? (
-        <p className="mt-1 text-center text-[11px] text-white/40">Scorer detail is still syncing.</p>
+      {isLive && !goals ? (
+        <p className="mt-1 text-center text-[11px] text-white/40">Scorer details are still syncing.</p>
       ) : null}
     </Link>
   );
@@ -131,6 +124,28 @@ export function orderMatches(matches: Match[], liveDataByProviderId: Record<stri
   });
 }
 
+/**
+ * True while any match is currently live, or within 15 minutes of kickoff
+ * (before or after) — the window in which the client should be polling
+ * `/api/live-snapshot`. Must be evaluated against the *current* snapshot
+ * state and clock, not a one-time initial value, so it reflects:
+ *  - a match that starts live within the window,
+ *  - a poll response that flips a match to IN_PLAY,
+ *  - the clock advancing past kickoff + 15 minutes (stop polling).
+ */
+export function isLiveOrImminent(
+  matches: Match[],
+  liveDataByProviderId: Record<string, LiveMatchData>,
+  now: number,
+): boolean {
+  return matches.some((m) => {
+    const live = m.providerIds?.footballData ? liveDataByProviderId[String(m.providerIds.footballData)] : undefined;
+    if (live?.status === "IN_PLAY" || live?.status === "PAUSED") return true;
+    const kickoffMs = matchUtcDate(m).getTime();
+    return Math.abs(kickoffMs - now) <= 15 * 60 * 1000;
+  });
+}
+
 export function TodayMatches({
   initialMatchday,
   liveSnapshot,
@@ -149,13 +164,18 @@ export function TodayMatches({
 
   const [snapshot, setSnapshot] = useState(liveSnapshot);
 
+  // Ticks periodically so hasLiveOrImminent re-evaluates as kickoff approaches
+  // or passes, even while no poll-driven re-render has happened yet.
+  const [now, setNow] = useState(() => Date.now());
+  useEffect(() => {
+    const interval = setInterval(() => setNow(Date.now()), 30_000);
+    return () => clearInterval(interval);
+  }, []);
+
   const allMatches = md.days ? md.days.flatMap((d) => d.matches) : md.matches;
-  const hasLiveOrImminent = allMatches.some((m) => {
-    const live = m.providerIds?.footballData ? liveSnapshot.liveDataByProviderId[String(m.providerIds.footballData)] : undefined;
-    if (live?.status === "IN_PLAY" || live?.status === "PAUSED") return true;
-    const kickoffMs = matchUtcDate(m).getTime();
-    return Math.abs(kickoffMs - Date.now()) <= 15 * 60 * 1000;
-  });
+  // Uses the live React state (snapshot), not the initial liveSnapshot prop, so
+  // a poll that flips a match to IN_PLAY (or FINISHED) is reflected immediately.
+  const hasLiveOrImminent = isLiveOrImminent(allMatches, snapshot.liveDataByProviderId, now);
 
   // Poll the lightweight internal live-snapshot endpoint while a match is live
   // or starting soon — reads the shared server snapshot, never the upstream
@@ -181,6 +201,8 @@ export function TodayMatches({
             setSnapshot((prev) => ({
               snapshotId: data.snapshotId,
               generatedAt: data.generatedAt,
+              primaryProviderFetchedAt: data.primaryProviderFetchedAt,
+              primaryProviderOk: data.primaryProviderOk,
               liveDataByProviderId: Object.fromEntries(
                 Object.entries(prev.liveDataByProviderId).map(([pid, live]) => {
                   const m = allMatches.find((match) => String(match.providerIds?.footballData) === pid);
@@ -245,7 +267,10 @@ export function TodayMatches({
       <p className="mb-1 text-[11px] leading-snug text-white/55">{t("today_intro")}</p>
       <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
         <TimezoneLabel className="text-[11px] text-white/55" />
-        <FreshnessLabel generatedAt={snapshot.generatedAt} />
+        <FreshnessLabel
+          primaryProviderFetchedAt={snapshot.primaryProviderFetchedAt}
+          primaryProviderOk={snapshot.primaryProviderOk}
+        />
       </div>
 
       {/* Multi-day mode: group matches under date subheaders — fully expanded, no scroll */}
