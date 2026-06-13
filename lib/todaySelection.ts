@@ -7,9 +7,23 @@ export type SelectedTodayMatchday = {
   timeZone: string;
 };
 
-export function resolveSelectedTimeZone(value: string | string[] | undefined): string {
+/**
+ * Resolve the timezone to use for server-rendered date selection.
+ *
+ * Priority: ?tz= query param > previously-saved cookie (set by TimezoneProvider
+ * once the browser timezone is detected) > DEFAULT_TIMEZONE.
+ *
+ * This keeps "today" on the server in sync with the timezone the client will
+ * display, even on the very first request (no ?tz= param yet).
+ */
+export function resolveSelectedTimeZone(
+  value: string | string[] | undefined,
+  cookieValue?: string | null,
+): string {
   const candidate = Array.isArray(value) ? value[0] : value;
-  return candidate && isValidTimeZone(candidate) ? candidate : DEFAULT_TIMEZONE;
+  if (candidate && isValidTimeZone(candidate)) return candidate;
+  if (cookieValue && isValidTimeZone(cookieValue)) return cookieValue;
+  return DEFAULT_TIMEZONE;
 }
 
 export function localISODateInTimeZone(date: Date, timeZone: string): string {
@@ -28,6 +42,13 @@ export function localISODateInTimeZone(date: Date, timeZone: string): string {
 export function getMatchCalendarDateInZone(date: Date, timeZone: string): string {
   return localISODateInTimeZone(date, timeZone);
 }
+
+/**
+ * Canonical local-date-key helper: getLocalDateKey(kickoffUtc, selectedTimezone).
+ * Alias of getMatchCalendarDateInZone — every "is this match today" comparison
+ * in the app should derive from this single function.
+ */
+export const getLocalDateKey = getMatchCalendarDateInZone;
 
 export function groupMatchesByCalendarDate(
   matches: Match[],

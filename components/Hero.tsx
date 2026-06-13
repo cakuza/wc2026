@@ -2,11 +2,31 @@
 
 import { Flag } from "@/components/Flag";
 import { CountdownClient } from "@/components/CountdownClient";
-import { TodayMatches } from "@/components/TodayMatches";
+import { TodayMatches, type TodayLiveSnapshot } from "@/components/TodayMatches";
 import { useLang } from "@/components/LanguageProvider";
 import { type DisplayMatchday } from "@/lib/matches";
+import type { TournamentLiveSnapshot } from "@/lib/liveSnapshot";
 
-export function Hero({ initialMatchday }: { initialMatchday: DisplayMatchday }) {
+function toTodayLiveSnapshot(snapshot: TournamentLiveSnapshot): TodayLiveSnapshot {
+  const scorersByMatchId: Record<string, TodayLiveSnapshot["scorersByMatchId"][string]> = {};
+  for (const [id, entry] of Object.entries(snapshot.matches)) {
+    if (entry.scorers.length > 0) scorersByMatchId[id] = entry.scorers;
+  }
+  return {
+    snapshotId: snapshot.snapshotId,
+    generatedAt: snapshot.generatedAt,
+    liveDataByProviderId: snapshot.liveDataByProviderId,
+    scorersByMatchId,
+  };
+}
+
+export function Hero({
+  initialMatchday,
+  snapshot,
+}: {
+  initialMatchday: DisplayMatchday;
+  snapshot: TournamentLiveSnapshot;
+}) {
   const { t } = useLang();
   return (
     <section className="relative overflow-hidden border-b border-white/10 bg-navy">
@@ -71,7 +91,7 @@ export function Hero({ initialMatchday }: { initialMatchday: DisplayMatchday }) 
         </div>
 
         {/* Right: dynamic today's / next matches (client component) */}
-        <TodayMatches initialMatchday={initialMatchday} />
+        <TodayMatches initialMatchday={initialMatchday} liveSnapshot={toTodayLiveSnapshot(snapshot)} />
       </div>
     </section>
   );

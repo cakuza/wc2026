@@ -17,7 +17,7 @@ assert(!existsSync(join(root, "components/OpeningMatchBanner.tsx")), "obsolete O
 assert(!page.includes("Opening match complete"), "homepage source does not contain opening-match complete text");
 assert(!page.includes("View match result"), "homepage source does not contain opening-match result link");
 assert(page.includes("<Ticker items={tickerMatches} />"), "homepage upcoming ticker remains present");
-assert(page.includes("<Hero initialMatchday={initialMatchday} />"), "homepage hero remains present after ticker");
+assert(page.includes("<Hero initialMatchday={initialMatchday} snapshot={snapshot} />"), "homepage hero remains present after ticker");
 
 console.log(`\n${passed} passed, ${failed} failed`);
 if (failed > 0) process.exitCode = 1;

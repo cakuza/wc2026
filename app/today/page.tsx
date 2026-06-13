@@ -1,10 +1,12 @@
 import type { Metadata } from "next";
+import { cookies } from "next/headers";
 import Link from "next/link";
 import { Flag } from "@/components/Flag";
 import { MatchTime } from "@/components/MatchTime";
 import { TimezonePicker } from "@/components/TimezoneLabel";
 import { LiveDataAutoRefresh } from "@/components/LiveDataAutoRefresh";
 import { LiveSnapshotDebug } from "@/components/LiveSnapshotDebug";
+import { FreshnessLabel } from "@/components/FreshnessLabel";
 import { matchSlug, matchUtcDate, type Match } from "@/lib/matches";
 import { countryName } from "@/lib/i18n";
 import type { LiveMatchData } from "@/lib/liveMatchData";
@@ -12,6 +14,7 @@ import type { GoalScorerEvent } from "@/lib/worldcup26Provider";
 import { getTournamentLiveSnapshot } from "@/lib/liveSnapshot";
 import { getLiveRefreshPolicy } from "@/lib/liveRefreshPolicy";
 import { getTodayMatchesForTimeZone, nextUpcomingMatchesForTimeZone, resolveSelectedTimeZone } from "@/lib/todaySelection";
+import { TZ_COOKIE } from "@/lib/timezone";
 
 const BASE_URL = "https://www.worldcupmatchday.com";
 
@@ -296,7 +299,8 @@ export default async function TodayPage({
   searchParams?: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const params = searchParams ? await searchParams : {};
-  const selectedTimeZone = resolveSelectedTimeZone(params.tz);
+  const cookieTz = (await cookies()).get(TZ_COOKIE)?.value;
+  const selectedTimeZone = resolveSelectedTimeZone(params.tz, cookieTz);
   const today = getTodayMatchesForTimeZone({ timeZone: selectedTimeZone });
   const isToday = today.matches.length > 0;
   const fallbackDays = isToday ? [] : nextUpcomingMatchesForTimeZone({ timeZone: selectedTimeZone });
@@ -338,7 +342,10 @@ export default async function TodayPage({
           Follow today&apos;s World Cup matches with scores, kickoff times in your selected timezone,
           venues and match status. Finished matches include final scores and goal scorers when available.
         </p>
-        <TimezonePicker className="mb-6 flex flex-wrap items-center gap-2 text-[11px] text-white/55" />
+        <div className="mb-6 flex flex-wrap items-center justify-between gap-2">
+          <TimezonePicker className="flex flex-wrap items-center gap-2 text-[11px] text-white/55" />
+          <FreshnessLabel generatedAt={snapshot.generatedAt} />
+        </div>
 
         {isToday && <TodaySummary matches={summaryMatches} liveData={liveData} scorerLines={scorerLines} />}
 

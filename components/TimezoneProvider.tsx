@@ -1,9 +1,19 @@
 "use client";
 
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
-import { DEFAULT_TIMEZONE, detectBrowserTimeZone, isValidTimeZone } from "@/lib/timezone";
+import { DEFAULT_TIMEZONE, detectBrowserTimeZone, isValidTimeZone, TZ_COOKIE } from "@/lib/timezone";
 
 const TZ_KEY = "wc2026-tz";
+
+/** Persist the timezone in a cookie so the server can read it on the next request. */
+function persistTimeZoneCookie(tz: string) {
+  try {
+    const maxAge = 60 * 60 * 24 * 365; // 1 year
+    document.cookie = `${TZ_COOKIE}=${encodeURIComponent(tz)}; path=/; max-age=${maxAge}; samesite=lax`;
+  } catch {
+    // ignore (e.g. cookies disabled)
+  }
+}
 
 type TzContextValue = {
   timeZone: string;
@@ -32,17 +42,21 @@ export function TimezoneProvider({ children }: { children: ReactNode }) {
       const qsTz = params.get("tz");
       if (qsTz && isValidTimeZone(qsTz)) {
         localStorage.setItem(TZ_KEY, qsTz);
+        persistTimeZoneCookie(qsTz);
         setTimeZoneState(qsTz);
         return;
       }
 
       const saved = localStorage.getItem(TZ_KEY);
       if (saved && isValidTimeZone(saved)) {
+        persistTimeZoneCookie(saved);
         setTimeZoneState(saved);
         return;
       }
 
-      setTimeZoneState(detectBrowserTimeZone());
+      const detected = detectBrowserTimeZone();
+      persistTimeZoneCookie(detected);
+      setTimeZoneState(detected);
     } catch {
       // keep DEFAULT_TIMEZONE
     }
@@ -55,6 +69,7 @@ export function TimezoneProvider({ children }: { children: ReactNode }) {
     } catch {
       // ignore (e.g. storage disabled)
     }
+    persistTimeZoneCookie(tz);
     setTimeZoneState(tz);
   };
 

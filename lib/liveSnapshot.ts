@@ -21,7 +21,7 @@ import {
 import { applyVerifiedGoalCorrections } from "./verifiedMatchEventCorrections";
 import { countryName } from "./i18n";
 
-export const LIVE_SNAPSHOT_CACHE_KEY = "worldcup-tournament-live-snapshot-v6";
+export const LIVE_SNAPSHOT_CACHE_KEY = "worldcup-tournament-live-snapshot-v7";
 export const LIVE_SNAPSHOT_REVALIDATE_SECONDS = 25;
 
 export type SnapshotMatchStatus = "SCHEDULED" | "LIVE" | "HALFTIME" | "FINISHED" | "SYNCING";
@@ -51,12 +51,21 @@ export type TournamentLiveSnapshot = {
   tournamentStats: TournamentStats;
   teamLeaderboards: TeamLeaderboards;
   topScorers: PlayerGoalStat[];
+  /** Diagnostics — internal freshness tracking, not provider-branded for public display. */
+  primaryProviderOk: boolean;
+  secondaryProviderOk: boolean;
+  primaryProviderFetchedAt: string | null;
+  secondaryProviderFetchedAt: string | null;
 };
 
 type SnapshotProviderPayload = {
   liveData: ReadonlyMap<number, LiveMatchData>;
   worldcupGames: WorldCup26Game[] | null;
   generatedAt?: string;
+  primaryProviderOk?: boolean;
+  secondaryProviderOk?: boolean;
+  primaryProviderFetchedAt?: string | null;
+  secondaryProviderFetchedAt?: string | null;
 };
 
 type SnapshotCacheOptions = {
@@ -322,13 +331,17 @@ function makeSnapshotId(_generatedAt: string, matches: Record<string, Serializab
   for (let i = 0; i < signature.length; i++) {
     hash = (hash * 31 + signature.charCodeAt(i)) >>> 0;
   }
-  return `snapshot-v6-${hash.toString(36)}`;
+  return `snapshot-v7-${hash.toString(36)}`;
 }
 
 export async function buildTournamentLiveSnapshot({
   liveData,
   worldcupGames,
   generatedAt = new Date().toISOString(),
+  primaryProviderOk = liveData.size > 0,
+  secondaryProviderOk = worldcupGames !== null,
+  primaryProviderFetchedAt = primaryProviderOk ? generatedAt : null,
+  secondaryProviderFetchedAt = secondaryProviderOk ? generatedAt : null,
 }: SnapshotProviderPayload): Promise<TournamentLiveSnapshot> {
   const knownProviderIds = new Set(
     MATCHES.map((match) => match.providerIds?.footballData).filter((id): id is number => typeof id === "number"),
@@ -411,6 +424,10 @@ export async function buildTournamentLiveSnapshot({
     tournamentStats,
     teamLeaderboards,
     topScorers,
+    primaryProviderOk,
+    secondaryProviderOk,
+    primaryProviderFetchedAt,
+    secondaryProviderFetchedAt,
   };
 }
 
@@ -442,17 +459,51 @@ export function createSerializableSnapshotCache({ ttlMs, now = () => Date.now(),
   };
 }
 
+// Last successful raw payload from each provider — used to keep serving real
+// scores/scorers when one provider has a transient failure (e.g. a 429 cooldown)
+// without letting the *whole* snapshot (and its generatedAt freshness clock) go
+// stale for the duration of that cooldown.
+let lastKnownLiveData: ReadonlyMap<number, LiveMatchData> | null = null;
+let lastKnownWorldcupGames: WorldCup26Game[] | null = null;
+let lastPrimaryProviderFetchedAt: string | null = null;
+let lastSecondaryProviderFetchedAt: string | null = null;
+
 async function refreshTournamentLiveSnapshot(): Promise<TournamentLiveSnapshot> {
-  const [liveData, worldcupGames] = await Promise.all([
+  const generatedAt = new Date().toISOString();
+  const [liveDataResult, worldcupGamesResult] = await Promise.allSettled([
     fetchAllLiveData(),
     fetchWorldCup26Games(),
   ]);
 
-  if (lastKnownGoodSnapshot && (liveData.size === 0 || worldcupGames === null)) {
-    throw new Error("provider refresh returned incomplete data");
+  const fetchedLiveData = liveDataResult.status === "fulfilled" ? liveDataResult.value : new Map<number, LiveMatchData>();
+  const fetchedWorldcupGames = worldcupGamesResult.status === "fulfilled" ? worldcupGamesResult.value : null;
+
+  const primaryProviderOk = fetchedLiveData.size > 0;
+  const secondaryProviderOk = fetchedWorldcupGames !== null;
+
+  if (primaryProviderOk) {
+    lastKnownLiveData = fetchedLiveData;
+    lastPrimaryProviderFetchedAt = generatedAt;
+  }
+  if (secondaryProviderOk) {
+    lastKnownWorldcupGames = fetchedWorldcupGames;
+    lastSecondaryProviderFetchedAt = generatedAt;
   }
 
-  const snapshot = await buildTournamentLiveSnapshot({ liveData, worldcupGames });
+  // Fall back to the last successful payload per-provider so a single provider's
+  // transient failure doesn't freeze the entire snapshot (and its freshness clock).
+  const liveData = primaryProviderOk ? fetchedLiveData : (lastKnownLiveData ?? fetchedLiveData);
+  const worldcupGames = secondaryProviderOk ? fetchedWorldcupGames : lastKnownWorldcupGames;
+
+  const snapshot = await buildTournamentLiveSnapshot({
+    liveData,
+    worldcupGames,
+    generatedAt,
+    primaryProviderOk,
+    secondaryProviderOk,
+    primaryProviderFetchedAt: lastPrimaryProviderFetchedAt,
+    secondaryProviderFetchedAt: lastSecondaryProviderFetchedAt,
+  });
   lastKnownGoodSnapshot = snapshot;
   return snapshot;
 }

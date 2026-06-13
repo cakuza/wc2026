@@ -3,6 +3,11 @@
 
 export const DEFAULT_TIMEZONE = "America/New_York";
 
+// Cookie used to persist the viewer's selected/detected timezone so the server
+// can render /today and the homepage Today card for the same local date the
+// client will display, without waiting for a ?tz= query param.
+export const TZ_COOKIE = "wc2026-tz";
+
 // Small curated list for the timezone selector — common viewer locations.
 export const COMMON_TIMEZONES = [
   "America/New_York",
