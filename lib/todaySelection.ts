@@ -1,5 +1,5 @@
 import { DEFAULT_TIMEZONE, isValidTimeZone } from "./timezone";
-import { MATCHES, matchUtcDate, type Match } from "./matches";
+import { MATCHES, matchUtcDate, type DisplayMatchday, type Match } from "./matches";
 
 export type SelectedTodayMatchday = {
   date: string;
@@ -40,6 +40,49 @@ export function groupMatchesByCalendarDate(
     byDate.get(date)!.push(match);
   }
   return [...byDate.entries()].map(([date, dayMatches]) => ({ date, matches: dayMatches }));
+}
+
+function addCalendarDays(dateISO: string, days: number): string {
+  const [year, month, day] = dateISO.split("-").map(Number);
+  const date = new Date(Date.UTC(year, month - 1, day + days));
+  return date.toISOString().slice(0, 10);
+}
+
+export function getDisplayMatchdayForTimeZone({
+  now = new Date(),
+  timeZone,
+  matches = MATCHES,
+}: {
+  now?: Date;
+  timeZone: string;
+  matches?: Match[];
+}): DisplayMatchday {
+  const todayISO = getMatchCalendarDateInZone(now, timeZone);
+  const tomorrowISO = addCalendarDays(todayISO, 1);
+  const byDate = groupMatchesByCalendarDate(matches, timeZone);
+
+  const today = byDate.find((day) => day.date === todayISO);
+  if (today) return { labelKey: "sec_todayMatches", date: today.date, matches: today.matches };
+
+  const nextIdx = byDate.findIndex((day) => day.date >= todayISO);
+  if (nextIdx === -1) {
+    const last = byDate[byDate.length - 1];
+    return { labelKey: "sec_nextMatches", date: last.date, matches: last.matches };
+  }
+
+  const next = byDate[nextIdx];
+  if (next.date === tomorrowISO) {
+    return { labelKey: "sec_tomorrowMatches", date: next.date, matches: next.matches };
+  }
+
+  const upcomingDays = byDate.slice(nextIdx, nextIdx + 3);
+  const allMatches = upcomingDays.flatMap((day) => day.matches);
+  return {
+    labelKey: "sec_nextMatches",
+    date: upcomingDays[0].date,
+    matches: allMatches,
+    days: upcomingDays.length > 1 ? upcomingDays : undefined,
+  };
 }
 
 export function getTodayMatchesForTimeZone({

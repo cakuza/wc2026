@@ -5,6 +5,7 @@ import { Flag } from "@/components/Flag";
 import { useLang } from "@/components/LanguageProvider";
 import { slugFor, teamByKey } from "@/lib/teams";
 import type { ThirdPlaceRow } from "@/lib/thirdPlaceRanking";
+import { getThirdPlaceLegendCopy } from "@/lib/thirdPlaceCopy";
 
 const COLS = ["P", "W", "D", "L", "GF", "GA", "GD"] as const;
 
@@ -32,6 +33,7 @@ interface ThirdPlaceTableProps {
 
 export function ThirdPlaceTable({ rows }: ThirdPlaceTableProps) {
   const { t, country } = useLang();
+  const legend = getThirdPlaceLegendCopy(rows);
   const statusText = (status: ThirdPlaceRow["status"]) => {
     if (status === "qualifying") return "Inside top 8";
     if (status === "outside") return "Below cut line";
@@ -147,11 +149,11 @@ export function ThirdPlaceTable({ rows }: ThirdPlaceTableProps) {
       <div className="space-y-1.5 border-t border-white/5 bg-navy/60 px-4 py-3">
         <div className="flex items-start gap-2 text-xs text-white/55">
           <span className="mt-0.5 h-2 w-2 shrink-0 rounded-full bg-green-500" aria-hidden="true" />
-          <span>Top 8 third-placed teams are inside the current Round of 32 cut line.</span>
+          <span>{legend.primary}</span>
         </div>
         <div className="flex items-start gap-2 text-xs text-white/55">
           <span className="mt-0.5 h-2 w-2 shrink-0 rounded-full bg-red-500/70" aria-hidden="true" />
-          <span>Rows below the cut line remain a current snapshot until all group matches are complete.</span>
+          <span>{legend.secondary}</span>
         </div>
       </div>
     </div>

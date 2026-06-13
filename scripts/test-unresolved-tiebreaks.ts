@@ -1,6 +1,7 @@
 import { computeGroupStandings, type StandingRow } from "../lib/groupStandings";
 import { computeThirdPlaceRanking } from "../lib/thirdPlaceRanking";
 import type { LiveMatchData } from "../lib/liveMatchData";
+import { getThirdPlaceLegendCopy } from "../lib/thirdPlaceCopy";
 
 let passed = 0;
 let failed = 0;
@@ -49,6 +50,24 @@ const thirds = computeThirdPlaceRanking(thirdStandings);
 const boundaryRows = thirds.filter((row) => row.status === "boundary");
 assert(boundaryRows.length >= 3, "third-place cut-line tie is marked as boundary for the whole tied block");
 assert(boundaryRows.every((row) => row.rankLabel?.endsWith("=")), "boundary rows use equal rank labels");
+
+const tiedLegend = getThirdPlaceLegendCopy(thirds);
+assert(tiedLegend.cutLineTied, "legend detects unresolved cut-line tie");
+assert(!tiedLegend.primary.includes("Top 8 third-placed teams"), "no definitive Top 8 statement when cut line is tied");
+assert(!tiedLegend.secondary.includes("Ranks 9"), "no definitive Ranks 9-12 statement when cut line is tied");
+assert(tiedLegend.primary.includes("provisional"), "tied legend uses provisional wording");
+
+const resolvedStandings: Record<string, StandingRow[]> = {};
+"ABCDEFGHIJKL".split("").forEach((group, index) => {
+  resolvedStandings[group] = [
+    row(`${group}1`, 9, 9, 9),
+    row(`${group}2`, 6, 6, 6),
+    row(`${group}3`, 12 - index, 12 - index, 12 - index),
+  ];
+});
+const resolvedLegend = getThirdPlaceLegendCopy(computeThirdPlaceRanking(resolvedStandings));
+assert(!resolvedLegend.cutLineTied, "legend detects resolved cut line");
+assert(resolvedLegend.primary.includes("Top 8 third-placed teams"), "definitive cut-line wording is allowed when resolved");
 
 console.log(`\n${passed} passed, ${failed} failed`);
 if (failed > 0) process.exitCode = 1;

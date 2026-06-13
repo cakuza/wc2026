@@ -4,7 +4,8 @@ import { Hero } from "@/components/Hero";
 import { HomeTrivia } from "@/components/HomeTrivia";
 import { TeamsByConfederationPreview } from "@/components/TeamsByConfederation";
 import { OpeningMatchBanner } from "@/components/OpeningMatchBanner";
-import { getDisplayMatchday, getTickerMatches } from "@/lib/matches";
+import { getTickerMatches } from "@/lib/matches";
+import { getDisplayMatchdayForTimeZone, resolveSelectedTimeZone } from "@/lib/todaySelection";
 
 const BASE_URL = "https://www.worldcupmatchday.com";
 
@@ -26,10 +27,16 @@ export const metadata: Metadata = {
 // match today" vs "opening match complete") don't stay frozen on stale static HTML.
 export const revalidate = 60;
 
-export default function TodayPage() {
+export default async function TodayPage({
+  searchParams,
+}: {
+  searchParams?: Promise<Record<string, string | string[] | undefined>>;
+}) {
+  const params = searchParams ? await searchParams : {};
+  const selectedTimeZone = resolveSelectedTimeZone(params.tz);
   const now = new Date();
   const tickerMatches = getTickerMatches(now);
-  const initialMatchday = getDisplayMatchday(now);
+  const initialMatchday = getDisplayMatchdayForTimeZone({ now, timeZone: selectedTimeZone });
 
   return (
     <>

@@ -51,7 +51,7 @@ export function Ticker({ items }: { items: Match[] }) {
   /**
    * dupeReady becomes true when TickerDuplicate fires its onMount callback.
    * The animation useEffect depends on dupeReady so it re-runs once the
-   * duplicate is actually in the DOM — at that point scrollWidth = 2×
+   * duplicate is actually in the DOM — at that moment scrollWidth = 2×
    * single-copy width and the seamless loop works correctly.
    */
   const [dupeReady, setDupeReady] = useState(false);

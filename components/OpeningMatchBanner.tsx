@@ -34,7 +34,8 @@ const TITLES: Record<Phase, string> = {
 function scorerText(events: GoalScorerEvent[] | undefined) {
   if (!events || events.length === 0) return null;
   return events
-    .map((e) => (e.minute != null ? `${e.minute}' ${e.playerName}` : e.playerName))
+    .map((event) => (event.minuteLabel ?? (event.minute != null ? `${event.minute}'` : "")) + ` ${event.playerName}`)
+    .map((text) => text.trim())
     .join(" · ");
 }
 
@@ -51,6 +52,17 @@ export async function OpeningMatchBanner() {
     live?.status === "FINISHED" &&
     live.homeScore !== null &&
     live.awayScore !== null;
+  const isResultAware =
+    Boolean(live) &&
+    live?.status !== "SCHEDULED" &&
+    live?.status !== "TIMED" &&
+    live?.homeScore !== null &&
+    live?.awayScore !== null;
+  const statusLabel =
+    live?.status === "FINISHED" ? "FT" :
+    live?.status === "IN_PLAY" ? "Live" :
+    live?.status === "PAUSED" ? "HT" :
+    null;
   const scorers = scorerText(snapshotMatch?.scorers);
   const home = countryName(OPENING_MATCH.homeKey, "en");
   const away = countryName(OPENING_MATCH.awayKey, "en");
@@ -62,10 +74,11 @@ export async function OpeningMatchBanner() {
           <p className="font-heading text-xs font-extrabold uppercase tracking-widest text-accent">
             {isFinished ? "Opening match complete" : TITLES[phase]}
           </p>
-          {isFinished ? (
+          {isResultAware ? (
             <>
               <p className="mt-0.5 font-heading text-lg font-extrabold text-white">
-                {home} {live.homeScore}–{live.awayScore} {away}
+                {home} {live!.homeScore}-{live!.awayScore} {away}
+                {statusLabel ? <span className="ml-2 text-sm text-white/55">{statusLabel}</span> : null}
               </p>
               {scorers ? (
                 <p className="mt-0.5 max-w-2xl text-sm text-white/70">
@@ -92,19 +105,28 @@ export async function OpeningMatchBanner() {
           )}
         </div>
 
-        <div className="ms-auto flex items-center gap-2">
-          <Flag code={OPENING_MATCH.homeCode} alt="" width={24} height={18} />
-          <span className="font-heading text-[10px] font-bold uppercase text-white/60">vs</span>
-          <Flag code={OPENING_MATCH.awayCode} alt="" width={24} height={18} />
-        </div>
+        {!isResultAware ? (
+          <>
+            <div className="ms-auto flex items-center gap-2">
+              <Flag code={OPENING_MATCH.homeCode} alt="" width={24} height={18} />
+              <span className="font-heading text-[10px] font-bold uppercase text-white/60">vs</span>
+              <Flag code={OPENING_MATCH.awayCode} alt="" width={24} height={18} />
+            </div>
 
-        <div className="text-end text-xs text-white/60">
-          <div>
-            {OPENER_DATE_LABEL} · {OPENING_MATCH.venue}
+            <div className="text-end text-xs text-white/60">
+              <div>
+                {OPENER_DATE_LABEL} · {OPENING_MATCH.venue}
+              </div>
+              <MatchTime match={OPENING_MATCH} withZone className="font-semibold text-white" />
+              <TimezoneLabel className="text-[10px] text-white/45" />
+            </div>
+          </>
+        ) : (
+          <div className="ms-auto text-end text-xs text-white/50">
+            <div>{OPENING_MATCH.venue}</div>
+            <TimezoneLabel className="text-[10px] text-white/45" />
           </div>
-          <MatchTime match={OPENING_MATCH} withZone className="font-semibold text-white" />
-          <TimezoneLabel className="text-[10px] text-white/45" />
-        </div>
+        )}
       </div>
     </section>
   );

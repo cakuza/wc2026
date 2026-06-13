@@ -6,7 +6,9 @@ import { Flag } from "@/components/Flag";
 import { MatchTime } from "@/components/MatchTime";
 import { TimezoneLabel } from "@/components/TimezoneLabel";
 import { useLang } from "@/components/LanguageProvider";
-import { getDisplayMatchday, type DisplayMatchday, type Match } from "@/lib/matches";
+import { useTimezone } from "@/components/TimezoneProvider";
+import { type DisplayMatchday, type Match } from "@/lib/matches";
+import { getDisplayMatchdayForTimeZone } from "@/lib/todaySelection";
 
 function MatchRow({ m }: { m: Match }) {
   const { t, country } = useLang();
@@ -34,12 +36,13 @@ function MatchRow({ m }: { m: Match }) {
 
 export function TodayMatches({ initialMatchday }: { initialMatchday: DisplayMatchday }) {
   const { t, formatDate } = useLang();
+  const { timeZone } = useTimezone();
   // Computed in an effect so the chosen matchday always reflects the *client's* current date
   // (avoids any server/client date drift), while the initial value keeps SSR stable.
   const [md, setMd] = useState(initialMatchday);
   useEffect(() => {
-    setMd(getDisplayMatchday());
-  }, []);
+    setMd(getDisplayMatchdayForTimeZone({ timeZone }));
+  }, [timeZone]);
 
   const dateLabel = md.days
     ? `${formatDate(md.days[0].date)} – ${formatDate(md.days[md.days.length - 1].date)}`

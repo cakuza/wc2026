@@ -13,6 +13,7 @@ import { StandingsTable } from "@/components/StandingsTable";
 import type { SerializableSnapshotMatch } from "@/lib/liveSnapshot";
 import type { StandingRow } from "@/lib/groupStandings";
 import { pathSlotsForGroup, slotLabel } from "@/lib/knockoutBracket2026";
+import { firstMatchResultSentence, playedGroupSummary } from "@/lib/teamCopy";
 
 function formatSquadValue(millions: number): string {
   return millions >= 1000 ? `€${(millions / 1000).toFixed(2)}B` : `€${millions}M`;
@@ -53,6 +54,16 @@ export function TeamDetail({
     null;
   const teamRow = standingsRows?.find((row) => row.teamKey === team.key);
   const hasPlayed = Boolean(teamRow && teamRow.played > 0);
+  const teamDisplayName = country(team.key);
+  const playedSummary = teamRow
+    ? playedGroupSummary({
+        teamName: teamDisplayName,
+        group: team.group,
+        played: teamRow.played,
+        points: teamRow.points,
+        goalDifference: teamRow.goalDifference,
+      })
+    : null;
 
   const scorerText = (snap: SerializableSnapshotMatch | undefined) =>
     snap?.scorers?.length
@@ -214,8 +225,8 @@ export function TeamDetail({
 
       {hasPlayed ? (
         <div className="mt-3 rounded-lg border border-white/10 bg-navyCard/70 px-4 py-3 text-sm text-white/70">
-          <span className="font-semibold text-white">{country(team.key)}</span>
-          {" "}have played {teamRow?.played} match{teamRow?.played === 1 ? "" : "es"} in Group {team.group}, with {teamRow?.points} point{teamRow?.points === 1 ? "" : "s"} and a {teamRow && teamRow.goalDifference > 0 ? "+" : ""}{teamRow?.goalDifference ?? 0} goal difference.
+          <span className="font-semibold text-white">{teamDisplayName}</span>
+          {" "}{playedSummary?.slice(teamDisplayName.length).trim()}
           {" "}Group order is provisional when teams are level on available criteria.
         </div>
       ) : nextListedMatch && (() => {
@@ -258,7 +269,13 @@ export function TeamDetail({
                 </p>
                 <p className="mt-1 text-sm text-white/80">
                   {snap?.status === "FINISHED"
-                    ? `${withArticle(teamName, true)} first match was against ${oppName} on ${dateStr}, finishing ${snap.homeScore}–${snap.awayScore}.`
+                    ? firstMatchResultSentence({
+                        teamName,
+                        opponentName: oppName,
+                        date: dateStr,
+                        homeScore: snap.homeScore ?? 0,
+                        awayScore: snap.awayScore ?? 0,
+                      })
                     : fill(t("qa_first_match_a"), {
                         team: withArticle(teamName, true),
                         opponent: oppName,

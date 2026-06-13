@@ -7,6 +7,7 @@ import { squadFor } from "@/lib/squads";
 import { countryName } from "@/lib/i18n";
 import { getTournamentLiveSnapshot } from "@/lib/liveSnapshot";
 import { matchSlug } from "@/lib/matches";
+import { firstMatchResultSentence } from "@/lib/teamCopy";
 
 export function generateStaticParams() {
   return TEAMS.map((t) => ({ slug: slugFor(t.key) }));
@@ -141,7 +142,13 @@ export default async function TeamPage({ params }: { params: Promise<{ slug: str
       snapshotFirstMatch.homeScore !== null &&
       snapshotFirstMatch.awayScore !== null;
     const resultText = played
-      ? `${withArticle(name, true)} first match was against ${opponentName} on ${dateStr}, finishing ${snapshotFirstMatch.homeScore}–${snapshotFirstMatch.awayScore}.`
+      ? firstMatchResultSentence({
+          teamName: name,
+          opponentName,
+          date: dateStr,
+          homeScore: snapshotFirstMatch.homeScore ?? 0,
+          awayScore: snapshotFirstMatch.awayScore ?? 0,
+        })
       : `${withArticle(name, true)} play ${opponentName} on ${dateStr}${venueStr}${timeStr}.`;
     faqEntities.push({
       "@type": "Question",
