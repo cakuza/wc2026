@@ -4,7 +4,9 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import { Flag } from "@/components/Flag";
 import { useLang } from "@/components/LanguageProvider";
-import { type Match } from "@/lib/matches";
+import { useTimezone } from "@/components/TimezoneProvider";
+import { matchUtcDate, type Match } from "@/lib/matches";
+import { getMatchCalendarDateInZone } from "@/lib/todaySelection";
 
 const PIXELS_PER_SECOND = 80;
 
@@ -21,6 +23,7 @@ const TickerDuplicate = dynamic(
 
 function TickerItems({ items }: { items: Match[] }) {
   const { t, country, formatDate } = useLang();
+  const { timeZone } = useTimezone();
   return (
     <>
       {items.map((m, i) => (
@@ -34,7 +37,7 @@ function TickerItems({ items }: { items: Match[] }) {
           <Flag code={m.awayCode} alt="" width={22} height={16} className="rounded-sm" />
           <span>{country(m.awayKey)}</span>
           <span className="opacity-70">·</span>
-          <span className="opacity-80">{formatDate(m.date)}</span>
+          <span className="opacity-80">{formatDate(getMatchCalendarDateInZone(matchUtcDate(m), timeZone))}</span>
         </span>
       ))}
     </>

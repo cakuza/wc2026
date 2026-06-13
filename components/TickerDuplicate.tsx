@@ -13,8 +13,11 @@
 
 import { useEffect } from "react";
 import type { Match } from "@/lib/matches";
+import { matchUtcDate } from "@/lib/matches";
 import { Flag } from "@/components/Flag";
 import { useLang } from "@/components/LanguageProvider";
+import { useTimezone } from "@/components/TimezoneProvider";
+import { getMatchCalendarDateInZone } from "@/lib/todaySelection";
 
 interface Props {
   items: Match[];
@@ -25,6 +28,7 @@ interface Props {
 
 export default function TickerDuplicate({ items, onMount }: Props) {
   const { t, country, formatDate } = useLang();
+  const { timeZone } = useTimezone();
 
   // Signal the parent that this copy is now in the DOM.
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -47,7 +51,7 @@ export default function TickerDuplicate({ items, onMount }: Props) {
           <Flag code={m.awayCode} alt="" width={22} height={16} className="rounded-sm" />
           <span>{country(m.awayKey)}</span>
           <span className="opacity-70">·</span>
-          <span className="opacity-80">{formatDate(m.date)}</span>
+          <span className="opacity-80">{formatDate(getMatchCalendarDateInZone(matchUtcDate(m), timeZone))}</span>
         </span>
       ))}
     </div>
