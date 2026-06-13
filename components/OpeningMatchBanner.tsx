@@ -1,11 +1,11 @@
-"use client";
-
-import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Flag } from "@/components/Flag";
 import { MatchTime } from "@/components/MatchTime";
 import { TimezoneLabel } from "@/components/TimezoneLabel";
 import { OPENING_MATCH, matchSlug, matchUtcDate } from "@/lib/matches";
+import { countryName } from "@/lib/i18n";
+import { getTournamentLiveSnapshot } from "@/lib/liveSnapshot";
+import type { GoalScorerEvent } from "@/lib/worldcup26Provider";
 
 type Phase = "before" | "live" | "after";
 
@@ -31,40 +31,65 @@ const TITLES: Record<Phase, string> = {
   after: "Opening match complete",
 };
 
+function scorerText(events: GoalScorerEvent[] | undefined) {
+  if (!events || events.length === 0) return null;
+  return events
+    .map((e) => (e.minute != null ? `${e.minute}' ${e.playerName}` : e.playerName))
+    .join(" · ");
+}
+
 /**
- * Compact "opening match" banner for the homepage. Phase is computed from Date.now() on
- * both server and client (like useCountdown), so the title reflects the real kickoff
- * window immediately. Hides itself a day after the opener has finished.
+ * Compact "opening match" banner for the homepage. Finished-match score and scorer
+ * details come from the same shared live/scorer maps used by match pages and stats.
  */
-export function OpeningMatchBanner() {
-  const [phase, setPhase] = useState<Phase>(getPhase);
-
-  useEffect(() => {
-    const id = setInterval(() => setPhase(getPhase()), 60 * 1000);
-    return () => clearInterval(id);
-  }, []);
-
-  // Hide the banner a full day after the opener has finished.
-  const hideAfter = matchUtcDate(OPENING_MATCH).getTime() + MATCH_DURATION_MS + 24 * 60 * 60 * 1000;
-  if (Date.now() > hideAfter) return null;
+export async function OpeningMatchBanner() {
+  const phase = getPhase();
+  const snapshot = await getTournamentLiveSnapshot();
+  const snapshotMatch = snapshot.matches[matchSlug(OPENING_MATCH)];
+  const live = snapshotMatch?.live ?? undefined;
+  const isFinished =
+    live?.status === "FINISHED" &&
+    live.homeScore !== null &&
+    live.awayScore !== null;
+  const scorers = scorerText(snapshotMatch?.scorers);
+  const home = countryName(OPENING_MATCH.homeKey, "en");
+  const away = countryName(OPENING_MATCH.awayKey, "en");
 
   return (
-    <Link
-      href={`/matches/${matchSlug(OPENING_MATCH)}`}
-      className="block border-b border-white/10 bg-accent/10 transition hover:bg-accent/15"
-    >
-      <div className="mx-auto flex max-w-7xl flex-wrap items-center gap-x-4 gap-y-2 px-4 py-3" suppressHydrationWarning>
+    <section className="border-b border-white/10 bg-accent/10">
+      <div className="mx-auto flex max-w-7xl flex-wrap items-center gap-x-4 gap-y-2 px-4 py-3">
         <div className="min-w-0">
           <p className="font-heading text-xs font-extrabold uppercase tracking-widest text-accent">
-            {TITLES[phase]}
+            {isFinished ? "Opening match complete" : TITLES[phase]}
           </p>
-          <p className="mt-0.5 max-w-2xl text-sm text-white/80">
-            Mexico vs South Africa{" "}
-            {phase === "after"
-              ? "opened the World Cup 2026."
-              : "opens the World Cup 2026."}{" "}
-            Check kickoff time, venue and matchday context in your selected timezone.
-          </p>
+          {isFinished ? (
+            <>
+              <p className="mt-0.5 font-heading text-lg font-extrabold text-white">
+                {home} {live.homeScore}–{live.awayScore} {away}
+              </p>
+              {scorers ? (
+                <p className="mt-0.5 max-w-2xl text-sm text-white/70">
+                  Goals: {scorers}
+                </p>
+              ) : null}
+              <div className="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-xs font-semibold text-accent">
+                <Link href={`/matches/${matchSlug(OPENING_MATCH)}`} className="hover:text-white">
+                  View match result
+                </Link>
+                <Link href="/today" className="hover:text-white">
+                  See today&apos;s matches
+                </Link>
+                <Link href="/groups" className="hover:text-white">
+                  View group standings
+                </Link>
+              </div>
+            </>
+          ) : (
+            <p className="mt-0.5 max-w-2xl text-sm text-white/80">
+              {home} vs {away} opens the World Cup 2026. Check kickoff time, venue and
+              matchday context in your selected timezone.
+            </p>
+          )}
         </div>
 
         <div className="ms-auto flex items-center gap-2">
@@ -81,6 +106,6 @@ export function OpeningMatchBanner() {
           <TimezoneLabel className="text-[10px] text-white/45" />
         </div>
       </div>
-    </Link>
+    </section>
   );
 }

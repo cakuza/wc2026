@@ -32,6 +32,17 @@ interface ThirdPlaceTableProps {
 
 export function ThirdPlaceTable({ rows }: ThirdPlaceTableProps) {
   const { t, country } = useLang();
+  const statusText = (status: ThirdPlaceRow["status"]) => {
+    if (status === "qualifying") return "Currently qualifying";
+    if (status === "outside") return "Currently outside";
+    if (status === "boundary") return "Tied at cut line";
+    return "Tied - order unresolved";
+  };
+  const statusClass = (status: ThirdPlaceRow["status"]) => {
+    if (status === "qualifying") return "bg-green-500/15 text-green-400";
+    if (status === "outside") return "bg-red-500/10 text-red-400/80";
+    return "bg-amber-500/15 text-amber-300";
+  };
 
   return (
     <div className="overflow-hidden rounded-xl border border-white/10 bg-navyCard">
@@ -67,7 +78,7 @@ export function ThirdPlaceTable({ rows }: ThirdPlaceTableProps) {
                     className="px-3 py-3 font-heading font-bold text-white/50"
                     style={{ borderLeft: `3px solid ${isQualifying ? "#22c55e" : "#ef4444"}` }}
                   >
-                    {row.rank}
+                    {row.rankLabel ?? row.rank}
                   </td>
 
                   {/* Flag + name */}
@@ -119,12 +130,10 @@ export function ThirdPlaceTable({ rows }: ThirdPlaceTableProps) {
                   <td className="px-3 py-3">
                     <span
                       className={`rounded-full px-2.5 py-1 font-heading text-[10px] font-bold uppercase tracking-wider ${
-                        isQualifying
-                          ? "bg-green-500/15 text-green-400"
-                          : "bg-red-500/10 text-red-400/80"
+                        statusClass(row.status)
                       }`}
                     >
-                      {isQualifying ? "Currently qualifying" : "Currently outside"}
+                      {statusText(row.status)}
                     </span>
                   </td>
                 </tr>

@@ -11,10 +11,11 @@ export function Nav() {
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
 
-  // Desktop nav order: Today, Schedule, Stats, 3rd-Place Table, Bracket, Teams, Matchday Hub
+  // Desktop nav order: Today, Schedule, Groups, Stats, 3rd-Place, Bracket, Teams, Hub
   const links = [
     { href: "/today", key: "nav_today" },
     { href: "/schedule", key: "nav_schedule" },
+    { href: "/groups", key: "nav_groups" },
     { href: "/stats", key: "nav_stats" },
     { href: "/world-cup-third-place-qualification", key: "nav_thirdPlace" },
     { href: "/bracket", key: "nav_bracket" },
@@ -22,8 +23,7 @@ export function Nav() {
     { href: "/matchday-hub", key: "nav_matchdayHub" },
   ];
 
-  // Mobile menu also surfaces Groups and Quiz, which were moved out of the desktop nav.
-  const mobileLinks = [...links, { href: "/groups", key: "nav_groups" }, { href: "/quiz", key: "nav_quiz" }];
+  const mobileLinks = [...links, { href: "/quiz", key: "nav_quiz" }];
 
   return (
     <header className="sticky top-0 z-40 border-b-[3px] border-accent bg-navy">
@@ -34,7 +34,7 @@ export function Nav() {
             <span className="font-sans text-[11px] font-black tracking-widest bg-red-600 text-white px-1.5 py-0.5 rounded">2026</span>
           </Link>
           {/* Desktop nav */}
-          <nav className="hidden items-center gap-1 md:flex">
+          <nav className="hidden items-center gap-1 lg:flex">
             {links.map((l) => {
               const active = l.href === "/" ? pathname === "/" : pathname.startsWith(l.href);
               return (
@@ -45,7 +45,7 @@ export function Nav() {
                     active ? "bg-accent text-white" : "text-white/70 hover:bg-white/10 hover:text-white"
                   }`}
                 >
-                  {t(l.key)}
+                  {l.href === "/matchday-hub" ? "Hub" : t(l.key)}
                 </Link>
               );
             })}
@@ -60,7 +60,7 @@ export function Nav() {
             aria-label={menuOpen ? "Close menu" : "Open menu"}
             aria-expanded={menuOpen}
             onClick={() => setMenuOpen((o) => !o)}
-            className="flex h-9 w-9 items-center justify-center rounded border border-white/15 bg-white/5 text-white transition hover:bg-white/10 md:hidden"
+            className="flex h-9 w-9 items-center justify-center rounded border border-white/15 bg-white/5 text-white transition hover:bg-white/10 lg:hidden"
           >
             {menuOpen ? (
               /* X icon */
@@ -79,7 +79,7 @@ export function Nav() {
 
       {/* Mobile dropdown menu */}
       {menuOpen && (
-        <nav className="border-t border-white/10 bg-navy md:hidden">
+        <nav className="border-t border-white/10 bg-navy lg:hidden">
           <div className="mx-auto max-w-7xl px-4 py-3">
             <div className="grid grid-cols-2 gap-2">
               {mobileLinks.map((l) => {

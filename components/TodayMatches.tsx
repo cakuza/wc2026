@@ -6,7 +6,7 @@ import { Flag } from "@/components/Flag";
 import { MatchTime } from "@/components/MatchTime";
 import { TimezoneLabel } from "@/components/TimezoneLabel";
 import { useLang } from "@/components/LanguageProvider";
-import { getDisplayMatchday, type Match } from "@/lib/matches";
+import { getDisplayMatchday, type DisplayMatchday, type Match } from "@/lib/matches";
 
 function MatchRow({ m }: { m: Match }) {
   const { t, country } = useLang();
@@ -32,11 +32,11 @@ function MatchRow({ m }: { m: Match }) {
   );
 }
 
-export function TodayMatches() {
+export function TodayMatches({ initialMatchday }: { initialMatchday: DisplayMatchday }) {
   const { t, formatDate } = useLang();
   // Computed in an effect so the chosen matchday always reflects the *client's* current date
   // (avoids any server/client date drift), while the initial value keeps SSR stable.
-  const [md, setMd] = useState(() => getDisplayMatchday());
+  const [md, setMd] = useState(initialMatchday);
   useEffect(() => {
     setMd(getDisplayMatchday());
   }, []);
@@ -83,7 +83,7 @@ export function TodayMatches() {
         href="/today"
         className="mt-4 block text-center font-heading text-xs font-bold uppercase tracking-wide text-accent transition hover:text-white"
       >
-        {t("nav_today")} →
+        See today&apos;s matches →
       </Link>
     </div>
   );

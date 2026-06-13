@@ -3,10 +3,15 @@ import { notFound } from "next/navigation";
 import { TimezoneSchedulePageContent } from "@/components/TimezoneSchedulePageContent";
 import { TIMEZONE_SLUGS, timezoneBySlug } from "@/lib/timezones";
 import { MATCHES } from "@/lib/matches";
+import { getTournamentLiveSnapshot } from "@/lib/liveSnapshot";
+import type { LiveMatchStatus } from "@/lib/liveMatchData";
+import type { GoalScorerEvent } from "@/lib/worldcup26Provider";
 
 const BASE_URL = "https://www.worldcupmatchday.com";
 
 export const dynamicParams = false;
+export const dynamic = "force-dynamic";
+export const revalidate = 30;
 
 export function generateStaticParams() {
   return TIMEZONE_SLUGS.map((zone) => ({ zone }));
@@ -43,6 +48,15 @@ export default async function TimezoneSchedulePage({
   if (!z) notFound();
 
   const fixtureCount = MATCHES.length;
+  const snapshot = await getTournamentLiveSnapshot();
+  const liveScores: Record<number, { status: LiveMatchStatus; homeScore: number | null; awayScore: number | null }> = {};
+  for (const [id, data] of Object.entries(snapshot.liveDataByProviderId)) {
+    liveScores[Number(id)] = { status: data.status, homeScore: data.homeScore, awayScore: data.awayScore };
+  }
+  const scorerLines: Record<string, GoalScorerEvent[]> = {};
+  for (const [id, entry] of Object.entries(snapshot.matches)) {
+    if (entry.scorers.length > 0) scorerLines[id] = entry.scorers;
+  }
 
   // FAQ structured data is kept in English for SEO (independent of the visible, localized FAQ).
   const faqs = [
@@ -63,7 +77,7 @@ export default async function TimezoneSchedulePage({
       a: "The today page shows the current day's fixtures (or the next upcoming matchday) with kickoff times and venues.",
     },
     {
-      q: "Is this an official FIFA site?",
+      q: "Is WorldCupMatchDay affiliated with FIFA?",
       a: "No. WorldCupMatchDay is an independent, fan-made resource and is not affiliated with FIFA.",
     },
   ];
@@ -84,7 +98,7 @@ export default async function TimezoneSchedulePage({
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(faqLd) }}
       />
-      <TimezoneSchedulePageContent zone={z} fixtureCount={fixtureCount} />
+      <TimezoneSchedulePageContent zone={z} fixtureCount={fixtureCount} liveScores={liveScores} scorerLines={scorerLines} />
     </>
   );
 }

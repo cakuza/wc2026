@@ -3,22 +3,22 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: "Privacy Policy — WorldCupMatchDay",
   description:
-    "Privacy policy for WorldCupMatchDay. This fan site does not collect personal data. Learn about Google AdSense cookies and third-party services.",
+    "Privacy policy for WorldCupMatchDay, including third-party hosting, analytics and Google AdSense disclosures.",
   alternates: { canonical: "https://www.worldcupmatchday.com/privacy" },
 };
 
 const SECTIONS = [
   {
     heading: "WHO WE ARE",
-    body: "WorldCupMatchDay is an independent, fan-made website covering the FIFA World Cup 2026. We are not affiliated with FIFA or any national football federation. The site is operated as a non-commercial fan project.",
+    body: "WorldCupMatchDay is an independent fan-operated website covering the FIFA World Cup 2026. We are not affiliated with FIFA or any national football federation.",
   },
   {
     heading: "DATA WE COLLECT",
-    body: "We do not collect, store, or process any personal data about our visitors. There is no account system, no login, and no contact form that stores submissions. If you email us directly at worldcupmatchday@proton.me, your email address is used only to respond to your message.",
+    body: "We do not operate user accounts or directly collect profile information. Third-party services used for hosting, analytics and advertising may process technical information such as IP addresses, device/browser information, cookies or similar identifiers. If you email us directly at worldcupmatchday@proton.me, your email address is used only to respond to your message.",
   },
   {
     heading: "COOKIES",
-    body: "This site may use Google AdSense to display advertisements. Google AdSense uses cookies to serve ads based on your prior visits to this and other websites. You can opt out of personalised advertising by visiting Google's Ads Settings at adssettings.google.com. We do not set any first-party cookies ourselves.",
+    body: "This site may use cookies or similar technologies through third-party services, including Google AdSense. You can opt out of personalised advertising by visiting Google's Ads Settings at adssettings.google.com.",
   },
   {
     heading: "GOOGLE ADSENSE",
@@ -26,7 +26,7 @@ const SECTIONS = [
   },
   {
     heading: "ANALYTICS",
-    body: "We may use aggregated, anonymised page-view analytics (such as Vercel Analytics) to understand how pages are being used. No personally identifiable information is collected or stored.",
+    body: "We may use analytics provided by hosting or analytics services, such as Vercel Analytics if enabled, to understand how pages are being used. These services may process technical information such as device, browser and visit data according to their own policies.",
   },
   {
     heading: "THIRD-PARTY LINKS",
@@ -44,6 +44,10 @@ const SECTIONS = [
     heading: "CONTACT",
     body: "If you have any questions about this privacy policy, please contact us at worldcupmatchday@proton.me.",
   },
+  {
+    heading: "NOTE",
+    body: "This page is an operational disclosure about how the site is run and is not legal advice.",
+  },
 ];
 
 export default function PrivacyPage() {
@@ -56,7 +60,7 @@ export default function PrivacyPage() {
         PRIVACY POLICY
       </h1>
       <p className="mb-8 font-heading text-xs font-bold tracking-widest text-white/30">
-        EFFECTIVE: 1 JUNE 2026
+        EFFECTIVE: 13 JUNE 2026
       </p>
 
       <div className="space-y-7">

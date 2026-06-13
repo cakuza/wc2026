@@ -3,8 +3,8 @@
  *
  * Verifies that computeThirdPlaceRanking():
  * - Returns exactly 12 third-placed teams (one per group)
- * - Marks ranks 1-8 as "qualifying" and 9-12 as "outside"
- * - Sorts by points desc, then goal difference desc, then goals-for desc, then team name asc
+ * - Marks clear rows as "qualifying" / "outside" and exact ties as unresolved
+ * - Sorts by points desc, then goal difference desc, then goals-for desc
  * - Never produces an "Eliminated" style status
  *
  * Usage:
@@ -78,7 +78,8 @@ assert(ranking.length === 12, `exactly 12 third-placed teams (got ${ranking.leng
 
 const qualifying = ranking.filter((r) => r.status === "qualifying");
 const outside = ranking.filter((r) => r.status === "outside");
-assert(qualifying.length === 8, `top 8 marked "currently qualifying" (got ${qualifying.length})`);
+const unresolved = ranking.filter((r) => r.status === "unresolved" || r.status === "boundary");
+assert(qualifying.length + unresolved.filter((r) => r.rank <= 8).length >= 8, "top-8 area is covered by qualifying or unresolved rows");
 assert(outside.length === 4, `ranks 9-12 marked "currently outside" (got ${outside.length})`);
 assert(
   qualifying.every((r) => r.rank >= 1 && r.rank <= 8),
@@ -93,10 +94,15 @@ assert(
 assert(ranking[0].teamKey === "teamA3", `rank 1 is teamA3 (highest points/GD/GF), got ${ranking[0].teamKey}`);
 assert(ranking[1].teamKey === "teamB3", `rank 2 is teamB3, got ${ranking[1].teamKey}`);
 
-// teamC3 and teamD3 tie on points/GD/GF -> sorted by teamKey asc
+// teamC3 and teamD3 tie on points/GD/GF -> equal provisional rank
 const cIndex = ranking.findIndex((r) => r.teamKey === "teamC3");
 const dIndex = ranking.findIndex((r) => r.teamKey === "teamD3");
-assert(cIndex < dIndex, `tied teams sorted by team name asc (teamC3 before teamD3): ${cIndex} < ${dIndex}`);
+assert(
+  ranking[cIndex].rank === ranking[dIndex].rank &&
+    ranking[cIndex].tieUnresolved === true &&
+    ranking[dIndex].tieUnresolved === true,
+  "tied teams share unresolved rank",
+);
 
 // Overall sort is non-increasing on points
 for (let i = 1; i < ranking.length; i++) {
@@ -114,8 +120,8 @@ assert(
   'no "Eliminated" status appears',
 );
 assert(
-  statuses.every((s) => s === "qualifying" || s === "outside"),
-  'all statuses are "qualifying" or "outside"',
+  statuses.every((s) => s === "qualifying" || s === "outside" || s === "unresolved" || s === "boundary"),
+  'all statuses are safe known values',
 );
 
 console.log(`\n${passed} passed, ${failed} failed`);

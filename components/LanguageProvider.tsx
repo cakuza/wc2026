@@ -19,6 +19,26 @@ type LangContextValue = {
 
 const LangContext = createContext<LangContextValue | null>(null);
 
+function getStoredExplicitLang(): Lang | null {
+  try {
+    const saved = localStorage.getItem(LANG_KEY) as Lang | null;
+    const wasExplicit = localStorage.getItem(LANG_SET_KEY) === "1";
+    if (wasExplicit && saved && LANGUAGES.some((l) => l.code === saved)) return saved;
+  } catch {
+    // Storage may be blocked in audits, private modes, or hardened browsers.
+  }
+  return null;
+}
+
+function persistLang(newLang: Lang) {
+  try {
+    localStorage.setItem(LANG_KEY, newLang);
+    localStorage.setItem(LANG_SET_KEY, "1");
+  } catch {
+    // Keep language switching functional even when storage is unavailable.
+  }
+}
+
 export function LanguageProvider({ children }: { children: ReactNode }) {
   const [lang, setLang] = useState<Lang>("en");
 
@@ -26,9 +46,8 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
   // Auto-saved values from previous code versions are ignored, ensuring new/cleared-storage
   // visitors always land on English.
   useEffect(() => {
-    const saved = localStorage.getItem(LANG_KEY) as Lang | null;
-    const wasExplicit = localStorage.getItem(LANG_SET_KEY) === "1";
-    if (wasExplicit && saved && LANGUAGES.some((l) => l.code === saved)) setLang(saved);
+    const saved = getStoredExplicitLang();
+    if (saved) setLang(saved);
   }, []);
 
   // Drive document lang/dir for RTL support — no localStorage write here.
@@ -40,8 +59,7 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
 
   // Persist only when user explicitly picks a language via the switcher.
   const setLangAndPersist = useCallback((newLang: Lang) => {
-    localStorage.setItem(LANG_KEY, newLang);
-    localStorage.setItem(LANG_SET_KEY, "1");
+    persistLang(newLang);
     setLang(newLang);
   }, []);
 

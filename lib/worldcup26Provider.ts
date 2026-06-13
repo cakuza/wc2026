@@ -15,8 +15,12 @@ const TIMEOUT_MS = 8_000;
 export type GoalScorerEvent = {
   type: "GOAL";
   minute: number | null;
+  stoppageTime?: number | null;
+  minuteLabel?: string;
   teamName: string;
+  playerTeamName?: string;
   playerName: string;
+  isOwnGoal?: boolean;
   provider: "worldcup26.ir";
   confidence: "high" | "low";
 };
@@ -33,9 +37,10 @@ export type WorldCup26Game = {
   localDate: string | null;
 };
 
-// Matches scorer strings like: "J. Quinones 9'" or "R. Jimenez 67'" or "Lamine Yamal 31"
-// Also handles stoppage time: "L. Messi 90+3'"
-const SCORER_RE = /^(.+?)\s+(\d+)(?:\+\d+)?'?$/;
+// Matches scorer strings like "J. Quinones 9'", "Lamine Yamal 31",
+// "F. Balogun 45'+5'" and "D. Bobadilla 7'(OG)".
+const SCORER_RE = /^(.+?)\s+(\d+)'?(?:\+(\d+)'?)?(?:\s*\(OG\))?$/i;
+const OWN_GOAL_RE = /\(OG\)\s*$/i;
 
 /**
  * worldcup26.ir serializes scorer arrays with Unicode smart quotes U+201C / U+201D.
@@ -72,11 +77,18 @@ function parseScorerString(raw: string, teamName: string): GoalScorerEvent | nul
   if (!str) return null;
   const m = SCORER_RE.exec(str);
   if (m) {
+    const minute = parseInt(m[2], 10);
+    const stoppageTime = m[3] ? parseInt(m[3], 10) : null;
+    const isOwnGoal = OWN_GOAL_RE.test(str);
     return {
       type: "GOAL",
-      minute: parseInt(m[2], 10),
+      minute,
+      stoppageTime,
+      minuteLabel: `${minute}${stoppageTime ? `+${stoppageTime}` : ""}'`,
       teamName,
       playerName: m[1].trim(),
+      isOwnGoal,
+      playerTeamName: isOwnGoal ? undefined : teamName,
       provider: "worldcup26.ir",
       confidence: "high",
     };
@@ -139,7 +151,7 @@ function parseGame(raw: RawGame): WorldCup26Game | null {
 
 let cachedGames: WorldCup26Game[] | null = null;
 let cacheExpiresAt = 0;
-const CACHE_TTL_MS = 60_000; // 60s in-process cache
+const CACHE_TTL_MS = 30_000; // 30s in-process cache, aligned with the live snapshot
 
 /**
  * Fetch all games from worldcup26.ir. Returns null on failure.
@@ -258,6 +270,7 @@ export async function getScorerEventsByInternalMatchId(): Promise<Map<string, Go
 
   const { MATCHES, matchSlug } = await import("./matches");
   const { countryName } = await import("./i18n");
+  const { applyVerifiedGoalCorrections } = await import("./verifiedMatchEventCorrections");
 
   for (const match of MATCHES) {
     const homeDisplay = countryName(match.homeKey, "en");
@@ -275,12 +288,13 @@ export async function getScorerEventsByInternalMatchId(): Promise<Map<string, Go
 
     const homeEvents = game.homeScorers.map((e) => ({ ...e, teamName: homeDisplay }));
     const awayEvents = game.awayScorers.map((e) => ({ ...e, teamName: awayDisplay }));
-    const events = [...homeEvents, ...awayEvents];
+    const slug = matchSlug(match);
+    const events = applyVerifiedGoalCorrections(slug, [...homeEvents, ...awayEvents]);
     if (events.length === 0) continue;
 
     result.set(
-      matchSlug(match),
-      events.sort((a, b) => (a.minute ?? 999) - (b.minute ?? 999)),
+      slug,
+      events.sort((a, b) => (a.minute ?? 999) - (b.minute ?? 999) || (a.stoppageTime ?? 0) - (b.stoppageTime ?? 0)),
     );
   }
 

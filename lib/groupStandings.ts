@@ -9,6 +9,9 @@ import type { LiveMatchData } from "./liveMatchData";
 
 export type StandingRow = {
   teamKey: string;
+  rank?: number;
+  rankLabel?: string;
+  tieUnresolved?: boolean;
   played: number;
   wins: number;
   draws: number;
@@ -86,8 +89,36 @@ export function computeGroupStandings(
       if (b.points !== a.points) return b.points - a.points;
       if (b.goalDifference !== a.goalDifference) return b.goalDifference - a.goalDifference;
       if (b.goalsFor !== a.goalsFor) return b.goalsFor - a.goalsFor;
-      return a.teamKey.localeCompare(b.teamKey);
+      return 0;
     });
+    let lastRank = 0;
+    for (let i = 0; i < groupRows.length; i++) {
+      const row = groupRows[i];
+      const prev = groupRows[i - 1];
+      const tiedWithPrev =
+        prev &&
+        prev.points === row.points &&
+        prev.goalDifference === row.goalDifference &&
+        prev.goalsFor === row.goalsFor &&
+        prev.goalsAgainst === row.goalsAgainst &&
+        prev.played === row.played &&
+        prev.wins === row.wins &&
+        prev.draws === row.draws &&
+        prev.losses === row.losses;
+      if (!tiedWithPrev) lastRank = i + 1;
+      const tiedWithNext = groupRows[i + 1] &&
+        groupRows[i + 1].points === row.points &&
+        groupRows[i + 1].goalDifference === row.goalDifference &&
+        groupRows[i + 1].goalsFor === row.goalsFor &&
+        groupRows[i + 1].goalsAgainst === row.goalsAgainst &&
+        groupRows[i + 1].played === row.played &&
+        groupRows[i + 1].wins === row.wins &&
+        groupRows[i + 1].draws === row.draws &&
+        groupRows[i + 1].losses === row.losses;
+      row.rank = lastRank;
+      row.tieUnresolved = Boolean(tiedWithPrev || tiedWithNext);
+      row.rankLabel = `${lastRank}${row.tieUnresolved ? "=" : ""}`;
+    }
     result[group] = groupRows;
   }
 

@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useEffect, useState } from "react";
 import { useCountdown, CountdownTimer } from "@/components/Countdown";
 import { useLang } from "@/components/LanguageProvider";
 import { TOURNAMENT_FINAL_DATE } from "@/lib/matches";
@@ -16,7 +17,14 @@ import { TOURNAMENT_FINAL_DATE } from "@/lib/matches";
  */
 export function CountdownClient() {
   const { t } = useLang();
+  const [mounted, setMounted] = useState(false);
   const { phase, parts } = useCountdown();
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) return null;
 
   if (phase === "after") {
     return (

@@ -42,9 +42,9 @@ export const TIMEZONES: TimezoneConfig[] = [
     iana: "America/New_York",
     zoneNote: "Eastern Time (EDT, UTC−4) · America/New_York",
     context: "ET is shown for fans following the tournament from the US East Coast and other Eastern Time locations. The United States (Group D) play their group-stage matches across multiple US venues.",
-    title: "World Cup 2026 Schedule in Eastern Time (ET)",
+    title: "World Cup 2026 Schedule in Eastern Time — ET Fixtures & Scores",
     description:
-      "See World Cup 2026 fixtures converted to Eastern Time (EDT, UTC−4), with kickoff times, matchdays, venues and group-stage context.",
+      "See World Cup 2026 fixtures converted to Eastern Time, with scores, venues, matchdays and kickoff times.",
   },
   {
     slug: "india-time",

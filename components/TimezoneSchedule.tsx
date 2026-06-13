@@ -4,6 +4,8 @@ import Link from "next/link";
 import { Flag } from "@/components/Flag";
 import { useLang } from "@/components/LanguageProvider";
 import { MATCHES, matchSlug, matchUtcDate, type Match } from "@/lib/matches";
+import type { LiveMatchStatus } from "@/lib/liveMatchData";
+import type { GoalScorerEvent } from "@/lib/worldcup26Provider";
 
 // Grouping/sorting is done from each match's absolute UTC instant in the target IANA timezone, so
 // both the date bucket and the kickoff time reflect that zone (handling day rollovers, e.g. a late
@@ -45,7 +47,29 @@ function timeLabel(d: Date, iana: string): string {
 type Row = { m: Match; num: number; time: string };
 type DayGroup = { key: string; label: string; rows: Row[] };
 
-export function TimezoneSchedule({ iana }: { iana: string }) {
+type TimezoneScheduleScore = { status: LiveMatchStatus; homeScore: number | null; awayScore: number | null };
+
+function shortScorerName(playerName: string) {
+  if (playerName.includes(".")) return playerName;
+  const parts = playerName.trim().split(/\s+/);
+  return parts[parts.length - 1] ?? playerName;
+}
+
+function scorerText(events: GoalScorerEvent[] | undefined) {
+  return events?.length
+    ? events.map((event) => `${event.minuteLabel ?? (event.minute != null ? `${event.minute}'` : "")} ${shortScorerName(event.playerName)}${event.isOwnGoal ? " (OG)" : ""}`.trim()).join(" · ")
+    : null;
+}
+
+export function TimezoneSchedule({
+  iana,
+  liveScores,
+  scorerLines,
+}: {
+  iana: string;
+  liveScores?: Record<number, TimezoneScheduleScore>;
+  scorerLines?: Record<string, GoalScorerEvent[]>;
+}) {
   const { t, country, locale } = useLang();
 
   const sorted = [...MATCHES].sort(
@@ -75,6 +99,11 @@ export function TimezoneSchedule({ iana }: { iana: string }) {
             {g.rows.map(({ m, num, time }) => {
               const home = country(m.homeKey);
               const away = country(m.awayKey);
+              const pid = m.providerIds?.footballData;
+              const score = pid ? liveScores?.[pid] : undefined;
+              const hasScore = score && score.homeScore !== null && score.awayScore !== null;
+              const status = score?.status === "FINISHED" ? "FT" : score?.status === "PAUSED" ? "HT" : score?.status === "IN_PLAY" ? "Live" : null;
+              const goals = scorerText(scorerLines?.[matchSlug(m)]);
               return (
                 <Link
                   key={`${g.key}-${num}`}
@@ -88,21 +117,26 @@ export function TimezoneSchedule({ iana }: { iana: string }) {
                     <span className="truncate font-semibold text-white">{home}</span>
                     <Flag code={m.homeCode} alt="" width={28} height={20} />
                   </div>
-                  <span className="shrink-0 rounded bg-navy px-2 py-1 font-heading text-[11px] font-bold uppercase text-white/50">
-                    {t("vs")}
+                  <span className="shrink-0 rounded bg-navy px-2 py-1 font-heading text-[11px] font-bold uppercase text-white/70">
+                    {hasScore ? `${score!.homeScore}–${score!.awayScore}` : t("vs")}
                   </span>
                   <div className="flex flex-1 items-center gap-2">
                     <Flag code={m.awayCode} alt="" width={28} height={20} />
                     <span className="truncate font-semibold text-white">{away}</span>
                   </div>
                   <div className="ms-2 hidden w-40 shrink-0 text-end text-xs text-white/55 sm:block">
-                    <div className="font-semibold text-white/85">{time}</div>
+                    <div className="font-semibold text-white/85">{status ?? time}</div>
                     <div className="text-white/45">
                       {m.group ? `${t("lbl_group")} ${m.group}` : ""}
                       {m.group && m.venue ? " · " : ""}
                       {m.venue ?? ""}
                     </div>
                   </div>
+                  {goals ? (
+                    <div className="hidden min-w-0 max-w-40 truncate text-[11px] text-white/40 lg:block">
+                      Goals: {goals}
+                    </div>
+                  ) : null}
                 </Link>
               );
             })}

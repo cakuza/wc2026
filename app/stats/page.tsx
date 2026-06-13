@@ -1,20 +1,22 @@
 import type { Metadata } from "next";
+import { LiveDataAutoRefresh } from "@/components/LiveDataAutoRefresh";
+import { LiveSnapshotDebug } from "@/components/LiveSnapshotDebug";
 import StatsContent from "@/components/StatsContent";
-import { fetchAllLiveData } from "@/lib/fetchAllLiveData";
-import { computeTournamentStats, computeTeamLeaderboards, computeTopScorers } from "@/lib/tournamentStats";
-import { computeGroupStandings } from "@/lib/groupStandings";
-import { getScorerEventsByInternalMatchId } from "@/lib/worldcup26Provider";
+import { getLiveRefreshPolicy } from "@/lib/liveRefreshPolicy";
+import { getTournamentLiveSnapshot } from "@/lib/liveSnapshot";
 
-export const revalidate = 60;
+export const revalidate = 30;
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "World Cup 2026 Stats - Records & Tournament Board",
+  title: "World Cup 2026 Stats - Goals, Scores, Standings & Top Scorers",
   description:
-    "World Cup all-time records plus a 2026 tournament stat board for goals, clean sheets and match results — updated after each completed match.",
+    "Track World Cup 2026 tournament stats, including matches played, total goals, team stats, clean sheets and top scorers when scorer data is available.",
   alternates: { canonical: "https://www.worldcupmatchday.com/stats" },
   openGraph: {
-    title: "World Cup 2026 Stats - Records & Tournament Board",
-    description: "All-time World Cup records and a matchday-ready 2026 tournament stat board.",
+    title: "World Cup 2026 Stats - Goals, Scores, Standings & Top Scorers",
+    description:
+      "Track World Cup 2026 tournament stats, including matches played, total goals, team stats, clean sheets and top scorers when scorer data is available.",
     url: "https://www.worldcupmatchday.com/stats",
     type: "website",
   },
@@ -23,56 +25,30 @@ export const metadata: Metadata = {
 const jsonLd = {
   "@context": "https://schema.org",
   "@type": "WebPage",
-  name: "FIFA World Cup 2026 Statistics",
+  name: "World Cup 2026 Statistics",
   description:
-    "All-time World Cup records and a tournament stat board for FIFA World Cup 2026.",
+    "World Cup 2026 tournament stats from completed synced matches.",
   url: "https://www.worldcupmatchday.com/stats",
 };
 
 export default async function StatsPage() {
-  // football-data.org bulk fetch (primary — score/status/standings/tournament totals)
-  const liveData = await fetchAllLiveData();
-  const tournamentStats = computeTournamentStats(liveData);
-  const standings = computeGroupStandings(liveData);
-  const teamLeaderboards = computeTeamLeaderboards(standings);
-
-  // Top scorers: try football-data.org first (eventDataAvailable=true, paid tier).
-  // Fall back to worldcup26.ir secondary source if football-data doesn't expose event data.
-  let topScorers = computeTopScorers(liveData);
-
-  if (topScorers.length === 0) {
-    const scorerEventsByMatch = await getScorerEventsByInternalMatchId();
-    if (scorerEventsByMatch.size > 0) {
-      const scorerMap = new Map<string, { playerName: string; teamName: string | null; goals: number }>();
-      for (const events of scorerEventsByMatch.values()) {
-        for (const g of events) {
-          const key = g.playerName;
-          const existing = scorerMap.get(key);
-          if (existing) {
-            existing.goals++;
-          } else {
-            scorerMap.set(key, { playerName: g.playerName, teamName: g.teamName, goals: 1 });
-          }
-        }
-      }
-      topScorers = [...scorerMap.values()]
-        .sort((a, b) => b.goals - a.goals)
-        .slice(0, 10);
-    }
-  }
-
-  const hasEventData = topScorers.length > 0;
+  const snapshot = await getTournamentLiveSnapshot();
+  const hasEventData = snapshot.topScorers.length > 0;
+  const refreshPolicy = getLiveRefreshPolicy(Object.values(snapshot.matches));
 
   return (
     <>
+      <LiveDataAutoRefresh intervalMs={refreshPolicy.intervalMs} />
+      <LiveSnapshotDebug snapshotId={snapshot.snapshotId} generatedAt={snapshot.generatedAt} />
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
       <StatsContent
-        tournamentStats={tournamentStats}
-        teamLeaderboards={teamLeaderboards}
-        topScorers={topScorers}
+        tournamentStats={snapshot.tournamentStats}
+        teamLeaderboards={snapshot.teamLeaderboards}
+        standings={snapshot.standingsByGroup}
+        topScorers={snapshot.topScorers}
         hasEventData={hasEventData}
       />
     </>

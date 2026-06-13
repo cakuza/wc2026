@@ -1,20 +1,4 @@
-export {};
-
-/**
- * Integration test: /stats and individual match pages must agree on scorer data.
- *
- * Both pages now read from the same getScorerEventsByInternalMatchId() map
- * (lib/worldcup26Provider.ts). This test simulates both lookup paths and
- * confirms they never disagree: if the shared map has scorer events for a
- * match, the match-detail enrichment for that match must also see them.
- *
- * Makes a live network request to worldcup26.ir.
- *
- * Usage:
- *   npx tsx scripts/test-match-scorer-consistency.ts
- */
-
-import { getScorerEventsByInternalMatchId } from "../lib/worldcup26Provider";
+﻿import { getScorerEventsByInternalMatchId } from "../lib/worldcup26Provider";
 import { MATCHES, matchSlug } from "../lib/matches";
 import { countryName } from "../lib/i18n";
 
@@ -32,75 +16,81 @@ function assert(condition: boolean, msg: string) {
 }
 
 async function main() {
-console.log("=== Match/stats scorer consistency test ===\n");
+  console.log("=== Match/stats scorer consistency test ===\n");
 
-const scorerMap = await getScorerEventsByInternalMatchId();
+  const scorerMap = await getScorerEventsByInternalMatchId();
+  console.log(`Shared map has scorer events for ${scorerMap.size} match(es).\n`);
 
-console.log(`Shared map has scorer events for ${scorerMap.size} match(es).\n`);
-
-// ── /stats path: aggregates topScorers from every entry in the shared map ────
-const statsTopScorers = new Map<string, { teamName: string | null; goals: number }>();
-for (const events of scorerMap.values()) {
-  for (const g of events) {
-    const existing = statsTopScorers.get(g.playerName);
-    if (existing) existing.goals++;
-    else statsTopScorers.set(g.playerName, { teamName: g.teamName, goals: 1 });
-  }
-}
-
-console.log(`/stats would show ${statsTopScorers.size} distinct scorer(s):`);
-for (const [name, info] of statsTopScorers) {
-  console.log(`  ${name} (${info.teamName}) — ${info.goals} goal(s)`);
-}
-
-// ── Match detail path: for each match, look up scorerMap.get(matchSlug(match)) ─
-console.log("\nPer-match consistency:");
-for (const match of MATCHES) {
-  const slug = matchSlug(match);
-  const events = scorerMap.get(slug);
-  if (!events || events.length === 0) continue;
-
-  console.log(`\n${slug} (${countryName(match.homeKey, "en")} vs ${countryName(match.awayKey, "en")}):`);
-  for (const e of events) {
-    console.log(`  ${e.minute ?? "?"}' ${e.playerName} (${e.teamName})`);
-    // Every player in this match's events must be reflected in the stats aggregation.
-    const inStats = statsTopScorers.has(e.playerName);
-    assert(inStats, `${e.playerName} (from ${slug}) appears in /stats top-scorer aggregation`);
+  const statsTopScorers = new Map<string, { teamName: string | null; goals: number }>();
+  for (const events of scorerMap.values()) {
+    for (const goal of events) {
+      if (goal.isOwnGoal) continue;
+      const existing = statsTopScorers.get(goal.playerName);
+      if (existing) existing.goals++;
+      else statsTopScorers.set(goal.playerName, { teamName: goal.teamName, goals: 1 });
+    }
   }
 
-  // Match detail enrichment must apply for this match (same map lookup as stats source).
-  assert(
-    scorerMap.get(slug) === events,
-    `match-detail enrichment for "${slug}" reads from the same shared map entry as /stats`,
+  console.log(`/stats would show ${statsTopScorers.size} distinct scorer(s):`);
+  for (const [name, info] of statsTopScorers) {
+    console.log(`  ${name} (${info.teamName}) - ${info.goals} goal(s)`);
+  }
+
+  console.log("\nPer-match consistency:");
+  for (const match of MATCHES) {
+    const slug = matchSlug(match);
+    const events = scorerMap.get(slug);
+    if (!events || events.length === 0) continue;
+
+    console.log(`\n${slug} (${countryName(match.homeKey, "en")} vs ${countryName(match.awayKey, "en")}):`);
+    for (const event of events) {
+      const minute = event.minuteLabel ?? (event.minute != null ? `${event.minute}'` : "?");
+      console.log(`  ${minute} ${event.playerName}${event.isOwnGoal ? " (OG)" : ""} (${event.teamName})`);
+      if (event.isOwnGoal) {
+        assert(!statsTopScorers.has(event.playerName), `${event.playerName} own goal is excluded from /stats top-scorer aggregation`);
+        continue;
+      }
+      assert(statsTopScorers.has(event.playerName), `${event.playerName} (from ${slug}) appears in /stats top-scorer aggregation`);
+    }
+
+    assert(scorerMap.get(slug) === events, `match-detail enrichment for "${slug}" reads from the same shared map entry as /stats`);
+  }
+
+  const usaMatch = MATCHES.find(
+    (match) => countryName(match.homeKey, "en") === "United States" && countryName(match.awayKey, "en") === "Paraguay",
   );
-}
-
-// ── Specific check: South Korea vs Czechia ────────────────────────────────────
-console.log("\n─── South Korea vs Czechia specific check ───");
-const korMatch = MATCHES.find(
-  (m) => countryName(m.homeKey, "en") === "South Korea" && countryName(m.awayKey, "en") === "Czechia",
-);
-
-if (korMatch) {
-  const slug = matchSlug(korMatch);
-  const events = scorerMap.get(slug);
-  if (events && events.length > 0) {
-    assert(events.length === 3, `south-korea-vs-czechia has 3 scorer events (got ${events.length})`);
-    const names = events.map((e) => e.playerName);
-    console.log(`  Scorers: ${names.join(", ")}`);
-    assert(
-      events.every((e) => e.teamName === "South Korea" || e.teamName === "Czechia"),
-      "all scorer events use internal team display names (South Korea / Czechia)",
-    );
-  } else {
-    console.log("  No scorer events found for South Korea vs Czechia (provider may not have parsed it yet)");
+  if (usaMatch) {
+    const slug = matchSlug(usaMatch);
+    const events = scorerMap.get(slug);
+    if (events && events.length > 0) {
+      assert(events.length === 5, "united-states-vs-paraguay has 5 goal events");
+      assert(events[0]?.playerName === "Damian Bobadilla" && events[0]?.isOwnGoal === true, "USA-Paraguay starts with Bobadilla own goal");
+      assert(events[2]?.playerName === "Folarin Balogun" && events[2]?.minuteLabel === "45+5'", "USA-Paraguay includes Balogun 45+5'");
+      assert(events[4]?.playerName === "Giovanni Reyna" && events[4]?.minuteLabel === "90+8'", "USA-Paraguay includes Reyna 90+8'");
+      assert(statsTopScorers.get("Folarin Balogun")?.goals === 2, "Balogun has 2 goals in /stats aggregation");
+      assert(!statsTopScorers.has("Damian Bobadilla"), "Bobadilla own goal is not in /stats aggregation");
+    }
   }
-} else {
-  console.log("  South Korea vs Czechia fixture not found in MATCHES");
-}
 
-console.log(`\n${passed} passed, ${failed} failed`);
-if (failed > 0) process.exitCode = 1;
+  const korMatch = MATCHES.find(
+    (match) => countryName(match.homeKey, "en") === "South Korea" && countryName(match.awayKey, "en") === "Czechia",
+  );
+  if (korMatch) {
+    const slug = matchSlug(korMatch);
+    const events = scorerMap.get(slug);
+    if (events && events.length > 0) {
+      assert(events.length === 3, `south-korea-vs-czechia has 3 scorer events (got ${events.length})`);
+      assert(
+        events.every((event) => event.teamName === "South Korea" || event.teamName === "Czechia"),
+        "all scorer events use internal team display names (South Korea / Czechia)",
+      );
+    } else {
+      console.log("  No scorer events found for South Korea vs Czechia (provider may not have parsed it yet)");
+    }
+  }
+
+  console.log(`\n${passed} passed, ${failed} failed`);
+  if (failed > 0) process.exitCode = 1;
 }
 
 main().catch((err) => {

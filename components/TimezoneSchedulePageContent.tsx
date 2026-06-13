@@ -4,6 +4,8 @@ import Link from "next/link";
 import { useLang } from "@/components/LanguageProvider";
 import { TimezoneSchedule } from "@/components/TimezoneSchedule";
 import { TIMEZONES, type TimezoneConfig } from "@/lib/timezones";
+import type { LiveMatchStatus } from "@/lib/liveMatchData";
+import type { GoalScorerEvent } from "@/lib/worldcup26Provider";
 
 // Client-rendered visible chrome for /schedule/[zone]. The server page keeps metadata, static
 // params and the English FAQ JSON-LD (for SEO); this component localizes everything the user sees
@@ -15,9 +17,13 @@ import { TIMEZONES, type TimezoneConfig } from "@/lib/timezones";
 export function TimezoneSchedulePageContent({
   zone: z,
   fixtureCount,
+  liveScores,
+  scorerLines,
 }: {
   zone: TimezoneConfig;
   fixtureCount: number;
+  liveScores?: Record<number, { status: LiveMatchStatus; homeScore: number | null; awayScore: number | null }>;
+  scorerLines?: Record<string, GoalScorerEvent[]>;
 }) {
   const { t } = useLang();
 
@@ -72,7 +78,7 @@ export function TimezoneSchedulePageContent({
         ))}
       </div>
 
-      <TimezoneSchedule iana={z.iana} />
+      <TimezoneSchedule iana={z.iana} liveScores={liveScores} scorerLines={scorerLines} />
 
       {/* Internal links */}
       <div className="mt-8 flex flex-wrap gap-3 text-sm">

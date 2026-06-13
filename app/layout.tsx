@@ -28,6 +28,10 @@ const barlowCondensed = Barlow_Condensed({
 });
 
 const BASE_URL = "https://www.worldcupmatchday.com";
+const BUILD_COMMIT =
+  process.env.NEXT_PUBLIC_BUILD_COMMIT ||
+  process.env.VERCEL_GIT_COMMIT_SHA ||
+  "unknown";
 
 export const metadata: Metadata = {
   metadataBase: new URL(BASE_URL),
@@ -80,6 +84,7 @@ export const metadata: Metadata = {
   },
   other: {
     "google-adsense-account": "ca-pub-2198254554444215",
+    "x-build-commit": BUILD_COMMIT,
   }
 };
 

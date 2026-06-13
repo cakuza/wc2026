@@ -4,7 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import { Flag } from "@/components/Flag";
 import { useLang } from "@/components/LanguageProvider";
-import { MATCHES } from "@/lib/matches";
+import { type Match } from "@/lib/matches";
 
 const PIXELS_PER_SECOND = 80;
 
@@ -19,34 +19,7 @@ const TickerDuplicate = dynamic(
   { ssr: false }
 );
 
-/** Build the list of matches to show in the ticker.
- *  – Prefer matches in the next 7 calendar days (at least 5).
- *  – If fewer than 5 qualify, fall back to the next 10 upcoming matches.
- *  – Always sorted ascending by date.
- */
-function getTickerMatches() {
-  const now = new Date();
-  const todayStart = new Date(now);
-  todayStart.setHours(0, 0, 0, 0);
-  const sevenDaysLater = new Date(todayStart);
-  sevenDaysLater.setDate(sevenDaysLater.getDate() + 7);
-
-  const sorted = [...MATCHES].sort(
-    (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
-  );
-
-  const nextSevenDays = sorted.filter((m) => {
-    const d = new Date(m.date);
-    return d >= todayStart && d <= sevenDaysLater;
-  });
-
-  if (nextSevenDays.length >= 5) return nextSevenDays;
-
-  // Fallback: next 10 upcoming matches from today
-  return sorted.filter((m) => new Date(m.date) >= todayStart).slice(0, 10);
-}
-
-function TickerItems({ items }: { items: typeof MATCHES }) {
+function TickerItems({ items }: { items: Match[] }) {
   const { t, country, formatDate } = useLang();
   return (
     <>
@@ -68,7 +41,7 @@ function TickerItems({ items }: { items: typeof MATCHES }) {
   );
 }
 
-export function Ticker() {
+export function Ticker({ items }: { items: Match[] }) {
   const { t, country, formatDate } = useLang();
   const trackRef = useRef<HTMLDivElement>(null);
   const posRef = useRef(0);
@@ -83,8 +56,6 @@ export function Ticker() {
    */
   const [dupeReady, setDupeReady] = useState(false);
   const handleDupeMount = useCallback(() => setDupeReady(true), []);
-
-  const tickerMatches = getTickerMatches();
 
   useEffect(() => {
     // Don't start until the duplicate is in the DOM (correct scrollWidth).
@@ -128,7 +99,7 @@ export function Ticker() {
           <div ref={trackRef} className="flex w-max items-center py-2">
             {/* Real copy — visible to screen readers and Googlebot */}
             <div className="flex items-center">
-              <TickerItems items={tickerMatches} />
+              <TickerItems items={items} />
             </div>
 
             {/*
@@ -136,7 +107,7 @@ export function Ticker() {
              * Loaded with { ssr: false } — NEVER in SSR HTML.
              * aria-hidden + data-nosnippet set inside TickerDuplicate itself.
              */}
-            <TickerDuplicate items={tickerMatches} onMount={handleDupeMount} />
+            <TickerDuplicate items={items} onMount={handleDupeMount} />
           </div>
         </div>
       </div>

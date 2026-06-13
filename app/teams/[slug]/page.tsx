@@ -5,12 +5,16 @@ import { TEAMS, slugFor, teamBySlug, teamsInGroup, withArticle } from "@/lib/tea
 import { matchesInGroup } from "@/lib/matches";
 import { squadFor } from "@/lib/squads";
 import { countryName } from "@/lib/i18n";
+import { getTournamentLiveSnapshot } from "@/lib/liveSnapshot";
+import { matchSlug } from "@/lib/matches";
 
 export function generateStaticParams() {
   return TEAMS.map((t) => ({ slug: slugFor(t.key) }));
 }
 
 export const dynamicParams = false;
+export const dynamic = "force-dynamic";
+export const revalidate = 30;
 
 // ── helpers ────────────────────────────────────────────────────────────────
 
@@ -46,11 +50,16 @@ export async function generateMetadata({
     .map((t) => countryName(t.key, "en"));
   const opponentStr = opponents.join(", ");
 
-  const title = `${name} World Cup 2026 — Schedule, Squad & Group ${team.group}`;
+  const title =
+    team.key === "turkey"
+      ? "Turkey World Cup 2026 Fixtures, Group, Scores & Squad"
+      : `${name} World Cup 2026 — Schedule, Squad & Group ${team.group}`;
   const description =
-    `${name} FIFA World Cup 2026: Group ${team.group} fixtures vs ${opponentStr}. ` +
-    (playerCount > 0 ? `Squad of ${playerCount} players. ` : "") +
-    `Qualification scenarios and group standings.`;
+    team.key === "turkey"
+      ? "See Turkey's World Cup 2026 fixtures, group path, kickoff times, scores, squad notes and qualification outlook."
+      : `${name} World Cup 2026: Group ${team.group} fixtures vs ${opponentStr}. ` +
+        (playerCount > 0 ? `Squad of ${playerCount} players. ` : "") +
+        `Qualification scenarios and group standings.`;
 
   return {
     title,
@@ -90,6 +99,7 @@ export default async function TeamPage({ params }: { params: Promise<{ slug: str
 
   const groupTeams = teamsInGroup(team.group);
   const groupMatches = matchesInGroup(team.group);
+  const snapshot = await getTournamentLiveSnapshot();
   const name = countryName(team.key, "en");
 
   // Team's first match (sorted ascending → first entry)
@@ -122,15 +132,23 @@ export default async function TeamPage({ params }: { params: Promise<{ slug: str
 
   if (teamFirstMatch && firstOpponentKey) {
     const opponentName = countryName(firstOpponentKey, "en");
+    const snapshotFirstMatch = snapshot.matches[matchSlug(teamFirstMatch)];
     const dateStr = longDate(teamFirstMatch.date);
     const venueStr = teamFirstMatch.venue ? ` at ${teamFirstMatch.venue}` : "";
     const timeStr = teamFirstMatch.time ? `, kickoff ${teamFirstMatch.time} venue local time` : "";
+    const played =
+      snapshotFirstMatch?.status === "FINISHED" &&
+      snapshotFirstMatch.homeScore !== null &&
+      snapshotFirstMatch.awayScore !== null;
+    const resultText = played
+      ? `${withArticle(name, true)} first match was against ${opponentName} on ${dateStr}, finishing ${snapshotFirstMatch.homeScore}–${snapshotFirstMatch.awayScore}.`
+      : `${withArticle(name, true)} play ${opponentName} on ${dateStr}${venueStr}${timeStr}.`;
     faqEntities.push({
       "@type": "Question",
       name: `When do ${withArticle(name)} play their first match at the 2026 FIFA World Cup?`,
       acceptedAnswer: {
         "@type": "Answer",
-        text: `${withArticle(name, true)} play ${opponentName} on ${dateStr}${venueStr}${timeStr}.`,
+        text: resultText,
       },
     });
   }
@@ -171,7 +189,13 @@ export default async function TeamPage({ params }: { params: Promise<{ slug: str
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(faqLd) }}
       />
-      <TeamDetail team={team} groupTeams={groupTeams} groupMatches={groupMatches} />
+      <TeamDetail
+        team={team}
+        groupTeams={groupTeams}
+        groupMatches={groupMatches}
+        standingsRows={snapshot.standingsByGroup[team.group]}
+        snapshotMatches={snapshot.matches}
+      />
     </>
   );
 }

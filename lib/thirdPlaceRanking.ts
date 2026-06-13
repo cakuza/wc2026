@@ -9,12 +9,14 @@
 
 import type { StandingRow } from "./groupStandings";
 
-export type ThirdPlaceStatus = "qualifying" | "outside";
+export type ThirdPlaceStatus = "qualifying" | "outside" | "boundary" | "unresolved";
 
 export type ThirdPlaceRow = StandingRow & {
   group: string;
   rank: number;
+  rankLabel?: string;
   status: ThirdPlaceStatus;
+  tieUnresolved?: boolean;
 };
 
 /**
@@ -22,7 +24,6 @@ export type ThirdPlaceRow = StandingRow & {
  *   1. points desc
  *   2. goalDifference desc
  *   3. goalsFor desc
- *   4. teamKey asc (fallback)
  */
 export function computeThirdPlaceRanking(
   standings: Record<string, StandingRow[]>,
@@ -38,13 +39,35 @@ export function computeThirdPlaceRanking(
   thirds.sort((a, b) => {
     if (b.points !== a.points) return b.points - a.points;
     if (b.goalDifference !== a.goalDifference) return b.goalDifference - a.goalDifference;
-    if (b.goalsFor !== a.goalsFor) return b.goalsFor - a.goalsFor;
-    return a.teamKey.localeCompare(b.teamKey);
+    return b.goalsFor - a.goalsFor;
   });
 
-  return thirds.map((row, i) => ({
-    ...row,
-    rank: i + 1,
-    status: i < 8 ? "qualifying" : "outside",
-  }));
+  return thirds.map((row, i) => {
+    const prev = thirds[i - 1];
+    const next = thirds[i + 1];
+    const tiedWithPrev = prev && prev.points === row.points && prev.goalDifference === row.goalDifference && prev.goalsFor === row.goalsFor;
+    const tiedWithNext = next && next.points === row.points && next.goalDifference === row.goalDifference && next.goalsFor === row.goalsFor;
+    const tieUnresolved = Boolean(tiedWithPrev || tiedWithNext);
+    const tiedBlockStart = tiedWithPrev ? thirds.findIndex((r) => r.points === row.points && r.goalDifference === row.goalDifference && r.goalsFor === row.goalsFor) : i;
+    const tiedBlockEnd = tieUnresolved
+      ? thirds.findLastIndex((r) => r.points === row.points && r.goalDifference === row.goalDifference && r.goalsFor === row.goalsFor)
+      : i;
+    const rank = tiedBlockStart + 1;
+    const boundaryCut = tiedBlockStart < 8 && tiedBlockEnd >= 8;
+    const status: ThirdPlaceStatus = boundaryCut
+      ? "boundary"
+      : tieUnresolved
+        ? "unresolved"
+        : i < 8
+          ? "qualifying"
+          : "outside";
+
+    return {
+      ...row,
+      rank,
+      rankLabel: `${rank}${tieUnresolved ? "=" : ""}`,
+      status,
+      tieUnresolved,
+    };
+  });
 }

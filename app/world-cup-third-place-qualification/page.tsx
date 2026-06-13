@@ -1,23 +1,25 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { fetchAllLiveData } from "@/lib/fetchAllLiveData";
-import { computeGroupStandings } from "@/lib/groupStandings";
-import { computeThirdPlaceRanking } from "@/lib/thirdPlaceRanking";
+import { LiveDataAutoRefresh } from "@/components/LiveDataAutoRefresh";
+import { LiveSnapshotDebug } from "@/components/LiveSnapshotDebug";
 import { ThirdPlaceTable } from "@/components/ThirdPlaceTable";
+import { getLiveRefreshPolicy } from "@/lib/liveRefreshPolicy";
+import { getTournamentLiveSnapshot } from "@/lib/liveSnapshot";
 
-export const revalidate = 60;
+export const revalidate = 30;
+export const dynamic = "force-dynamic";
 
 const BASE_URL = "https://www.worldcupmatchday.com";
 
 export const metadata: Metadata = {
-  title: "World Cup 2026 Third-Place Qualification Explained",
+  title: "World Cup 2026 Third-Place Ranking Table & Qualification Explained",
   description:
-    "How the best third-placed teams qualify at the 2026 World Cup: 12 groups, top two automatic, plus the 8 best third-placed teams reaching the 32-team Round of 32.",
+    "Track the World Cup 2026 third-place ranking table and learn how the best third-placed teams qualify for the Round of 32.",
   alternates: { canonical: `${BASE_URL}/world-cup-third-place-qualification` },
   openGraph: {
-    title: "World Cup 2026 Third-Place Qualification Explained",
+    title: "World Cup 2026 Third-Place Ranking Table & Qualification Explained",
     description:
-      "How the 8 best third-placed teams qualify for the 2026 World Cup Round of 32.",
+      "Track the World Cup 2026 third-place ranking table and learn how the best third-placed teams qualify for the Round of 32.",
     url: `${BASE_URL}/world-cup-third-place-qualification`,
     type: "website",
   },
@@ -26,9 +28,9 @@ export const metadata: Metadata = {
 const FAQS = [
   { q: "How many third-placed teams qualify?", a: "The 8 best third-placed teams across the 12 groups advance to the Round of 32." },
   { q: "How many teams reach the Round of 32?", a: "32 teams: the top two from each of the 12 groups (24 teams) plus the 8 best third-placed teams." },
-  { q: "Do all third-placed teams qualify?", a: "No. There are 12 third-placed teams but only the 8 best-ranked of them qualify; the other 4 do not advance." },
+  { q: "Do all third-placed teams qualify?", a: "No. There are 12 third-placed teams but only the 8 best-ranked of them qualify. Exact order can remain unresolved when teams are level on the available criteria." },
   { q: "When will the third-place ranking be known?", a: "The table on this page updates after completed group matches are synced, but it is only a current snapshot — the final ranking is only known once all group-stage matches are played." },
-  { q: "Is this an official FIFA site?", a: "No. WorldCupMatchDay is an independent, fan-made resource and is not affiliated with FIFA." },
+  { q: "Is WorldCupMatchDay affiliated with FIFA?", a: "No. WorldCupMatchDay is an independent, fan-made resource and is not affiliated with FIFA." },
 ];
 
 const faqLd = {
@@ -50,23 +52,26 @@ function Step({ n, title, children }: { n: string; title: string; children: Reac
 }
 
 export default async function ThirdPlaceQualificationPage() {
-  const liveData = await fetchAllLiveData();
-  const standings = computeGroupStandings(liveData);
-  const thirdPlaceRanking = computeThirdPlaceRanking(standings);
+  const snapshot = await getTournamentLiveSnapshot();
+  const standings = snapshot.standingsByGroup;
+  const thirdPlaceRanking = snapshot.thirdPlaceRanking;
   const anyMatchesPlayed = Object.values(standings).some((rows) => rows.some((r) => r.played > 0));
+  const refreshPolicy = getLiveRefreshPolicy(Object.values(snapshot.matches));
 
   return (
     <>
+      <LiveDataAutoRefresh intervalMs={refreshPolicy.intervalMs} />
+      <LiveSnapshotDebug snapshotId={snapshot.snapshotId} generatedAt={snapshot.generatedAt} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqLd) }} />
 
       <div className="mx-auto max-w-3xl px-4 py-8">
-        <p className="mb-2 font-heading text-sm font-bold uppercase tracking-[0.3em] text-accent">FIFA World Cup 2026</p>
+        <p className="mb-2 font-heading text-sm font-bold uppercase tracking-[0.3em] text-accent">World Cup 2026</p>
         <h1 className="mb-2 font-heading text-4xl font-extrabold uppercase tracking-wide text-white">
-          How Third-Place Qualification Works
+          World Cup 2026 Third-Place Ranking
         </h1>
         <p className="mb-6 max-w-2xl text-sm text-white/55">
-          The 2026 World Cup has 48 teams in 12 groups. The top two from each group qualify automatically, and the
-          8 best third-placed teams join them — making up the 32 teams in the Round of 32.
+          The eight best third-placed teams advance to the Round of 32. This ranking updates after completed
+          group matches are synced.
         </p>
 
         {/* Live ranking of third-placed teams */}
@@ -102,7 +107,7 @@ export default async function ThirdPlaceQualificationPage() {
           </Step>
           <Step n="3" title="8 best third-placed teams">
             Each group also has a third-placed team (12 in total). The 8 best-ranked third-placed teams also advance;
-            the remaining 4 do not.
+            exact order can remain unresolved while teams are level on the available criteria.
           </Step>
           <Step n="4" title="32 teams reach the Round of 32">
             24 group winners and runners-up plus the 8 best third-placed teams make up the 32-team knockout bracket.
@@ -115,7 +120,7 @@ export default async function ThirdPlaceQualificationPage() {
             How many third-place teams qualify?
           </h2>
           <p className="text-sm leading-relaxed text-white/70">
-            Eight of the twelve third-placed teams qualify for the knockout stage. The other four do not advance past the group stage.
+            Eight of the twelve third-placed teams qualify for the knockout stage. The other four finish outside the qualifying places once the final group table is complete, but live ordering can remain unresolved when available criteria are level.
           </p>
         </section>
 
@@ -137,9 +142,9 @@ export default async function ThirdPlaceQualificationPage() {
             What decides the best third-placed teams?
           </h2>
           <p className="text-sm leading-relaxed text-white/70">
-            Best third-placed teams are ranked using tournament tie-breakers such as points, goal difference and goals
-            scored. The exact tie-breaker order should be checked against the official competition rules. The ranking
-            above updates after completed matches are synced and is not final until all group-stage matches are complete.
+            Best third-placed teams are ranked here using points, goal difference and goals scored. Exact order can remain
+            unresolved when teams are level on the available criteria because fair-play and full official tie-break inputs are
+            not available in this table. The ranking above updates after completed matches are synced and is not final until all group-stage matches are complete.
           </p>
         </section>
 
@@ -147,7 +152,7 @@ export default async function ThirdPlaceQualificationPage() {
           {[
             { href: "/groups", label: "Groups" },
             { href: "/bracket", label: "Bracket" },
-            { href: "/schedule", label: "Schedule" },
+            { href: "/stats", label: "Stats" },
           ].map((l) => (
             <Link key={l.href} href={l.href} className="rounded-lg border border-white/15 bg-navyCard px-4 py-2 font-heading text-xs font-bold uppercase tracking-wide text-white/70 transition hover:border-white/30 hover:text-white">
               {l.label}

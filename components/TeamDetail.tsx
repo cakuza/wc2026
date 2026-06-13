@@ -7,20 +7,16 @@ import { TimezoneLabel } from "@/components/TimezoneLabel";
 import { useLang } from "@/components/LanguageProvider";
 import { slugFor, withArticle, type Team } from "@/lib/teams";
 import type { Match } from "@/lib/matches";
-import { matchSlug } from "@/lib/matches";
+import { matchSlug, matchUtcDate } from "@/lib/matches";
 import { squadByPosition } from "@/lib/squads";
 import { StandingsTable } from "@/components/StandingsTable";
+import type { SerializableSnapshotMatch } from "@/lib/liveSnapshot";
+import type { StandingRow } from "@/lib/groupStandings";
+import { pathSlotsForGroup, slotLabel } from "@/lib/knockoutBracket2026";
 
 function formatSquadValue(millions: number): string {
   return millions >= 1000 ? `€${(millions / 1000).toFixed(2)}B` : `€${millions}M`;
 }
-
-/** R32 opponent group per group — from the official WC 2026 bracket. */
-const R32_OPPONENT_GROUP: Record<string, string> = {
-  A: "B", B: "A", C: "D", D: "C",
-  E: "F", F: "E", G: "H", H: "G",
-  I: "J", J: "I", K: "L", L: "K",
-};
 
 /** Template fill helper */
 function fill(template: string, vars: Record<string, string>): string {
@@ -34,19 +30,52 @@ export function TeamDetail({
   team,
   groupTeams,
   groupMatches,
+  standingsRows,
+  snapshotMatches = {},
 }: {
   team: Team;
   groupTeams: Team[];
   groupMatches: Match[];
+  standingsRows?: StandingRow[];
+  snapshotMatches?: Record<string, SerializableSnapshotMatch>;
 }) {
   const { t, country, formatDate } = useLang();
   const squad = squadByPosition(team.key);
-  const opponentGroup = R32_OPPONENT_GROUP[team.group] ?? "";
+  const pathSlots = pathSlotsForGroup(team.group);
 
   // This team's 3 matches, sorted by date (MD1 → MD2 → MD3).
   const teamMatches = groupMatches
     .filter((m) => m.homeKey === team.key || m.awayKey === team.key)
     .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+  const nextListedMatch =
+    teamMatches.find((m) => snapshotMatches[matchSlug(m)]?.status !== "FINISHED" && matchUtcDate(m).getTime() >= Date.now()) ??
+    teamMatches.find((m) => snapshotMatches[matchSlug(m)]?.status !== "FINISHED") ??
+    null;
+  const teamRow = standingsRows?.find((row) => row.teamKey === team.key);
+  const hasPlayed = Boolean(teamRow && teamRow.played > 0);
+
+  const scorerText = (snap: SerializableSnapshotMatch | undefined) =>
+    snap?.scorers?.length
+      ? snap.scorers
+          .map((event) => `${event.minuteLabel ?? (event.minute != null ? `${event.minute}'` : "")} ${event.playerName}${event.isOwnGoal ? " (OG)" : ""}`.trim())
+          .join(" · ")
+      : null;
+
+  const statusText = (m: Match) => {
+    const snap = snapshotMatches[matchSlug(m)];
+    if (!snap) return null;
+    if (snap.status === "FINISHED") return "FT";
+    if (snap.status === "LIVE") return "Live";
+    if (snap.status === "HALFTIME") return "HT";
+    if (snap.status === "SYNCING") return "Syncing";
+    return null;
+  };
+
+  const scoreOrVs = (m: Match) => {
+    const snap = snapshotMatches[matchSlug(m)];
+    if (snap && snap.homeScore !== null && snap.awayScore !== null) return `${snap.homeScore}–${snap.awayScore}`;
+    return t("vs");
+  };
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-8">
@@ -158,21 +187,52 @@ export function TeamDetail({
                     className="shrink-0 rounded-sm"
                   />
                   <span className="truncate font-heading text-xs font-extrabold uppercase leading-tight tracking-wide text-white transition group-hover:text-accent">
-                    {t("vs")} {country(opponentKey)}
+                    {country(opponentKey)}
                   </span>
                 </div>
 
                 {/* Date + time */}
                 <div className="mt-2 text-[11px] leading-snug text-white/45">
-                  {formatDate(m.date)}
-                  <MatchTime match={m} className="ml-1 font-semibold text-white/60" />
+                  <span className="font-heading font-extrabold text-white/75">{scoreOrVs(m)}</span>
+                  {statusText(m) ? (
+                    <span className="ml-1 font-heading font-bold uppercase text-white/55">{statusText(m)}</span>
+                  ) : (
+                    <MatchTime match={m} className="ml-1 font-semibold text-white/60" />
+                  )}
                 </div>
+                {scorerText(snapshotMatches[matchSlug(m)]) ? (
+                  <div className="mt-1 truncate text-[10px] text-white/40">
+                    Goals: {scorerText(snapshotMatches[matchSlug(m)])}
+                  </div>
+                ) : null}
               </Link>
             );
           })}
         </div>
       )}
       {teamMatches.length > 0 && <TimezoneLabel className="mt-2 text-[11px] text-white/45" />}
+
+      {hasPlayed ? (
+        <div className="mt-3 rounded-lg border border-white/10 bg-navyCard/70 px-4 py-3 text-sm text-white/70">
+          <span className="font-semibold text-white">{country(team.key)}</span>
+          {" "}have played {teamRow?.played} match{teamRow?.played === 1 ? "" : "es"} in Group {team.group}, with {teamRow?.points} point{teamRow?.points === 1 ? "" : "s"} and a {teamRow && teamRow.goalDifference > 0 ? "+" : ""}{teamRow?.goalDifference ?? 0} goal difference.
+          {" "}Group order is provisional when teams are level on available criteria.
+        </div>
+      ) : nextListedMatch && (() => {
+        const isHome = nextListedMatch.homeKey === team.key;
+        const opponentKey = isHome ? nextListedMatch.awayKey : nextListedMatch.homeKey;
+        return (
+          <div className="mt-3 rounded-lg border border-white/10 bg-navyCard/70 px-4 py-3 text-sm text-white/70">
+            <span className="font-semibold text-white">{country(team.key)}</span>
+            {" "}are in Group {team.group}. Next listed match:{" "}
+            <Link href={`/matches/${matchSlug(nextListedMatch)}`} className="font-semibold text-accent underline underline-offset-2 hover:text-white">
+              {country(team.key)} {t("vs")} {country(opponentKey)}
+            </Link>
+            {" "}at <MatchTime match={nextListedMatch} withZone className="font-semibold text-white" />.
+            {" "}Top two teams in the group advance automatically; third place is ranked across all groups.
+          </div>
+        );
+      })()}
 
       {/* ── QUICK ANSWERS (FAQ for Google AI Overview) ──────────────────── */}
       <section className="mt-4" aria-label="Quick answers">
@@ -187,6 +247,7 @@ export function TeamDetail({
             const oppKey = isHome ? m.awayKey : m.homeKey;
             const teamName = country(team.key);
             const oppName  = country(oppKey);
+            const snap = snapshotMatches[matchSlug(m)];
             const dateStr  = formatDate(m.date);
             const timeStr  = m.time  ?? "";
             const venue    = m.venue ?? "";
@@ -196,13 +257,15 @@ export function TeamDetail({
                   {fill(t("qa_first_match_q"), { team: withArticle(teamName) })}
                 </p>
                 <p className="mt-1 text-sm text-white/80">
-                  {fill(t("qa_first_match_a"), {
-                    team: withArticle(teamName, true),
-                    opponent: oppName,
-                    date: dateStr,
-                    time: timeStr,
-                    venue,
-                  })}
+                  {snap?.status === "FINISHED"
+                    ? `${withArticle(teamName, true)} first match was against ${oppName} on ${dateStr}, finishing ${snap.homeScore}–${snap.awayScore}.`
+                    : fill(t("qa_first_match_a"), {
+                        team: withArticle(teamName, true),
+                        opponent: oppName,
+                        date: dateStr,
+                        time: timeStr,
+                        venue,
+                      })}
                 </p>
               </div>
             );
@@ -248,6 +311,22 @@ export function TeamDetail({
         </div>
       </section>
 
+      <div className="mt-5 flex flex-wrap gap-3 text-sm">
+        {[
+          { href: "/schedule", label: "Schedule" },
+          { href: "/groups", label: "Groups" },
+          { href: "/stats", label: "Stats" },
+        ].map((l) => (
+          <Link
+            key={l.href}
+            href={l.href}
+            className="rounded-lg border border-white/15 bg-navyCard px-4 py-2 font-heading text-xs font-bold uppercase tracking-wide text-white/70 transition hover:border-white/30 hover:text-white"
+          >
+            {l.label}
+          </Link>
+        ))}
+      </div>
+
       {/* ── GROUP MATCHES (all 6, with clickable rows) ──────────────────── */}
       <section className="mt-8">
         <h2 className="mb-4 font-heading text-2xl font-extrabold uppercase tracking-wide text-white">
@@ -279,7 +358,7 @@ export function TeamDetail({
                     />
                   </div>
                   <span className="shrink-0 rounded bg-navy px-2 py-1 font-heading text-xs font-bold uppercase text-white/50">
-                    {t("vs")}
+                    {scoreOrVs(m)}
                   </span>
                   <div className="flex min-w-0 flex-1 items-center gap-2">
                     <Flag
@@ -297,7 +376,7 @@ export function TeamDetail({
                   <span className="font-semibold text-white/75">
                     {formatDate(m.date)}
                     {m.time ? " · " : ""}
-                    <MatchTime match={m} />
+                    {statusText(m) ? statusText(m) : <MatchTime match={m} />}
                   </span>
                   {m.venue ? (
                     <span className="ml-2 truncate">{m.venue}</span>
@@ -315,7 +394,7 @@ export function TeamDetail({
           {t("sec_standings")} · {t("lbl_group")} {team.group}
         </h2>
         <div className="overflow-hidden rounded-xl border border-white/10 bg-navyCard">
-          <StandingsTable teams={groupTeams} currentTeamKey={team.key} />
+          <StandingsTable teams={groupTeams} rows={standingsRows} currentTeamKey={team.key} />
         </div>
       </section>
 
@@ -337,16 +416,20 @@ export function TeamDetail({
               </span>
             </div>
             <p className="text-sm font-bold text-white">{t("path_finish_top2_desc")}</p>
-            {opponentGroup && (
-              <div className="mt-3 space-y-1 border-t border-white/10 pt-3">
-                <p className="text-xs text-white/60">
-                  {fill(t("path_1st_faces"), { opponent_group: opponentGroup })}
-                </p>
-                <p className="text-xs text-white/60">
-                  {fill(t("path_2nd_faces"), { opponent_group: opponentGroup })}
-                </p>
-              </div>
-            )}
+            <div className="mt-3 space-y-1 border-t border-white/10 pt-3">
+              <p className="text-xs text-white/60">
+                1st in Group {team.group}: M{pathSlots.winner?.matchNumber} vs{" "}
+                {pathSlots.winner
+                  ? slotLabel(pathSlots.winner.home.kind === "group" && pathSlots.winner.home.group === team.group ? pathSlots.winner.away : pathSlots.winner.home)
+                  : "TBD"}.
+              </p>
+              <p className="text-xs text-white/60">
+                2nd in Group {team.group}: M{pathSlots.runnerUp?.matchNumber} vs{" "}
+                {pathSlots.runnerUp
+                  ? slotLabel(pathSlots.runnerUp.home.kind === "group" && pathSlots.runnerUp.home.group === team.group ? pathSlots.runnerUp.away : pathSlots.runnerUp.home)
+                  : "TBD"}.
+              </p>
+            </div>
           </div>
 
           {/* 3rd */}
@@ -363,6 +446,9 @@ export function TeamDetail({
             <p className="text-sm font-bold text-white">{t("path_finish_3rd_desc")}</p>
             <div className="mt-3 border-t border-white/10 pt-3">
               <p className="text-xs text-white/60">{t("path_finish_3rd_note")}</p>
+              <p className="mt-1 text-xs text-white/50">
+                Possible R32 slots: {pathSlots.third.map((slot) => `M${slot.matchNumber}`).join(", ") || "TBD"}.
+              </p>
             </div>
           </div>
 
@@ -413,7 +499,7 @@ export function TeamDetail({
                   <thead>
                     <tr className="text-[11px] uppercase tracking-wider text-white/40">
                       <th className="w-10 px-3 py-2 text-start font-semibold">
-                        {t("col_no")}{" "}
+                        #
                       </th>
                       <th className="px-2 py-2 text-start font-semibold">
                         {t("col_player")}

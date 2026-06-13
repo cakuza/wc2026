@@ -1,6 +1,7 @@
 "use client";
 
 import { useLang } from "@/components/LanguageProvider";
+import { ROUND_OF_16_MATCHES, ROUND_OF_32_MATCHES, slotLabel } from "@/lib/knockoutBracket2026";
 
 // WC 2026: 48 teams → 32 knockout teams (top 2 from each of 12 groups + 8 best 3rd-placed)
 // Knockout bracket: R32 (16 matches) → R16 (8) → QF (4) → SF (2) → Final (1)
@@ -73,33 +74,25 @@ const FINAL_DATE: Record<string, string> = {
 export function BracketContent() {
   const { t, lang } = useLang();
 
-  const best3rd = t("bracket_3rd");
   const tbd     = t("bracket_tbd");
 
   const R32: BMatch[] = [
-    { id: "R32-01", home: { label: "1A" },     away: { label: "2B" }     },
-    { id: "R32-02", home: { label: "1B" },     away: { label: "2A" }     },
-    { id: "R32-03", home: { label: "1C" },     away: { label: "2D" }     },
-    { id: "R32-04", home: { label: "1D" },     away: { label: "2C" }     },
-    { id: "R32-05", home: { label: "1E" },     away: { label: "2F" }     },
-    { id: "R32-06", home: { label: "1F" },     away: { label: "2E" }     },
-    { id: "R32-07", home: { label: best3rd },  away: { label: best3rd }  },
-    { id: "R32-08", home: { label: best3rd },  away: { label: best3rd }  },
-    { id: "R32-09", home: { label: "1G" },     away: { label: "2H" }     },
-    { id: "R32-10", home: { label: "1H" },     away: { label: "2G" }     },
-    { id: "R32-11", home: { label: "1I" },     away: { label: "2J" }     },
-    { id: "R32-12", home: { label: "1J" },     away: { label: "2I" }     },
-    { id: "R32-13", home: { label: "1K" },     away: { label: "2L" }     },
-    { id: "R32-14", home: { label: "1L" },     away: { label: "2K" }     },
-    { id: "R32-15", home: { label: best3rd },  away: { label: best3rd }  },
-    { id: "R32-16", home: { label: best3rd },  away: { label: best3rd }  },
+    ...ROUND_OF_32_MATCHES.map((match) => ({
+      id: `M${match.matchNumber}`,
+      home: { label: slotLabel(match.home) },
+      away: { label: slotLabel(match.away) },
+    })),
   ];
 
   const tbdMatch = (id: string): BMatch => ({ id, home: { label: tbd }, away: { label: tbd } });
 
   const ROUND_MATCHES: BMatch[][] = [
     R32,
-    Array.from({ length: 8 }, (_, i) => tbdMatch(`r16-${i}`)),
+    ROUND_OF_16_MATCHES.map((match) => ({
+      id: `M${match.matchNumber}`,
+      home: { label: `W${match.homeWinnerOf}` },
+      away: { label: `W${match.awayWinnerOf}` },
+    })),
     Array.from({ length: 4 }, (_, i) => tbdMatch(`qf-${i}`)),
     Array.from({ length: 2 }, (_, i) => tbdMatch(`sf-${i}`)),
     [tbdMatch("final")],
@@ -158,6 +151,11 @@ export function BracketContent() {
                     className="absolute"
                     style={{ left: rx, top: ft + mi * sh }}
                   >
+                    {ri < 2 && (
+                      <div className="mb-1 font-heading text-[9px] font-bold uppercase tracking-widest text-white/25">
+                        {m.id}
+                      </div>
+                    )}
                     <MatchCard m={m} isFinal={isFinal} />
                   </div>
                 ))}

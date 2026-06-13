@@ -204,6 +204,27 @@ export function getDisplayMatchday(now: Date = new Date()): DisplayMatchday {
   };
 }
 
+/** Build the compact homepage ticker list from a single, shared clock value. */
+export function getTickerMatches(now: Date = new Date()): Match[] {
+  const todayStart = new Date(now);
+  todayStart.setHours(0, 0, 0, 0);
+  const sevenDaysLater = new Date(todayStart);
+  sevenDaysLater.setDate(sevenDaysLater.getDate() + 7);
+
+  const sorted = [...MATCHES].sort(
+    (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
+  );
+
+  const nextSevenDays = sorted.filter((m) => {
+    const d = new Date(m.date);
+    return d >= todayStart && d <= sevenDaysLater;
+  });
+
+  if (nextSevenDays.length >= 5) return nextSevenDays;
+
+  return sorted.filter((m) => new Date(m.date) >= todayStart).slice(0, 10);
+}
+
 export function matchesInGroup(letter: string): Match[] {
   return MATCHES.filter((m) => m.group === letter).sort((a, b) => sortKey(a).localeCompare(sortKey(b)));
 }

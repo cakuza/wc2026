@@ -4,8 +4,9 @@ import { Flag } from "@/components/Flag";
 import { CountdownClient } from "@/components/CountdownClient";
 import { TodayMatches } from "@/components/TodayMatches";
 import { useLang } from "@/components/LanguageProvider";
+import { type DisplayMatchday } from "@/lib/matches";
 
-export function Hero() {
+export function Hero({ initialMatchday }: { initialMatchday: DisplayMatchday }) {
   const { t } = useLang();
   return (
     <section className="relative overflow-hidden border-b border-white/10 bg-navy">
@@ -70,7 +71,7 @@ export function Hero() {
         </div>
 
         {/* Right: dynamic today's / next matches (client component) */}
-        <TodayMatches />
+        <TodayMatches initialMatchday={initialMatchday} />
       </div>
     </section>
   );

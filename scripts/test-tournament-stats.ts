@@ -13,10 +13,12 @@
  *   npx tsx scripts/test-tournament-stats.ts
  */
 
-import { computeTournamentStats } from "../lib/tournamentStats";
+import { computeGroupStandings } from "../lib/groupStandings";
+import { computeTopScorers, computeTournamentStats } from "../lib/tournamentStats";
 import type { LiveMatchData } from "../lib/liveMatchData";
 
 const MEXICO_PROVIDER_ID = 537327;
+const USA_PROVIDER_ID = 537345;
 
 const mockData: ReadonlyMap<number, LiveMatchData> = new Map([
   [
@@ -76,6 +78,79 @@ assert(empty.totalGoals === 0,                   "empty: totalGoals = 0");
 assert(empty.averageGoalsPerMatch === 0,          "empty: averageGoalsPerMatch = 0");
 assert(empty.highestScoringMatch === null,        "empty: highestScoringMatch = null");
 assert(empty.biggestWin === null,                 "empty: biggestWin = null");
+
+const usaData: ReadonlyMap<number, LiveMatchData> = new Map([
+  [
+    USA_PROVIDER_ID,
+    {
+      provider: "football-data.org",
+      providerMatchId: USA_PROVIDER_ID,
+      status: "FINISHED",
+      homeScore: 4,
+      awayScore: 1,
+      winner: "HOME_TEAM",
+      lastSyncedAt: new Date().toISOString(),
+      eventDataAvailable: true,
+      goals: [
+        {
+          type: "OWN_GOAL",
+          minute: 7,
+          minuteLabel: "7'",
+          teamName: "United States",
+          playerTeamName: "Paraguay",
+          playerName: "Damian Bobadilla",
+          isOwnGoal: true,
+        },
+        {
+          type: "GOAL",
+          minute: 31,
+          minuteLabel: "31'",
+          teamName: "United States",
+          playerName: "Folarin Balogun",
+        },
+        {
+          type: "GOAL",
+          minute: 45,
+          stoppageTime: 5,
+          minuteLabel: "45+5'",
+          teamName: "United States",
+          playerName: "Folarin Balogun",
+        },
+        {
+          type: "GOAL",
+          minute: 73,
+          minuteLabel: "73'",
+          teamName: "Paraguay",
+          playerName: "Maurício",
+        },
+        {
+          type: "GOAL",
+          minute: 90,
+          stoppageTime: 8,
+          minuteLabel: "90+8'",
+          teamName: "United States",
+          playerName: "Giovanni Reyna",
+        },
+      ],
+    },
+  ],
+]);
+
+const usaStats = computeTournamentStats(usaData);
+const usaTopScorers = computeTopScorers(usaData);
+const usaStandings = computeGroupStandings(usaData);
+const groupD = usaStandings["D"];
+const unitedStatesRow = groupD.find((row) => row.teamKey === "unitedStates");
+const paraguayRow = groupD.find((row) => row.teamKey === "paraguay");
+
+assert(usaStats.matchesPlayed === 1, "USA-Paraguay: matchesPlayed = 1");
+assert(usaStats.totalGoals === 5, "USA-Paraguay: team/tournament total includes all five goals");
+assert(usaTopScorers.find((row) => row.playerName === "Folarin Balogun")?.goals === 2, "Balogun brace counts as 2 goals");
+assert(usaTopScorers.find((row) => row.playerName === "Giovanni Reyna")?.goals === 1, "Reyna counts as 1 goal");
+assert(usaTopScorers.find((row) => row.playerName === "Maurício")?.goals === 1, "Maurício counts as 1 goal");
+assert(!usaTopScorers.some((row) => row.playerName === "Damian Bobadilla"), "Bobadilla own goal is excluded from top scorers");
+assert(unitedStatesRow?.goalsFor === 4 && unitedStatesRow.goalsAgainst === 1, "United States standings total is 4-1");
+assert(paraguayRow?.goalsFor === 1 && paraguayRow.goalsAgainst === 4, "Paraguay standings total is 1-4");
 
 console.log(`\n${passed} passed, ${failed} failed`);
 if (failed > 0) process.exitCode = 1;

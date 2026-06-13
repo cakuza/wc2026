@@ -4,8 +4,10 @@ import Link from "next/link";
 import { Flag } from "@/components/Flag";
 import { MatchTime } from "@/components/MatchTime";
 import { TimezonePicker } from "@/components/TimezoneLabel";
+import { useTimezone } from "@/components/TimezoneProvider";
 import { useLang } from "@/components/LanguageProvider";
-import { matchesByDate, matchSlug } from "@/lib/matches";
+import { matchSlug, MATCHES } from "@/lib/matches";
+import { groupMatchesByCalendarDate } from "@/lib/todaySelection";
 import type { GoalScorerEvent } from "@/lib/worldcup26Provider";
 import type { ScheduleMatchScore } from "./page";
 
@@ -54,24 +56,34 @@ function ScoreRow({ score }: { score: ScheduleMatchScore }) {
   );
 }
 
-/** Compact "9' J. Quiñones · 67' R. Jiménez" scorer text, used inside the meta line. */
+function shortScorerName(playerName: string) {
+  if (playerName.includes(".")) return playerName;
+  const parts = playerName.trim().split(/\s+/);
+  return parts[parts.length - 1] ?? playerName;
+}
+
+/** Compact "9' J. Quiñones · 67' R. Jiménez" scorer text, used below the score cluster. */
 function ScorerText({ events }: { events: GoalScorerEvent[] }) {
-  const parts = events.map((e) =>
-    e.minute != null ? `${e.minute}' ${e.playerName}` : e.playerName,
-  );
+  const parts = events.map((e) => {
+    const minute = e.minuteLabel ?? (e.minute != null ? `${e.minute}'` : "");
+    const name = shortScorerName(e.playerName);
+    return `${minute ? `${minute} ` : ""}${name}${e.isOwnGoal ? " (OG)" : ""}`;
+  });
   return <>{parts.join(" · ")}</>;
 }
 
 export function ScheduleContent({ liveScores, scorerLines }: Props) {
   const { t, country, formatDate, locale } = useLang();
-  const days = matchesByDate();
+  const { timeZone } = useTimezone();
+  const days = groupMatchesByCalendarDate(MATCHES, timeZone);
 
   const longDate = (iso: string) =>
     new Intl.DateTimeFormat(locale, {
       weekday: "long",
       month: "long",
       day: "numeric",
-    }).format(new Date(`${iso}T00:00:00`));
+      timeZone,
+    }).format(new Date(`${iso}T12:00:00Z`));
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-8">
@@ -92,6 +104,14 @@ export function ScheduleContent({ liveScores, scorerLines }: Props) {
         <Link href="/groups" className="font-semibold text-accent underline underline-offset-2 hover:text-white">
           {t("nav_groups")} →
         </Link>
+        <span className="text-white/30"> · </span>
+        <Link href="/stats" className="font-semibold text-accent underline underline-offset-2 hover:text-white">
+          Stats →
+        </Link>
+        <span className="text-white/30"> · </span>
+        <Link href="/world-cup-third-place-qualification" className="font-semibold text-accent underline underline-offset-2 hover:text-white">
+          Third-place ranking →
+        </Link>
       </p>
       <TimezonePicker className="mb-6 flex flex-wrap items-center gap-2 text-[11px] text-white/55" />
 
@@ -111,7 +131,7 @@ export function ScheduleContent({ liveScores, scorerLines }: Props) {
                 const isSyncing = !!score && isFinishedOrLive && !hasScore;
                 const isFinished = score?.status === "FINISHED";
                 const isLive = score?.status === "IN_PLAY" || score?.status === "PAUSED";
-                const events = isFinished ? scorerLines?.[matchSlug(m)] : undefined;
+                const events = scorerLines?.[matchSlug(m)];
                 const hasGoals = !!events && events.length > 0;
 
                 // Status pill that replaces the kickoff time on the right once a match
@@ -131,42 +151,52 @@ export function ScheduleContent({ liveScores, scorerLines }: Props) {
                     href={`/matches/${matchSlug(m)}`}
                     className="block rounded-lg border border-white/10 bg-navyCard px-4 py-3 transition hover:border-white/20 hover:bg-white/5"
                   >
-                    <div className="flex items-center gap-3">
-                      <div className="flex flex-1 items-center justify-end gap-2 text-end">
-                        <span className="truncate font-semibold text-white">
-                          {country(m.homeKey)}
-                        </span>
-                        <Flag
-                          code={m.homeCode}
-                          alt=""
-                          width={30}
-                          height={22}
-                          className="rounded-sm"
-                        />
+                    <div className="flex flex-col gap-2 sm:flex-row sm:items-start">
+                      <div data-schedule-score-cluster className="min-w-0 flex-1">
+                        <div className="flex items-center gap-3">
+                          <div className="flex flex-1 items-center justify-end gap-2 text-end">
+                            <span className="truncate font-semibold text-white">
+                              {country(m.homeKey)}
+                            </span>
+                            <Flag
+                              code={m.homeCode}
+                              alt=""
+                              width={30}
+                              height={22}
+                              className="rounded-sm"
+                            />
+                          </div>
+
+                          {hasScore && score ? (
+                            <ScoreRow score={score} />
+                          ) : (
+                            <span className="shrink-0 rounded bg-navy px-2 py-1 font-heading text-xs font-bold uppercase text-white/50">
+                              {t("vs")}
+                            </span>
+                          )}
+
+                          <div className="flex flex-1 items-center gap-2">
+                            <Flag
+                              code={m.awayCode}
+                              alt=""
+                              width={30}
+                              height={22}
+                              className="rounded-sm"
+                            />
+                            <span className="truncate font-semibold text-white">
+                              {country(m.awayKey)}
+                            </span>
+                          </div>
+                        </div>
+
+                        {hasGoals && (
+                          <p data-schedule-scorer-line className="mt-1.5 truncate text-center text-[11px] text-white/40">
+                            Goals: <ScorerText events={events!} />
+                          </p>
+                        )}
                       </div>
 
-                      {hasScore && score ? (
-                        <ScoreRow score={score} />
-                      ) : (
-                        <span className="shrink-0 rounded bg-navy px-2 py-1 font-heading text-xs font-bold uppercase text-white/50">
-                          {t("vs")}
-                        </span>
-                      )}
-
-                      <div className="flex flex-1 items-center gap-2">
-                        <Flag
-                          code={m.awayCode}
-                          alt=""
-                          width={30}
-                          height={22}
-                          className="rounded-sm"
-                        />
-                        <span className="truncate font-semibold text-white">
-                          {country(m.awayKey)}
-                        </span>
-                      </div>
-
-                      <div className="ms-2 hidden w-28 shrink-0 text-end text-xs text-white/50 sm:block">
+                      <div data-schedule-right-meta className="hidden w-28 shrink-0 text-end text-xs text-white/50 sm:block">
                         {statusPill ? (
                           <div className="flex justify-end">{statusPill}</div>
                         ) : (
@@ -175,14 +205,6 @@ export function ScheduleContent({ liveScores, scorerLines }: Props) {
                         <div>{m.venue ?? formatDate(m.date)}</div>
                       </div>
                     </div>
-
-                    {/* Goal scorers — separate line, smaller/muted, never shares a line with FT */}
-                    {hasGoals && (
-                      <p className="mt-1.5 truncate text-[11px] text-white/40">
-                        Goals: <ScorerText events={events!} />
-                      </p>
-                    )}
-
                     {/* Mobile-only status pill (right-side column is hidden below sm) */}
                     {statusPill && (
                       <div className="mt-1.5 flex items-center gap-1.5 sm:hidden">

@@ -22,8 +22,12 @@ const KNOWN_STATUSES: readonly string[] = [
 export type LiveMatchEvent = {
   type: "GOAL" | "OWN_GOAL" | "PENALTY_GOAL" | "YELLOW_CARD" | "RED_CARD" | "SUBSTITUTION" | "UNKNOWN";
   minute: number | null;
+  stoppageTime?: number | null;
+  minuteLabel?: string;
   teamName: string | null;
+  playerTeamName?: string | null;
   playerName: string | null;
+  isOwnGoal?: boolean;
   assistName?: string | null;
   detail?: string | null; // for substitutions: the player coming off
 };
@@ -82,6 +86,7 @@ function parseGoals(raw: unknown[]): LiveMatchEvent[] {
       minute: safeInt(gObj.minute),
       teamName: safeStr(team?.name),
       playerName: safeStr(scorer?.name),
+      isOwnGoal: gObj.type === "OWN_GOAL",
       assistName: safeStr(assist?.name),
     };
   });
@@ -138,7 +143,7 @@ export async function fetchLiveMatchData(
   const fetchResult = await providerFetch(
     `${BASE}/matches/${providerMatchId}`,
     key,
-    { revalidate: 60 },
+    { revalidate: 30 },
   );
   if (!fetchResult.ok) return null;
 

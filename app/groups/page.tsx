@@ -1,9 +1,12 @@
 import type { Metadata } from "next";
+import { LiveDataAutoRefresh } from "@/components/LiveDataAutoRefresh";
+import { LiveSnapshotDebug } from "@/components/LiveSnapshotDebug";
 import { GroupsContent } from "./GroupsContent";
-import { fetchAllLiveData } from "@/lib/fetchAllLiveData";
-import { computeGroupStandings } from "@/lib/groupStandings";
+import { getLiveRefreshPolicy } from "@/lib/liveRefreshPolicy";
+import { getTournamentLiveSnapshot } from "@/lib/liveSnapshot";
 
-export const revalidate = 60;
+export const revalidate = 30;
+export const dynamic = "force-dynamic";
 
 const BASE_URL = "https://www.worldcupmatchday.com";
 
@@ -22,7 +25,13 @@ export const metadata: Metadata = {
 };
 
 export default async function GroupsPage() {
-  const liveData = await fetchAllLiveData();
-  const standings = computeGroupStandings(liveData);
-  return <GroupsContent standings={standings} />;
+  const snapshot = await getTournamentLiveSnapshot();
+  const refreshPolicy = getLiveRefreshPolicy(Object.values(snapshot.matches));
+  return (
+    <>
+      <LiveDataAutoRefresh intervalMs={refreshPolicy.intervalMs} />
+      <LiveSnapshotDebug snapshotId={snapshot.snapshotId} generatedAt={snapshot.generatedAt} />
+      <GroupsContent standings={snapshot.standingsByGroup} />
+    </>
+  );
 }

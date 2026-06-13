@@ -54,6 +54,7 @@ function parseGoals(raw: unknown[]): LiveMatchEvent[] {
       minute: safeInt(gObj.minute),
       teamName: safeStr(team?.name),
       playerName: safeStr(scorer?.name),
+      isOwnGoal: gObj.type === "OWN_GOAL",
       assistName: safeStr(assist?.name),
     };
   });
@@ -103,7 +104,7 @@ export async function fetchAllLiveData(): Promise<Map<number, LiveMatchData>> {
   const fetchResult = await providerFetch(
     `${BASE}/competitions/${COMPETITION_ID}/matches`,
     key,
-    { revalidate: 60 },
+    { revalidate: 30 },
   );
   if (!fetchResult.ok) return new Map();
 

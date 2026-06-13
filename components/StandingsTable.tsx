@@ -85,7 +85,7 @@ export function StandingsTable({
           </thead>
           <tbody>
             {entries.map(({ team, row }, idx) => {
-              const rank = idx + 1;
+              const rank = row?.rank ?? idx + 1;
               const isCurrent = team.key === currentTeamKey;
               const zc = zoneColor(rank);
               return (
@@ -99,7 +99,7 @@ export function StandingsTable({
                     className="px-3 py-3 font-heading font-bold text-white/50"
                     style={{ borderLeft: `3px solid ${zc}` }}
                   >
-                    {rank}
+                    {row?.rankLabel ?? rank}
                   </td>
 
                   {/* Flag + name */}

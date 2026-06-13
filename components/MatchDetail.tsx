@@ -5,15 +5,20 @@ import { Flag } from "@/components/Flag";
 import { KickoffDateTime } from "@/components/MatchTime";
 import { useLang } from "@/components/LanguageProvider";
 import { useTimezone } from "@/components/TimezoneProvider";
-import { matchUtcDate, type Match } from "@/lib/matches";
+import { MATCHES, matchSlug, matchUtcDate, type Match } from "@/lib/matches";
 import { formatKickoffTime } from "@/lib/timezone";
 import type { MatchEvents } from "@/lib/matchEvents";
 import type { LiveMatchData } from "@/lib/liveMatchData";
+import type { StandingRow } from "@/lib/groupStandings";
+import type { ThirdPlaceRow } from "@/lib/thirdPlaceRanking";
+import { buildScorerSentence } from "@/lib/resultSummary";
 
 interface Props {
   match: Match;
   events?: MatchEvents | null;
   live?: LiveMatchData | null;
+  groupStandings?: StandingRow[];
+  thirdPlaceRows?: ThirdPlaceRow[];
 }
 
 type DisplayStatus = "upcoming" | "live" | "halftime" | "finished" | "syncing";
@@ -108,7 +113,16 @@ function EmptyEvents({ note }: { note: string }) {
   return <p className="text-sm text-white/40">{note}</p>;
 }
 
-export function MatchDetail({ match, events, live }: Props) {
+function pointText(points: number) {
+  return `${points} ${points === 1 ? "point" : "points"}`;
+}
+
+function ordinal(n: number) {
+  const suffix = n % 10 === 1 && n % 100 !== 11 ? "st" : n % 10 === 2 && n % 100 !== 12 ? "nd" : n % 10 === 3 && n % 100 !== 13 ? "rd" : "th";
+  return `${n}${suffix}`;
+}
+
+export function MatchDetail({ match, events, live, groupStandings, thirdPlaceRows }: Props) {
   const { t, country, formatDate } = useLang();
   const { timeZone } = useTimezone();
   const timeBasedStatus = useMatchStatus(match);
@@ -127,6 +141,32 @@ export function MatchDetail({ match, events, live }: Props) {
       : liveStatus ?? timeBasedStatus;
 
   const lastSyncedTime = live ? formatKickoffTime(new Date(live.lastSyncedAt), timeZone) : null;
+  const isConfirmedFinished = live?.status === "FINISHED" && hasScore;
+  const homeName = country(match.homeKey);
+  const awayName = country(match.awayKey);
+  const homeStanding = groupStandings?.find((row) => row.teamKey === match.homeKey);
+  const awayStanding = groupStandings?.find((row) => row.teamKey === match.awayKey);
+  const homeRank = groupStandings?.findIndex((row) => row.teamKey === match.homeKey);
+  const awayRank = groupStandings?.findIndex((row) => row.teamKey === match.awayKey);
+  const matchTime = matchUtcDate(match).getTime();
+  const nextMatches = [match.homeKey, match.awayKey]
+    .map((teamKey) => {
+      const next = MATCHES
+        .filter((m) => (m.homeKey === teamKey || m.awayKey === teamKey) && matchUtcDate(m).getTime() > matchTime)
+        .sort((a, b) => matchUtcDate(a).getTime() - matchUtcDate(b).getTime())[0];
+      return next ? { teamKey, match: next } : null;
+    })
+    .filter(Boolean) as { teamKey: string; match: Match }[];
+  const groupThirdPlace = thirdPlaceRows?.find((row) => row.group === match.group);
+  const winnerText =
+    hasScore && homeScore! > awayScore!
+      ? `${homeName} beat ${awayName} ${homeScore}–${awayScore}`
+      : hasScore && awayScore! > homeScore!
+        ? `${awayName} beat ${homeName} ${awayScore}–${homeScore}`
+        : hasScore
+          ? `${homeName} and ${awayName} drew ${homeScore}–${awayScore}`
+          : "";
+  const scorers = buildScorerSentence(live?.goals, homeName, awayName);
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-8">
@@ -322,10 +362,10 @@ export function MatchDetail({ match, events, live }: Props) {
                   {live.goals.map((g, i) => (
                     <li key={i} className="flex items-center gap-3 text-sm">
                       <span className="w-8 shrink-0 text-right font-heading font-bold tabular-nums text-white/50">
-                        {g.minute != null ? `${g.minute}'` : "—"}
+                        {g.minuteLabel ?? (g.minute != null ? `${g.minute}'` : "—")}
                       </span>
                       <span className="font-semibold text-white">{g.playerName ?? "—"}</span>
-                      {g.type === "OWN_GOAL" && (
+                      {(g.type === "OWN_GOAL" || g.isOwnGoal) && (
                         <span className="text-xs text-red-400">(OG)</span>
                       )}
                       {g.type === "PENALTY_GOAL" && (
@@ -387,6 +427,78 @@ export function MatchDetail({ match, events, live }: Props) {
           </>
         )}
       </div>
+
+      {isConfirmedFinished && (
+        <section className="mt-6 space-y-4">
+          <EventSection title="Result summary" icon="⚽">
+            <p className="text-sm leading-relaxed text-white/70">
+              {winnerText} in Group {match.group}.{" "}
+              {scorers ?? "Goal scorer details are not available from the current data sync."}
+            </p>
+          </EventSection>
+
+          {(homeStanding || awayStanding) && (
+            <EventSection title="What this result means" icon="📊">
+              <div className="space-y-2 text-sm leading-relaxed text-white/70">
+                {homeStanding && (
+                  <p>
+                    {homeName} are on {pointText(homeStanding.points)} in Group {match.group}
+                    {typeof homeRank === "number" && homeRank >= 0 ? ` and currently ${ordinal(homeRank + 1)} in the group` : ""}.
+                  </p>
+                )}
+                {awayStanding && (
+                  <p>
+                    {awayName} are on {pointText(awayStanding.points)} in Group {match.group}
+                    {typeof awayRank === "number" && awayRank >= 0 ? ` and currently ${ordinal(awayRank + 1)} in the group` : ""}.
+                  </p>
+                )}
+                {groupThirdPlace && (
+                  <p>
+                    Group {match.group}&apos;s third-place position is reflected in the third-place ranking table.
+                  </p>
+                )}
+              </div>
+            </EventSection>
+          )}
+
+          {nextMatches.length > 0 && (
+            <EventSection title="Next matches" icon="🗓">
+              <div className="space-y-2">
+                {nextMatches.map(({ teamKey, match: next }) => (
+                  <Link
+                    key={`${teamKey}-${matchSlug(next)}`}
+                    href={`/matches/${matchSlug(next)}`}
+                    className="block rounded-lg border border-white/10 bg-navy/50 px-3 py-2 text-sm text-white/70 transition hover:border-white/20 hover:text-white"
+                  >
+                    <span className="font-semibold text-white">{country(teamKey)}</span>
+                    {" — "}
+                    {country(next.homeKey)} {t("vs")} {country(next.awayKey)}
+                    {" · "}
+                    <KickoffDateTime match={next} className="font-semibold text-white/80" />
+                  </Link>
+                ))}
+              </div>
+            </EventSection>
+          )}
+
+          <div className="flex flex-wrap gap-3 text-sm">
+            {[
+              { href: "/groups", label: `View Group ${match.group} standings` },
+              { href: "/today", label: "See today's matches" },
+              { href: "/stats", label: "See tournament stats" },
+              { href: "/world-cup-third-place-qualification", label: "See third-place ranking" },
+            ].map((l) => (
+              <Link
+                key={l.href}
+                href={l.href}
+                className="rounded-lg border border-white/15 bg-navyCard px-4 py-2 font-heading text-xs font-bold uppercase tracking-wide text-white/70 transition hover:border-white/30 hover:text-white"
+              >
+                {l.label}
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
     </div>
   );
 }
