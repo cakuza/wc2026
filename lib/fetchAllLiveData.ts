@@ -9,6 +9,8 @@
 import { MATCHES } from "./matches";
 import type { LiveMatchData, LiveMatchEvent, LiveMatchStatus } from "./liveMatchData";
 import { providerFetch } from "./providerFetch";
+import { getGoalEventCompleteness } from "./goalEventCompleteness";
+import { parseFootballDataGoals } from "./footballDataEventNormalizer";
 
 const BASE = "https://api.football-data.org/v4";
 const COMPETITION_ID = 2000; // FIFA World Cup
@@ -26,38 +28,12 @@ function safeInt(v: unknown): number | null {
   return typeof v === "number" ? (v as number) : null;
 }
 
-function mapGoalType(t: unknown): LiveMatchEvent["type"] {
-  switch (t) {
-    case "NORMAL": return "GOAL";
-    case "OWN_GOAL": return "OWN_GOAL";
-    case "PENALTY": return "PENALTY_GOAL";
-    default: return "UNKNOWN";
-  }
-}
-
 function mapCardType(t: unknown): LiveMatchEvent["type"] {
   switch (t) {
     case "YELLOW": return "YELLOW_CARD";
     case "RED": return "RED_CARD";
     default: return "UNKNOWN";
   }
-}
-
-function parseGoals(raw: unknown[]): LiveMatchEvent[] {
-  return raw.map((g) => {
-    const gObj = g as Record<string, unknown>;
-    const scorer = gObj.scorer as Record<string, unknown> | null | undefined;
-    const assist = gObj.assist as Record<string, unknown> | null | undefined;
-    const team = gObj.team as Record<string, unknown> | null | undefined;
-    return {
-      type: mapGoalType(gObj.type),
-      minute: safeInt(gObj.minute),
-      teamName: safeStr(team?.name),
-      playerName: safeStr(scorer?.name),
-      isOwnGoal: gObj.type === "OWN_GOAL",
-      assistName: safeStr(assist?.name),
-    };
-  });
 }
 
 function parseBookings(raw: unknown[]): LiveMatchEvent[] {
@@ -133,10 +109,16 @@ export async function fetchAllLiveData(): Promise<Map<number, LiveMatchData>> {
         ? (rawWinner as "HOME_TEAM" | "AWAY_TEAM" | "DRAW")
         : null;
 
-    const rawGoals = Array.isArray(entry.goals) ? (entry.goals as unknown[]) : null;
+    const goals = parseFootballDataGoals(entry, id);
     const rawBookings = Array.isArray(entry.bookings) ? (entry.bookings as unknown[]) : null;
     const rawSubs = Array.isArray(entry.substitutions) ? (entry.substitutions as unknown[]) : null;
-    const eventDataAvailable = rawGoals !== null;
+    const eventDataAvailable = goals !== undefined;
+    const goalEventCompleteness = getGoalEventCompleteness({
+      homeScore,
+      awayScore,
+      goals,
+      eventDataAvailable,
+    });
 
     result.set(id, {
       provider: "football-data.org",
@@ -149,7 +131,8 @@ export async function fetchAllLiveData(): Promise<Map<number, LiveMatchData>> {
       lastSyncedAt: now,
       rawStatus,
       eventDataAvailable,
-      goals: rawGoals ? parseGoals(rawGoals) : undefined,
+      goalEventCompleteness,
+      goals,
       bookings: rawBookings ? parseBookings(rawBookings) : undefined,
       substitutions: rawSubs ? parseSubs(rawSubs) : undefined,
     });

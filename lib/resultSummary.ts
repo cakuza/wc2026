@@ -1,4 +1,5 @@
 import type { LiveMatchEvent } from "./liveMatchData";
+import type { GoalEventCompleteness } from "./goalEventCompleteness";
 
 function ordinal(n: number) {
   const suffix = n % 10 === 1 && n % 100 !== 11 ? "st" : n % 10 === 2 && n % 100 !== 12 ? "nd" : n % 10 === 3 && n % 100 !== 13 ? "rd" : "th";
@@ -37,7 +38,9 @@ export function buildScorerSentence(
   goals: LiveMatchEvent[] | undefined,
   homeName?: string,
   awayName?: string,
+  completeness?: GoalEventCompleteness,
 ) {
+  if (completeness && !completeness.isGoalEventDataComplete) return null;
   if (!goals || goals.length === 0) return null;
   const usable = goals
     .filter((goal) => goal.playerName)

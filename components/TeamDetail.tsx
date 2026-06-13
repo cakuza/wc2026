@@ -68,7 +68,7 @@ export function TeamDetail({
   const scorerText = (snap: SerializableSnapshotMatch | undefined) =>
     snap?.scorers?.length
       ? snap.scorers
-          .map((event) => `${event.minuteLabel ?? (event.minute != null ? `${event.minute}'` : "")} ${event.playerName}${event.isOwnGoal ? " (OG)" : ""}`.trim())
+          .map((event) => `${event.minuteLabel ?? (event.minute != null ? `${event.minute}'` : "")} ${event.playerName}${event.isOwnGoal ? " (OG)" : event.isPenalty || event.type === "PENALTY_GOAL" ? " (P)" : ""}`.trim())
           .join(" · ")
       : null;
 

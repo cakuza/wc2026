@@ -3,7 +3,6 @@ import { Ticker } from "@/components/Ticker";
 import { Hero } from "@/components/Hero";
 import { HomeTrivia } from "@/components/HomeTrivia";
 import { TeamsByConfederationPreview } from "@/components/TeamsByConfederation";
-import { OpeningMatchBanner } from "@/components/OpeningMatchBanner";
 import { getTickerMatches } from "@/lib/matches";
 import { getDisplayMatchdayForTimeZone, resolveSelectedTimeZone } from "@/lib/todaySelection";
 
@@ -41,7 +40,6 @@ export default async function TodayPage({
   return (
     <>
       <Ticker items={tickerMatches} />
-      <OpeningMatchBanner />
       <Hero initialMatchday={initialMatchday} />
       <HomeTrivia />
       <TeamsByConfederationPreview />

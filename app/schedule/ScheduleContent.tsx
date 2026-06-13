@@ -67,7 +67,7 @@ function ScorerText({ events }: { events: GoalScorerEvent[] }) {
   const parts = events.map((e) => {
     const minute = e.minuteLabel ?? (e.minute != null ? `${e.minute}'` : "");
     const name = shortScorerName(e.playerName);
-    return `${minute ? `${minute} ` : ""}${name}${e.isOwnGoal ? " (OG)" : ""}`;
+    return `${minute ? `${minute} ` : ""}${name}${e.isOwnGoal ? " (OG)" : e.isPenalty || e.type === "PENALTY_GOAL" ? " (P)" : ""}`;
   });
   return <>{parts.join(" · ")}</>;
 }

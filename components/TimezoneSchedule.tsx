@@ -57,7 +57,7 @@ function shortScorerName(playerName: string) {
 
 function scorerText(events: GoalScorerEvent[] | undefined) {
   return events?.length
-    ? events.map((event) => `${event.minuteLabel ?? (event.minute != null ? `${event.minute}'` : "")} ${shortScorerName(event.playerName)}${event.isOwnGoal ? " (OG)" : ""}`.trim()).join(" · ")
+    ? events.map((event) => `${event.minuteLabel ?? (event.minute != null ? `${event.minute}'` : "")} ${shortScorerName(event.playerName)}${event.isOwnGoal ? " (OG)" : event.isPenalty || event.type === "PENALTY_GOAL" ? " (P)" : ""}`.trim()).join(" · ")
     : null;
 }
 

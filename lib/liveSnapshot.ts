@@ -12,6 +12,7 @@ import {
   type TournamentStats,
 } from "./tournamentStats";
 import type { LiveMatchData, LiveMatchEvent, LiveMatchStatus } from "./liveMatchData";
+import { getGoalEventCompleteness, type GoalEventCompleteness } from "./goalEventCompleteness";
 import {
   fetchWorldCup26Games,
   type GoalScorerEvent,
@@ -20,7 +21,7 @@ import {
 import { applyVerifiedGoalCorrections } from "./verifiedMatchEventCorrections";
 import { countryName } from "./i18n";
 
-export const LIVE_SNAPSHOT_CACHE_KEY = "worldcup-tournament-live-snapshot-v5";
+export const LIVE_SNAPSHOT_CACHE_KEY = "worldcup-tournament-live-snapshot-v6";
 export const LIVE_SNAPSHOT_REVALIDATE_SECONDS = 25;
 
 export type SnapshotMatchStatus = "SCHEDULED" | "LIVE" | "HALFTIME" | "FINISHED" | "SYNCING";
@@ -33,6 +34,7 @@ export type SerializableSnapshotMatch = {
   homeScore: number | null;
   awayScore: number | null;
   scorers: GoalScorerEvent[];
+  goalEventCompleteness: GoalEventCompleteness;
   sourceUpdatedAt: string | null;
   providerUpdatedAt: string | null;
   live: LiveMatchData | null;
@@ -120,7 +122,7 @@ export function canonicalStatus({
 
 function toLiveGoalEvent(event: GoalScorerEvent): LiveMatchEvent {
   return {
-    type: event.isOwnGoal ? "OWN_GOAL" : "GOAL",
+    type: event.isOwnGoal ? "OWN_GOAL" : event.isPenalty || event.type === "PENALTY_GOAL" ? "PENALTY_GOAL" : "GOAL",
     minute: event.minute,
     stoppageTime: event.stoppageTime,
     minuteLabel: event.minuteLabel,
@@ -129,6 +131,32 @@ function toLiveGoalEvent(event: GoalScorerEvent): LiveMatchEvent {
     playerName: event.playerName,
     isOwnGoal: event.isOwnGoal,
   };
+}
+
+function liveGoalCompoundKey(event: LiveMatchEvent): string {
+  return [
+    "compound",
+    normalizeTeamName(event.teamName ?? ""),
+    event.minute ?? "",
+    event.stoppageTime ?? "",
+    event.type,
+    (event.playerName ?? "pending").toLowerCase().trim(),
+  ].join("|");
+}
+
+function mergeGoalEvents(primary: LiveMatchEvent[] | undefined, enrichment: GoalScorerEvent[]): LiveMatchEvent[] {
+  const result: LiveMatchEvent[] = [];
+  const seen = new Set<string>();
+  for (const event of [...(primary ?? []), ...enrichment.map(toLiveGoalEvent)]) {
+    const keys = [
+      event.providerEventId ? `id:${event.providerEventId}` : null,
+      liveGoalCompoundKey(event),
+    ].filter((key): key is string => key !== null);
+    if (keys.some((key) => seen.has(key))) continue;
+    keys.forEach((key) => seen.add(key));
+    result.push(event);
+  }
+  return result.sort((a, b) => (a.minute ?? 999) - (b.minute ?? 999) || (a.stoppageTime ?? 0) - (b.stoppageTime ?? 0));
 }
 
 function winnerFromScore(homeScore: number | null, awayScore: number | null): LiveMatchData["winner"] {
@@ -226,8 +254,14 @@ function withCanonicalMatchState({
     return null;
   }
 
-  const existingGoals = live?.eventDataAvailable && live.goals && live.goals.length > 0;
-  const goals = existingGoals ? (live.goals ?? []) : scorers.map(toLiveGoalEvent);
+  const goals = mergeGoalEvents(live?.goals, scorers);
+  const eventDataAvailable = Boolean(live?.eventDataAvailable || scorers.length > 0);
+  const goalEventCompleteness = getGoalEventCompleteness({
+    homeScore,
+    awayScore,
+    goals,
+    eventDataAvailable,
+  });
 
   return {
     provider: "football-data.org",
@@ -239,7 +273,8 @@ function withCanonicalMatchState({
     utcDate: live?.utcDate,
     lastSyncedAt: live?.lastSyncedAt ?? generatedAt,
     rawStatus: live?.rawStatus,
-    eventDataAvailable: Boolean(existingGoals || scorers.length > 0),
+    eventDataAvailable,
+    goalEventCompleteness,
     goals: goals.length > 0 ? goals : live?.goals,
     bookings: live?.bookings,
     substitutions: live?.substitutions,
@@ -280,14 +315,14 @@ function makeSnapshotId(_generatedAt: string, matches: Record<string, Serializab
     const scorers = match.scorers
       .map((event) => `${event.minuteLabel ?? event.minute ?? ""}:${event.playerName}:${event.isOwnGoal ? "og" : "g"}`)
       .join(",");
-    signature += `|${id}:${match.status}:${match.homeScore ?? ""}:${match.awayScore ?? ""}:${scorers}`;
+    signature += `|${id}:${match.status}:${match.homeScore ?? ""}:${match.awayScore ?? ""}:${scorers}:${match.goalEventCompleteness.missingGoalEventCount}`;
   }
 
   let hash = 0;
   for (let i = 0; i < signature.length; i++) {
     hash = (hash * 31 + signature.charCodeAt(i)) >>> 0;
   }
-  return `snapshot-v5-${hash.toString(36)}`;
+  return `snapshot-v6-${hash.toString(36)}`;
 }
 
 export async function buildTournamentLiveSnapshot({
@@ -314,8 +349,6 @@ export async function buildTournamentLiveSnapshot({
     const live = providerId ? filteredLiveData.get(providerId) : undefined;
     const worldcupGame = worldcupByMatch.get(internalId);
     const scorers = scorersFromWorldcupGame(match, worldcupGame);
-    if (scorers.length > 0) scorerEventsByMatch.set(internalId, scorers);
-
     const canonicalLive = withCanonicalMatchState({
       match,
       live,
@@ -324,6 +357,20 @@ export async function buildTournamentLiveSnapshot({
       generatedAt,
     });
     if (providerId && canonicalLive) canonicalLiveData.set(providerId, canonicalLive);
+    const canonicalScorers = (canonicalLive?.goals ?? []).map((event): GoalScorerEvent => ({
+      type: event.type === "PENALTY_GOAL" ? "PENALTY_GOAL" : "GOAL",
+      minute: event.minute,
+      stoppageTime: event.stoppageTime,
+      minuteLabel: event.minuteLabel,
+      teamName: event.teamName ?? "",
+      playerTeamName: event.playerTeamName ?? undefined,
+      playerName: event.playerName ?? "Scorer pending",
+      isOwnGoal: event.isOwnGoal,
+      isPenalty: event.type === "PENALTY_GOAL",
+      provider: event.providerEventId ? "football-data.org" : "worldcup26.ir",
+      confidence: event.playerName ? "high" : "low",
+    }));
+    if (canonicalScorers.length > 0) scorerEventsByMatch.set(internalId, canonicalScorers);
 
     const status = canonicalStatus({ footballData: live, worldcupGame });
     matches[internalId] = {
@@ -333,7 +380,13 @@ export async function buildTournamentLiveSnapshot({
       status,
       homeScore: canonicalLive?.homeScore ?? null,
       awayScore: canonicalLive?.awayScore ?? null,
-      scorers,
+      scorers: canonicalScorers,
+      goalEventCompleteness: canonicalLive?.goalEventCompleteness ?? getGoalEventCompleteness({
+        homeScore: canonicalLive?.homeScore ?? null,
+        awayScore: canonicalLive?.awayScore ?? null,
+        goals: canonicalLive?.goals,
+        eventDataAvailable: Boolean(canonicalLive?.eventDataAvailable),
+      }),
       sourceUpdatedAt: canonicalLive?.lastSyncedAt ?? null,
       providerUpdatedAt: canonicalLive?.lastSyncedAt ?? null,
       live: canonicalLive,

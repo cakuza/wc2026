@@ -2,6 +2,8 @@
 // No invented data — if the provider doesn't expose a field, we leave it out.
 
 import { providerFetch } from "./providerFetch";
+import { getGoalEventCompleteness, type GoalEventCompleteness } from "./goalEventCompleteness";
+import { parseFootballDataGoals } from "./footballDataEventNormalizer";
 
 const BASE = "https://api.football-data.org/v4";
 
@@ -30,6 +32,7 @@ export type LiveMatchEvent = {
   isOwnGoal?: boolean;
   assistName?: string | null;
   detail?: string | null; // for substitutions: the player coming off
+  providerEventId?: string | null;
 };
 
 export type LiveMatchData = {
@@ -43,21 +46,13 @@ export type LiveMatchData = {
   lastSyncedAt: string;
   rawStatus?: string;
   eventDataAvailable: boolean;
+  goalEventCompleteness?: GoalEventCompleteness;
   goals?: LiveMatchEvent[];
   bookings?: LiveMatchEvent[];
   substitutions?: LiveMatchEvent[];
 };
 
 const KNOWN_WINNERS = ["HOME_TEAM", "AWAY_TEAM", "DRAW"];
-
-function mapGoalType(t: unknown): LiveMatchEvent["type"] {
-  switch (t) {
-    case "NORMAL": return "GOAL";
-    case "OWN_GOAL": return "OWN_GOAL";
-    case "PENALTY": return "PENALTY_GOAL";
-    default: return "UNKNOWN";
-  }
-}
 
 function mapCardType(t: unknown): LiveMatchEvent["type"] {
   switch (t) {
@@ -73,23 +68,6 @@ function safeStr(v: unknown): string | null {
 
 function safeInt(v: unknown): number | null {
   return typeof v === "number" ? v : null;
-}
-
-function parseGoals(raw: unknown[]): LiveMatchEvent[] {
-  return raw.map((g) => {
-    const gObj = g as Record<string, unknown>;
-    const scorer = gObj.scorer as Record<string, unknown> | null | undefined;
-    const assist = gObj.assist as Record<string, unknown> | null | undefined;
-    const team = gObj.team as Record<string, unknown> | null | undefined;
-    return {
-      type: mapGoalType(gObj.type),
-      minute: safeInt(gObj.minute),
-      teamName: safeStr(team?.name),
-      playerName: safeStr(scorer?.name),
-      isOwnGoal: gObj.type === "OWN_GOAL",
-      assistName: safeStr(assist?.name),
-    };
-  });
 }
 
 function parseBookings(raw: unknown[]): LiveMatchEvent[] {
@@ -166,10 +144,16 @@ export async function fetchLiveMatchData(
         ? (rawWinner as "HOME_TEAM" | "AWAY_TEAM" | "DRAW")
         : null;
 
-    const rawGoals = Array.isArray(data.goals) ? (data.goals as unknown[]) : null;
+    const goals = parseFootballDataGoals(data, providerMatchId);
     const rawBookings = Array.isArray(data.bookings) ? (data.bookings as unknown[]) : null;
     const rawSubs = Array.isArray(data.substitutions) ? (data.substitutions as unknown[]) : null;
-    const eventDataAvailable = rawGoals !== null;
+    const eventDataAvailable = goals !== undefined;
+    const goalEventCompleteness = getGoalEventCompleteness({
+      homeScore,
+      awayScore,
+      goals,
+      eventDataAvailable,
+    });
 
     return {
       provider: "football-data.org",
@@ -182,7 +166,8 @@ export async function fetchLiveMatchData(
       lastSyncedAt: new Date().toISOString(),
       rawStatus,
       eventDataAvailable,
-      goals: rawGoals ? parseGoals(rawGoals) : undefined,
+      goalEventCompleteness,
+      goals,
       bookings: rawBookings ? parseBookings(rawBookings) : undefined,
       substitutions: rawSubs ? parseSubs(rawSubs) : undefined,
     };

@@ -13,7 +13,7 @@ const ENDPOINT = "https://worldcup26.ir/get/games";
 const TIMEOUT_MS = 8_000;
 
 export type GoalScorerEvent = {
-  type: "GOAL";
+  type: "GOAL" | "PENALTY_GOAL";
   minute: number | null;
   stoppageTime?: number | null;
   minuteLabel?: string;
@@ -21,7 +21,8 @@ export type GoalScorerEvent = {
   playerTeamName?: string;
   playerName: string;
   isOwnGoal?: boolean;
-  provider: "worldcup26.ir";
+  isPenalty?: boolean;
+  provider: "worldcup26.ir" | "football-data.org";
   confidence: "high" | "low";
 };
 
@@ -38,9 +39,10 @@ export type WorldCup26Game = {
 };
 
 // Matches scorer strings like "J. Quinones 9'", "Lamine Yamal 31",
-// "F. Balogun 45'+5'" and "D. Bobadilla 7'(OG)".
-const SCORER_RE = /^(.+?)\s+(\d+)'?(?:\+(\d+)'?)?(?:\s*\(OG\))?$/i;
+// "F. Balogun 45'+5'", "D. Bobadilla 7'(OG)" and "Breel Embolo 17' (p)".
+const SCORER_RE = /^(.+?)\s+(\d+)'?(?:\+(\d+)'?)?(?:\s*\((OG|P|PEN|PENALTY)\))?$/i;
 const OWN_GOAL_RE = /\(OG\)\s*$/i;
+const PENALTY_GOAL_RE = /\((P|PEN|PENALTY)\)\s*$/i;
 
 /**
  * worldcup26.ir serializes scorer arrays with Unicode smart quotes U+201C / U+201D.
@@ -80,14 +82,16 @@ function parseScorerString(raw: string, teamName: string): GoalScorerEvent | nul
     const minute = parseInt(m[2], 10);
     const stoppageTime = m[3] ? parseInt(m[3], 10) : null;
     const isOwnGoal = OWN_GOAL_RE.test(str);
+    const isPenalty = PENALTY_GOAL_RE.test(str);
     return {
-      type: "GOAL",
+      type: isPenalty ? "PENALTY_GOAL" : "GOAL",
       minute,
       stoppageTime,
       minuteLabel: `${minute}${stoppageTime ? `+${stoppageTime}` : ""}'`,
       teamName,
       playerName: m[1].trim(),
       isOwnGoal,
+      isPenalty,
       playerTeamName: isOwnGoal ? undefined : teamName,
       provider: "worldcup26.ir",
       confidence: "high",
