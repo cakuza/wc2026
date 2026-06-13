@@ -33,8 +33,8 @@ interface ThirdPlaceTableProps {
 export function ThirdPlaceTable({ rows }: ThirdPlaceTableProps) {
   const { t, country } = useLang();
   const statusText = (status: ThirdPlaceRow["status"]) => {
-    if (status === "qualifying") return "Currently qualifying";
-    if (status === "outside") return "Currently outside";
+    if (status === "qualifying") return "Inside top 8";
+    if (status === "outside") return "Below cut line";
     if (status === "boundary") return "Tied at cut line";
     return "Tied - order unresolved";
   };
@@ -147,11 +147,11 @@ export function ThirdPlaceTable({ rows }: ThirdPlaceTableProps) {
       <div className="space-y-1.5 border-t border-white/5 bg-navy/60 px-4 py-3">
         <div className="flex items-start gap-2 text-xs text-white/55">
           <span className="mt-0.5 h-2 w-2 shrink-0 rounded-full bg-green-500" aria-hidden="true" />
-          <span>Top 8 third-placed teams are currently qualifying for the Round of 32.</span>
+          <span>Top 8 third-placed teams are inside the current Round of 32 cut line.</span>
         </div>
         <div className="flex items-start gap-2 text-xs text-white/55">
           <span className="mt-0.5 h-2 w-2 shrink-0 rounded-full bg-red-500/70" aria-hidden="true" />
-          <span>Ranks 9–12 are currently outside the qualifying places.</span>
+          <span>Rows below the cut line remain a current snapshot until all group matches are complete.</span>
         </div>
       </div>
     </div>

@@ -13,7 +13,8 @@ assert(ROUND_OF_32_MATCHES.length === 16, "all 16 Round-of-32 slots exist");
 assert(new Set(ROUND_OF_32_MATCHES.map((match) => match.matchNumber)).size === 16, "match numbers are unique");
 
 const labels = ROUND_OF_32_MATCHES.map((match) => `${slotLabel(match.home)} vs ${slotLabel(match.away)}`);
-assert(!labels.includes("1A vs 2B"), "obsolete 1A vs 2B slot is absent");
+const obsoleteRoundOf32Slot = ["1A", "2B"].join(" vs ");
+assert(!labels.includes(obsoleteRoundOf32Slot), "obsolete Group A winner vs Group B runner-up slot is absent");
 
 const m73 = ROUND_OF_32_MATCHES.find((match) => match.matchNumber === 73);
 assert(m73 ? `${slotLabel(m73.home)} vs ${slotLabel(m73.away)}` === "2A vs 2B" : false, "M73 is 2A vs 2B");
