@@ -66,13 +66,13 @@ function assert(condition: boolean, msg: string) {
 console.log("=== Scorer enrichment test ===\n");
 
 console.log("A) Standard scorer strings:");
-const quin = parseScorer("J. QuiÃ±ones 9'", "Mexico");
-assert(quin.playerName === "J. QuiÃ±ones", `playerName = "J. QuiÃ±ones" (got "${quin.playerName}")`);
+const quin = parseScorer("J. Quiñones 9'", "Mexico");
+assert(quin.playerName === "J. Quiñones", `playerName = "J. Quiñones" (got "${quin.playerName}")`);
 assert(quin.minute === 9, `minute = 9 (got ${quin.minute})`);
 assert(quin.confidence === "high", "confidence = high");
 
-const jim = parseScorer("R. JimÃ©nez 67'", "Mexico");
-assert(jim.playerName === "R. JimÃ©nez", `playerName = "R. JimÃ©nez" (got "${jim.playerName}")`);
+const jim = parseScorer("R. Jiménez 67'", "Mexico");
+assert(jim.playerName === "R. Jiménez", `playerName = "R. Jiménez" (got "${jim.playerName}")`);
 assert(jim.minute === 67, `minute = 67 (got ${jim.minute})`);
 assert(jim.confidence === "high", "confidence = high");
 
@@ -95,28 +95,28 @@ const empty = parseScorers(["", "  "], "Mexico");
 assert(empty.length === 0, "empty strings filtered out");
 
 console.log("\nC) Multi-scorer array parsing:");
-const rawScorers = ["J. QuiÃ±ones 9'", "R. JimÃ©nez 67'"];
+const rawScorers = ["J. Quiñones 9'", "R. Jiménez 67'"];
 const parsed = parseScorers(rawScorers, "Mexico");
 assert(parsed.length === 2, "2 scorers parsed");
-assert(parsed[0].playerName === "J. QuiÃ±ones", "first scorer = J. QuiÃ±ones");
-assert(parsed[1].playerName === "R. JimÃ©nez", "second scorer = R. JimÃ©nez");
+assert(parsed[0].playerName === "J. Quiñones", "first scorer = J. Quiñones");
+assert(parsed[1].playerName === "R. Jiménez", "second scorer = R. Jiménez");
 
-const mixed = parseScorers(["J. QuiÃ±ones 9'", "Unknown", "R. JimÃ©nez 67'"], "Mexico");
+const mixed = parseScorers(["J. Quiñones 9'", "Unknown", "R. Jiménez 67'"], "Mexico");
 assert(mixed.length === 3, "3 entries (malformed included, not silently dropped)");
 assert(mixed[1].confidence === "low", "malformed entry marked low confidence");
 
 console.log("\nD) Top scorer aggregation:");
 const goals: ParsedGoal[] = [
-  { playerName: "J. QuiÃ±ones", minute: 9, teamName: "Mexico", type: "GOAL", provider: "worldcup26.ir", confidence: "high" },
-  { playerName: "R. JimÃ©nez", minute: 67, teamName: "Mexico", type: "GOAL", provider: "worldcup26.ir", confidence: "high" },
-  { playerName: "J. QuiÃ±ones", minute: 88, teamName: "Mexico", type: "GOAL", provider: "worldcup26.ir", confidence: "high" },
+  { playerName: "J. Quiñones", minute: 9, teamName: "Mexico", type: "GOAL", provider: "worldcup26.ir", confidence: "high" },
+  { playerName: "R. Jiménez", minute: 67, teamName: "Mexico", type: "GOAL", provider: "worldcup26.ir", confidence: "high" },
+  { playerName: "J. Quiñones", minute: 88, teamName: "Mexico", type: "GOAL", provider: "worldcup26.ir", confidence: "high" },
   { playerName: "L. Messi", minute: 15, teamName: "Argentina", type: "GOAL", provider: "worldcup26.ir", confidence: "high" },
 ];
 
 const topList = aggregateTopScorers(goals);
 assert(topList.length === 3, "3 distinct scorers");
-assert(topList[0].playerName === "J. QuiÃ±ones", "top scorer = J. QuiÃ±ones");
-assert(topList[0].goals === 2, "J. QuiÃ±ones has 2 goals");
+assert(topList[0].playerName === "J. Quiñones", "top scorer = J. Quiñones");
+assert(topList[0].goals === 2, "J. Quiñones has 2 goals");
 assert(topList[1].goals === 1, "second scorer has 1 goal");
 assert(aggregateTopScorers([]).length === 0, "empty goals -> empty top scorers");
 

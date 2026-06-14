@@ -134,7 +134,7 @@ export function MatchDetail({ match, events, live, groupStandings, thirdPlaceRow
   const hasScore = homeScore !== null && awayScore !== null;
 
   // "syncing": provider says SCHEDULED/TIMED but kickoff already passed (stale data),
-  // OR provider says IN_PLAY but no score available yet â€” never show "vs + LIVE".
+  // OR provider says IN_PLAY but no score available yet — never show "vs + LIVE".
   const status: DisplayStatus =
     (liveStatus === "upcoming" && timeBasedStatus !== "upcoming") ||
     (liveStatus === "live" && !hasScore)
@@ -161,11 +161,11 @@ export function MatchDetail({ match, events, live, groupStandings, thirdPlaceRow
   const groupThirdPlace = thirdPlaceRows?.find((row) => row.group === match.group);
   const winnerText =
     hasScore && homeScore! > awayScore!
-      ? `${homeName} beat ${awayName} ${homeScore}â€“${awayScore}`
+      ? `${homeName} beat ${awayName} ${homeScore}–${awayScore}`
       : hasScore && awayScore! > homeScore!
-        ? `${awayName} beat ${homeName} ${awayScore}â€“${homeScore}`
+        ? `${awayName} beat ${homeName} ${awayScore}–${homeScore}`
         : hasScore
-          ? `${homeName} and ${awayName} drew ${homeScore}â€“${awayScore}`
+          ? `${homeName} and ${awayName} drew ${homeScore}–${awayScore}`
           : "";
   const goalCompleteness = live?.goalEventCompleteness;
   const missingGoalText = missingScorerDetailText(goalCompleteness?.missingGoalEventCount ?? 0);
@@ -178,10 +178,10 @@ export function MatchDetail({ match, events, live, groupStandings, thirdPlaceRow
         href="/schedule"
         className="font-heading text-sm font-bold uppercase tracking-wide text-white/50 transition hover:text-accent"
       >
-        â† {t("match_backSched")}
+        ← {t("match_backSched")}
       </Link>
 
-      {/* â”€â”€ MATCH HERO â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+      {/* ── MATCH HERO ───────────────────────────────────────────────────── */}
       <div className="relative mt-4 overflow-hidden rounded-2xl border border-white/10 bg-navyCard">
         {/* Background: team colors as a split gradient */}
         <div
@@ -224,7 +224,7 @@ export function MatchDetail({ match, events, live, groupStandings, thirdPlaceRow
                   <span className="font-heading text-5xl font-black tabular-nums text-white sm:text-6xl">
                     {homeScore}
                   </span>
-                  <span className="font-heading text-2xl font-bold text-white/30">â€“</span>
+                  <span className="font-heading text-2xl font-bold text-white/30">–</span>
                   <span className="font-heading text-5xl font-black tabular-nums text-white sm:text-6xl">
                     {awayScore}
                   </span>
@@ -265,7 +265,7 @@ export function MatchDetail({ match, events, live, groupStandings, thirdPlaceRow
             )}
             {match.venue && (
               <>
-                <span>Â·</span>
+                <span>·</span>
                 <span>{match.venue}</span>
               </>
             )}
@@ -281,7 +281,7 @@ export function MatchDetail({ match, events, live, groupStandings, thirdPlaceRow
         </div>
       </div>
 
-      {/* â”€â”€ QUICK ANSWERS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+      {/* ── QUICK ANSWERS ────────────────────────────────────────────────── */}
       <section className="mt-4" aria-label="Quick answers about this match">
         <p className="mb-2 font-heading text-[10px] font-extrabold uppercase tracking-[0.25em] text-white/30">
           {t("match_quickAnswers")}
@@ -315,17 +315,17 @@ export function MatchDetail({ match, events, live, groupStandings, thirdPlaceRow
               <span className="font-semibold text-white">
                 {t("lbl_group")} {match.group}
               </span>{" "}
-              â€” {country(match.homeKey)} {t("vs")} {country(match.awayKey)}
+              — {country(match.homeKey)} {t("vs")} {country(match.awayKey)}
             </p>
           </div>
         </div>
       </section>
 
-      {/* â”€â”€ EVENTS (live / finished) or PREVIEW (upcoming) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+      {/* ── EVENTS (live / finished) or PREVIEW (upcoming) ──────────────── */}
       <div className="mt-6 space-y-4">
         {status === "upcoming" ? (
           /* Pre-match preview */
-          <EventSection title={t("match_preview")} icon="ðŸ”­">
+          <EventSection title={t("match_preview")} icon="🔭">
             <p className="text-sm text-white/50">{t("match_previewNote")}</p>
             <div className="mt-4 grid grid-cols-2 gap-3">
               <div className="rounded-lg bg-navy/60 p-3 text-center">
@@ -359,13 +359,13 @@ export function MatchDetail({ match, events, live, groupStandings, thirdPlaceRow
         ) : (
           <>
             {/* Goals */}
-            <EventSection title={t("match_goals")} icon="âš½">
+            <EventSection title={t("match_goals")} icon="⚽">
               {live?.eventDataAvailable && live.goals && live.goals.length > 0 ? (
                 <ul className="space-y-2">
                   {live.goals.map((g, i) => (
                     <li key={i} className="flex items-center gap-3 text-sm">
                       <span className="w-8 shrink-0 text-right font-heading font-bold tabular-nums text-white/50">
-                        {g.minuteLabel ?? (g.minute != null ? `${g.minute}'` : "â€”")}
+                        {g.minuteLabel ?? (g.minute != null ? `${g.minute}'` : "—")}
                       </span>
                       <span className="font-semibold text-white">{g.playerName ?? "Scorer pending"}</span>
                       {(g.type === "OWN_GOAL" || g.isOwnGoal) && (
@@ -389,14 +389,14 @@ export function MatchDetail({ match, events, live, groupStandings, thirdPlaceRow
               )}
             </EventSection>
 
-            {/* Cards â€” only shown when the provider actually returned booking data */}
+            {/* Cards — only shown when the provider actually returned booking data */}
             {live?.eventDataAvailable && live.bookings && live.bookings.length > 0 && (
-              <EventSection title={t("match_bookings")} icon="ðŸŸ¨">
+              <EventSection title={t("match_bookings")} icon="🟨">
                 <ul className="space-y-2">
                   {live.bookings.map((b, i) => (
                     <li key={i} className="flex items-center gap-3 text-sm">
                       <span className="w-8 shrink-0 text-right font-heading font-bold tabular-nums text-white/50">
-                        {b.minute != null ? `${b.minute}'` : "â€”"}
+                        {b.minute != null ? `${b.minute}'` : "—"}
                       </span>
                       <span
                         className={`h-4 w-3 shrink-0 rounded-sm ${
@@ -404,27 +404,27 @@ export function MatchDetail({ match, events, live, groupStandings, thirdPlaceRow
                         }`}
                         aria-label={b.type}
                       />
-                      <span className="font-semibold text-white">{b.playerName ?? "â€”"}</span>
+                      <span className="font-semibold text-white">{b.playerName ?? "—"}</span>
                     </li>
                   ))}
                 </ul>
               </EventSection>
             )}
 
-            {/* Substitutions â€” only shown when the provider actually returned substitution data */}
+            {/* Substitutions — only shown when the provider actually returned substitution data */}
             {live?.eventDataAvailable && live.substitutions && live.substitutions.length > 0 && (
-              <EventSection title={t("match_subs")} icon="ðŸ”„">
+              <EventSection title={t("match_subs")} icon="🔄">
                 <ul className="space-y-2">
                   {live.substitutions.map((s, i) => (
                     <li key={i} className="flex items-center gap-3 text-sm">
                       <span className="w-8 shrink-0 text-right font-heading font-bold tabular-nums text-white/50">
-                        {s.minute != null ? `${s.minute}'` : "â€”"}
+                        {s.minute != null ? `${s.minute}'` : "—"}
                       </span>
-                      <span className="text-green-400">â†‘</span>
-                      <span className="font-semibold text-white">{s.playerName ?? "â€”"}</span>
+                      <span className="text-green-400">↑</span>
+                      <span className="font-semibold text-white">{s.playerName ?? "—"}</span>
                       <span className="text-white/30">/</span>
-                      <span className="text-red-400">â†“</span>
-                      <span className="text-white/60">{s.detail ?? "â€”"}</span>
+                      <span className="text-red-400">↓</span>
+                      <span className="text-white/60">{s.detail ?? "—"}</span>
                     </li>
                   ))}
                 </ul>
@@ -436,14 +436,14 @@ export function MatchDetail({ match, events, live, groupStandings, thirdPlaceRow
 
       {isConfirmedFinished && (
         <section className="mt-6 space-y-4">
-          <EventSection title="Result summary" icon="âš½">
+          <EventSection title="Result summary" icon="⚽">
             <p className="text-sm leading-relaxed text-white/70">
               {winnerText} in Group {match.group}.{scorers ? ` ${scorers}` : ""}
             </p>
           </EventSection>
 
           {(homeStanding || awayStanding) && (
-            <EventSection title="What this result means" icon="ðŸ“Š">
+            <EventSection title="What this result means" icon="📊">
               <div className="space-y-2 text-sm leading-relaxed text-white/70">
                 {homeStanding && (
                   <p>
@@ -467,7 +467,7 @@ export function MatchDetail({ match, events, live, groupStandings, thirdPlaceRow
           )}
 
           {nextMatches.length > 0 && (
-            <EventSection title="Next matches" icon="ðŸ—“">
+            <EventSection title="Next matches" icon="🗓">
               <div className="space-y-2">
                 {nextMatches.map(({ teamKey, match: next }) => (
                   <Link
@@ -476,9 +476,9 @@ export function MatchDetail({ match, events, live, groupStandings, thirdPlaceRow
                     className="block rounded-lg border border-white/10 bg-navy/50 px-3 py-2 text-sm text-white/70 transition hover:border-white/20 hover:text-white"
                   >
                     <span className="font-semibold text-white">{country(teamKey)}</span>
-                    {" â€” "}
+                    {" — "}
                     {country(next.homeKey)} {t("vs")} {country(next.awayKey)}
-                    {" Â· "}
+                    {" · "}
                     <KickoffDateTime match={next} className="font-semibold text-white/80" />
                   </Link>
                 ))}
