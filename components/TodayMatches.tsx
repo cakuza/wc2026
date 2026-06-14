@@ -12,6 +12,8 @@ import { matchSlug, matchUtcDate, type DisplayMatchday, type Match } from "@/lib
 import { getDisplayMatchdayForTimeZone } from "@/lib/todaySelection";
 import type { LiveMatchData } from "@/lib/liveMatchData";
 import type { GoalScorerEvent } from "@/lib/worldcup26Provider";
+import { countryName } from "@/lib/i18n";
+import { reconcileGoalEvents } from "@/lib/scoreReconciliation";
 
 export type TodayLiveSnapshot = {
   snapshotId: string;
@@ -52,7 +54,14 @@ function MatchRow({
   const hasScore = live && live.homeScore !== null && live.awayScore !== null;
   const isLive = live?.status === "IN_PLAY" || live?.status === "PAUSED";
   const isFinished = live?.status === "FINISHED";
-  const goals = scorerText(scorers);
+  const { confirmedEvents, scorerDetailsIncomplete } = reconcileGoalEvents({
+    homeScore: live?.homeScore ?? null,
+    awayScore: live?.awayScore ?? null,
+    homeTeamName: countryName(m.homeKey, "en"),
+    awayTeamName: countryName(m.awayKey, "en"),
+    events: scorers ?? [],
+  });
+  const goals = scorerText(confirmedEvents);
 
   return (
     <Link
@@ -96,7 +105,7 @@ function MatchRow({
       </div>
 
       {goals ? <p className="mt-1 truncate text-center text-[11px] text-white/40">Goals: {goals}</p> : null}
-      {isLive && !goals ? (
+      {isLive && scorerDetailsIncomplete ? (
         <p className="mt-1 text-center text-[11px] text-white/40">Scorer details are still syncing.</p>
       ) : null}
     </Link>

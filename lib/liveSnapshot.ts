@@ -86,7 +86,7 @@ const TEAM_NAME_ALIASES: Record<string, string> = {
 
 let lastKnownGoodSnapshot: TournamentLiveSnapshot | null = null;
 
-function normalizeTeamName(name: string): string {
+export function normalizeTeamName(name: string): string {
   const norm = name
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "")
@@ -129,7 +129,7 @@ export function canonicalStatus({
   return "SCHEDULED";
 }
 
-function toLiveGoalEvent(event: GoalScorerEvent): LiveMatchEvent {
+export function toLiveGoalEvent(event: GoalScorerEvent): LiveMatchEvent {
   return {
     type: event.isOwnGoal ? "OWN_GOAL" : event.isPenalty || event.type === "PENALTY_GOAL" ? "PENALTY_GOAL" : "GOAL",
     minute: event.minute,

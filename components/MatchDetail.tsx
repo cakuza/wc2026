@@ -1,53 +1,55 @@
 ﻿"use client";
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Flag } from "@/components/Flag";
 import { KickoffDateTime } from "@/components/MatchTime";
+import { FreshnessLabel } from "@/components/FreshnessLabel";
 import { useLang } from "@/components/LanguageProvider";
-import { useTimezone } from "@/components/TimezoneProvider";
 import { MATCHES, matchSlug, matchUtcDate, type Match } from "@/lib/matches";
-import { formatKickoffTime } from "@/lib/timezone";
 import type { MatchEvents } from "@/lib/matchEvents";
 import type { LiveMatchData } from "@/lib/liveMatchData";
 import type { StandingRow } from "@/lib/groupStandings";
 import type { ThirdPlaceRow } from "@/lib/thirdPlaceRanking";
+import { countryName } from "@/lib/i18n";
 import { buildScorerSentence } from "@/lib/resultSummary";
-import { missingScorerDetailText } from "@/lib/goalEventCompleteness";
+import { missingScorerDetailText, type GoalEventCompleteness } from "@/lib/goalEventCompleteness";
+import { type SnapshotMatchStatus, toLiveGoalEvent } from "@/lib/liveSnapshot";
+import { reconcileGoalEvents, isMatchPollingActive } from "@/lib/scoreReconciliation";
+import type { GoalScorerEvent } from "@/lib/worldcup26Provider";
 
 interface Props {
   match: Match;
   events?: MatchEvents | null;
   live?: LiveMatchData | null;
+  status: SnapshotMatchStatus;
+  homeScore: number | null;
+  awayScore: number | null;
+  scorers: GoalScorerEvent[];
+  goalEventCompleteness: GoalEventCompleteness;
+  primaryProviderFetchedAt: string | null;
+  primaryProviderOk: boolean;
+  secondaryProviderFetchedAt: string | null;
+  secondaryProviderOk: boolean;
   groupStandings?: StandingRow[];
   thirdPlaceRows?: ThirdPlaceRow[];
 }
 
 type DisplayStatus = "upcoming" | "live" | "halftime" | "finished" | "syncing";
 
-function useMatchStatus(match: Match): DisplayStatus {
-  const now = new Date();
-  const matchStart = matchUtcDate(match); // absolute instant, correct for any viewer timezone
-  const matchEnd = new Date(matchStart.getTime() + 110 * 60 * 1000); // ~110 min
-  if (now < matchStart) return "upcoming";
-  if (now >= matchStart && now <= matchEnd) return "live";
-  return "finished";
-}
-
-/** Map a football-data.org status onto our display states. Returns null for
- *  statuses that should fall back to the time-based estimate (e.g. POSTPONED). */
-function liveStatusToDisplay(status: LiveMatchData["status"]): DisplayStatus | null {
+/** SnapshotMatchStatus maps 1:1 onto our display states. */
+export function snapshotStatusToDisplay(status: SnapshotMatchStatus): DisplayStatus {
   switch (status) {
     case "SCHEDULED":
-    case "TIMED":
       return "upcoming";
-    case "IN_PLAY":
+    case "LIVE":
       return "live";
-    case "PAUSED":
+    case "HALFTIME":
       return "halftime";
     case "FINISHED":
       return "finished";
-    default:
-      return null;
+    case "SYNCING":
+      return "syncing";
   }
 }
 
@@ -123,26 +125,120 @@ function ordinal(n: number) {
   return `${n}${suffix}`;
 }
 
-export function MatchDetail({ match, events, live, groupStandings, thirdPlaceRows }: Props) {
+export function MatchDetail({
+  match,
+  events,
+  live,
+  status: initialStatus,
+  homeScore: initialHomeScore,
+  awayScore: initialAwayScore,
+  scorers: initialScorers,
+  goalEventCompleteness: initialCompleteness,
+  primaryProviderFetchedAt: initialPrimaryProviderFetchedAt,
+  primaryProviderOk: initialPrimaryProviderOk,
+  secondaryProviderFetchedAt: initialSecondaryProviderFetchedAt,
+  secondaryProviderOk: initialSecondaryProviderOk,
+  groupStandings,
+  thirdPlaceRows,
+}: Props) {
   const { t, country, formatDate } = useLang();
-  const { timeZone } = useTimezone();
-  const timeBasedStatus = useMatchStatus(match);
-  const liveStatus = live ? liveStatusToDisplay(live.status) : null;
+  void events;
 
-  const homeScore = live?.homeScore ?? events?.score.home ?? null;
-  const awayScore = live?.awayScore ?? events?.score.away ?? null;
+  const [liveState, setLiveState] = useState({
+    status: initialStatus,
+    homeScore: initialHomeScore,
+    awayScore: initialAwayScore,
+    scorers: initialScorers,
+    goalEventCompleteness: initialCompleteness,
+    primaryProviderFetchedAt: initialPrimaryProviderFetchedAt,
+    primaryProviderOk: initialPrimaryProviderOk,
+    secondaryProviderFetchedAt: initialSecondaryProviderFetchedAt,
+    secondaryProviderOk: initialSecondaryProviderOk,
+  });
+
+  const internalId = matchSlug(match);
+  const kickoffMs = matchUtcDate(match).getTime();
+
+  // Ticks periodically so pollingActive re-evaluates as kickoff approaches or
+  // passes, even while no poll-driven re-render has happened yet.
+  const [now, setNow] = useState(() => Date.now());
+  useEffect(() => {
+    const interval = setInterval(() => setNow(Date.now()), 30_000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const pollingActive = isMatchPollingActive(liveState.status, kickoffMs, now);
+
+  // Poll the lightweight internal live-snapshot endpoint while the match is
+  // live or starting soon — reads the shared server snapshot, never the
+  // upstream providers directly, and uses the current snapshot state (not
+  // just the initial server props) for all subsequent live-status decisions.
+  useEffect(() => {
+    if (!pollingActive) return;
+
+    let cancelled = false;
+    let timer: ReturnType<typeof setTimeout> | null = null;
+    let inFlight = false;
+
+    async function poll() {
+      if (cancelled || document.hidden || inFlight) {
+        schedule();
+        return;
+      }
+      inFlight = true;
+      try {
+        const res = await fetch("/api/live-snapshot", { cache: "no-store" });
+        if (res.ok) {
+          const data = await res.json();
+          const update = data.matches?.[internalId];
+          if (!cancelled && update) {
+            setLiveState({
+              status: update.status,
+              homeScore: update.homeScore,
+              awayScore: update.awayScore,
+              scorers: update.scorers,
+              goalEventCompleteness: update.goalEventCompleteness,
+              primaryProviderFetchedAt: data.primaryProviderFetchedAt,
+              primaryProviderOk: data.primaryProviderOk,
+              secondaryProviderFetchedAt: data.secondaryProviderFetchedAt,
+              secondaryProviderOk: data.secondaryProviderOk,
+            });
+          }
+        }
+      } catch {
+        // keep last known state; retry on next tick
+      } finally {
+        inFlight = false;
+        schedule();
+      }
+    }
+
+    function schedule() {
+      if (cancelled) return;
+      const jitter = Math.floor(Math.random() * 5_000);
+      timer = setTimeout(poll, 25_000 + jitter);
+    }
+
+    function handleVisibilityChange() {
+      if (!document.hidden) poll();
+    }
+
+    schedule();
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    return () => {
+      cancelled = true;
+      if (timer) clearTimeout(timer);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pollingActive, internalId]);
+
+  const homeScore = liveState.homeScore;
+  const awayScore = liveState.awayScore;
   const hasScore = homeScore !== null && awayScore !== null;
+  const status: DisplayStatus = snapshotStatusToDisplay(liveState.status);
 
-  // "syncing": provider says SCHEDULED/TIMED but kickoff already passed (stale data),
-  // OR provider says IN_PLAY but no score available yet — never show "vs + LIVE".
-  const status: DisplayStatus =
-    (liveStatus === "upcoming" && timeBasedStatus !== "upcoming") ||
-    (liveStatus === "live" && !hasScore)
-      ? "syncing"
-      : liveStatus ?? timeBasedStatus;
-
-  const lastSyncedTime = live ? formatKickoffTime(new Date(live.lastSyncedAt), timeZone) : null;
-  const isConfirmedFinished = live?.status === "FINISHED" && hasScore;
+  const isConfirmedFinished = liveState.status === "FINISHED" && hasScore;
   const homeName = country(match.homeKey);
   const awayName = country(match.awayKey);
   const homeStanding = groupStandings?.find((row) => row.teamKey === match.homeKey);
@@ -167,9 +263,19 @@ export function MatchDetail({ match, events, live, groupStandings, thirdPlaceRow
         : hasScore
           ? `${homeName} and ${awayName} drew ${homeScore}–${awayScore}`
           : "";
-  const goalCompleteness = live?.goalEventCompleteness;
-  const missingGoalText = missingScorerDetailText(goalCompleteness?.missingGoalEventCount ?? 0);
-  const scorers = buildScorerSentence(live?.goals, homeName, awayName, goalCompleteness);
+  const goalCompleteness = liveState.goalEventCompleteness;
+  const missingGoalText = missingScorerDetailText(goalCompleteness.missingGoalEventCount);
+  // Scorer events carry English provider team names regardless of UI
+  // language, so match against English names rather than the localized
+  // display names used elsewhere on the page.
+  const { confirmedEvents: confirmedGoals } = reconcileGoalEvents({
+    homeScore,
+    awayScore,
+    homeTeamName: countryName(match.homeKey, "en"),
+    awayTeamName: countryName(match.awayKey, "en"),
+    events: liveState.scorers,
+  });
+  const scorers = buildScorerSentence(confirmedGoals.map(toLiveGoalEvent), homeName, awayName, goalCompleteness);
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-8">
@@ -271,11 +377,15 @@ export function MatchDetail({ match, events, live, groupStandings, thirdPlaceRow
             )}
           </div>
 
-          {/* Sync note */}
-          {live && (
+          {/* Sync note — score/status freshness from the primary provider only;
+              a secondary-provider outage does not imply the score is stale. */}
+          {liveState.status !== "SCHEDULED" && (
             <p className="mt-2 text-center text-xs text-white/30">
-              {t("match_scoreSyncNote")}
-              {lastSyncedTime && ` ${t("match_lastSynced").replace("{time}", lastSyncedTime)}`}
+              <FreshnessLabel
+                primaryProviderFetchedAt={liveState.primaryProviderFetchedAt}
+                primaryProviderOk={liveState.primaryProviderOk}
+                className="text-white/30"
+              />
             </p>
           )}
         </div>
@@ -360,18 +470,18 @@ export function MatchDetail({ match, events, live, groupStandings, thirdPlaceRow
           <>
             {/* Goals */}
             <EventSection title={t("match_goals")} icon="⚽">
-              {live?.eventDataAvailable && live.goals && live.goals.length > 0 ? (
+              {confirmedGoals.length > 0 ? (
                 <ul className="space-y-2">
-                  {live.goals.map((g, i) => (
+                  {confirmedGoals.map((g, i) => (
                     <li key={i} className="flex items-center gap-3 text-sm">
                       <span className="w-8 shrink-0 text-right font-heading font-bold tabular-nums text-white/50">
                         {g.minuteLabel ?? (g.minute != null ? `${g.minute}'` : "—")}
                       </span>
                       <span className="font-semibold text-white">{g.playerName ?? "Scorer pending"}</span>
-                      {(g.type === "OWN_GOAL" || g.isOwnGoal) && (
+                      {g.isOwnGoal && (
                         <span className="text-xs text-red-400">(OG)</span>
                       )}
-                      {g.type === "PENALTY_GOAL" && (
+                      {(g.isPenalty || g.type === "PENALTY_GOAL") && (
                         <span className="text-xs text-yellow-400">(P)</span>
                       )}
                     </li>
@@ -380,10 +490,8 @@ export function MatchDetail({ match, events, live, groupStandings, thirdPlaceRow
                     <li className="pt-1 text-sm text-white/45">{missingGoalText}</li>
                   ) : null}
                 </ul>
-              ) : live?.eventDataAvailable ? (
-                <EmptyEvents note={missingGoalText ?? "No goals recorded"} />
-              ) : hasScore ? (
-                <EmptyEvents note={missingGoalText ?? "Goal scorer details are not available from the current data sync."} />
+              ) : missingGoalText ? (
+                <EmptyEvents note={missingGoalText} />
               ) : (
                 <EmptyEvents note={t("match_noEvents")} />
               )}

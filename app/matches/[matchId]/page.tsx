@@ -1,10 +1,9 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { LiveDataAutoRefresh } from "@/components/LiveDataAutoRefresh";
 import { LiveSnapshotDebug } from "@/components/LiveSnapshotDebug";
 import { MatchDetail } from "@/components/MatchDetail";
 import { countryName } from "@/lib/i18n";
-import { getLiveRefreshPolicy } from "@/lib/liveRefreshPolicy";
+import { getGoalEventCompleteness } from "@/lib/goalEventCompleteness";
 import { getTournamentLiveSnapshot } from "@/lib/liveSnapshot";
 import { matchBySlug } from "@/lib/matches";
 
@@ -56,9 +55,11 @@ export default async function MatchPage({
 
   const snapshot = await getTournamentLiveSnapshot();
   const snap = snapshot.matches[matchId];
-  const refreshPolicy = getLiveRefreshPolicy(snap ? [snap] : []);
   const events = null;
   const live = snap?.live ?? null;
+  const goalEventCompleteness =
+    snap?.goalEventCompleteness ??
+    getGoalEventCompleteness({ homeScore: null, awayScore: null, goals: undefined, eventDataAvailable: false });
 
   const home = countryName(match.homeKey, "en");
   const away = countryName(match.awayKey, "en");
@@ -99,7 +100,6 @@ export default async function MatchPage({
 
   return (
     <>
-      <LiveDataAutoRefresh intervalMs={refreshPolicy.intervalMs} />
       <LiveSnapshotDebug snapshotId={snapshot.snapshotId} generatedAt={snapshot.generatedAt} />
       <script
         type="application/ld+json"
@@ -109,6 +109,15 @@ export default async function MatchPage({
         match={match}
         events={events}
         live={live}
+        status={snap?.status ?? "SCHEDULED"}
+        homeScore={snap?.homeScore ?? null}
+        awayScore={snap?.awayScore ?? null}
+        scorers={snap?.scorers ?? []}
+        goalEventCompleteness={goalEventCompleteness}
+        primaryProviderFetchedAt={snapshot.primaryProviderFetchedAt}
+        primaryProviderOk={snapshot.primaryProviderOk}
+        secondaryProviderFetchedAt={snapshot.secondaryProviderFetchedAt}
+        secondaryProviderOk={snapshot.secondaryProviderOk}
         groupStandings={match.group ? snapshot.standingsByGroup[match.group] : undefined}
         thirdPlaceRows={snapshot.thirdPlaceRanking}
       />
