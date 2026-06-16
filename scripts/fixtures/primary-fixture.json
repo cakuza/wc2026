@@ -1,0 +1,30 @@
+{
+  "matches": [
+    {
+      "id": 537327,
+      "status": "FINISHED",
+      "utcDate": "2026-06-11T19:00:00Z",
+      "score": {
+        "winner": "HOME_TEAM",
+        "fullTime": { "home": 2, "away": 0 }
+      },
+      "homeTeam": { "id": 12, "name": "Mexico" },
+      "awayTeam": { "id": 206, "name": "South Africa" },
+      "bookings": [],
+      "substitutions": []
+    },
+    {
+      "id": 537328,
+      "status": "FINISHED",
+      "utcDate": "2026-06-11T02:00:00Z",
+      "score": {
+        "winner": "HOME_TEAM",
+        "fullTime": { "home": 3, "away": 1 }
+      },
+      "homeTeam": { "id": 320, "name": "Korea Republic" },
+      "awayTeam": { "id": 798, "name": "Czech Republic" },
+      "bookings": [],
+      "substitutions": []
+    }
+  ]
+}

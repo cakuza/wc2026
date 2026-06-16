@@ -167,6 +167,11 @@ export async function fetchWorldCup26Games(): Promise<WorldCup26Game[]> {
 }
 
 async function fetchWorldCup26GamesInternal(): Promise<WorldCup26Game[]> {
+  // ── Deterministic test seam ───────────────────────────────────────────────
+  if (process.env.WORLDCUP26_FORCE_FAIL === "1") {
+    throw new Error("worldcup26: forced failure (WORLDCUP26_FORCE_FAIL=1)");
+  }
+
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), TIMEOUT_MS);
 
