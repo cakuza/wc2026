@@ -57,7 +57,7 @@ function fakeScorer(playerName = "Test Player", minute: number | null = 45): Goa
 /** Known scores required by KNOWN_SCORER_REQUIREMENTS in readinessValidator. */
 const KNOWN_SCORES: Record<string, { h: number; a: number }> = {
   "mexico|southAfrica":     { h: 2, a: 0 },
-  "southKorea|czechia":     { h: 3, a: 1 },
+  "southKorea|czechia":     { h: 2, a: 1 },
 };
 
 /** Build all 72 canonical games as healthy finished-with-scorers entries. */
@@ -344,6 +344,66 @@ test("completedSlugsBefore gives 0 slugs for a date before tournament", () => {
 test("completedSlugsBefore gives non-zero slugs for 2026-06-16", () => {
   const slugs = completedSlugsBefore("2026-06-16");
   assert.ok(slugs.size > 0, "Expected some completed matches by Jun 16");
+});
+
+// ── Scenario 7: Canonical score falsification — South Korea vs Czechia ───────
+
+console.log("\n=== Scenario 7: Wrong score for South Korea vs Czechia is rejected ===");
+
+function patchKoreaScore(homeScore: number, awayScore: number): WorldCup26Game[] {
+  return buildFullHealthyPayload().map((g) => {
+    if (
+      normalizeForMatching(g.homeTeamName) === "southkorea" &&
+      normalizeForMatching(g.awayTeamName) === "czechia"
+    ) {
+      const homeScorers = Array.from({ length: homeScore }, (_, i) => fakeScorer(`Home ${i + 1}`));
+      const awayScorers = Array.from({ length: awayScore }, (_, i) => fakeScorer(`Away ${i + 1}`));
+      return { ...g, homeScore, awayScore, finished: true, homeScorers, awayScorers };
+    }
+    return g;
+  });
+}
+
+test("Correct canonical 2-1 payload passes for South Korea vs Czechia", () => {
+  const games = patchKoreaScore(2, 1);
+  const result = validateProviderPayload(games, COMPLETED_SLUGS);
+  assert.strictEqual(result.ok, true, `Errors: ${result.errors.join("; ")}`);
+});
+
+test("False 3-1 payload fails for South Korea vs Czechia", () => {
+  const games = patchKoreaScore(3, 1);
+  const result = validateProviderPayload(games, COMPLETED_SLUGS);
+  assert.strictEqual(result.ok, false, "Expected failure for incorrect 3-1 score");
+  const hasScoreError = result.errors.some((e) =>
+    e.includes("score mismatch") && (e.includes("3") || e.includes("South Korea")),
+  );
+  assert.strictEqual(hasScoreError, true, `Expected score-mismatch error, got: ${result.errors.join("; ")}`);
+});
+
+test("False 1-0 payload fails for South Korea vs Czechia", () => {
+  const games = patchKoreaScore(1, 0);
+  const result = validateProviderPayload(games, COMPLETED_SLUGS);
+  assert.strictEqual(result.ok, false, "Expected failure for incorrect 1-0 score");
+  const hasScoreError = result.errors.some((e) => e.includes("score mismatch"));
+  assert.strictEqual(hasScoreError, true, `Expected score-mismatch error, got: ${result.errors.join("; ")}`);
+});
+
+test("Missing scorer events for South Korea vs Czechia fails", () => {
+  const games = buildFullHealthyPayload().map((g) => {
+    if (
+      normalizeForMatching(g.homeTeamName) === "southkorea" &&
+      normalizeForMatching(g.awayTeamName) === "czechia"
+    ) {
+      return { ...g, homeScore: 2, awayScore: 1, finished: true, homeScorers: [], awayScorers: [] };
+    }
+    return g;
+  });
+  const result = validateProviderPayload(games, COMPLETED_SLUGS);
+  assert.strictEqual(result.ok, false, "Expected failure when scorer events missing");
+  const hasError = result.errors.some(
+    (e) => e.includes("home scorers insufficient") || e.includes("zero scorer events") || e.includes("away scorers insufficient"),
+  );
+  assert.strictEqual(hasError, true, `Expected scorer error, got: ${result.errors.join("; ")}`);
 });
 
 // ── Summary ───────────────────────────────────────────────────────────────────

@@ -5,7 +5,7 @@
  * vars, requests three routes, and asserts the application behaves correctly
  * under a cold secondary-provider failure:
  *
- *   - Primary provider:  fixture file (Mexico 2-0, South Korea 3-1)
+ *   - Primary provider:  fixture file (Mexico 2-0, South Korea 2-1)
  *   - Secondary provider: forced immediate failure (WORLDCUP26_FORCE_FAIL=1)
  *   - Secondary cache:   cold (first request, nothing stale)
  *
@@ -124,6 +124,7 @@ async function run(): Promise<void> {
     ...process.env,
     FOOTBALL_DATA_FIXTURE_FILE: FIXTURE_PATH,
     WORLDCUP26_FORCE_FAIL: "1",
+    INTEGRATION_TEST: "1",   // required: seams are double-gated; neither fires without this
     PORT: String(port),
     HOSTNAME: "127.0.0.1",
     NODE_ENV: "production",

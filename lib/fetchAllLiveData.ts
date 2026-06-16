@@ -132,8 +132,11 @@ function parseApiResponse(data: Record<string, unknown>): Map<number, LiveMatchD
 
 export async function fetchAllLiveData(): Promise<Map<number, LiveMatchData>> {
   // ── Deterministic test seam: bypass HTTP when fixture file is provided ────
+  // Both FOOTBALL_DATA_FIXTURE_FILE and INTEGRATION_TEST=1 must be set.
+  // The double-flag requirement prevents accidental activation if only one
+  // variable leaks into a non-test environment.
   const fixturePath = process.env.FOOTBALL_DATA_FIXTURE_FILE;
-  if (fixturePath) {
+  if (fixturePath && process.env.INTEGRATION_TEST === "1") {
     // webpackIgnore prevents bundling the Node built-in into the client chunk;
     // this branch is only reached on the server (process.env is server-side).
     const { readFileSync } = await import(/* webpackIgnore: true */ "fs");

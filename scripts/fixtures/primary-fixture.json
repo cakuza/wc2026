@@ -19,7 +19,7 @@
       "utcDate": "2026-06-11T02:00:00Z",
       "score": {
         "winner": "HOME_TEAM",
-        "fullTime": { "home": 3, "away": 1 }
+        "fullTime": { "home": 2, "away": 1 }
       },
       "homeTeam": { "id": 320, "name": "Korea Republic" },
       "awayTeam": { "id": 798, "name": "Czech Republic" },

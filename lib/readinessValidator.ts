@@ -63,7 +63,7 @@ export const KNOWN_SCORER_REQUIREMENTS: ReadonlyArray<{
   readonly minAwayScorers: number;
 }> = [
   { homeKey: "mexico",     awayKey: "southAfrica", homeGoals: 2, awayGoals: 0, minHomeScorers: 1, minAwayScorers: 0 },
-  { homeKey: "southKorea", awayKey: "czechia",     homeGoals: 3, awayGoals: 1, minHomeScorers: 1, minAwayScorers: 1 },
+  { homeKey: "southKorea", awayKey: "czechia",     homeGoals: 2, awayGoals: 1, minHomeScorers: 1, minAwayScorers: 1 },
 ];
 
 // ── Result type ───────────────────────────────────────────────────────────────
