@@ -9,7 +9,7 @@
 
 import type { StandingRow } from "./groupStandings";
 
-export type ThirdPlaceStatus = "qualifying" | "outside" | "boundary" | "unresolved";
+export type ThirdPlaceStatus = "qualifying" | "outside" | "boundary" | "unresolved" | "not_started";
 
 export type ThirdPlaceRow = StandingRow & {
   group: string;
@@ -54,13 +54,15 @@ export function computeThirdPlaceRanking(
       : i;
     const rank = tiedBlockStart + 1;
     const boundaryCut = tiedBlockStart < 8 && tiedBlockEnd >= 8;
-    const status: ThirdPlaceStatus = boundaryCut
-      ? "boundary"
-      : tieUnresolved
-        ? "unresolved"
-        : i < 8
-          ? "qualifying"
-          : "outside";
+    const status: ThirdPlaceStatus = row.played === 0
+      ? "not_started"
+      : boundaryCut
+        ? "boundary"
+        : tieUnresolved
+          ? "unresolved"
+          : i < 8
+            ? "qualifying"
+            : "outside";
 
     return {
       ...row,

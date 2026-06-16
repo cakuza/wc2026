@@ -459,14 +459,76 @@ export function createSerializableSnapshotCache({ ttlMs, now = () => Date.now(),
   };
 }
 
-// Last successful raw payload from each provider — used to keep serving real
-// scores/scorers when one provider has a transient failure (e.g. a 429 cooldown)
-// without letting the *whole* snapshot (and its generatedAt freshness clock) go
-// stale for the duration of that cooldown.
 let lastKnownLiveData: ReadonlyMap<number, LiveMatchData> | null = null;
 let lastKnownWorldcupGames: WorldCup26Game[] | null = null;
 let lastPrimaryProviderFetchedAt: string | null = null;
 let lastSecondaryProviderFetchedAt: string | null = null;
+
+export function monotonicMergeLiveData(
+  oldData: ReadonlyMap<number, LiveMatchData>,
+  newData: ReadonlyMap<number, LiveMatchData>
+): Map<number, LiveMatchData> {
+  const merged = new Map<number, LiveMatchData>(oldData);
+  for (const [id, newMatch] of newData) {
+    const oldMatch = oldData.get(id);
+    if (!oldMatch) {
+      merged.set(id, newMatch);
+      continue;
+    }
+    // Never regress FINISHED to something else
+    const status = (oldMatch.status === "FINISHED" && newMatch.status !== "FINISHED")
+      ? oldMatch.status
+      : newMatch.status;
+
+    // Never lose scores
+    const homeScore = newMatch.homeScore === null && oldMatch.homeScore !== null ? oldMatch.homeScore : newMatch.homeScore;
+    const awayScore = newMatch.awayScore === null && oldMatch.awayScore !== null ? oldMatch.awayScore : newMatch.awayScore;
+
+    // Never lose goals
+    const goals = (newMatch.goals === undefined || newMatch.goals.length === 0) && oldMatch.goals && oldMatch.goals.length > 0
+      ? oldMatch.goals
+      : newMatch.goals;
+
+    merged.set(id, {
+      ...newMatch,
+      status,
+      homeScore,
+      awayScore,
+      goals,
+      winner: newMatch.winner ?? oldMatch.winner,
+    });
+  }
+  return merged;
+}
+
+export function monotonicMergeWorldcupGames(
+  oldGames: WorldCup26Game[],
+  newGames: WorldCup26Game[]
+): WorldCup26Game[] {
+  if (newGames.length === 0 && oldGames.length > 0) return oldGames;
+  const merged = [...oldGames];
+  for (const newGame of newGames) {
+    const index = merged.findIndex((g) => g.providerGameId === newGame.providerGameId || (g.homeTeamName === newGame.homeTeamName && g.awayTeamName === newGame.awayTeamName));
+    if (index === -1) {
+      merged.push(newGame);
+    } else {
+      const oldGame = merged[index];
+      const homeScorers = newGame.homeScorers.length === 0 && oldGame.homeScorers.length > 0 ? oldGame.homeScorers : newGame.homeScorers;
+      const awayScorers = newGame.awayScorers.length === 0 && oldGame.awayScorers.length > 0 ? oldGame.awayScorers : newGame.awayScorers;
+      const homeScore = newGame.homeScore === null && oldGame.homeScore !== null ? oldGame.homeScore : newGame.homeScore;
+      const awayScore = newGame.awayScore === null && oldGame.awayScore !== null ? oldGame.awayScore : newGame.awayScore;
+      merged[index] = {
+        ...newGame,
+        homeScore,
+        awayScore,
+        homeScorers,
+        awayScorers,
+        finished: oldGame.finished || newGame.finished,
+      };
+    }
+  }
+  return merged;
+}
 
 async function refreshTournamentLiveSnapshot(): Promise<TournamentLiveSnapshot> {
   const generatedAt = new Date().toISOString();
@@ -479,21 +541,25 @@ async function refreshTournamentLiveSnapshot(): Promise<TournamentLiveSnapshot> 
   const fetchedWorldcupGames = worldcupGamesResult.status === "fulfilled" ? worldcupGamesResult.value : null;
 
   const primaryProviderOk = fetchedLiveData.size > 0;
-  const secondaryProviderOk = fetchedWorldcupGames !== null;
+  const secondaryProviderOk = fetchedWorldcupGames !== null && fetchedWorldcupGames.length > 0;
 
   if (primaryProviderOk) {
-    lastKnownLiveData = fetchedLiveData;
+    lastKnownLiveData = lastKnownLiveData ? monotonicMergeLiveData(lastKnownLiveData, fetchedLiveData) : fetchedLiveData;
     lastPrimaryProviderFetchedAt = generatedAt;
   }
   if (secondaryProviderOk) {
-    lastKnownWorldcupGames = fetchedWorldcupGames;
+    lastKnownWorldcupGames = lastKnownWorldcupGames ? monotonicMergeWorldcupGames(lastKnownWorldcupGames, fetchedWorldcupGames) : fetchedWorldcupGames;
     lastSecondaryProviderFetchedAt = generatedAt;
   }
 
-  // Fall back to the last successful payload per-provider so a single provider's
-  // transient failure doesn't freeze the entire snapshot (and its freshness clock).
-  const liveData = primaryProviderOk ? fetchedLiveData : (lastKnownLiveData ?? fetchedLiveData);
-  const worldcupGames = secondaryProviderOk ? fetchedWorldcupGames : lastKnownWorldcupGames;
+  const liveData = lastKnownLiveData ?? fetchedLiveData;
+  const worldcupGames = lastKnownWorldcupGames ?? fetchedWorldcupGames;
+
+  // Crucial fix: refuse to cache an empty state if both providers failed and we have no memory fallback.
+  // Throwing an error forces unstable_cache to keep the stale response (or bubble up if cold start).
+  if (liveData.size === 0) {
+    throw new Error("Primary provider failed and no last-known-good data is available. Refusing to cache empty snapshot.");
+  }
 
   const snapshot = await buildTournamentLiveSnapshot({
     liveData,

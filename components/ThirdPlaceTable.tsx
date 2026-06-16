@@ -35,12 +35,14 @@ export function ThirdPlaceTable({ rows }: ThirdPlaceTableProps) {
   const { t, country } = useLang();
   const legend = getThirdPlaceLegendCopy(rows);
   const statusText = (status: ThirdPlaceRow["status"]) => {
+    if (status === "not_started") return "Not started";
     if (status === "qualifying") return "Inside top 8";
     if (status === "outside") return "Below cut line";
     if (status === "boundary") return "Tied at cut line";
     return "Tied - order unresolved";
   };
   const statusClass = (status: ThirdPlaceRow["status"]) => {
+    if (status === "not_started") return "bg-white/10 text-white/40";
     if (status === "qualifying") return "bg-green-500/15 text-green-400";
     if (status === "outside") return "bg-red-500/10 text-red-400/80";
     return "bg-amber-500/15 text-amber-300";
