@@ -1,4 +1,4 @@
-import { unstable_cache } from "next/cache";
+import { unstable_cache } from "./cacheAdapter";
 import { fetchAllLiveData } from "./fetchAllLiveData";
 import { computeGroupStandings, type StandingRow } from "./groupStandings";
 import { MATCHES, matchSlug, type Match } from "./matches";
@@ -459,11 +459,6 @@ export function createSerializableSnapshotCache({ ttlMs, now = () => Date.now(),
   };
 }
 
-let lastKnownLiveData: ReadonlyMap<number, LiveMatchData> | null = null;
-let lastKnownWorldcupGames: WorldCup26Game[] | null = null;
-let lastPrimaryProviderFetchedAt: string | null = null;
-let lastSecondaryProviderFetchedAt: string | null = null;
-
 export function monotonicMergeLiveData(
   oldData: ReadonlyMap<number, LiveMatchData>,
   newData: ReadonlyMap<number, LiveMatchData>
@@ -475,16 +470,13 @@ export function monotonicMergeLiveData(
       merged.set(id, newMatch);
       continue;
     }
-    // Never regress FINISHED to something else
     const status = (oldMatch.status === "FINISHED" && newMatch.status !== "FINISHED")
       ? oldMatch.status
       : newMatch.status;
 
-    // Never lose scores
     const homeScore = newMatch.homeScore === null && oldMatch.homeScore !== null ? oldMatch.homeScore : newMatch.homeScore;
     const awayScore = newMatch.awayScore === null && oldMatch.awayScore !== null ? oldMatch.awayScore : newMatch.awayScore;
 
-    // Never lose goals
     const goals = (newMatch.goals === undefined || newMatch.goals.length === 0) && oldMatch.goals && oldMatch.goals.length > 0
       ? oldMatch.goals
       : newMatch.goals;
@@ -530,70 +522,115 @@ export function monotonicMergeWorldcupGames(
   return merged;
 }
 
-async function refreshTournamentLiveSnapshot(): Promise<TournamentLiveSnapshot> {
+/**
+ * Primary Provider Cache
+ * Key rotated to v8 to reflect the split architecture.
+ */
+const getCachedPrimaryData = unstable_cache(
+  async () => {
+    const liveData = await fetchAllLiveData();
+    if (liveData.size === 0) {
+      throw new Error("Primary provider failed (no data)");
+    }
+    return {
+      data: [...liveData.entries()],
+      fetchedAt: new Date().toISOString()
+    };
+  },
+  ["worldcup-primary-live-data-v8"],
+  { revalidate: LIVE_SNAPSHOT_REVALIDATE_SECONDS, tags: ["primary-live-data"] }
+);
+
+/**
+ * Secondary bulk fetcher (short TTL, one fetch per refresh cycle).
+ * Cached by Next.js — all per-match lookups in this request share the same payload.
+ * Throws on empty/failed response so Next.js keeps the stale payload instead.
+ */
+const getBulkSecondaryData = unstable_cache(
+  async () => {
+    const games = await fetchWorldCup26Games();
+    if (games.length === 0) {
+      throw new Error("Secondary provider returned empty payload");
+    }
+    return games;
+  },
+  ["worldcup-bulk-secondary-v8"],
+  { revalidate: LIVE_SNAPSHOT_REVALIDATE_SECONDS, tags: ["bulk-secondary-data"] }
+);
+
+/**
+ * Validate a bulk secondary payload: discard individual games that are finished
+ * with a non-zero scoreline but supply zero scorer events — a reliable sign of
+ * a malformed or partial response for that game.  The rest of the payload is kept.
+ */
+function validateSecondaryGames(games: WorldCup26Game[]): WorldCup26Game[] {
+  return games.filter((game) => {
+    if (!game.finished) return true;
+    const hasGoals = (game.homeScore ?? 0) > 0 || (game.awayScore ?? 0) > 0;
+    return !(hasGoals && game.homeScorers.length === 0 && game.awayScorers.length === 0);
+  });
+}
+
+let memoryPrimaryData: Map<number, LiveMatchData> | null = null;
+let memorySecondaryData: WorldCup26Game[] | null = null;
+let memoryPrimaryFetchedAt: string | null = null;
+let memorySecondaryFetchedAt: string | null = null;
+
+export function resetLiveSnapshotMemoryForTests() {
+  memoryPrimaryData = null;
+  memorySecondaryData = null;
+  memoryPrimaryFetchedAt = null;
+  memorySecondaryFetchedAt = null;
+}
+
+export async function getTournamentLiveSnapshot(): Promise<TournamentLiveSnapshot> {
   const generatedAt = new Date().toISOString();
-  const [liveDataResult, worldcupGamesResult] = await Promise.allSettled([
-    fetchAllLiveData(),
-    fetchWorldCup26Games(),
-  ]);
 
-  const fetchedLiveData = liveDataResult.status === "fulfilled" ? liveDataResult.value : new Map<number, LiveMatchData>();
-  const fetchedWorldcupGames = worldcupGamesResult.status === "fulfilled" ? worldcupGamesResult.value : null;
+  let primaryOk = false;
+  let secondaryOk = false;
 
-  const primaryProviderOk = fetchedLiveData.size > 0;
-  const secondaryProviderOk = fetchedWorldcupGames !== null && fetchedWorldcupGames.length > 0;
-
-  if (primaryProviderOk) {
-    lastKnownLiveData = lastKnownLiveData ? monotonicMergeLiveData(lastKnownLiveData, fetchedLiveData) : fetchedLiveData;
-    lastPrimaryProviderFetchedAt = generatedAt;
-  }
-  if (secondaryProviderOk) {
-    lastKnownWorldcupGames = lastKnownWorldcupGames ? monotonicMergeWorldcupGames(lastKnownWorldcupGames, fetchedWorldcupGames) : fetchedWorldcupGames;
-    lastSecondaryProviderFetchedAt = generatedAt;
+  // 1. Primary: football-data.org (separate cache key from secondary)
+  try {
+    const p = await getCachedPrimaryData();
+    const newPrimary = new Map(p.data);
+    memoryPrimaryData = memoryPrimaryData
+      ? monotonicMergeLiveData(memoryPrimaryData, newPrimary)
+      : newPrimary;
+    memoryPrimaryFetchedAt = p.fetchedAt;
+    primaryOk = true;
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    console.warn(`[liveSnapshot] primary provider read failed: ${msg}`);
   }
 
-  const liveData = lastKnownLiveData ?? fetchedLiveData;
-  const worldcupGames = lastKnownWorldcupGames ?? fetchedWorldcupGames;
-
-  // Crucial fix: refuse to cache an empty state if both providers failed and we have no memory fallback.
-  // Throwing an error forces unstable_cache to keep the stale response (or bubble up if cold start).
-  if (liveData.size === 0) {
-    throw new Error("Primary provider failed and no last-known-good data is available. Refusing to cache empty snapshot.");
+  // 2. Secondary: worldcup26.ir (one bulk fetch per refresh cycle, cached separately)
+  try {
+    const games = await getBulkSecondaryData();
+    const validated = validateSecondaryGames(games);
+    if (validated.length > 0) {
+      memorySecondaryData = memorySecondaryData
+        ? monotonicMergeWorldcupGames(memorySecondaryData, validated)
+        : validated;
+      memorySecondaryFetchedAt = new Date().toISOString();
+    }
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    console.warn(`[liveSnapshot] secondary provider read failed: ${msg}`);
   }
 
-  const snapshot = await buildTournamentLiveSnapshot({
+  // secondaryOk = true when we have data from any prior successful fetch
+  secondaryOk = memorySecondaryData !== null && memorySecondaryData.length > 0;
+
+  const liveData = memoryPrimaryData ?? new Map<number, LiveMatchData>();
+  const worldcupGames = memorySecondaryData ?? null;
+
+  return buildTournamentLiveSnapshot({
     liveData,
     worldcupGames,
     generatedAt,
-    primaryProviderOk,
-    secondaryProviderOk,
-    primaryProviderFetchedAt: lastPrimaryProviderFetchedAt,
-    secondaryProviderFetchedAt: lastSecondaryProviderFetchedAt,
+    primaryProviderOk: primaryOk,
+    secondaryProviderOk: secondaryOk,
+    primaryProviderFetchedAt: memoryPrimaryFetchedAt,
+    secondaryProviderFetchedAt: memorySecondaryFetchedAt,
   });
-  lastKnownGoodSnapshot = snapshot;
-  return snapshot;
-}
-
-const getCachedTournamentLiveSnapshot = unstable_cache(
-  refreshTournamentLiveSnapshot,
-  [LIVE_SNAPSHOT_CACHE_KEY],
-  { revalidate: LIVE_SNAPSHOT_REVALIDATE_SECONDS },
-);
-
-export async function getTournamentLiveSnapshot(): Promise<TournamentLiveSnapshot> {
-  try {
-    const snapshot = await getCachedTournamentLiveSnapshot();
-    lastKnownGoodSnapshot = snapshot;
-    return snapshot;
-  } catch (err) {
-    const msg = err instanceof Error ? err.message : String(err);
-    console.warn(`[liveSnapshot] refresh failed; serving last known snapshot when available: ${msg}`);
-    if (lastKnownGoodSnapshot) return lastKnownGoodSnapshot;
-
-    return buildTournamentLiveSnapshot({
-      liveData: new Map(),
-      worldcupGames: null,
-      generatedAt: new Date().toISOString(),
-    });
-  }
 }

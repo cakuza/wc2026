@@ -7,8 +7,11 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "test:reliability": "tsx scripts/test-regression-reliability.ts",
-    "test:tournament": "tsx scripts/test-live-snapshot-consistency.ts && tsx scripts/test-cross-route-consistency.ts"
+    "test:reliability": "tsx scripts/test-regression-reliability.ts && tsx scripts/test-reconciliation-window.ts",
+    "test:cache": "tsx scripts/test-cache-architecture.ts",
+    "test:ui": "tsx --tsconfig tsconfig.test.json scripts/test-third-place-ui.tsx",
+    "test:tournament": "tsx scripts/test-live-snapshot-consistency.ts && tsx scripts/test-cross-route-consistency.ts",
+    "check:readiness": "tsx scripts/check-secondary-provider-readiness.ts"
   },
   "dependencies": {
     "next": "^15.5.18",

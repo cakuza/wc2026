@@ -75,7 +75,7 @@ export function ThirdPlaceTable({ rows }: ThirdPlaceTableProps) {
                   key={row.teamKey}
                   className={`border-t border-white/5 transition hover:bg-white/5 ${
                     isQualifying ? "bg-green-500/5" : ""
-                  } ${row.rank === 8 ? "border-b-2 border-b-accent/40" : ""}`}
+                  } ${row.rank === 8 && row.status !== "not_started" ? "border-b-2 border-b-accent/40" : ""}`}
                 >
                   {/* Rank */}
                   <td
