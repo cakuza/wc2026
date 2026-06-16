@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
@@ -17,6 +17,7 @@ import { missingScorerDetailText, type GoalEventCompleteness } from "@/lib/goalE
 import { type SnapshotMatchStatus, toLiveGoalEvent } from "@/lib/liveSnapshot";
 import { reconcileGoalEvents, isMatchPollingActive } from "@/lib/scoreReconciliation";
 import type { GoalScorerEvent } from "@/lib/worldcup26Provider";
+import { slugFor } from "@/lib/teams";
 
 interface Props {
   match: Match;
@@ -192,16 +193,28 @@ export function MatchDetail({
           const data = await res.json();
           const update = data.matches?.[internalId];
           if (!cancelled && update) {
-            setLiveState({
-              status: update.status,
-              homeScore: update.homeScore,
-              awayScore: update.awayScore,
-              scorers: update.scorers,
-              goalEventCompleteness: update.goalEventCompleteness,
-              primaryProviderFetchedAt: data.primaryProviderFetchedAt,
-              primaryProviderOk: data.primaryProviderOk,
-              secondaryProviderFetchedAt: data.secondaryProviderFetchedAt,
-              secondaryProviderOk: data.secondaryProviderOk,
+            setLiveState((prev) => {
+              const status = (prev.status === "FINISHED" && update.status !== "FINISHED")
+                ? prev.status
+                : update.status;
+              const homeScore = update.homeScore === null && prev.homeScore !== null ? prev.homeScore : update.homeScore;
+              const awayScore = update.awayScore === null && prev.awayScore !== null ? prev.awayScore : update.awayScore;
+              const scorers = update.scorers.length === 0 && prev.scorers.length > 0 ? prev.scorers : update.scorers;
+              const goalEventCompleteness = update.goalEventCompleteness.missingGoalEventCount > 0 && prev.goalEventCompleteness.missingGoalEventCount === 0
+                ? prev.goalEventCompleteness
+                : update.goalEventCompleteness;
+
+              return {
+                status,
+                homeScore,
+                awayScore,
+                scorers,
+                goalEventCompleteness,
+                primaryProviderFetchedAt: data.primaryProviderFetchedAt,
+                primaryProviderOk: data.primaryProviderOk,
+                secondaryProviderFetchedAt: data.secondaryProviderFetchedAt,
+                secondaryProviderOk: data.secondaryProviderOk,
+              };
             });
           }
         }
@@ -310,18 +323,18 @@ export function MatchDetail({
           {/* Teams row */}
           <div className="flex items-center justify-between gap-4">
             {/* Home team */}
-            <div className="flex flex-1 flex-col items-center gap-3 text-center">
+            <Link href={`/teams/${slugFor(match.homeKey)}`} className="group flex flex-1 flex-col items-center gap-3 text-center transition-opacity hover:opacity-80">
               <Flag
                 code={match.homeCode}
                 name={country(match.homeKey)}
                 width={80}
                 height={56}
-                className="rounded-lg shadow-2xl ring-1 ring-white/15"
+                className="rounded-lg shadow-2xl ring-1 ring-white/15 transition-transform duration-300 group-hover:scale-105"
               />
-              <span className="font-heading text-lg font-extrabold uppercase leading-tight text-white sm:text-xl">
+              <span className="font-heading text-lg font-extrabold uppercase leading-tight text-white transition-colors duration-300 group-hover:text-accent sm:text-xl">
                 {country(match.homeKey)}
               </span>
-            </div>
+            </Link>
 
             {/* Score / VS */}
             <div className="flex shrink-0 flex-col items-center gap-2">
@@ -343,18 +356,18 @@ export function MatchDetail({
             </div>
 
             {/* Away team */}
-            <div className="flex flex-1 flex-col items-center gap-3 text-center">
+            <Link href={`/teams/${slugFor(match.awayKey)}`} className="group flex flex-1 flex-col items-center gap-3 text-center transition-opacity hover:opacity-80">
               <Flag
                 code={match.awayCode}
                 name={country(match.awayKey)}
                 width={80}
                 height={56}
-                className="rounded-lg shadow-2xl ring-1 ring-white/15"
+                className="rounded-lg shadow-2xl ring-1 ring-white/15 transition-transform duration-300 group-hover:scale-105"
               />
-              <span className="font-heading text-lg font-extrabold uppercase leading-tight text-white sm:text-xl">
+              <span className="font-heading text-lg font-extrabold uppercase leading-tight text-white transition-colors duration-300 group-hover:text-accent sm:text-xl">
                 {country(match.awayKey)}
               </span>
-            </div>
+            </Link>
           </div>
 
           {/* Status badge */}
