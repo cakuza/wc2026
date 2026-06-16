@@ -129,3 +129,14 @@ export function isMatchPollingActive(status: SnapshotMatchStatus, kickoffMs: num
   if (status === "LIVE" || status === "HALFTIME" || status === "SYNCING") return true;
   return Math.abs(kickoffMs - now) <= 15 * 60 * 1000;
 }
+
+export const POST_MATCH_RECONCILIATION_WINDOW_MS = 4 * 60 * 60 * 1000;
+
+export function isMatchInReconciliationWindow(
+  status: string,
+  kickoffMs: number,
+  nowMs: number
+): boolean {
+  if (status !== "FINISHED") return true;
+  return nowMs <= kickoffMs + POST_MATCH_RECONCILIATION_WINDOW_MS;
+}

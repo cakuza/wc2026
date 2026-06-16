@@ -15,7 +15,7 @@ import { countryName } from "@/lib/i18n";
 import { buildScorerSentence } from "@/lib/resultSummary";
 import { missingScorerDetailText, type GoalEventCompleteness } from "@/lib/goalEventCompleteness";
 import { type SnapshotMatchStatus, toLiveGoalEvent } from "@/lib/liveSnapshot";
-import { reconcileGoalEvents, isMatchPollingActive } from "@/lib/scoreReconciliation";
+import { reconcileGoalEvents, isMatchPollingActive, isMatchInReconciliationWindow } from "@/lib/scoreReconciliation";
 import type { GoalScorerEvent } from "@/lib/worldcup26Provider";
 import { slugFor } from "@/lib/teams";
 
@@ -277,7 +277,9 @@ export function MatchDetail({
           ? `${homeName} and ${awayName} drew ${homeScore}–${awayScore}`
           : "";
   const goalCompleteness = liveState.goalEventCompleteness;
-  const missingGoalText = missingScorerDetailText(goalCompleteness.missingGoalEventCount);
+  const nowMs = Date.now();
+  const isOldCompletedMatch = !isMatchInReconciliationWindow(liveState.status, matchTime, nowMs);
+  const missingGoalText = missingScorerDetailText(goalCompleteness.missingGoalEventCount, isOldCompletedMatch);
   // Scorer events carry English provider team names regardless of UI
   // language, so match against English names rather than the localized
   // display names used elsewhere on the page.

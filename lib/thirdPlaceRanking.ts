@@ -43,20 +43,29 @@ export function computeThirdPlaceRanking(
   });
 
   return thirds.map((row, i) => {
+    if (row.played === 0) {
+      return {
+        ...row,
+        rank: i + 1,
+        rankLabel: String(i + 1),
+        status: "not_started",
+        tieUnresolved: false,
+      };
+    }
+
     const prev = thirds[i - 1];
     const next = thirds[i + 1];
-    const tiedWithPrev = prev && prev.points === row.points && prev.goalDifference === row.goalDifference && prev.goalsFor === row.goalsFor;
-    const tiedWithNext = next && next.points === row.points && next.goalDifference === row.goalDifference && next.goalsFor === row.goalsFor;
+    // Only tie with other teams that have played
+    const tiedWithPrev = prev && prev.played > 0 && prev.points === row.points && prev.goalDifference === row.goalDifference && prev.goalsFor === row.goalsFor;
+    const tiedWithNext = next && next.played > 0 && next.points === row.points && next.goalDifference === row.goalDifference && next.goalsFor === row.goalsFor;
     const tieUnresolved = Boolean(tiedWithPrev || tiedWithNext);
-    const tiedBlockStart = tiedWithPrev ? thirds.findIndex((r) => r.points === row.points && r.goalDifference === row.goalDifference && r.goalsFor === row.goalsFor) : i;
+    const tiedBlockStart = tiedWithPrev ? thirds.findIndex((r) => r.played > 0 && r.points === row.points && r.goalDifference === row.goalDifference && r.goalsFor === row.goalsFor) : i;
     const tiedBlockEnd = tieUnresolved
-      ? thirds.findLastIndex((r) => r.points === row.points && r.goalDifference === row.goalDifference && r.goalsFor === row.goalsFor)
+      ? thirds.findLastIndex((r) => r.played > 0 && r.points === row.points && r.goalDifference === row.goalDifference && r.goalsFor === row.goalsFor)
       : i;
     const rank = tiedBlockStart + 1;
     const boundaryCut = tiedBlockStart < 8 && tiedBlockEnd >= 8;
-    const status: ThirdPlaceStatus = row.played === 0
-      ? "not_started"
-      : boundaryCut
+    const status: ThirdPlaceStatus = boundaryCut
         ? "boundary"
         : tieUnresolved
           ? "unresolved"

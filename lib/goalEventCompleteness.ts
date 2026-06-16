@@ -56,7 +56,10 @@ export function getGoalEventCompleteness({
   };
 }
 
-export function missingScorerDetailText(missingGoalEventCount: number): string | null {
+export function missingScorerDetailText(missingGoalEventCount: number, isOldCompletedMatch: boolean = false): string | null {
   if (missingGoalEventCount <= 0) return null;
+  if (isOldCompletedMatch) {
+    return "Scorer details are currently incomplete.";
+  }
   return `${missingGoalEventCount} scorer detail${missingGoalEventCount === 1 ? " is" : "s are"} still syncing.`;
 }
