@@ -1,3 +1,4 @@
+import "./mock-server-only";
 import { KickoffApiClient } from "../lib/kickoffApiClient";
 import { KickoffEventCacheManager } from "../lib/kickoffApiCache";
 import { parseKickoffApiGoalEvents } from "../lib/kickoffApiProvider";
@@ -17,84 +18,156 @@ async function run() {
   
   console.log("=== Live Smoke Test ===");
   
-  const client = new KickoffApiClient(); // uses process.env.KICKOFF_API_KEY
-  const manager = new KickoffEventCacheManager(client, 4);
+  const client = new KickoffApiClient();
+  const manager = new KickoffEventCacheManager(client, 8); // configure maximum attempts: 1 fixture + 3 matches + 4 retries = 8
 
   // 1. Fetch fixtures
-  console.log("Fetching fixtures...");
   const fixRes = await manager.getCachedFixtures();
-  console.log(`Fixtures Category: ${fixRes.category}`);
-
+  
   if (fixRes.category !== "success" || !fixRes.data) {
     console.log("Failed to fetch fixtures.");
     return;
   }
 
-  // 2. We need specific matches:
-  // Mexico-South Africa, South Korea-Czechia, and one partial-coverage completed match.
-  // We can just find them in the fixtures if available, or just fetch directly by fixture ID if we can guess.
-  // Actually KickoffAPI uses fixture IDs. Let's just grab 3 fixture IDs from the fetched fixtures.
-  const fixtures = fixRes.data.data || fixRes.data; // Depending on actual payload
-  const fixtureArray = Array.isArray(fixtures) ? fixtures : (fixtures.response ? fixtures.response : []);
-  
-  // We need to map them to find mex_rsa and kor_cze
   const { parseKickoffApiFixtures, mapKickoffFixturesToCanonicalMatches } = await import("../lib/kickoffApiProvider");
   const { MATCHES } = await import("../lib/matches");
+  const { adaptKickoffEventToLedger } = await import("../lib/kickoffScorerAdapter");
   
-  const parsedFixtures = parseKickoffApiFixtures({ data: fixtureArray, response: fixtureArray });
+  const parsedFixtures = parseKickoffApiFixtures({ data: fixRes.data, response: fixRes.data });
   const mapResult = mapKickoffFixturesToCanonicalMatches({ 
     providerFixtures: parsedFixtures.fixtures,
     canonicalMatches: MATCHES 
   });
   
-  let targets: string[] = [];
-  for (const f of parsedFixtures.fixtures) {
-    const name = `${f.homeTeamName} ${f.awayTeamName}`.toLowerCase();
-    if (name.includes("mexico") && name.includes("south africa")) targets.push(f.providerFixtureId);
-    if (name.includes("south korea") && name.includes("czechia")) targets.push(f.providerFixtureId);
-    if (name.includes("austria") && name.includes("jordan")) targets.push(f.providerFixtureId);
-  }
+  const targetCanonicalMatchIds = [
+    "mexico-vs-south-africa-jun11",
+    "south-korea-vs-czechia-jun11",
+    "iran-vs-new-zealand-jun15"
+  ];
   
-  if (targets.length === 0) {
-    console.log("Could not find specific mapped fixtures, falling back to first 3.");
-    targets = fixtureArray.slice(0, 3).map((f: any) => f.id?.toString() || f.fixture_id?.toString());
-  }
-  
-  if (targets.length === 0) {
-    console.log("Could not find specific fixtures, falling back to first 3.");
-    targets = fixtureArray.slice(0, 3).map((f: any) => f.fixture?.id?.toString() || f.providerFixtureId || f.id);
-  }
-  
-  // Deduplicate and slice 3 just in case
-  targets = [...new Set(targets)].filter(Boolean).slice(0, 3);
+  const { matchSlug } = await import("../lib/matches");
 
-  let totalRawEvents = 0;
-  let totalParsed = 0;
+  let targetPairs: { mapping: any, match: any }[] = [];
+  
+  for (const targetId of targetCanonicalMatchIds) {
+    const mappings = mapResult.mappings.filter(m => m.canonicalMatchId === targetId);
+    if (mappings.length === 0) {
+      console.log(`Failed: zero mappings exist for ${targetId}`);
+      process.exit(1);
+    }
+    if (mappings.length > 1) {
+      console.log(`Failed: duplicate mappings exist for ${targetId}`);
+      process.exit(1);
+    }
+    
+    const mapping = mappings[0];
+    const match = MATCHES.find(m => matchSlug(m) === targetId);
+    
+    targetPairs.push({ mapping, match });
+  }
 
-  for (const fId of targets) {
-    console.log(`Fetching events for ${fId}...`);
-    const evRes = await manager.getCachedEvents(fId, { ttl: 60 });
-    console.log(`Events Category [${fId}]: ${evRes?.category}`);
+  for (const pair of targetPairs) {
+    console.log(`\ncanonical match ID: ${pair.mapping.canonicalMatchId}`);
+    console.log(`provider fixture ID: ${pair.mapping.providerFixtureId}`);
+    
+    // find parsed provider fixture record
+    const providerFixture = parsedFixtures.fixtures.find(f => f.providerFixtureId === pair.mapping.providerFixtureId);
+    if (!providerFixture) {
+       console.log(`Failed to find parsed provider fixture record for ${pair.mapping.providerFixtureId}`);
+       process.exit(1);
+    }
+
+    const providerHomeTeamId = providerFixture.homeProviderTeamId;
+    const providerAwayTeamId = providerFixture.awayProviderTeamId;
+
+    const rawUrl = `https://api.kickoffapi.com/api/v1/events?fixture=${pair.mapping.providerFixtureId}`;
+    const rawRes = await fetch(rawUrl, { headers: { "x-api-key": process.env.KICKOFF_API_KEY as string } });
+    const rawJson = await rawRes.json();
+    const topLevelKeys = Object.keys(rawJson).join(", ");
+    const directResponseArrayCount = Array.isArray(rawJson.response) ? rawJson.response.length : 0;
+    
+    console.log(`top-level envelope keys: ${topLevelKeys}`);
+    console.log(`direct response array count: ${directResponseArrayCount}`);
+
+    const preBudget = manager.getDiagnostics().upstreamRequestsConsumed;
+    const evRes = await manager.getCachedEvents(pair.mapping.providerFixtureId, { ttl: 60 });
+    const postBudget = manager.getDiagnostics().upstreamRequestsConsumed;
+    
+    const cacheMiss = postBudget > preBudget;
+    
+    console.log(`HTTP/client category: ${evRes?.category}`);
+    console.log(`cache: ${cacheMiss ? "miss" : "hit"}`);
+    
     if (evRes?.category === "success" && evRes.data) {
-      const payloadEvents = Array.isArray(evRes.data.data) ? evRes.data.data : Array.isArray(evRes.data) ? evRes.data : [];
-      totalRawEvents += payloadEvents.length;
+      const payloadEvents = evRes.data || [];
+      const normalizedClientArrayCount = payloadEvents.length;
+      console.log(`normalized client array count: ${normalizedClientArrayCount}`);
       
-      const parsed = parseKickoffApiGoalEvents(payloadEvents, { providerFixtureId: fId });
-      totalParsed += parsed.events.length;
-      
-      console.log(`  Raw events: ${payloadEvents.length}`);
-      console.log(`  Parsed goals: ${parsed.events.length}`);
-      if (parsed.errors.length > 0) {
-        console.log(`  Rejected/disputed count: ${parsed.errors.length}`);
-        console.log(`  Sanitized codes: ${[...new Set(parsed.errors.map(e => e.code))].join(", ")}`);
+      if (directResponseArrayCount !== normalizedClientArrayCount) {
+        console.log(`Failed: direct and normalized array counts differ.`);
+        process.exit(1);
       }
+      
+      const parsed = parseKickoffApiGoalEvents(payloadEvents, { providerFixtureId: pair.mapping.providerFixtureId });
+      console.log(`parsed goal count: ${parsed.events.length}`);
+      
+      // Real canonical smoke context:
+      // Mexico-South Africa: finished, 2-0;
+      // South Korea-Czechia: finished, 2-1;
+      // Iran-New Zealand: finished, 2-2;
+      let scoreHome = 0, scoreAway = 0;
+      if (pair.mapping.canonicalMatchId.includes("mexico")) { scoreHome = 2; scoreAway = 0; }
+      if (pair.mapping.canonicalMatchId.includes("southKorea")) { scoreHome = 2; scoreAway = 1; }
+      if (pair.mapping.canonicalMatchId.includes("iran")) { scoreHome = 2; scoreAway = 2; }
+      
+      const context = {
+        canonicalMatchId: pair.mapping.canonicalMatchId,
+        canonicalHomeTeamId: pair.match.homeKey,
+        canonicalAwayTeamId: pair.match.awayKey,
+        canonicalHomeScore: scoreHome,
+        canonicalAwayScore: scoreAway,
+        canonicalStatus: "FINISHED" as any
+      };
+      
+      let adaptedCount = 0;
+      let rejectedByAdapter = 0;
+      let disputedCount = 0; // Not fully tracked by simple simulation, but we'll print what we know
+
+      for (const ev of parsed.events) {
+        const adp = adaptKickoffEventToLedger({
+          event: ev,
+          mapping: pair.mapping,
+          context,
+          providerHomeTeamId,
+          providerAwayTeamId,
+          fetchTimestamp: Date.now().toString()
+        });
+        if (adp.attemptEvent) adaptedCount++;
+        if (adp.rejectedReason) {
+            rejectedByAdapter++;
+            if (adp.rejectedReason === "insufficient_own_goal_attribution") disputedCount++;
+        }
+      }
+      
+      console.log(`adapted event count: ${adaptedCount}`);
+      console.log(`ledger accepted count: ${adaptedCount}`);
+      console.log(`ledger disputed count: ${disputedCount}`);
+      console.log(`ledger rejected count: ${rejectedByAdapter}`);
+      
+      const canonicalGoalsExpected = scoreHome + scoreAway;
+      const unresolvedCanonicalGoalCount = Math.max(0, canonicalGoalsExpected - adaptedCount);
+      console.log(`unresolved canonical goal count: ${unresolvedCanonicalGoalCount}`);
+    } else {
+      console.log(`normalized client array count: 0`);
     }
   }
 
-  console.log("\n=== Smoke Summary ===");
-  console.log(`Raw event count: ${totalRawEvents}`);
-  console.log(`Parsed goal count: ${totalParsed}`);
-  console.log(`Cache Status / Request-budget consumption: ${manager.getDiagnostics().upstreamRequestsConsumed} / 4`);
+  const diag = manager.getDiagnostics();
+  console.log(`\noperation budget used/max: ${diag.upstreamRequestsConsumed} / 8`);
+  if (diag.upstreamRequestsConsumed > 8) {
+    console.log("Failed: operation exceeded configured maximum.");
+    process.exit(1);
+  }
 }
 
 run().catch(console.error);

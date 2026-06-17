@@ -1,3 +1,4 @@
+import "server-only";
 import { KickoffApiGoalEvent, KickoffFixtureMapping } from "./kickoffApiProvider";
 import { ProviderScorerEventInput, MergeCanonicalContext } from "./scorerEventLedger";
 

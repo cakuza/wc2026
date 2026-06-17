@@ -1,3 +1,5 @@
+import "server-only";
+
 export type KickoffApiClientResultCategory =
   | "success"
   | "timeout"
@@ -12,6 +14,12 @@ export type KickoffApiClientResult<T> = {
   category: KickoffApiClientResultCategory;
   data?: T;
 };
+
+export interface UpstreamAttemptBudget {
+  tryConsume(): boolean;
+  markRateLimited(): void;
+  isStopped(): boolean;
+}
 
 export type FetchFunction = (input: string | URL | Request, init?: RequestInit) => Promise<Response>;
 
@@ -41,13 +49,19 @@ export class KickoffApiClient {
     this.timeoutMs = options.timeoutMs ?? DEFAULT_TIMEOUT_MS;
   }
 
-  private async fetchWithRetry<T>(url: string): Promise<KickoffApiClientResult<T>> {
+  private async fetchWithRetry<T>(url: string, budget?: UpstreamAttemptBudget): Promise<KickoffApiClientResult<T>> {
     if (!this.apiKey) {
       return { category: "unavailable" };
     }
 
     let attempt = 0;
     while (attempt <= this.maxRetries) {
+      if (budget) {
+        if (budget.isStopped() || !budget.tryConsume()) {
+          return { category: "rate_limited" };
+        }
+      }
+
       const controller = new AbortController();
       const id = setTimeout(() => controller.abort(), this.timeoutMs);
 
@@ -64,6 +78,7 @@ export class KickoffApiClient {
         }
 
         if (response.status === 429) {
+          if (budget) budget.markRateLimited();
           return { category: "rate_limited" };
         }
 
@@ -89,8 +104,24 @@ export class KickoffApiClient {
         }
 
         try {
-          const data = JSON.parse(text) as T;
-          return { category: "success", data };
+          const parsed = JSON.parse(text);
+          let normalized: any = [];
+          
+          if (Array.isArray(parsed)) {
+            normalized = parsed;
+          } else if (parsed && typeof parsed === "object") {
+            if (Array.isArray(parsed.response)) {
+              normalized = parsed.response;
+            } else if (Array.isArray(parsed.data)) {
+              normalized = parsed.data;
+            } else {
+              return { category: "invalid_payload" };
+            }
+          } else {
+            return { category: "invalid_payload" };
+          }
+          
+          return { category: "success", data: normalized as T };
         } catch {
           return { category: "invalid_payload" };
         }
@@ -125,13 +156,13 @@ export class KickoffApiClient {
     return new Promise(r => setTimeout(r, ms));
   }
 
-  public async getFixtures(): Promise<KickoffApiClientResult<any>> {
-    return this.fetchWithRetry("https://api.kickoffapi.com/api/v1/fixtures?league=1&season=2026");
+  public async getFixtures(budget?: UpstreamAttemptBudget): Promise<KickoffApiClientResult<any>> {
+    return this.fetchWithRetry("https://api.kickoffapi.com/api/v1/fixtures?league=1&season=2026", budget);
   }
 
-  public async getEvents(fixtureId: string): Promise<KickoffApiClientResult<any>> {
+  public async getEvents(fixtureId: string, budget?: UpstreamAttemptBudget): Promise<KickoffApiClientResult<any>> {
     // Sanitize to avoid injection
     const cleanId = encodeURIComponent(fixtureId);
-    return this.fetchWithRetry(`https://api.kickoffapi.com/api/v1/events?fixture=${cleanId}`);
+    return this.fetchWithRetry(`https://api.kickoffapi.com/api/v1/events?fixture=${cleanId}`, budget);
   }
 }

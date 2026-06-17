@@ -1,3 +1,4 @@
+import "./mock-server-only";
 import assert from "assert";
 import { KickoffEventCacheManager, getEventCacheStrategy } from "../lib/kickoffApiCache";
 import { KickoffApiClient } from "../lib/kickoffApiClient";
@@ -25,7 +26,7 @@ async function run() {
   let upstreamCalls = 0;
   const mockFetch = async () => {
     upstreamCalls++;
-    return new Response('{"ok":true}', { status: 200 });
+    return new Response('[{"ok":true}]', { status: 200 });
   };
   const client = new KickoffApiClient({ apiKey: "test", fetchFn: mockFetch });
   const manager = new KickoffEventCacheManager(client, 2); // Max 2 requests

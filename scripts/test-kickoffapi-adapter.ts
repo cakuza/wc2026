@@ -1,3 +1,4 @@
+import "./mock-server-only";
 import assert from "assert";
 import { KickoffApiGoalEvent } from "../lib/kickoffApiProvider";
 import { adaptKickoffEventToLedger, planEnrichmentCandidates } from "../lib/kickoffScorerAdapter";

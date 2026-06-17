@@ -1,3 +1,4 @@
+import "./mock-server-only";
 import assert from "assert";
 import { KickoffApiClient } from "../lib/kickoffApiClient";
 
@@ -13,12 +14,12 @@ async function run() {
   // 2. Successful response
   let fetchMock = async (url: string | URL | Request, init?: RequestInit): Promise<Response> => {
     assert.strictEqual((init?.headers as any)["x-api-key"], "test-key");
-    return new Response(JSON.stringify({ ok: true }), { status: 200 });
+    return new Response(JSON.stringify([{ ok: true }]), { status: 200 });
   };
   client = new KickoffApiClient({ apiKey: "test-key", fetchFn: fetchMock });
   res = await client.getFixtures();
   assert.strictEqual(res.category, "success");
-  assert.strictEqual(res.data.ok, true);
+  assert.strictEqual(res.data[0].ok, true);
   console.log("PASS  successful fixtures response");
   console.log("PASS  authentication header present internally but never logged");
   
@@ -58,7 +59,7 @@ async function run() {
   let retryFetchMock = async (): Promise<Response> => {
     calls++;
     if (calls === 1) return new Response("", { status: 500 });
-    return new Response('{"ok":true}', { status: 200 });
+    return new Response('[{"ok":true}]', { status: 200 });
   };
   client = new KickoffApiClient({ apiKey: "test-key", fetchFn: retryFetchMock, maxRetries: 2 });
   res = await client.getFixtures();

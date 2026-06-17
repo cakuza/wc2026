@@ -1,5 +1,15 @@
+import "server-only";
 import { unstable_cache } from "./cacheAdapter";
-import { KickoffApiClient, KickoffApiClientResult } from "./kickoffApiClient";
+import { KickoffApiClient, KickoffApiClientResult, UpstreamAttemptBudget, KickoffApiClientResultCategory } from "./kickoffApiClient";
+
+class KickoffApiCacheError extends Error {
+  public category: KickoffApiClientResultCategory;
+  constructor(category: KickoffApiClientResultCategory) {
+    super(category);
+    this.name = "KickoffApiCacheError";
+    this.category = category;
+  }
+}
 import { KickoffApiGoalEvent } from "./kickoffApiProvider"; // Assume parser exports this
 
 export type EventFetchStrategy = {
@@ -58,6 +68,20 @@ export class KickoffEventCacheManager {
     };
   }
 
+  private getBudget(): UpstreamAttemptBudget {
+    return {
+      tryConsume: () => {
+        if (this.upstreamRequestsConsumed >= this.maxRequests) return false;
+        this.upstreamRequestsConsumed++;
+        return true;
+      },
+      markRateLimited: () => {
+        this.upstreamRequestsConsumed = this.maxRequests;
+      },
+      isStopped: () => this.upstreamRequestsConsumed >= this.maxRequests
+    };
+  }
+
   public async getCachedEvents(
     providerFixtureId: string,
     strategy: EventFetchStrategy
@@ -67,51 +91,54 @@ export class KickoffEventCacheManager {
     }
 
     const fetcher = async () => {
-      // Check budget inside the fetcher so cache hits don't consume budget
-      if (this.upstreamRequestsConsumed >= this.maxRequests) {
-        return { category: "rate_limited" } as KickoffApiClientResult<any>;
+      const result = await this.client.getEvents(providerFixtureId, this.getBudget());
+      if (result.category !== "success") {
+        throw new KickoffApiCacheError(result.category);
       }
-
-      this.upstreamRequestsConsumed++;
-      const result = await this.client.getEvents(providerFixtureId);
-      
-      // If we hit a 429, we pretend we used all budget to stop fan-out
-      if (result.category === "rate_limited") {
-        this.upstreamRequestsConsumed = this.maxRequests;
-      }
-      
-      return result;
+      return result.data;
     };
 
-    // The cache key must include version and providerFixtureId
+    // The cache key must include version and providerFixtureId and TTL class
     const cachedFn = unstable_cache(
       fetcher,
-      ["kickoffapi-events", "v1", providerFixtureId],
+      ["kickoffapi-events", "v1", providerFixtureId, `ttl-${strategy.ttl}`],
       { revalidate: strategy.ttl }
     );
 
-    return cachedFn();
+    try {
+      const data = await cachedFn();
+      return { category: "success", data };
+    } catch (e: any) {
+      if (e instanceof KickoffApiCacheError) {
+        return { category: e.category };
+      }
+      return { category: "network_error" };
+    }
   }
   
   public async getCachedFixtures(ttl: number = 86400): Promise<KickoffApiClientResult<any>> {
     const fetcher = async () => {
-      if (this.upstreamRequestsConsumed >= this.maxRequests) {
-        return { category: "rate_limited" } as KickoffApiClientResult<any>;
+      const result = await this.client.getFixtures(this.getBudget());
+      if (result.category !== "success") {
+        throw new KickoffApiCacheError(result.category);
       }
-      this.upstreamRequestsConsumed++;
-      const result = await this.client.getFixtures();
-      if (result.category === "rate_limited") {
-        this.upstreamRequestsConsumed = this.maxRequests;
-      }
-      return result;
+      return result.data;
     };
     
     const cachedFn = unstable_cache(
       fetcher,
-      ["kickoffapi-fixtures", "v1"],
+      ["kickoffapi-fixtures", "v1", `ttl-${ttl}`],
       { revalidate: ttl }
     );
     
-    return cachedFn();
+    try {
+      const data = await cachedFn();
+      return { category: "success", data };
+    } catch (e: any) {
+      if (e instanceof KickoffApiCacheError) {
+        return { category: e.category };
+      }
+      return { category: "network_error" };
+    }
   }
 }
