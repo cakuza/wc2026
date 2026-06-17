@@ -16,7 +16,7 @@
  * spawned process tree by PID.
  */
 
-import { spawn, execSync } from "child_process";
+import { spawn, execSync, type ChildProcess } from "child_process";
 import * as net from "net";
 import * as fs from "fs";
 import * as path from "path";
@@ -29,6 +29,7 @@ const BUILD_MARKER = path.join(PROJECT_ROOT, ".next", "BUILD_ID");
 const FIXTURE_PATH = path.join(PROJECT_ROOT, "scripts", "fixtures", "primary-fixture.json");
 const SERVER_READY_TIMEOUT_MS = 60_000;
 const REQUEST_TIMEOUT_MS = 15_000;
+const SERVER_SHUTDOWN_TIMEOUT_MS = 15_000;
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -78,9 +79,78 @@ function killTree(pid: number): void {
 
 // ── Test runner ───────────────────────────────────────────────────────────────
 
+function delay(ms: number): Promise<void> {
+  return new Promise((resolve) => {
+    setTimeout(resolve, ms);
+  });
+}
+
+function onceChildClosed(child: ChildProcess): Promise<void> {
+  if (child.exitCode !== null || child.signalCode !== null) return Promise.resolve();
+  return new Promise((resolve) => child.once("close", () => resolve()));
+}
+
+async function waitForChildClosed(child: ChildProcess, timeoutMs: number): Promise<void> {
+  let timer: NodeJS.Timeout | null = null;
+  try {
+    await Promise.race([
+      onceChildClosed(child),
+      new Promise<void>((resolve) => {
+        timer = setTimeout(resolve, timeoutMs);
+      }),
+    ]);
+  } finally {
+    if (timer) clearTimeout(timer);
+  }
+}
+
+function closeChildPipes(child: ChildProcess): void {
+  child.removeAllListeners();
+  child.stdout?.removeAllListeners("data");
+  child.stderr?.removeAllListeners("data");
+  (child.stdout as NodeJS.ReadableStream & { unref?: () => void } | null)?.unref?.();
+  (child.stderr as NodeJS.ReadableStream & { unref?: () => void } | null)?.unref?.();
+  child.stdout?.destroy();
+  child.stderr?.destroy();
+  child.unref();
+}
+
+async function terminateServer(child: ChildProcess, pid: number | null): Promise<void> {
+  if (pid !== null) {
+    console.log(`\n[cold-cache] Killing server process tree (PID ${pid})â€¦`);
+    killTree(pid);
+  } else if (!child.killed) {
+    child.kill("SIGTERM");
+  }
+
+  await waitForChildClosed(child, SERVER_SHUTDOWN_TIMEOUT_MS);
+  closeChildPipes(child);
+
+  // Let Windows deliver pipe-close notifications before the process reaches summary.
+  await delay(0);
+}
+
 let passed = 0;
 let failed = 0;
 let serverPid: number | null = null;
+let child: ChildProcess | null = null;
+let cleanupStarted = false;
+
+async function cleanupSpawnedServer(): Promise<void> {
+  if (child && !cleanupStarted) {
+    cleanupStarted = true;
+    await terminateServer(child, serverPid);
+    serverPid = null;
+  }
+}
+
+for (const signal of ["SIGINT", "SIGTERM"] as const) {
+  process.once(signal, () => {
+    void cleanupSpawnedServer().finally(() => {
+      process.kill(process.pid, signal);
+    });
+  });
+}
 
 function test(name: string, fn: () => void): void {
   try {
@@ -132,7 +202,7 @@ async function run(): Promise<void> {
 
   // ── Spawn production server ───────────────────────────────────────────────
 
-  const child = spawn(
+  child = spawn(
     "node",
     ["node_modules/next/dist/bin/next", "start", "-p", String(port)],
     { env: testEnv, stdio: ["ignore", "pipe", "pipe"], shell: false },
@@ -140,8 +210,8 @@ async function run(): Promise<void> {
   serverPid = child.pid ?? null;
 
   const childLogs: string[] = [];
-  child.stdout.on("data", (d: Buffer) => childLogs.push(d.toString()));
-  child.stderr.on("data", (d: Buffer) => childLogs.push(d.toString()));
+  child.stdout?.on("data", (d: Buffer) => childLogs.push(d.toString()));
+  child.stderr?.on("data", (d: Buffer) => childLogs.push(d.toString()));
 
   try {
     // ── Wait for server ready ───────────────────────────────────────────────
@@ -248,6 +318,7 @@ async function run(): Promise<void> {
 
   } finally {
     // ── Cleanup: kill exact PID tree, never by image name ──────────────────
+    await cleanupSpawnedServer();
     if (serverPid !== null) {
       console.log(`\n[cold-cache] Killing server process tree (PID ${serverPid})…`);
       killTree(serverPid);
@@ -261,8 +332,8 @@ async function run(): Promise<void> {
   if (failed > 0) process.exitCode = 1;
 }
 
-run().catch((err) => {
+run().catch(async (err) => {
   console.error("[cold-cache] Fatal error:", err);
-  if (serverPid !== null) killTree(serverPid);
+  await cleanupSpawnedServer();
   process.exitCode = 1;
 });
