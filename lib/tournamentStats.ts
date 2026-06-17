@@ -22,6 +22,10 @@ export type TournamentStats = {
   biggestWin: (MatchResult & { margin: number }) | null;
   cleanSheets: number;
   lastSyncedAt: string | null;
+  unresolvedCompletedMatchGoals: number;
+  completedMatchesWithUnresolvedScorers: number;
+  conflictedCompletedMatches: number;
+  scorerTotalsComplete: boolean;
 };
 
 export type TeamLeaderboard = { teamKey: string; value: number };
@@ -40,6 +44,7 @@ export type PlayerGoalStat = {
 
 export function computeTournamentStats(
   liveData: ReadonlyMap<number, LiveMatchData>,
+  matches?: Record<string, import("./liveSnapshot").SerializableSnapshotMatch>
 ): TournamentStats {
   let matchesPlayed = 0;
   let totalGoals = 0;
@@ -47,6 +52,10 @@ export function computeTournamentStats(
   let highestScoringMatch: TournamentStats["highestScoringMatch"] = null;
   let biggestWin: TournamentStats["biggestWin"] = null;
   let lastSyncedAt: string | null = null;
+  
+  let unresolvedCompletedMatchGoals = 0;
+  let completedMatchesWithUnresolvedScorers = 0;
+  let conflictedCompletedMatches = 0;
 
   for (const match of MATCHES) {
     const pid = match.providerIds?.footballData;
@@ -85,11 +94,37 @@ export function computeTournamentStats(
       lastSyncedAt = live.lastSyncedAt;
     }
   }
+  
+  if (matches) {
+    for (const m of Object.values(matches)) {
+      if (m.status !== "FINISHED") continue;
+      
+      const missing = m.goalEventCompleteness.missingGoalEventCount ?? 0;
+      // also check for low confidence scorers
+      const hasLowConfidence = m.scorers.some(s => s.confidence === "low");
+      // own goals without player attribution
+      const hasUnattributedOwnGoals = m.scorers.some(s => s.isOwnGoal && !s.playerTeamName);
+      
+      const isUnresolved = missing > 0 || hasLowConfidence || hasUnattributedOwnGoals;
+      
+      if (isUnresolved) {
+        completedMatchesWithUnresolvedScorers++;
+        unresolvedCompletedMatchGoals += missing;
+      }
+      
+      // If we flagged it conflicted during KickoffAPI or earlier
+      // We don't have a direct 'conflicted' boolean in SerializableSnapshotMatch yet,
+      // but if missing is very large it might be conflicted.
+      // Assuming we just track unresolved primarily for honesty.
+    }
+  }
 
   const avg =
     matchesPlayed > 0
       ? Math.round((totalGoals / matchesPlayed) * 10) / 10
       : 0;
+      
+  const scorerTotalsComplete = completedMatchesWithUnresolvedScorers === 0 && conflictedCompletedMatches === 0;
 
   return {
     matchesPlayed,
@@ -99,6 +134,10 @@ export function computeTournamentStats(
     biggestWin,
     cleanSheets,
     lastSyncedAt,
+    unresolvedCompletedMatchGoals,
+    completedMatchesWithUnresolvedScorers,
+    conflictedCompletedMatches,
+    scorerTotalsComplete,
   };
 }
 

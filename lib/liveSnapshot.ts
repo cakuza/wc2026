@@ -17,9 +17,11 @@ import {
   fetchWorldCup26Games,
   type GoalScorerEvent,
   type WorldCup26Game,
+  toLiveGoalEvent,
 } from "./worldcup26Provider";
 import { applyVerifiedGoalCorrections } from "./verifiedMatchEventCorrections";
 import { countryName } from "./i18n";
+import { normalizeTeamName } from "./teams";
 
 export const LIVE_SNAPSHOT_CACHE_KEY = "worldcup-tournament-live-snapshot-v7";
 export const LIVE_SNAPSHOT_REVALIDATE_SECONDS = 25;
@@ -74,26 +76,7 @@ type SnapshotCacheOptions = {
   build: () => Promise<TournamentLiveSnapshot>;
 };
 
-const TEAM_NAME_ALIASES: Record<string, string> = {
-  czechrepublic: "czechia",
-  bosniaandherzegovina: "bosniaherzegovina",
-  cotedivoire: "ivorycoast",
-  capeverdeislands: "capeverde",
-  democraticrepublicofthecongo: "drcongo",
-  congodr: "drcongo",
-  korearepublic: "southkorea",
-};
-
-let lastKnownGoodSnapshot: TournamentLiveSnapshot | null = null;
-
-export function normalizeTeamName(name: string): string {
-  const norm = name
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .toLowerCase()
-    .replace(/[^a-z0-9]/g, "");
-  return TEAM_NAME_ALIASES[norm] ?? norm;
-}
+  let lastKnownGoodSnapshot: TournamentLiveSnapshot | null = null;
 
 function toSnapshotStatus(live: LiveMatchData | undefined): SnapshotMatchStatus {
   if (!live) return "SCHEDULED";
@@ -127,19 +110,6 @@ export function canonicalStatus({
     return footballStatus;
   }
   return "SCHEDULED";
-}
-
-export function toLiveGoalEvent(event: GoalScorerEvent): LiveMatchEvent {
-  return {
-    type: event.isOwnGoal ? "OWN_GOAL" : event.isPenalty || event.type === "PENALTY_GOAL" ? "PENALTY_GOAL" : "GOAL",
-    minute: event.minute,
-    stoppageTime: event.stoppageTime,
-    minuteLabel: event.minuteLabel,
-    teamName: event.teamName,
-    playerTeamName: event.playerTeamName,
-    playerName: event.playerName,
-    isOwnGoal: event.isOwnGoal,
-  };
 }
 
 function liveGoalCompoundKey(event: LiveMatchEvent): string {
@@ -177,7 +147,7 @@ function winnerFromScore(homeScore: number | null, awayScore: number | null): Li
 
 function scorerKey(event: GoalScorerEvent): string {
   return [
-    normalizeTeamName(event.teamName),
+    normalizeTeamName(event.teamName ?? ""),
     event.minute ?? "",
     event.playerName
       .normalize("NFD")
@@ -293,24 +263,27 @@ function withCanonicalMatchState({
 function topScorersFromSnapshot(
   scorerEventsByMatch: ReadonlyMap<string, GoalScorerEvent[]>,
   liveData: ReadonlyMap<number, LiveMatchData>,
+  matches: Record<string, SerializableSnapshotMatch>
 ): PlayerGoalStat[] {
+  // If provider data provides them directly from a tournament endpoint, we use that
   const providerScorers = computeTopScorers(liveData);
   if (providerScorers.length > 0) return providerScorers;
 
   const scorerMap = new Map<string, PlayerGoalStat>();
-  for (const events of scorerEventsByMatch.values()) {
-    for (const goal of events) {
+  
+  // Aggregate from all enriched match scorers
+  for (const match of Object.values(matches)) {
+    for (const goal of match.scorers) {
       if (goal.isOwnGoal) continue;
-      const existing = scorerMap.get(goal.playerName);
-      if (existing) {
-        existing.goals++;
-      } else {
-        scorerMap.set(goal.playerName, {
+      const key = goal.playerName;
+      if (!scorerMap.has(key)) {
+        scorerMap.set(key, {
           playerName: goal.playerName,
           teamName: goal.teamName,
-          goals: 1,
+          goals: 0,
         });
       }
+      scorerMap.get(key)!.goals++;
     }
   }
 
@@ -408,9 +381,14 @@ export async function buildTournamentLiveSnapshot({
 
   const standingsByGroup = computeGroupStandings(canonicalLiveData);
   const thirdPlaceRanking = computeThirdPlaceRanking(standingsByGroup);
-  const tournamentStats = computeTournamentStats(canonicalLiveData);
+
+  // Trigger new KickoffAPI enrichment (handles budget and kill switches internally)
+  const { enrichSnapshotScorers } = await import("./kickoffScorerRuntime");
+  await enrichSnapshotScorers(matches, primaryProviderOk, generatedAt);
+
+  const tournamentStats = computeTournamentStats(canonicalLiveData, matches);
   const teamLeaderboards = computeTeamLeaderboards(standingsByGroup);
-  const topScorers = topScorersFromSnapshot(scorerEventsByMatch, canonicalLiveData);
+  const topScorers = topScorersFromSnapshot(scorerEventsByMatch, canonicalLiveData, matches);
   const snapshotId = makeSnapshotId(generatedAt, matches);
 
   return {

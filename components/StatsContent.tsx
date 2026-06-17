@@ -284,6 +284,14 @@ export default function StatsContent({ tournamentStats, teamLeaderboards, standi
           <div className="h-px flex-1 bg-white/10" />
         </div>
 
+        {!tournamentStats.scorerTotalsComplete && (
+          <div className="mb-4 rounded-lg bg-white/5 px-4 py-3 border border-white/10">
+            <p className="text-sm text-white/70">
+              Some scorer details are still being verified. Totals include confirmed goals only.
+            </p>
+          </div>
+        )}
+
         {hasEventData && topScorers.length > 0 ? (
           <div className="rounded-xl border border-white/10 bg-navyCard overflow-hidden">
             <div className="border-b border-white/10 bg-navy/50 px-4 py-3">
