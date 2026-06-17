@@ -1,45 +1,44 @@
-export type ProviderAttemptState = "success" | "empty" | "timeout" | "error" | "unavailable";
+export type ProviderAttemptState = "partial_snapshot" | "complete_snapshot" | "delta" | "timeout" | "error" | "unavailable";
 
-export type LedgerEvent = {
+export type EventLifecycleState = "active" | "retracted" | "superseded" | "disputed";
+
+export type CanonicalReconciliationState = "consistent" | "partial" | "conflicted" | "temporarily_unavailable" | "never_received";
+
+export type LedgerObservation = {
   stableEventId: string;
   canonicalMatchId: string;
-  canonicalTeamId: string;
-  canonicalSide: "home" | "away";
   provider: string;
   providerFixtureId: string;
   providerEventId: string;
-  providerPlayerId?: string;
+
   playerName: string;
-  assistPlayerId?: string;
-  assistName?: string;
+  providerPlayerId?: string;
   minute: number;
   extraMinute?: number;
+  assistPlayerId?: string;
+  assistName?: string;
   isPenalty: boolean;
   isOwnGoal: boolean;
+  creditedCanonicalSide: "home" | "away";
+  playerCanonicalTeamId: string;
+
+  lifecycleState: EventLifecycleState;
   provenance: string;
   fetchedAt: string;
+  stateReason?: string;
+  canonicalGoalId?: string;
 };
 
-export type MatchCompletenessState = "complete" | "partial" | "temporarily_unavailable" | "never_received";
-
-export type MatchCompleteness = {
-  expectedHomeGoals: number;
-  expectedAwayGoals: number;
-  acceptedHomeGoals: number;
-  acceptedAwayGoals: number;
-  unresolvedHomeGoals: number;
-  unresolvedAwayGoals: number;
-  unresolvedGoalCount: number;
-  state: MatchCompletenessState;
+export type ExplicitRetraction = {
+  provider: string;
+  providerFixtureId: string;
+  providerEventId: string;
+  reason: string;
 };
 
-export type MergeCanonicalContext = {
-  canonicalMatchId: string;
-  canonicalHomeTeamId: string;
-  canonicalAwayTeamId: string;
-  canonicalHomeScore: number | null;
-  canonicalAwayScore: number | null;
-  canonicalStatus: "SCHEDULED" | "TIMED" | "IN_PLAY" | "PAUSED" | "FINISHED";
+export type ExplicitEquivalence = {
+  canonicalGoalId: string;
+  stableEventIds: string[];
 };
 
 export type ProviderScorerEventInput = {
@@ -60,28 +59,60 @@ export type ProviderScorerEventInput = {
 export type MergeProviderAttempt = {
   state: ProviderAttemptState;
   events: ProviderScorerEventInput[];
+  retractions?: ExplicitRetraction[];
+  equivalences?: ExplicitEquivalence[];
   fetchedAt: string;
   provenance: string;
-  // This helps us map provider team IDs to canonical team IDs (home or away)
-  // because the provider team IDs might not literally equal the canonical team IDs
-  // The context needs to tell us which provider team ID is home and away,
-  // or we pass a mapping in the attempt. Let's pass the mapping:
   providerHomeTeamId: string;
   providerAwayTeamId: string;
 };
 
+export type MergeCanonicalContext = {
+  canonicalMatchId: string;
+  canonicalHomeTeamId: string;
+  canonicalAwayTeamId: string;
+  canonicalHomeScore: number | null;
+  canonicalAwayScore: number | null;
+  canonicalStatus: "SCHEDULED" | "TIMED" | "IN_PLAY" | "PAUSED" | "FINISHED";
+};
+
+export type MatchCompleteness = {
+  expectedHomeGoals: number;
+  expectedAwayGoals: number;
+  acceptedHomeGoals: number;
+  acceptedAwayGoals: number;
+  unresolvedHomeGoals: number;
+  unresolvedAwayGoals: number;
+  unresolvedGoalCount: number;
+  disputedObservationCount: number;
+  state: CanonicalReconciliationState;
+};
+
 export type MergeResult = {
-  nextLedger: LedgerEvent[];
+  nextLedger: LedgerObservation[];
   diagnostics: {
     addedCount: number;
     rejectedCount: number;
     reasons: string[];
+    cross_provider_equivalence_required?: boolean;
   };
   completeness: MatchCompleteness;
 };
 
+export function normalizePlayerName(name: string): string {
+  return name
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[^\p{L}\p{N}]/gu, "");
+}
+
+function createStableId(provider: string, fixtureId: string, eventId: string): string {
+  return JSON.stringify([provider, fixtureId, eventId]);
+}
+
 export function mergeProviderAttempt(
-  previousLedger: LedgerEvent[],
+  previousLedger: LedgerObservation[],
   attempt: MergeProviderAttempt,
   context: MergeCanonicalContext
 ): MergeResult {
@@ -89,95 +120,223 @@ export function mergeProviderAttempt(
   let addedCount = 0;
   let rejectedCount = 0;
   const reasons: string[] = [];
-
-  const expectedHome = context.canonicalHomeScore ?? 0;
-  const expectedAway = context.canonicalAwayScore ?? 0;
-
-  const getAcceptedCounts = () => {
-    let home = 0;
-    let away = 0;
-    for (const ev of nextLedger) {
-      if (ev.canonicalMatchId === context.canonicalMatchId) {
-        if (ev.canonicalSide === "home") home++;
-        else if (ev.canonicalSide === "away") away++;
-      }
-    }
-    return { home, away };
-  };
+  let cross_provider_equivalence_required = false;
 
   const isMatchStarted = ["IN_PLAY", "PAUSED", "FINISHED"].includes(context.canonicalStatus);
+
+  // 1. Process explicit retractions
+  if (attempt.retractions) {
+    for (const ret of attempt.retractions) {
+      const stableId = createStableId(ret.provider, ret.providerFixtureId, ret.providerEventId);
+      for (let i = 0; i < nextLedger.length; i++) {
+        if (nextLedger[i].stableEventId === stableId && nextLedger[i].lifecycleState === "active") {
+          nextLedger[i] = {
+            ...nextLedger[i],
+            lifecycleState: "retracted",
+            stateReason: ret.reason
+          };
+        }
+      }
+    }
+  }
+
+  // 2. Process explicit equivalences
+  if (attempt.equivalences) {
+    for (const eq of attempt.equivalences) {
+      for (let i = 0; i < nextLedger.length; i++) {
+        if (eq.stableEventIds.includes(nextLedger[i].stableEventId)) {
+          nextLedger[i] = {
+            ...nextLedger[i],
+            canonicalGoalId: eq.canonicalGoalId,
+            lifecycleState: "active",
+            stateReason: "explicit equivalence resolved"
+          };
+        }
+      }
+    }
+  }
 
   if (!isMatchStarted) {
     if (attempt.events.length > 0) {
       rejectedCount += attempt.events.length;
       reasons.push("Scheduled match rejects scorer events by default.");
     }
-  } else if (attempt.state === "success" || attempt.state === "empty") {
+  } else if (attempt.state === "complete_snapshot" || attempt.state === "partial_snapshot" || attempt.state === "delta") {
+    
+    // We only process missing events for complete snapshots
+    const incomingStableIds = new Set(attempt.events.map(e => createStableId(e.provider, e.providerFixtureId, e.providerEventId)));
+    
+    if (attempt.state === "complete_snapshot") {
+      // Retract active events from this provider not in the payload
+      for (let i = 0; i < nextLedger.length; i++) {
+        const obs = nextLedger[i];
+        if (obs.canonicalMatchId === context.canonicalMatchId && 
+            obs.provider === attempt.events[0]?.provider && 
+            obs.lifecycleState === "active" && 
+            !incomingStableIds.has(obs.stableEventId)) {
+          nextLedger[i] = {
+            ...obs,
+            lifecycleState: "retracted",
+            stateReason: "omitted from complete snapshot"
+          };
+        }
+      }
+    }
+
     for (const input of attempt.events) {
-      const stableEventId = `${input.provider}|${input.providerFixtureId}|${input.providerEventId}`;
-      if (nextLedger.some((e) => e.stableEventId === stableEventId)) {
-        // exact replay counts once, preserved silently
-        continue;
-      }
-
-      let canonicalSide: "home" | "away" | null = null;
-      let canonicalTeamId: string | null = null;
-
+      const stableEventId = createStableId(input.provider, input.providerFixtureId, input.providerEventId);
+      
+      let playerCanonicalTeamId: string | null = null;
       if (input.providerTeamId === attempt.providerHomeTeamId) {
-        canonicalSide = "home";
-        canonicalTeamId = context.canonicalHomeTeamId;
+        playerCanonicalTeamId = context.canonicalHomeTeamId;
       } else if (input.providerTeamId === attempt.providerAwayTeamId) {
-        canonicalSide = "away";
-        canonicalTeamId = context.canonicalAwayTeamId;
+        playerCanonicalTeamId = context.canonicalAwayTeamId;
       }
 
-      if (!canonicalSide || !canonicalTeamId) {
+      if (!playerCanonicalTeamId) {
         rejectedCount++;
         reasons.push(`Unknown or ambiguous team ID: ${input.providerTeamId}`);
         continue;
       }
 
-      const counts = getAcceptedCounts();
-      if (canonicalSide === "home" && counts.home >= expectedHome) {
-        rejectedCount++;
-        reasons.push("Home capacity exceeded.");
-        continue;
-      }
-      if (canonicalSide === "away" && counts.away >= expectedAway) {
-        rejectedCount++;
-        reasons.push("Away capacity exceeded.");
-        continue;
+      let creditedCanonicalSide: "home" | "away" = playerCanonicalTeamId === context.canonicalHomeTeamId ? "home" : "away";
+      if (input.isOwnGoal) {
+        creditedCanonicalSide = creditedCanonicalSide === "home" ? "away" : "home";
       }
 
-      const ledgerEvent: LedgerEvent = {
+      const existingActive = nextLedger.find(e => e.stableEventId === stableEventId && e.lifecycleState === "active");
+
+      let newObs: LedgerObservation = {
         stableEventId,
         canonicalMatchId: context.canonicalMatchId,
-        canonicalTeamId,
-        canonicalSide,
         provider: input.provider,
         providerFixtureId: input.providerFixtureId,
         providerEventId: input.providerEventId,
-        providerPlayerId: input.providerPlayerId,
         playerName: input.playerName,
-        assistPlayerId: input.assistPlayerId,
-        assistName: input.assistName,
+        providerPlayerId: input.providerPlayerId,
         minute: input.minute,
         extraMinute: input.extraMinute,
+        assistPlayerId: input.assistPlayerId,
+        assistName: input.assistName,
         isPenalty: input.isPenalty,
         isOwnGoal: input.isOwnGoal,
+        creditedCanonicalSide,
+        playerCanonicalTeamId,
+        lifecycleState: "active",
         provenance: attempt.provenance,
-        fetchedAt: attempt.fetchedAt,
+        fetchedAt: attempt.fetchedAt
       };
 
-      nextLedger.push(ledgerEvent);
-      addedCount++;
+      if (existingActive) {
+        // Check for exact replay
+        const isExact = 
+          existingActive.playerName === newObs.playerName &&
+          existingActive.minute === newObs.minute &&
+          existingActive.extraMinute === newObs.extraMinute &&
+          existingActive.isPenalty === newObs.isPenalty &&
+          existingActive.isOwnGoal === newObs.isOwnGoal &&
+          existingActive.providerPlayerId === newObs.providerPlayerId;
+
+        if (isExact) {
+          continue; // Idempotent
+        }
+
+        // Revision
+        if (attempt.state === "partial_snapshot") {
+          // Non-authoritative partial payload may enrich but not destructively overwrite richer data
+          if (!newObs.providerPlayerId && existingActive.providerPlayerId) newObs.providerPlayerId = existingActive.providerPlayerId;
+          if (newObs.extraMinute === undefined && existingActive.extraMinute !== undefined) newObs.extraMinute = existingActive.extraMinute;
+        }
+        
+        // Supersede old
+        existingActive.lifecycleState = "superseded";
+        existingActive.stateReason = "superseded by revision";
+        nextLedger.push(newObs);
+        addedCount++;
+      } else {
+        // New observation
+        nextLedger.push(newObs);
+        addedCount++;
+      }
     }
-  } else {
-    // error, timeout, unavailable -> preserve existing events silently
   }
 
-  // Calculate completeness
-  // Ensure we output deterministic order
+  // Cross-provider resolution
+  const activeObs = nextLedger.filter(e => e.canonicalMatchId === context.canonicalMatchId && e.lifecycleState === "active");
+  for (let i = 0; i < activeObs.length; i++) {
+    for (let j = i + 1; j < activeObs.length; j++) {
+      const a = activeObs[i];
+      const b = activeObs[j];
+      if (a.provider !== b.provider && !a.canonicalGoalId && !b.canonicalGoalId) {
+        if (a.creditedCanonicalSide === b.creditedCanonicalSide &&
+            a.isOwnGoal === b.isOwnGoal &&
+            Math.abs(a.minute - b.minute) <= 2 &&
+            normalizePlayerName(a.playerName) === normalizePlayerName(b.playerName)) {
+          
+          // Heuristic match -> second one becomes disputed
+          const bIdx = nextLedger.findIndex(e => e === b);
+          if (bIdx > -1) {
+            nextLedger[bIdx] = { ...b, lifecycleState: "disputed", stateReason: "heuristic cross-provider duplicate" };
+            cross_provider_equivalence_required = true;
+          }
+        }
+      }
+    }
+  }
+
+  // Completeness & VAR Safety
+  const expectedHome = context.canonicalHomeScore ?? 0;
+  const expectedAway = context.canonicalAwayScore ?? 0;
+
+  // Re-calculate active after disputes
+  const finalActive = nextLedger.filter(e => e.canonicalMatchId === context.canonicalMatchId && e.lifecycleState === "active");
+  
+  // Dedup canonical goals (if explicit equivalence links them)
+  const acceptedGoalIds = new Set<string>();
+  let acceptedHomeGoals = 0;
+  let acceptedAwayGoals = 0;
+
+  for (const obs of finalActive) {
+    const id = obs.canonicalGoalId || obs.stableEventId;
+    if (!acceptedGoalIds.has(id)) {
+      acceptedGoalIds.add(id);
+      if (obs.creditedCanonicalSide === "home") acceptedHomeGoals++;
+      else acceptedAwayGoals++;
+    }
+  }
+
+  const unresHome = Math.max(0, expectedHome - acceptedHomeGoals);
+  const unresAway = Math.max(0, expectedAway - acceptedAwayGoals);
+  const unresTotal = unresHome + unresAway;
+  const disputedCount = nextLedger.filter(e => e.canonicalMatchId === context.canonicalMatchId && e.lifecycleState === "disputed").length;
+
+  let state: CanonicalReconciliationState = "never_received";
+
+  if (!isMatchStarted) {
+    state = "never_received";
+  } else if (acceptedHomeGoals > expectedHome || acceptedAwayGoals > expectedAway) {
+    // VAR Regression or over-reporting without retraction -> conflicted
+    state = "conflicted";
+  } else if (context.canonicalStatus === "FINISHED") {
+    if (unresTotal === 0) {
+      state = "consistent"; // The prompt used consistent/partial/conflicted
+    } else {
+      if (attempt.state === "complete_snapshot" || attempt.state === "partial_snapshot") {
+        state = "partial";
+      } else {
+        state = (acceptedHomeGoals > 0 || acceptedAwayGoals > 0) ? "partial" : "temporarily_unavailable";
+      }
+    }
+  } else {
+    // In play / Paused
+    if (attempt.state === "complete_snapshot" || attempt.state === "partial_snapshot") {
+      state = unresTotal === 0 ? "consistent" : "partial";
+    } else {
+      state = (acceptedHomeGoals > 0 || acceptedAwayGoals > 0) ? "partial" : "temporarily_unavailable";
+    }
+  }
+
+  // Sort nextLedger for determinism
   nextLedger.sort((a, b) => {
     if (a.minute !== b.minute) return a.minute - b.minute;
     const aExtra = a.extraMinute ?? 0;
@@ -186,80 +345,32 @@ export function mergeProviderAttempt(
     return a.stableEventId.localeCompare(b.stableEventId, "en");
   });
 
-  const finalCounts = getAcceptedCounts();
-  const unresHome = Math.max(0, expectedHome - finalCounts.home);
-  const unresAway = Math.max(0, expectedAway - finalCounts.away);
-  const unresTotal = unresHome + unresAway;
-
-  let state: MatchCompletenessState = "never_received";
-  
-  if (!isMatchStarted) {
-    state = "never_received";
-  } else if (context.canonicalStatus === "FINISHED") {
-    if (unresTotal === 0) {
-      state = "complete";
-    } else {
-      // If we previously had some data but it's incomplete
-      if (attempt.state === "success") {
-        state = "partial";
-      } else if (attempt.state === "empty") {
-        state = "partial";
-      } else {
-        // If we are missing data and we just had an error,
-        // we might be temporarily unavailable or we never received it.
-        // We can check if we have ANY accepted goals. If we expect goals but have 0, and state is error, 
-        // it's temporarily unavailable or never received.
-        // To satisfy "failure after complete data does not regress completeness", if unresTotal is 0 it is complete.
-        // If unresTotal > 0, it's partial or temporarily_unavailable.
-        // We'll say if we have some goals, it's partial. If 0, temporarily_unavailable if error.
-        state = (finalCounts.home > 0 || finalCounts.away > 0) ? "partial" : "temporarily_unavailable";
-      }
-    }
-  } else {
-    // In play / Paused
-    if (attempt.state === "success" || attempt.state === "empty") {
-      state = unresTotal === 0 ? "complete" : "partial";
-    } else {
-      state = (finalCounts.home > 0 || finalCounts.away > 0) ? "partial" : "temporarily_unavailable";
-    }
-  }
-
-  // Important rule: "failure after complete data does not regress completeness"
-  // Wait, the input `previousLedger` didn't have completeness. If it was already complete, how do we know?
-  // Because if it was complete, unresTotal would be 0, and unresTotal === 0 => "complete". So we don't regress.
-
   return {
     nextLedger,
     diagnostics: {
       addedCount,
       rejectedCount,
       reasons,
+      cross_provider_equivalence_required
     },
     completeness: {
       expectedHomeGoals: expectedHome,
       expectedAwayGoals: expectedAway,
-      acceptedHomeGoals: finalCounts.home,
-      acceptedAwayGoals: finalCounts.away,
+      acceptedHomeGoals,
+      acceptedAwayGoals,
       unresolvedHomeGoals: unresHome,
       unresolvedAwayGoals: unresAway,
       unresolvedGoalCount: unresTotal,
-      state,
-    },
+      disputedObservationCount: disputedCount,
+      state
+    }
   };
 }
 
-function normalizePlayerName(name: string): string {
-  return name
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .toLowerCase()
-    .replace(/[^\p{L}\p{N}]/gu, ""); // collapse punctuation and whitespace
-}
-
 export type PlayerIdentity = {
-  id: string; // The stable identity string
+  id: string; 
   canonicalTeamId: string;
-  displayName: string; // The first seen display name
+  displayName: string;
   providerPlayerIds: Set<string>;
 };
 
@@ -277,49 +388,46 @@ export type GoldenBootAggregation = {
 };
 
 export function aggregateGoldenBoot(
-  ledger: LedgerEvent[],
+  ledger: LedgerObservation[],
   completenessByMatch: Map<string, MatchCompleteness>
 ): GoldenBootAggregation {
   const playerMap = new Map<string, PlayerScorerTotal>();
   const completedMatchesWithUnresolvedGoals = new Set<string>();
   let totalUnresolvedGoals = 0;
-  let allCompletedReconciled = true;
+  let scorerTotalsComplete = true;
 
-  for (const [matchId, completeness] of completenessByMatch.entries()) {
-    // This expects that the user passed only FINISHED matches in completeness map if we want to know if it's completed?
-    // Actually, we must rely on the caller to provide only FINISHED match completeness? 
-    // Or we assume `unresolvedGoalCount > 0` and `state !== 'complete'` indicates a problem.
-    // Wait, let's just use unresolvedGoalCount and state.
-    if (completeness.unresolvedGoalCount > 0) {
-      // If it's a finished match... The function doesn't know if the match is FINISHED unless we tell it.
-      // Wait, "scorerTotalsComplete: true when every completed match reconciles."
-      // Let's assume completenessByMatch only contains finished matches for this aggregation, OR we look at state.
-      // Wait! The Golden Boot usually only considers FINISHED matches for "scorerTotalsComplete", but live goals count.
-      // If `state === "partial" || state === "temporarily_unavailable" || state === "never_received"`, it could be live or finished.
-      // I'll just check if it's not complete and unresolvedGoalCount > 0.
-      if (completeness.unresolvedGoalCount > 0) {
-         // Is it finished? The prompt says "completedMatchesWithUnresolvedGoals".
-         // I'll assume the caller filters the map to only FINISHED matches, OR I can determine from state? 
-         // Actually, if it's unresolved, it's unresolved. Let's just track it.
-         completedMatchesWithUnresolvedGoals.add(matchId);
-         totalUnresolvedGoals += completeness.unresolvedGoalCount;
-         allCompletedReconciled = false;
-      }
+  // Track conflicted matches so we skip their goals
+  const conflictedMatchIds = new Set<string>();
+
+  for (const [matchId, comp] of completenessByMatch.entries()) {
+    if (comp.state === "conflicted") {
+      conflictedMatchIds.add(matchId);
+      scorerTotalsComplete = false;
+    } else if (comp.unresolvedGoalCount > 0 && comp.state !== "consistent") {
+      // partial or missing
+      completedMatchesWithUnresolvedGoals.add(matchId);
+      totalUnresolvedGoals += comp.unresolvedGoalCount;
+      scorerTotalsComplete = false;
     }
   }
 
-  const seen = new Set<string>();
+  const seenCanonicalGoals = new Set<string>();
+
   for (const ev of ledger) {
-    if (seen.has(ev.stableEventId)) continue;
-    seen.add(ev.stableEventId);
+    if (ev.lifecycleState !== "active") continue;
+    if (conflictedMatchIds.has(ev.canonicalMatchId)) continue;
     if (ev.isOwnGoal) continue;
+
+    const canonicalGoalId = ev.canonicalGoalId || ev.stableEventId;
+    if (seenCanonicalGoals.has(canonicalGoalId)) continue;
+    seenCanonicalGoals.add(canonicalGoalId);
 
     let identityStr: string;
     if (ev.providerPlayerId) {
-      identityStr = `id:${ev.canonicalTeamId}:${ev.providerPlayerId}`;
+      identityStr = `id:${ev.provider}:${ev.playerCanonicalTeamId}:${ev.providerPlayerId}`;
     } else {
       const normName = normalizePlayerName(ev.playerName);
-      identityStr = `name:${ev.canonicalTeamId}:${normName}`;
+      identityStr = `name:${ev.playerCanonicalTeamId}:${normName}`;
     }
 
     let record = playerMap.get(identityStr);
@@ -327,7 +435,7 @@ export function aggregateGoldenBoot(
       record = {
         identity: {
           id: identityStr,
-          canonicalTeamId: ev.canonicalTeamId,
+          canonicalTeamId: ev.playerCanonicalTeamId,
           displayName: ev.playerName,
           providerPlayerIds: new Set<string>(),
         },
@@ -345,7 +453,6 @@ export function aggregateGoldenBoot(
     if (ev.isPenalty) record.penalties++;
   }
 
-  // Sort totals deterministicly: goals desc, penalties asc, displayName asc
   const totals = Array.from(playerMap.values()).sort((a, b) => {
     if (b.goals !== a.goals) return b.goals - a.goals;
     if (a.penalties !== b.penalties) return a.penalties - b.penalties;
@@ -355,7 +462,7 @@ export function aggregateGoldenBoot(
   return {
     completedMatchesWithUnresolvedGoals,
     totalUnresolvedGoals,
-    scorerTotalsComplete: allCompletedReconciled,
+    scorerTotalsComplete,
     totals,
   };
 }
