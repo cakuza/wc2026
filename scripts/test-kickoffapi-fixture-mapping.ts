@@ -2,7 +2,9 @@ import assert from "assert";
 import {
   KICKOFF_FIXTURE_TOLERANCE_MINUTES,
   REVIEWED_KICKOFF_FIXTURE_OVERRIDES,
+  kickoffProviderAliasesForTeamKey,
   mapKickoffFixturesToCanonicalMatches,
+  normalizeKickoffTeamName,
   parseKickoffApiFixtures,
   type KickoffApiFixture,
   type FixtureMappingOverride,
@@ -232,6 +234,49 @@ test("invalid timestamp fails fixture parsing", () => {
   assert.strictEqual(parsed.errors[0].code, "invalid_fixture");
 });
 
+test("timezone-less timestamp is rejected", () => {
+  const match = MATCHES[0];
+  const parsed = parseKickoffApiFixtures([rawFixture(match, { fixture: { id: providerId(match), date: "2026-06-11T19:00:00" } })]);
+  assert.strictEqual(parsed.fixtures.length, 0);
+  assert.strictEqual(parsed.errors[0].code, "invalid_fixture");
+  assert.match(parsed.errors[0].message, /kickoff timestamp/);
+});
+
+test("UTC Z timestamp is accepted", () => {
+  const match = MATCHES[0];
+  const parsed = parseKickoffApiFixtures([rawFixture(match, { fixture: { id: providerId(match), date: "2026-06-11T19:00:00Z" } })]);
+  assert.strictEqual(parsed.errors.length, 0);
+  assert.strictEqual(parsed.fixtures[0].kickoffTimestamp, "2026-06-11T19:00:00.000Z");
+});
+
+test("explicit positive offset timestamp is accepted", () => {
+  const match = MATCHES[0];
+  const parsed = parseKickoffApiFixtures([rawFixture(match, { fixture: { id: providerId(match), date: "2026-06-11T22:00:00+03:00" } })]);
+  assert.strictEqual(parsed.errors.length, 0);
+  assert.strictEqual(parsed.fixtures[0].kickoffTimestamp, "2026-06-11T19:00:00.000Z");
+});
+
+test("explicit negative offset timestamp is accepted", () => {
+  const match = MATCHES[0];
+  const parsed = parseKickoffApiFixtures([rawFixture(match, { fixture: { id: providerId(match), date: "2026-06-11T12:00:00-07:00" } })]);
+  assert.strictEqual(parsed.errors.length, 0);
+  assert.strictEqual(parsed.fixtures[0].kickoffTimestamp, "2026-06-11T19:00:00.000Z");
+});
+
+test("malformed offset timestamp is rejected", () => {
+  const match = MATCHES[0];
+  const parsed = parseKickoffApiFixtures([rawFixture(match, { fixture: { id: providerId(match), date: "2026-06-11T19:00:00+24:00" } })]);
+  assert.strictEqual(parsed.fixtures.length, 0);
+  assert.strictEqual(parsed.errors[0].code, "invalid_fixture");
+});
+
+test("invalid calendar date timestamp is rejected", () => {
+  const match = MATCHES[0];
+  const parsed = parseKickoffApiFixtures([rawFixture(match, { fixture: { id: providerId(match), date: "2026-02-30T19:00:00Z" } })]);
+  assert.strictEqual(parsed.fixtures.length, 0);
+  assert.strictEqual(parsed.errors[0].code, "invalid_fixture");
+});
+
 test("stale provider score and status have no mapping effect", () => {
   const match = MATCHES[0];
   const parsed = parseKickoffApiFixtures([rawFixture(match, { goals: { home: 7, away: 7 }, status: { short: "NS" } })]);
@@ -250,6 +295,81 @@ test("substring and fuzzy accidental names do not match", () => {
   const result = mapOne(match, parseKickoffApiFixtures([raw]).fixtures[0]);
   assert.strictEqual(result.mappings.length, 0);
   assert.strictEqual(result.errors[0].code, "unmapped_fixture");
+});
+
+test("alias collision invariant has zero collisions", () => {
+  const canonicalTeamKeys = [...new Set(MATCHES.flatMap((match) => [match.homeKey, match.awayKey]))].sort((a, b) => a.localeCompare(b, "en"));
+  const reverseAliases = new Map<string, string>();
+  const collisions: Array<{ normalizedAlias: string; teamKeys: string[] }> = [];
+  let rawAliasCount = 0;
+
+  for (const teamKey of canonicalTeamKeys) {
+    for (const alias of kickoffProviderAliasesForTeamKey(teamKey)) {
+      rawAliasCount++;
+      const normalizedAlias = normalizeKickoffTeamName(alias);
+      const existingTeamKey = reverseAliases.get(normalizedAlias);
+      if (existingTeamKey && existingTeamKey !== teamKey) {
+        collisions.push({ normalizedAlias, teamKeys: [existingTeamKey, teamKey] });
+      } else {
+        reverseAliases.set(normalizedAlias, teamKey);
+      }
+    }
+  }
+
+  console.log(
+    `  alias invariant: canonical teams=${canonicalTeamKeys.length}, raw aliases=${rawAliasCount}, normalized aliases=${reverseAliases.size}, collisions=${collisions.length}`,
+  );
+
+  assert.strictEqual(canonicalTeamKeys.length, 48);
+  assert.strictEqual(collisions.length, 0);
+
+  const drCongoAliases = new Set(kickoffProviderAliasesForTeamKey("drCongo").map(normalizeKickoffTeamName));
+  assert.ok(drCongoAliases.has(normalizeKickoffTeamName("Congo DR")));
+  assert.ok(drCongoAliases.has(normalizeKickoffTeamName("DR Congo")));
+  assert.ok(!drCongoAliases.has(normalizeKickoffTeamName("Congo")));
+  assert.notStrictEqual(normalizeKickoffTeamName("Congo"), normalizeKickoffTeamName("DR Congo"));
+
+  const southKoreaAliases = new Set(kickoffProviderAliasesForTeamKey("southKorea").map(normalizeKickoffTeamName));
+  assert.ok(southKoreaAliases.has(normalizeKickoffTeamName("Korea Republic")));
+  assert.ok(!southKoreaAliases.has(normalizeKickoffTeamName("Korea")));
+
+  const usaAliases = new Set(kickoffProviderAliasesForTeamKey("unitedStates").map(normalizeKickoffTeamName));
+  assert.ok(usaAliases.has(normalizeKickoffTeamName("United States")));
+  assert.ok(usaAliases.has(normalizeKickoffTeamName("USA")));
+
+  const turkeyAliases = new Set(kickoffProviderAliasesForTeamKey("turkey").map(normalizeKickoffTeamName));
+  assert.ok(turkeyAliases.has(normalizeKickoffTeamName("Turkey")));
+  assert.ok(turkeyAliases.has(normalizeKickoffTeamName("Turkiye")));
+  assert.ok(turkeyAliases.has(normalizeKickoffTeamName("T\u00fcrkiye")));
+
+  const capeVerdeAliases = new Set(kickoffProviderAliasesForTeamKey("capeVerde").map(normalizeKickoffTeamName));
+  assert.ok(capeVerdeAliases.has(normalizeKickoffTeamName("Cape Verde")));
+  assert.ok(capeVerdeAliases.has(normalizeKickoffTeamName("Cabo Verde")));
+  assert.ok(capeVerdeAliases.has(normalizeKickoffTeamName("Cape Verde Islands")));
+});
+
+test("override fixture reuse emits explicit duplicate assignment error", () => {
+  const firstMatch = MATCHES[0];
+  const secondMatch: Match = { ...firstMatch, date: "2026-06-12", providerIds: { footballData: 999001 } };
+  const firstMatchId = matchSlug(firstMatch);
+  const secondMatchId = matchSlug(secondMatch);
+  const parsed = parseKickoffApiFixtures([rawFixture(firstMatch)]);
+  const reusedProviderFixtureId = parsed.fixtures[0].providerFixtureId;
+  const result = mapKickoffFixturesToCanonicalMatches({
+    canonicalMatches: [firstMatch, secondMatch],
+    providerFixtures: parsed.fixtures,
+    overrides: [
+      { canonicalMatchId: firstMatchId, providerFixtureId: reusedProviderFixtureId, reason: "test", provenance: "test" },
+      { canonicalMatchId: secondMatchId, providerFixtureId: reusedProviderFixtureId, reason: "test", provenance: "test" },
+    ],
+  });
+
+  const reuseError = result.errors.find((error) => error.code === "duplicate_provider_fixture_assignment");
+  assert.strictEqual(result.mappings.filter((mapping) => mapping.providerFixtureId === reusedProviderFixtureId).length, 1);
+  assert.ok(reuseError);
+  assert.strictEqual(reuseError.providerFixtureId, reusedProviderFixtureId);
+  assert.deepStrictEqual(reuseError.canonicalMatchIds, [firstMatchId, secondMatchId]);
+  assert.strictEqual(JSON.stringify(reuseError).includes("fixture:"), false);
 });
 
 console.log(`\n${passed} passed, ${failed} failed`);

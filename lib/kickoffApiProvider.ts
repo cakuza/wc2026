@@ -42,6 +42,7 @@ export type KickoffApiValidationError = {
   providerFixtureId?: string;
   providerEventId?: string;
   canonicalMatchId?: string;
+  canonicalMatchIds?: string[];
   providerFixtureIds?: string[];
   kickoffDifferenceMinutes?: number;
 };
@@ -124,6 +125,10 @@ const TEAM_ALIASES_BY_KEY: Record<string, string[]> = {
   capeVerde: ["Cabo Verde", "Cape Verde", "Cape Verde Islands"],
   drCongo: ["Congo DR", "DR Congo", "Democratic Republic of the Congo"],
 };
+
+export function kickoffProviderAliasesForTeamKey(teamKey: string): readonly string[] {
+  return [countryName(teamKey, "en"), ...(TEAM_ALIASES_BY_KEY[teamKey] ?? [])];
+}
 
 function asRecord(value: unknown): Record<string, unknown> | null {
   return value !== null && typeof value === "object" && !Array.isArray(value)
@@ -327,6 +332,53 @@ function readFixtureIdentity(record: Record<string, unknown>): {
   };
 }
 
+function parseExplicitTimezoneTimestamp(value: string | null): string | null {
+  if (!value) return null;
+
+  const match = value.match(
+    /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})(?::(\d{2})(?:\.(\d{1,3})\d*)?)?(Z|[+-]\d{2}:\d{2})$/,
+  );
+  if (!match) return null;
+
+  const [, yearText, monthText, dayText, hourText, minuteText, secondText = "0", millisecondText = "0", zone] = match;
+  const year = Number(yearText);
+  const month = Number(monthText);
+  const day = Number(dayText);
+  const hour = Number(hourText);
+  const minute = Number(minuteText);
+  const second = Number(secondText);
+  const millisecond = Number(millisecondText.padEnd(3, "0"));
+
+  if (month < 1 || month > 12 || hour > 23 || minute > 59 || second > 59) return null;
+
+  const localMillis = Date.UTC(year, month - 1, day, hour, minute, second, millisecond);
+  const localDate = new Date(localMillis);
+  if (
+    localDate.getUTCFullYear() !== year ||
+    localDate.getUTCMonth() !== month - 1 ||
+    localDate.getUTCDate() !== day ||
+    localDate.getUTCHours() !== hour ||
+    localDate.getUTCMinutes() !== minute ||
+    localDate.getUTCSeconds() !== second ||
+    localDate.getUTCMilliseconds() !== millisecond
+  ) {
+    return null;
+  }
+
+  let offsetMinutes = 0;
+  if (zone !== "Z") {
+    const offsetMatch = zone.match(/^([+-])(\d{2}):(\d{2})$/);
+    if (!offsetMatch) return null;
+    const [, sign, offsetHourText, offsetMinuteText] = offsetMatch;
+    const offsetHour = Number(offsetHourText);
+    const offsetMinute = Number(offsetMinuteText);
+    if (offsetHour > 23 || offsetMinute > 59) return null;
+    offsetMinutes = (offsetHour * 60 + offsetMinute) * (sign === "+" ? 1 : -1);
+  }
+
+  return new Date(localMillis - offsetMinutes * 60_000).toISOString();
+}
+
 export function parseKickoffApiFixtures(payload: unknown): ParseFixturesResult {
   const fixtures: KickoffApiFixture[] = [];
   const errors: KickoffApiValidationError[] = [];
@@ -343,7 +395,7 @@ export function parseKickoffApiFixtures(payload: unknown): ParseFixturesResult {
     const homeName = stringValue(identity.home?.name);
     const awayId = stringValue(identity.away?.id);
     const awayName = stringValue(identity.away?.name);
-    const kickoffMs = identity.kickoffTimestamp ? Date.parse(identity.kickoffTimestamp) : Number.NaN;
+    const kickoffTimestamp = parseExplicitTimezoneTimestamp(identity.kickoffTimestamp);
 
     const missing: string[] = [];
     if (!identity.id) missing.push("fixture ID");
@@ -351,7 +403,7 @@ export function parseKickoffApiFixtures(payload: unknown): ParseFixturesResult {
     if (!homeName) missing.push("home team name");
     if (!awayId) missing.push("away team ID");
     if (!awayName) missing.push("away team name");
-    if (!identity.kickoffTimestamp || !Number.isFinite(kickoffMs)) missing.push("kickoff timestamp");
+    if (!kickoffTimestamp) missing.push("kickoff timestamp");
 
     if (missing.length > 0) {
       errors.push(sanitizedError("invalid_fixture", `Fixture is missing or has invalid ${missing.join(", ")}.`, {
@@ -366,6 +418,7 @@ export function parseKickoffApiFixtures(payload: unknown): ParseFixturesResult {
     const validHomeName = homeName as string;
     const validAwayId = awayId as string;
     const validAwayName = awayName as string;
+    const validKickoffTimestamp = kickoffTimestamp as string;
 
     fixtures.push({
       providerFixtureId: validFixtureId,
@@ -373,7 +426,7 @@ export function parseKickoffApiFixtures(payload: unknown): ParseFixturesResult {
       homeTeamName: validHomeName,
       awayProviderTeamId: validAwayId,
       awayTeamName: validAwayName,
-      kickoffTimestamp: new Date(kickoffMs).toISOString(),
+      kickoffTimestamp: validKickoffTimestamp,
     });
   }
 
@@ -390,7 +443,7 @@ export function normalizeKickoffTeamName(name: string): string {
 
 function canonicalAliases(match: Match, side: "home" | "away"): Set<string> {
   const key = side === "home" ? match.homeKey : match.awayKey;
-  const names = [countryName(key, "en"), ...(TEAM_ALIASES_BY_KEY[key] ?? [])];
+  const names = kickoffProviderAliasesForTeamKey(key);
   return new Set(names.map(normalizeKickoffTeamName));
 }
 
@@ -426,6 +479,7 @@ export function mapKickoffFixturesToCanonicalMatches({
   const errors: KickoffApiValidationError[] = [];
   const mappings: KickoffFixtureMapping[] = [];
   const usedProviderIds = new Set<string>();
+  const providerIdAssignments = new Map<string, string>();
   const duplicateProviderIds = duplicateValues(providerFixtures.map((fixture) => fixture.providerFixtureId));
   const duplicateCanonicalIds = duplicateValues(canonicalMatches.map(matchSlug));
 
@@ -467,8 +521,9 @@ export function mapKickoffFixturesToCanonicalMatches({
         continue;
       }
       if (usedProviderIds.has(fixture.providerFixtureId)) {
-        errors.push(sanitizedError("duplicate_mapping_provider_fixture", "Provider fixture is mapped to more than one canonical match.", {
+        errors.push(sanitizedError("duplicate_provider_fixture_assignment", "Provider fixture is mapped to more than one canonical match.", {
           canonicalMatchId,
+          canonicalMatchIds: [providerIdAssignments.get(fixture.providerFixtureId), canonicalMatchId].filter((value): value is string => Boolean(value)),
           providerFixtureId: fixture.providerFixtureId,
         }));
         continue;
@@ -480,6 +535,7 @@ export function mapKickoffFixturesToCanonicalMatches({
         source: "override",
       });
       usedProviderIds.add(fixture.providerFixtureId);
+      providerIdAssignments.set(fixture.providerFixtureId, canonicalMatchId);
       continue;
     }
 
@@ -510,8 +566,9 @@ export function mapKickoffFixturesToCanonicalMatches({
 
     const { fixture, diff } = candidates[0];
     if (usedProviderIds.has(fixture.providerFixtureId)) {
-      errors.push(sanitizedError("duplicate_mapping_provider_fixture", "Provider fixture is mapped to more than one canonical match.", {
+      errors.push(sanitizedError("duplicate_provider_fixture_assignment", "Provider fixture is mapped to more than one canonical match.", {
         canonicalMatchId,
+        canonicalMatchIds: [providerIdAssignments.get(fixture.providerFixtureId), canonicalMatchId].filter((value): value is string => Boolean(value)),
         providerFixtureId: fixture.providerFixtureId,
       }));
       continue;
@@ -524,6 +581,7 @@ export function mapKickoffFixturesToCanonicalMatches({
       source: "automatic",
     });
     usedProviderIds.add(fixture.providerFixtureId);
+    providerIdAssignments.set(fixture.providerFixtureId, canonicalMatchId);
   }
 
   const automaticallyMappedCount = mappings.filter((mapping) => mapping.source === "automatic").length;
