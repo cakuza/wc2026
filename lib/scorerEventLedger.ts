@@ -139,6 +139,7 @@ export function mergeProviderAttempt(
   if (attempt.retractions) {
     for (const ret of attempt.retractions) {
       const stableId = createStableId(ret.provider, ret.providerFixtureId, ret.providerEventId);
+      let foundActive = false;
       for (let i = 0; i < nextLedger.length; i++) {
         if (nextLedger[i].stableEventId === stableId && nextLedger[i].lifecycleState === "active") {
           nextLedger[i] = {
@@ -146,7 +147,12 @@ export function mergeProviderAttempt(
             lifecycleState: "retracted",
             stateReason: ret.reason
           };
+          foundActive = true;
         }
+      }
+      if (!foundActive) {
+        rejectedCount++;
+        reasons.push(`unknown_retraction_target: ${stableId} (match: ${context.canonicalMatchId})`);
       }
     }
   }
@@ -233,7 +239,11 @@ export function mergeProviderAttempt(
           existingActive.extraMinute === newObs.extraMinute &&
           existingActive.isPenalty === newObs.isPenalty &&
           existingActive.isOwnGoal === newObs.isOwnGoal &&
-          existingActive.providerPlayerId === newObs.providerPlayerId;
+          existingActive.providerPlayerId === newObs.providerPlayerId &&
+          existingActive.assistPlayerId === newObs.assistPlayerId &&
+          existingActive.assistName === newObs.assistName &&
+          existingActive.provenance === attempt.provenance &&
+          existingActive.fetchedAt === attempt.fetchedAt;
 
         if (isExact) {
           continue; // Idempotent
@@ -247,34 +257,56 @@ export function mergeProviderAttempt(
           addedCount++;
         } else {
           // Non-authoritative enrichment/replay
-          if (existingActive.minute !== newObs.minute ||
-              existingActive.isPenalty !== newObs.isPenalty ||
-              existingActive.isOwnGoal !== newObs.isOwnGoal ||
-              existingActive.creditedCanonicalSide !== newObs.creditedCanonicalSide ||
-              existingActive.playerCanonicalTeamId !== newObs.playerCanonicalTeamId ||
-              (existingActive.providerPlayerId && !newObs.providerPlayerId)) {
+          if (
+            existingActive.minute !== newObs.minute ||
+            existingActive.isPenalty !== newObs.isPenalty ||
+            existingActive.isOwnGoal !== newObs.isOwnGoal ||
+            existingActive.creditedCanonicalSide !== newObs.creditedCanonicalSide ||
+            existingActive.playerCanonicalTeamId !== newObs.playerCanonicalTeamId
+          ) {
             rejectedCount++;
-            reasons.push("Non-authoritative revision cannot change core fields or erase data.");
+            reasons.push("non_authoritative_revision_rejected");
             continue;
           }
+
+          // Check explicit destructive conflicts
+          if (
+            (existingActive.providerPlayerId !== undefined && newObs.providerPlayerId !== undefined && newObs.providerPlayerId !== null && newObs.providerPlayerId !== "" && existingActive.providerPlayerId !== newObs.providerPlayerId) ||
+            (existingActive.assistPlayerId !== undefined && newObs.assistPlayerId !== undefined && newObs.assistPlayerId !== null && newObs.assistPlayerId !== "" && existingActive.assistPlayerId !== newObs.assistPlayerId) ||
+            (existingActive.extraMinute !== undefined && newObs.extraMinute !== undefined && newObs.extraMinute !== null && existingActive.extraMinute !== newObs.extraMinute)
+          ) {
+            rejectedCount++;
+            reasons.push("non_authoritative_revision_rejected");
+            continue;
+          }
+
           let enriched = false;
-          if (!existingActive.providerPlayerId && newObs.providerPlayerId) enriched = true;
-          if (existingActive.extraMinute === undefined && newObs.extraMinute !== undefined) enriched = true;
-          if (!existingActive.assistPlayerId && newObs.assistPlayerId) enriched = true;
-          if (newObs.playerName && newObs.playerName.length > existingActive.playerName.length) enriched = true;
+          const enrichedObs = { ...existingActive, lifecycleState: "active" as EventLifecycleState, stateReason: undefined };
+
+          if (existingActive.providerPlayerId === undefined && newObs.providerPlayerId !== undefined && newObs.providerPlayerId !== null && newObs.providerPlayerId !== "") {
+            enriched = true;
+            enrichedObs.providerPlayerId = newObs.providerPlayerId;
+          }
+          if (existingActive.extraMinute === undefined && newObs.extraMinute !== undefined && newObs.extraMinute !== null) {
+            enriched = true;
+            enrichedObs.extraMinute = newObs.extraMinute;
+          }
+          if (existingActive.assistPlayerId === undefined && newObs.assistPlayerId !== undefined && newObs.assistPlayerId !== null && newObs.assistPlayerId !== "") {
+            enriched = true;
+            enrichedObs.assistPlayerId = newObs.assistPlayerId;
+          }
+          if (existingActive.assistName === undefined && newObs.assistName !== undefined && newObs.assistName !== null && newObs.assistName !== "") {
+            enriched = true;
+            enrichedObs.assistName = newObs.assistName;
+          }
+          if (newObs.playerName !== undefined && newObs.playerName !== null && newObs.playerName !== "" && newObs.playerName.length > existingActive.playerName.length) {
+            enriched = true;
+            enrichedObs.playerName = newObs.playerName;
+          }
 
           if (enriched) {
             existingActive.lifecycleState = "superseded";
             existingActive.stateReason = "superseded by enrichment";
-            const enrichedObs = { ...existingActive, lifecycleState: "active" as EventLifecycleState, stateReason: undefined };
-            if (newObs.providerPlayerId) enrichedObs.providerPlayerId = newObs.providerPlayerId;
-            if (newObs.extraMinute !== undefined) enrichedObs.extraMinute = newObs.extraMinute;
-            if (newObs.assistPlayerId) {
-              enrichedObs.assistPlayerId = newObs.assistPlayerId;
-              enrichedObs.assistName = newObs.assistName;
-            }
-            if (newObs.playerName.length > existingActive.playerName.length) enrichedObs.playerName = newObs.playerName;
-            
             nextLedger.push(enrichedObs);
             addedCount++;
           }
