@@ -13,6 +13,9 @@
     "test:tournament": "tsx scripts/test-live-snapshot-consistency.ts && tsx scripts/test-cross-route-consistency.ts",
     "test:kickoffapi:parser": "tsx scripts/test-kickoffapi-parser.ts",
     "test:kickoffapi:mapping": "tsx scripts/test-kickoffapi-fixture-mapping.ts",
+    "test:kickoffapi:client": "tsx scripts/test-kickoffapi-client.ts",
+    "test:kickoffapi:adapter": "tsx scripts/test-kickoffapi-adapter.ts",
+    "test:kickoffapi:cache": "tsx scripts/test-kickoffapi-cache.ts",
     "test:readiness-validator": "tsx scripts/test-readiness-validator.ts",
     "test:runtime:cold-cache": "tsx scripts/test-cold-cache-runtime.ts",
     "check:readiness": "tsx scripts/check-secondary-provider-readiness.ts"
