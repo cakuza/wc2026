@@ -34,11 +34,18 @@ export type ExplicitRetraction = {
   providerFixtureId: string;
   providerEventId: string;
   reason: string;
+  provenance: string;
+  retractedTimestamp: string;
+  authority: string;
 };
 
 export type ExplicitEquivalence = {
   canonicalGoalId: string;
   stableEventIds: string[];
+};
+
+export type ExplicitDistinctAdmission = {
+  stableEventId: string;
 };
 
 export type ProviderScorerEventInput = {
@@ -54,6 +61,9 @@ export type ProviderScorerEventInput = {
   extraMinute?: number;
   isPenalty: boolean;
   isOwnGoal: boolean;
+  creditedCanonicalSide?: "home" | "away";
+  authority?: "enrichment" | "authoritative_revision";
+  authorityReason?: string;
 };
 
 export type MergeProviderAttempt = {
@@ -61,6 +71,7 @@ export type MergeProviderAttempt = {
   events: ProviderScorerEventInput[];
   retractions?: ExplicitRetraction[];
   equivalences?: ExplicitEquivalence[];
+  distinctAdmissions?: ExplicitDistinctAdmission[];
   fetchedAt: string;
   provenance: string;
   providerHomeTeamId: string;
@@ -163,26 +174,6 @@ export function mergeProviderAttempt(
     }
   } else if (attempt.state === "complete_snapshot" || attempt.state === "partial_snapshot" || attempt.state === "delta") {
     
-    // We only process missing events for complete snapshots
-    const incomingStableIds = new Set(attempt.events.map(e => createStableId(e.provider, e.providerFixtureId, e.providerEventId)));
-    
-    if (attempt.state === "complete_snapshot") {
-      // Retract active events from this provider not in the payload
-      for (let i = 0; i < nextLedger.length; i++) {
-        const obs = nextLedger[i];
-        if (obs.canonicalMatchId === context.canonicalMatchId && 
-            obs.provider === attempt.events[0]?.provider && 
-            obs.lifecycleState === "active" && 
-            !incomingStableIds.has(obs.stableEventId)) {
-          nextLedger[i] = {
-            ...obs,
-            lifecycleState: "retracted",
-            stateReason: "omitted from complete snapshot"
-          };
-        }
-      }
-    }
-
     for (const input of attempt.events) {
       const stableEventId = createStableId(input.provider, input.providerFixtureId, input.providerEventId);
       
@@ -199,9 +190,16 @@ export function mergeProviderAttempt(
         continue;
       }
 
-      let creditedCanonicalSide: "home" | "away" = playerCanonicalTeamId === context.canonicalHomeTeamId ? "home" : "away";
+      let creditedCanonicalSide: "home" | "away";
       if (input.isOwnGoal) {
-        creditedCanonicalSide = creditedCanonicalSide === "home" ? "away" : "home";
+        if (!input.creditedCanonicalSide) {
+          rejectedCount++;
+          reasons.push("own_goal_credited_side_required");
+          continue;
+        }
+        creditedCanonicalSide = input.creditedCanonicalSide;
+      } else {
+        creditedCanonicalSide = playerCanonicalTeamId === context.canonicalHomeTeamId ? "home" : "away";
       }
 
       const existingActive = nextLedger.find(e => e.stableEventId === stableEventId && e.lifecycleState === "active");
@@ -242,17 +240,45 @@ export function mergeProviderAttempt(
         }
 
         // Revision
-        if (attempt.state === "partial_snapshot") {
-          // Non-authoritative partial payload may enrich but not destructively overwrite richer data
-          if (!newObs.providerPlayerId && existingActive.providerPlayerId) newObs.providerPlayerId = existingActive.providerPlayerId;
-          if (newObs.extraMinute === undefined && existingActive.extraMinute !== undefined) newObs.extraMinute = existingActive.extraMinute;
+        if (input.authority === "authoritative_revision") {
+          existingActive.lifecycleState = "superseded";
+          existingActive.stateReason = input.authorityReason || "superseded by authoritative revision";
+          nextLedger.push(newObs);
+          addedCount++;
+        } else {
+          // Non-authoritative enrichment/replay
+          if (existingActive.minute !== newObs.minute ||
+              existingActive.isPenalty !== newObs.isPenalty ||
+              existingActive.isOwnGoal !== newObs.isOwnGoal ||
+              existingActive.creditedCanonicalSide !== newObs.creditedCanonicalSide ||
+              existingActive.playerCanonicalTeamId !== newObs.playerCanonicalTeamId ||
+              (existingActive.providerPlayerId && !newObs.providerPlayerId)) {
+            rejectedCount++;
+            reasons.push("Non-authoritative revision cannot change core fields or erase data.");
+            continue;
+          }
+          let enriched = false;
+          if (!existingActive.providerPlayerId && newObs.providerPlayerId) enriched = true;
+          if (existingActive.extraMinute === undefined && newObs.extraMinute !== undefined) enriched = true;
+          if (!existingActive.assistPlayerId && newObs.assistPlayerId) enriched = true;
+          if (newObs.playerName && newObs.playerName.length > existingActive.playerName.length) enriched = true;
+
+          if (enriched) {
+            existingActive.lifecycleState = "superseded";
+            existingActive.stateReason = "superseded by enrichment";
+            const enrichedObs = { ...existingActive, lifecycleState: "active" as EventLifecycleState, stateReason: undefined };
+            if (newObs.providerPlayerId) enrichedObs.providerPlayerId = newObs.providerPlayerId;
+            if (newObs.extraMinute !== undefined) enrichedObs.extraMinute = newObs.extraMinute;
+            if (newObs.assistPlayerId) {
+              enrichedObs.assistPlayerId = newObs.assistPlayerId;
+              enrichedObs.assistName = newObs.assistName;
+            }
+            if (newObs.playerName.length > existingActive.playerName.length) enrichedObs.playerName = newObs.playerName;
+            
+            nextLedger.push(enrichedObs);
+            addedCount++;
+          }
         }
-        
-        // Supersede old
-        existingActive.lifecycleState = "superseded";
-        existingActive.stateReason = "superseded by revision";
-        nextLedger.push(newObs);
-        addedCount++;
       } else {
         // New observation
         nextLedger.push(newObs);
@@ -267,18 +293,28 @@ export function mergeProviderAttempt(
     for (let j = i + 1; j < activeObs.length; j++) {
       const a = activeObs[i];
       const b = activeObs[j];
-      if (a.provider !== b.provider && !a.canonicalGoalId && !b.canonicalGoalId) {
-        if (a.creditedCanonicalSide === b.creditedCanonicalSide &&
-            a.isOwnGoal === b.isOwnGoal &&
-            Math.abs(a.minute - b.minute) <= 2 &&
-            normalizePlayerName(a.playerName) === normalizePlayerName(b.playerName)) {
-          
-          // Heuristic match -> second one becomes disputed
-          const bIdx = nextLedger.findIndex(e => e === b);
-          if (bIdx > -1) {
-            nextLedger[bIdx] = { ...b, lifecycleState: "disputed", stateReason: "heuristic cross-provider duplicate" };
-            cross_provider_equivalence_required = true;
+      if (a.provider !== b.provider) {
+        const aDistinct = attempt.distinctAdmissions?.some(d => d.stableEventId === a.stableEventId) || a.stateReason === "explicit distinct admission";
+        const bDistinct = attempt.distinctAdmissions?.some(d => d.stableEventId === b.stableEventId) || b.stateReason === "explicit distinct admission";
+        
+        if (a.canonicalGoalId !== b.canonicalGoalId || (!a.canonicalGoalId && !b.canonicalGoalId)) {
+          if (!aDistinct && !bDistinct) {
+            const bIdx = nextLedger.findIndex(e => e === b && e.lifecycleState === "active");
+            if (bIdx > -1) {
+              nextLedger[bIdx] = { ...b, lifecycleState: "disputed", stateReason: "cross_provider_resolution_required" };
+              cross_provider_equivalence_required = true;
+            }
           }
+        }
+      }
+    }
+  }
+
+  if (attempt.distinctAdmissions) {
+    for (const d of attempt.distinctAdmissions) {
+      for (let i = 0; i < nextLedger.length; i++) {
+        if (nextLedger[i].stableEventId === d.stableEventId && nextLedger[i].lifecycleState === "active") {
+           nextLedger[i] = { ...nextLedger[i], stateReason: "explicit distinct admission" };
         }
       }
     }
@@ -427,7 +463,7 @@ export function aggregateGoldenBoot(
       identityStr = `id:${ev.provider}:${ev.playerCanonicalTeamId}:${ev.providerPlayerId}`;
     } else {
       const normName = normalizePlayerName(ev.playerName);
-      identityStr = `name:${ev.playerCanonicalTeamId}:${normName}`;
+      identityStr = `name:${ev.provider}:${ev.playerCanonicalTeamId}:${normName}`;
     }
 
     let record = playerMap.get(identityStr);
