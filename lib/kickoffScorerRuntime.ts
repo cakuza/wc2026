@@ -11,9 +11,10 @@ import { countryName } from "./i18n";
 
 // The kill switch logic
 function isKickoffScorerEnabled(): boolean {
-  if (process.env.KICKOFF_SCORER_ENABLED === "false") return false;
-  if (!process.env.KICKOFF_API_KEY) return false;
-  return true;
+  const enabled =
+    process.env.KICKOFF_SCORER_ENABLED === "true" &&
+    Boolean(process.env.KICKOFF_API_KEY);
+  return enabled;
 }
 
 export async function enrichSnapshotScorers(
@@ -183,16 +184,16 @@ export async function enrichSnapshotScorers(
       const awayDisplay = countryName(match.match.awayKey, "en");
 
       const mappedScorers: GoalScorerEvent[] = kickoffEvents.map(kg => ({
-        type: kg.isOwnGoal ? "OWN_GOAL" : kg.isPenalty ? "PENALTY_GOAL" : "GOAL",
+        type: kg.isPenalty ? "PENALTY_GOAL" : "GOAL",
         minute: kg.minute,
         stoppageTime: kg.extraMinute,
         minuteLabel: kg.extraMinute ? `${kg.minute}+${kg.extraMinute}'` : `${kg.minute}'`,
         teamName: kg.creditedCanonicalSide === "home" ? homeDisplay : awayDisplay,
-        playerTeamName: kg.isOwnGoal ? (kg.creditedCanonicalSide === "home" ? awayDisplay : homeDisplay) : undefined,
+        playerTeamName: undefined, // Do not infer attribution by flipping
         playerName: kg.playerName,
         isOwnGoal: kg.isOwnGoal,
         isPenalty: kg.isPenalty,
-        provider: "kickoffapi",
+        provider: "kickoffapi" as any,
         confidence: "high"
       }));
 

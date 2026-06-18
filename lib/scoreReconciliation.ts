@@ -1,5 +1,23 @@
 import type { SnapshotMatchStatus } from "./liveSnapshot";
-import { normalizeTeamName } from "./liveSnapshot";
+
+const TEAM_NAME_ALIASES: Record<string, string> = {
+  czechrepublic: "czechia",
+  bosniaandherzegovina: "bosniaherzegovina",
+  cotedivoire: "ivorycoast",
+  capeverdeislands: "capeverde",
+  democraticrepublicofthecongo: "drcongo",
+  congodr: "drcongo",
+  korearepublic: "southkorea",
+};
+
+export function normalizeTeamName(name: string): string {
+  const norm = name
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]/g, "");
+  return TEAM_NAME_ALIASES[norm] ?? norm;
+}
 
 export interface MinuteOrdered {
   minute?: number | null;

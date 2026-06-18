@@ -17,11 +17,9 @@ import {
   fetchWorldCup26Games,
   type GoalScorerEvent,
   type WorldCup26Game,
-  toLiveGoalEvent,
 } from "./worldcup26Provider";
 import { applyVerifiedGoalCorrections } from "./verifiedMatchEventCorrections";
 import { countryName } from "./i18n";
-import { normalizeTeamName } from "./teams";
 
 export const LIVE_SNAPSHOT_CACHE_KEY = "worldcup-tournament-live-snapshot-v7";
 export const LIVE_SNAPSHOT_REVALIDATE_SECONDS = 25;
@@ -76,7 +74,26 @@ type SnapshotCacheOptions = {
   build: () => Promise<TournamentLiveSnapshot>;
 };
 
-  let lastKnownGoodSnapshot: TournamentLiveSnapshot | null = null;
+const TEAM_NAME_ALIASES: Record<string, string> = {
+  czechrepublic: "czechia",
+  bosniaandherzegovina: "bosniaherzegovina",
+  cotedivoire: "ivorycoast",
+  capeverdeislands: "capeverde",
+  democraticrepublicofthecongo: "drcongo",
+  congodr: "drcongo",
+  korearepublic: "southkorea",
+};
+
+let lastKnownGoodSnapshot: TournamentLiveSnapshot | null = null;
+
+export function normalizeTeamName(name: string): string {
+  const norm = name
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]/g, "");
+  return TEAM_NAME_ALIASES[norm] ?? norm;
+}
 
 function toSnapshotStatus(live: LiveMatchData | undefined): SnapshotMatchStatus {
   if (!live) return "SCHEDULED";
@@ -110,6 +127,19 @@ export function canonicalStatus({
     return footballStatus;
   }
   return "SCHEDULED";
+}
+
+export function toLiveGoalEvent(event: GoalScorerEvent): LiveMatchEvent {
+  return {
+    type: event.isOwnGoal ? "OWN_GOAL" : event.isPenalty || event.type === "PENALTY_GOAL" ? "PENALTY_GOAL" : "GOAL",
+    minute: event.minute,
+    stoppageTime: event.stoppageTime,
+    minuteLabel: event.minuteLabel,
+    teamName: event.teamName,
+    playerTeamName: event.playerTeamName,
+    playerName: event.playerName,
+    isOwnGoal: event.isOwnGoal,
+  };
 }
 
 function liveGoalCompoundKey(event: LiveMatchEvent): string {
@@ -383,8 +413,10 @@ export async function buildTournamentLiveSnapshot({
   const thirdPlaceRanking = computeThirdPlaceRanking(standingsByGroup);
 
   // Trigger new KickoffAPI enrichment (handles budget and kill switches internally)
-  const { enrichSnapshotScorers } = await import("./kickoffScorerRuntime");
-  await enrichSnapshotScorers(matches, primaryProviderOk, generatedAt);
+  if (process.env.KICKOFF_SCORER_ENABLED === "true" && Boolean(process.env.KICKOFF_API_KEY)) {
+    const { enrichSnapshotScorers } = await import("./kickoffScorerRuntime");
+    await enrichSnapshotScorers(matches, primaryProviderOk, generatedAt);
+  }
 
   const tournamentStats = computeTournamentStats(canonicalLiveData, matches);
   const teamLeaderboards = computeTeamLeaderboards(standingsByGroup);

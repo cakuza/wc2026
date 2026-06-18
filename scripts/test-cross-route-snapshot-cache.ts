@@ -30,6 +30,10 @@ function emptySnapshot(snapshotId: string): TournamentLiveSnapshot {
       biggestWin: null,
       cleanSheets: 0,
       lastSyncedAt: null,
+      unresolvedCompletedMatchGoals: 0,
+      completedMatchesWithUnresolvedScorers: 0,
+      conflictedCompletedMatches: 0,
+      scorerTotalsComplete: true,
     },
     teamLeaderboards: {
       topScoringTeams: [],

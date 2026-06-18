@@ -11,6 +11,7 @@
     "test:cache": "tsx scripts/test-cache-architecture.ts",
     "test:ui": "tsx --tsconfig tsconfig.test.json scripts/test-third-place-ui.tsx",
     "test:tournament": "tsx scripts/test-live-snapshot-consistency.ts && tsx scripts/test-cross-route-consistency.ts",
+    "test:integration": "tsx scripts/test-kickoffapi-runtime-integration.ts && tsx scripts/test-kickoffapi-stats-integration.ts",
     "test:kickoffapi:parser": "tsx scripts/test-kickoffapi-parser.ts",
     "test:kickoffapi:mapping": "tsx scripts/test-kickoffapi-fixture-mapping.ts",
     "test:kickoffapi:client": "tsx scripts/test-kickoffapi-client.ts",
