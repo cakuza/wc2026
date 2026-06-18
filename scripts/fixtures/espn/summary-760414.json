@@ -1,0 +1,673 @@
+{
+  "keyEvents": [
+    {
+      "id": "49484621",
+      "type": {
+        "id": "80",
+        "text": "Kickoff",
+        "type": "kickoff"
+      },
+      "scoringPlay": false,
+      "shootout": false,
+      "clock": {
+        "displayValue": ""
+      },
+      "participants": []
+    },
+    {
+      "id": "49484925",
+      "type": {
+        "id": "129",
+        "text": "Start Delay",
+        "type": "start-delay"
+      },
+      "scoringPlay": false,
+      "shootout": false,
+      "clock": {
+        "displayValue": "23'"
+      },
+      "team": {
+        "id": "451",
+        "displayName": "South Korea"
+      },
+      "participants": []
+    },
+    {
+      "id": "49484926",
+      "type": {
+        "id": "129",
+        "text": "Start Delay",
+        "type": "start-delay"
+      },
+      "scoringPlay": false,
+      "shootout": false,
+      "clock": {
+        "displayValue": "23'"
+      },
+      "team": {
+        "id": "450",
+        "displayName": "Czechia"
+      },
+      "participants": []
+    },
+    {
+      "id": "49484927",
+      "type": {
+        "id": "130",
+        "text": "End Delay",
+        "type": "end-delay"
+      },
+      "scoringPlay": false,
+      "shootout": false,
+      "clock": {
+        "displayValue": "25'"
+      },
+      "team": {
+        "id": "451",
+        "displayName": "South Korea"
+      },
+      "participants": []
+    },
+    {
+      "id": "49484928",
+      "type": {
+        "id": "130",
+        "text": "End Delay",
+        "type": "end-delay"
+      },
+      "scoringPlay": false,
+      "shootout": false,
+      "clock": {
+        "displayValue": "25'"
+      },
+      "team": {
+        "id": "450",
+        "displayName": "Czechia"
+      },
+      "participants": []
+    },
+    {
+      "id": "49484936",
+      "type": {
+        "id": "129",
+        "text": "Start Delay",
+        "type": "start-delay"
+      },
+      "scoringPlay": false,
+      "shootout": false,
+      "clock": {
+        "displayValue": "26'"
+      },
+      "team": {
+        "id": "451",
+        "displayName": "South Korea"
+      },
+      "participants": []
+    },
+    {
+      "id": "49484937",
+      "type": {
+        "id": "129",
+        "text": "Start Delay",
+        "type": "start-delay"
+      },
+      "scoringPlay": false,
+      "shootout": false,
+      "clock": {
+        "displayValue": "26'"
+      },
+      "team": {
+        "id": "450",
+        "displayName": "Czechia"
+      },
+      "participants": []
+    },
+    {
+      "id": "49484939",
+      "type": {
+        "id": "130",
+        "text": "End Delay",
+        "type": "end-delay"
+      },
+      "scoringPlay": false,
+      "shootout": false,
+      "clock": {
+        "displayValue": "27'"
+      },
+      "team": {
+        "id": "451",
+        "displayName": "South Korea"
+      },
+      "participants": []
+    },
+    {
+      "id": "49484938",
+      "type": {
+        "id": "130",
+        "text": "End Delay",
+        "type": "end-delay"
+      },
+      "scoringPlay": false,
+      "shootout": false,
+      "clock": {
+        "displayValue": "27'"
+      },
+      "team": {
+        "id": "450",
+        "displayName": "Czechia"
+      },
+      "participants": []
+    },
+    {
+      "id": "49485324",
+      "type": {
+        "id": "81",
+        "text": "Halftime",
+        "type": "halftime"
+      },
+      "scoringPlay": false,
+      "shootout": false,
+      "clock": {
+        "displayValue": "45'+4'"
+      },
+      "participants": []
+    },
+    {
+      "id": "49485334",
+      "type": {
+        "id": "82",
+        "text": "Start 2nd Half",
+        "type": "start-2nd-half"
+      },
+      "scoringPlay": false,
+      "shootout": false,
+      "clock": {
+        "displayValue": "45'"
+      },
+      "participants": []
+    },
+    {
+      "id": "49485589",
+      "type": {
+        "id": "137",
+        "text": "Goal - Header",
+        "type": "goal---header"
+      },
+      "scoringPlay": true,
+      "shootout": false,
+      "clock": {
+        "displayValue": "59'"
+      },
+      "team": {
+        "id": "450",
+        "displayName": "Czechia"
+      },
+      "participants": [
+        {
+          "athlete": {
+            "id": "151714",
+            "displayName": "Ladislav Krejcí"
+          }
+        },
+        {
+          "athlete": {
+            "id": "191209",
+            "displayName": "Vladimír Coufal"
+          }
+        }
+      ]
+    },
+    {
+      "id": "49485639",
+      "type": {
+        "id": "76",
+        "text": "Substitution",
+        "type": "substitution"
+      },
+      "scoringPlay": false,
+      "shootout": false,
+      "clock": {
+        "displayValue": "62'"
+      },
+      "team": {
+        "id": "451",
+        "displayName": "South Korea"
+      },
+      "participants": [
+        {
+          "athlete": {
+            "id": "237224",
+            "displayName": "Hwang Hee-Chan"
+          }
+        },
+        {
+          "athlete": {
+            "id": "134103",
+            "displayName": "Lee Jae-Sung"
+          }
+        }
+      ]
+    },
+    {
+      "id": "49485647",
+      "type": {
+        "id": "76",
+        "text": "Substitution",
+        "type": "substitution"
+      },
+      "scoringPlay": false,
+      "shootout": false,
+      "clock": {
+        "displayValue": "64'"
+      },
+      "team": {
+        "id": "450",
+        "displayName": "Czechia"
+      },
+      "participants": [
+        {
+          "athlete": {
+            "id": "292169",
+            "displayName": "Adam Hlozek"
+          }
+        },
+        {
+          "athlete": {
+            "id": "305545",
+            "displayName": "Pavel Sulc"
+          }
+        }
+      ]
+    },
+    {
+      "id": "49485649",
+      "type": {
+        "id": "76",
+        "text": "Substitution",
+        "type": "substitution"
+      },
+      "scoringPlay": false,
+      "shootout": false,
+      "clock": {
+        "displayValue": "64'"
+      },
+      "team": {
+        "id": "450",
+        "displayName": "Czechia"
+      },
+      "participants": [
+        {
+          "athlete": {
+            "id": "257336",
+            "displayName": "Tomás Chorý"
+          }
+        },
+        {
+          "athlete": {
+            "id": "212330",
+            "displayName": "Patrik Schick"
+          }
+        }
+      ]
+    },
+    {
+      "id": "49485651",
+      "type": {
+        "id": "76",
+        "text": "Substitution",
+        "type": "substitution"
+      },
+      "scoringPlay": false,
+      "shootout": false,
+      "clock": {
+        "displayValue": "64'"
+      },
+      "team": {
+        "id": "450",
+        "displayName": "Czechia"
+      },
+      "participants": [
+        {
+          "athlete": {
+            "id": "249525",
+            "displayName": "Michal Sadílek"
+          }
+        },
+        {
+          "athlete": {
+            "id": "294618",
+            "displayName": "Lukás Provod"
+          }
+        }
+      ]
+    },
+    {
+      "id": "49485726",
+      "type": {
+        "id": "70",
+        "text": "Goal",
+        "type": "goal"
+      },
+      "scoringPlay": true,
+      "shootout": false,
+      "clock": {
+        "displayValue": "67'"
+      },
+      "team": {
+        "id": "451",
+        "displayName": "South Korea"
+      },
+      "participants": [
+        {
+          "athlete": {
+            "id": "280061",
+            "displayName": "Hwang In-Beom"
+          }
+        },
+        {
+          "athlete": {
+            "id": "274197",
+            "displayName": "Lee Kang-In"
+          }
+        }
+      ]
+    },
+    {
+      "id": "49485728",
+      "type": {
+        "id": "76",
+        "text": "Substitution",
+        "type": "substitution"
+      },
+      "scoringPlay": false,
+      "shootout": false,
+      "clock": {
+        "displayValue": "69'"
+      },
+      "team": {
+        "id": "451",
+        "displayName": "South Korea"
+      },
+      "participants": [
+        {
+          "athlete": {
+            "id": "297791",
+            "displayName": "Eom Ji-Sung"
+          }
+        },
+        {
+          "athlete": {
+            "id": "297270",
+            "displayName": "Lee Tae-Seok"
+          }
+        }
+      ]
+    },
+    {
+      "id": "49485729",
+      "type": {
+        "id": "76",
+        "text": "Substitution",
+        "type": "substitution"
+      },
+      "scoringPlay": false,
+      "shootout": false,
+      "clock": {
+        "displayValue": "69'"
+      },
+      "team": {
+        "id": "451",
+        "displayName": "South Korea"
+      },
+      "participants": [
+        {
+          "athlete": {
+            "id": "302434",
+            "displayName": "Oh Hyeon-Gyu"
+          }
+        },
+        {
+          "athlete": {
+            "id": "149945",
+            "displayName": "Son Heung-Min"
+          }
+        }
+      ]
+    },
+    {
+      "id": "49485736",
+      "type": {
+        "id": "129",
+        "text": "Start Delay",
+        "type": "start-delay"
+      },
+      "scoringPlay": false,
+      "shootout": false,
+      "clock": {
+        "displayValue": "70'"
+      },
+      "team": {
+        "id": "451",
+        "displayName": "South Korea"
+      },
+      "participants": []
+    },
+    {
+      "id": "49485737",
+      "type": {
+        "id": "129",
+        "text": "Start Delay",
+        "type": "start-delay"
+      },
+      "scoringPlay": false,
+      "shootout": false,
+      "clock": {
+        "displayValue": "70'"
+      },
+      "team": {
+        "id": "450",
+        "displayName": "Czechia"
+      },
+      "participants": []
+    },
+    {
+      "id": "49485738",
+      "type": {
+        "id": "130",
+        "text": "End Delay",
+        "type": "end-delay"
+      },
+      "scoringPlay": false,
+      "shootout": false,
+      "clock": {
+        "displayValue": "72'"
+      },
+      "team": {
+        "id": "451",
+        "displayName": "South Korea"
+      },
+      "participants": []
+    },
+    {
+      "id": "49485739",
+      "type": {
+        "id": "130",
+        "text": "End Delay",
+        "type": "end-delay"
+      },
+      "scoringPlay": false,
+      "shootout": false,
+      "clock": {
+        "displayValue": "72'"
+      },
+      "team": {
+        "id": "450",
+        "displayName": "Czechia"
+      },
+      "participants": []
+    },
+    {
+      "id": "49485808",
+      "type": {
+        "id": "70",
+        "text": "Goal",
+        "type": "goal"
+      },
+      "scoringPlay": true,
+      "shootout": false,
+      "clock": {
+        "displayValue": "80'"
+      },
+      "team": {
+        "id": "451",
+        "displayName": "South Korea"
+      },
+      "participants": [
+        {
+          "athlete": {
+            "id": "302434",
+            "displayName": "Oh Hyeon-Gyu"
+          }
+        },
+        {
+          "athlete": {
+            "id": "280061",
+            "displayName": "Hwang In-Beom"
+          }
+        }
+      ]
+    },
+    {
+      "id": "49485836",
+      "type": {
+        "id": "76",
+        "text": "Substitution",
+        "type": "substitution"
+      },
+      "scoringPlay": false,
+      "shootout": false,
+      "clock": {
+        "displayValue": "84'"
+      },
+      "team": {
+        "id": "451",
+        "displayName": "South Korea"
+      },
+      "participants": [
+        {
+          "athlete": {
+            "id": "90721",
+            "displayName": "Kim Jin-Gyu"
+          }
+        },
+        {
+          "athlete": {
+            "id": "280061",
+            "displayName": "Hwang In-Beom"
+          }
+        }
+      ]
+    },
+    {
+      "id": "49485837",
+      "type": {
+        "id": "76",
+        "text": "Substitution",
+        "type": "substitution"
+      },
+      "scoringPlay": false,
+      "shootout": false,
+      "clock": {
+        "displayValue": "84'"
+      },
+      "team": {
+        "id": "451",
+        "displayName": "South Korea"
+      },
+      "participants": [
+        {
+          "athlete": {
+            "id": "336178",
+            "displayName": "Park Jin-Seop"
+          }
+        },
+        {
+          "athlete": {
+            "id": "256598",
+            "displayName": "Paik Seung-Ho"
+          }
+        }
+      ]
+    },
+    {
+      "id": "49485841",
+      "type": {
+        "id": "76",
+        "text": "Substitution",
+        "type": "substitution"
+      },
+      "scoringPlay": false,
+      "shootout": false,
+      "clock": {
+        "displayValue": "84'"
+      },
+      "team": {
+        "id": "450",
+        "displayName": "Czechia"
+      },
+      "participants": [
+        {
+          "athlete": {
+            "id": "343733",
+            "displayName": "Mojmír Chytil"
+          }
+        },
+        {
+          "athlete": {
+            "id": "387865",
+            "displayName": "Alexandr Sojka"
+          }
+        }
+      ]
+    },
+    {
+      "id": "49486017",
+      "type": {
+        "id": "94",
+        "text": "Yellow Card",
+        "type": "yellow-card"
+      },
+      "scoringPlay": false,
+      "shootout": false,
+      "clock": {
+        "displayValue": "90'+6'"
+      },
+      "team": {
+        "id": "451",
+        "displayName": "South Korea"
+      },
+      "participants": [
+        {
+          "athlete": {
+            "id": "345769",
+            "displayName": "Lee Gi-Hyuk"
+          }
+        }
+      ]
+    },
+    {
+      "id": "49486027",
+      "type": {
+        "id": "83",
+        "text": "End Regular Time",
+        "type": "end-regular-time"
+      },
+      "scoringPlay": false,
+      "shootout": false,
+      "clock": {
+        "displayValue": "90'+7'"
+      },
+      "participants": []
+    }
+  ]
+}

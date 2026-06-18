@@ -1,0 +1,688 @@
+{
+  "keyEvents": [
+    {
+      "id": "49506808",
+      "type": {
+        "id": "80",
+        "text": "Kickoff",
+        "type": "kickoff"
+      },
+      "scoringPlay": false,
+      "shootout": false,
+      "clock": {
+        "displayValue": ""
+      },
+      "participants": []
+    },
+    {
+      "id": "49506991",
+      "type": {
+        "id": "70",
+        "text": "Goal",
+        "type": "goal"
+      },
+      "scoringPlay": true,
+      "shootout": false,
+      "clock": {
+        "displayValue": "6'"
+      },
+      "team": {
+        "id": "481",
+        "displayName": "Germany"
+      },
+      "participants": [
+        {
+          "athlete": {
+            "id": "281122",
+            "displayName": "Felix Nmecha"
+          }
+        },
+        {
+          "athlete": {
+            "id": "303748",
+            "displayName": "Florian Wirtz"
+          }
+        }
+      ]
+    },
+    {
+      "id": "49507416",
+      "type": {
+        "id": "70",
+        "text": "Goal",
+        "type": "goal"
+      },
+      "scoringPlay": true,
+      "shootout": false,
+      "clock": {
+        "displayValue": "21'"
+      },
+      "team": {
+        "id": "11678",
+        "displayName": "Curaçao"
+      },
+      "participants": [
+        {
+          "athlete": {
+            "id": "317285",
+            "displayName": "Livano Comenencia"
+          }
+        }
+      ]
+    },
+    {
+      "id": "49507426",
+      "type": {
+        "id": "129",
+        "text": "Start Delay",
+        "type": "start-delay"
+      },
+      "scoringPlay": false,
+      "shootout": false,
+      "clock": {
+        "displayValue": "23'"
+      },
+      "team": {
+        "id": "481",
+        "displayName": "Germany"
+      },
+      "participants": []
+    },
+    {
+      "id": "49507427",
+      "type": {
+        "id": "129",
+        "text": "Start Delay",
+        "type": "start-delay"
+      },
+      "scoringPlay": false,
+      "shootout": false,
+      "clock": {
+        "displayValue": "23'"
+      },
+      "team": {
+        "id": "11678",
+        "displayName": "Curaçao"
+      },
+      "participants": []
+    },
+    {
+      "id": "49507432",
+      "type": {
+        "id": "130",
+        "text": "End Delay",
+        "type": "end-delay"
+      },
+      "scoringPlay": false,
+      "shootout": false,
+      "clock": {
+        "displayValue": "25'"
+      },
+      "team": {
+        "id": "481",
+        "displayName": "Germany"
+      },
+      "participants": []
+    },
+    {
+      "id": "49507431",
+      "type": {
+        "id": "130",
+        "text": "End Delay",
+        "type": "end-delay"
+      },
+      "scoringPlay": false,
+      "shootout": false,
+      "clock": {
+        "displayValue": "25'"
+      },
+      "team": {
+        "id": "11678",
+        "displayName": "Curaçao"
+      },
+      "participants": []
+    },
+    {
+      "id": "49507667",
+      "type": {
+        "id": "137",
+        "text": "Goal - Header",
+        "type": "goal---header"
+      },
+      "scoringPlay": true,
+      "shootout": false,
+      "clock": {
+        "displayValue": "38'"
+      },
+      "team": {
+        "id": "481",
+        "displayName": "Germany"
+      },
+      "participants": [
+        {
+          "athlete": {
+            "id": "286828",
+            "displayName": "Nico Schlotterbeck"
+          }
+        },
+        {
+          "athlete": {
+            "id": "120829",
+            "displayName": "Nathaniel Brown"
+          }
+        }
+      ]
+    },
+    {
+      "id": "49507949",
+      "type": {
+        "id": "98",
+        "text": "Penalty - Scored",
+        "type": "penalty---scored"
+      },
+      "scoringPlay": true,
+      "shootout": false,
+      "clock": {
+        "displayValue": "45'+5'"
+      },
+      "team": {
+        "id": "481",
+        "displayName": "Germany"
+      },
+      "participants": [
+        {
+          "athlete": {
+            "id": "231182",
+            "displayName": "Kai Havertz"
+          }
+        }
+      ]
+    },
+    {
+      "id": "49507970",
+      "type": {
+        "id": "81",
+        "text": "Halftime",
+        "type": "halftime"
+      },
+      "scoringPlay": false,
+      "shootout": false,
+      "clock": {
+        "displayValue": "45'+6'"
+      },
+      "participants": []
+    },
+    {
+      "id": "49508193",
+      "type": {
+        "id": "76",
+        "text": "Substitution",
+        "type": "substitution"
+      },
+      "scoringPlay": false,
+      "shootout": false,
+      "clock": {
+        "displayValue": "45'"
+      },
+      "team": {
+        "id": "11678",
+        "displayName": "Curaçao"
+      },
+      "participants": [
+        {
+          "athlete": {
+            "id": "310925",
+            "displayName": "Jeremy Antonisse"
+          }
+        },
+        {
+          "athlete": {
+            "id": "297299",
+            "displayName": "Sontje Hansen"
+          }
+        }
+      ]
+    },
+    {
+      "id": "49508206",
+      "type": {
+        "id": "82",
+        "text": "Start 2nd Half",
+        "type": "start-2nd-half"
+      },
+      "scoringPlay": false,
+      "shootout": false,
+      "clock": {
+        "displayValue": "45'"
+      },
+      "participants": []
+    },
+    {
+      "id": "49508258",
+      "type": {
+        "id": "70",
+        "text": "Goal",
+        "type": "goal"
+      },
+      "scoringPlay": true,
+      "shootout": false,
+      "clock": {
+        "displayValue": "47'"
+      },
+      "team": {
+        "id": "481",
+        "displayName": "Germany"
+      },
+      "participants": [
+        {
+          "athlete": {
+            "id": "303821",
+            "displayName": "Jamal Musiala"
+          }
+        },
+        {
+          "athlete": {
+            "id": "190161",
+            "displayName": "Joshua Kimmich"
+          }
+        }
+      ]
+    },
+    {
+      "id": "49508782",
+      "type": {
+        "id": "76",
+        "text": "Substitution",
+        "type": "substitution"
+      },
+      "scoringPlay": false,
+      "shootout": false,
+      "clock": {
+        "displayValue": "64'"
+      },
+      "team": {
+        "id": "481",
+        "displayName": "Germany"
+      },
+      "participants": [
+        {
+          "athlete": {
+            "id": "273300",
+            "displayName": "Deniz Undav"
+          }
+        },
+        {
+          "athlete": {
+            "id": "303821",
+            "displayName": "Jamal Musiala"
+          }
+        }
+      ]
+    },
+    {
+      "id": "49508785",
+      "type": {
+        "id": "76",
+        "text": "Substitution",
+        "type": "substitution"
+      },
+      "scoringPlay": false,
+      "shootout": false,
+      "clock": {
+        "displayValue": "65'"
+      },
+      "team": {
+        "id": "11678",
+        "displayName": "Curaçao"
+      },
+      "participants": [
+        {
+          "athlete": {
+            "id": "301441",
+            "displayName": "Jearl Margaritha"
+          }
+        },
+        {
+          "athlete": {
+            "id": "167213",
+            "displayName": "Jürgen Locadia"
+          }
+        }
+      ]
+    },
+    {
+      "id": "49508863",
+      "type": {
+        "id": "173",
+        "text": "Goal - Volley",
+        "type": "goal---volley"
+      },
+      "scoringPlay": true,
+      "shootout": false,
+      "clock": {
+        "displayValue": "68'"
+      },
+      "team": {
+        "id": "481",
+        "displayName": "Germany"
+      },
+      "participants": [
+        {
+          "athlete": {
+            "id": "120829",
+            "displayName": "Nathaniel Brown"
+          }
+        },
+        {
+          "athlete": {
+            "id": "273300",
+            "displayName": "Deniz Undav"
+          }
+        }
+      ]
+    },
+    {
+      "id": "49508865",
+      "type": {
+        "id": "129",
+        "text": "Start Delay",
+        "type": "start-delay"
+      },
+      "scoringPlay": false,
+      "shootout": false,
+      "clock": {
+        "displayValue": "69'"
+      },
+      "team": {
+        "id": "481",
+        "displayName": "Germany"
+      },
+      "participants": []
+    },
+    {
+      "id": "49508866",
+      "type": {
+        "id": "129",
+        "text": "Start Delay",
+        "type": "start-delay"
+      },
+      "scoringPlay": false,
+      "shootout": false,
+      "clock": {
+        "displayValue": "69'"
+      },
+      "team": {
+        "id": "11678",
+        "displayName": "Curaçao"
+      },
+      "participants": []
+    },
+    {
+      "id": "49508867",
+      "type": {
+        "id": "130",
+        "text": "End Delay",
+        "type": "end-delay"
+      },
+      "scoringPlay": false,
+      "shootout": false,
+      "clock": {
+        "displayValue": "72'"
+      },
+      "team": {
+        "id": "481",
+        "displayName": "Germany"
+      },
+      "participants": []
+    },
+    {
+      "id": "49508868",
+      "type": {
+        "id": "130",
+        "text": "End Delay",
+        "type": "end-delay"
+      },
+      "scoringPlay": false,
+      "shootout": false,
+      "clock": {
+        "displayValue": "72'"
+      },
+      "team": {
+        "id": "11678",
+        "displayName": "Curaçao"
+      },
+      "participants": []
+    },
+    {
+      "id": "49508870",
+      "type": {
+        "id": "76",
+        "text": "Substitution",
+        "type": "substitution"
+      },
+      "scoringPlay": false,
+      "shootout": false,
+      "clock": {
+        "displayValue": "73'"
+      },
+      "team": {
+        "id": "481",
+        "displayName": "Germany"
+      },
+      "participants": [
+        {
+          "athlete": {
+            "id": "169438",
+            "displayName": "Antonio Rüdiger"
+          }
+        },
+        {
+          "athlete": {
+            "id": "188052",
+            "displayName": "Jonathan Tah"
+          }
+        }
+      ]
+    },
+    {
+      "id": "49508869",
+      "type": {
+        "id": "76",
+        "text": "Substitution",
+        "type": "substitution"
+      },
+      "scoringPlay": false,
+      "shootout": false,
+      "clock": {
+        "displayValue": "73'"
+      },
+      "team": {
+        "id": "481",
+        "displayName": "Germany"
+      },
+      "participants": [
+        {
+          "athlete": {
+            "id": "174550",
+            "displayName": "Leon Goretzka"
+          }
+        },
+        {
+          "athlete": {
+            "id": "281122",
+            "displayName": "Felix Nmecha"
+          }
+        }
+      ]
+    },
+    {
+      "id": "49508876",
+      "type": {
+        "id": "76",
+        "text": "Substitution",
+        "type": "substitution"
+      },
+      "scoringPlay": false,
+      "shootout": false,
+      "clock": {
+        "displayValue": "73'"
+      },
+      "team": {
+        "id": "481",
+        "displayName": "Germany"
+      },
+      "participants": [
+        {
+          "athlete": {
+            "id": "249548",
+            "displayName": "David Raum"
+          }
+        },
+        {
+          "athlete": {
+            "id": "120829",
+            "displayName": "Nathaniel Brown"
+          }
+        }
+      ]
+    },
+    {
+      "id": "49508963",
+      "type": {
+        "id": "70",
+        "text": "Goal",
+        "type": "goal"
+      },
+      "scoringPlay": true,
+      "shootout": false,
+      "clock": {
+        "displayValue": "78'"
+      },
+      "team": {
+        "id": "481",
+        "displayName": "Germany"
+      },
+      "participants": [
+        {
+          "athlete": {
+            "id": "273300",
+            "displayName": "Deniz Undav"
+          }
+        },
+        {
+          "athlete": {
+            "id": "190161",
+            "displayName": "Joshua Kimmich"
+          }
+        }
+      ]
+    },
+    {
+      "id": "49509035",
+      "type": {
+        "id": "76",
+        "text": "Substitution",
+        "type": "substitution"
+      },
+      "scoringPlay": false,
+      "shootout": false,
+      "clock": {
+        "displayValue": "83'"
+      },
+      "team": {
+        "id": "11678",
+        "displayName": "Curaçao"
+      },
+      "participants": [
+        {
+          "athlete": {
+            "id": "178273",
+            "displayName": "Gervane Kastaneer"
+          }
+        },
+        {
+          "athlete": {
+            "id": "276218",
+            "displayName": "Tahith Chong"
+          }
+        }
+      ]
+    },
+    {
+      "id": "49509037",
+      "type": {
+        "id": "76",
+        "text": "Substitution",
+        "type": "substitution"
+      },
+      "scoringPlay": false,
+      "shootout": false,
+      "clock": {
+        "displayValue": "83'"
+      },
+      "team": {
+        "id": "481",
+        "displayName": "Germany"
+      },
+      "participants": [
+        {
+          "athlete": {
+            "id": "220714",
+            "displayName": "Waldemar Anton"
+          }
+        },
+        {
+          "athlete": {
+            "id": "190161",
+            "displayName": "Joshua Kimmich"
+          }
+        }
+      ]
+    },
+    {
+      "id": "49509123",
+      "type": {
+        "id": "70",
+        "text": "Goal",
+        "type": "goal"
+      },
+      "scoringPlay": true,
+      "shootout": false,
+      "clock": {
+        "displayValue": "88'"
+      },
+      "team": {
+        "id": "481",
+        "displayName": "Germany"
+      },
+      "participants": [
+        {
+          "athlete": {
+            "id": "231182",
+            "displayName": "Kai Havertz"
+          }
+        },
+        {
+          "athlete": {
+            "id": "273300",
+            "displayName": "Deniz Undav"
+          }
+        }
+      ]
+    },
+    {
+      "id": "49509261",
+      "type": {
+        "id": "83",
+        "text": "End Regular Time",
+        "type": "end-regular-time"
+      },
+      "scoringPlay": false,
+      "shootout": false,
+      "clock": {
+        "displayValue": "90'+6'"
+      },
+      "participants": []
+    }
+  ]
+}
