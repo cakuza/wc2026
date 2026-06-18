@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { getScoreFreshnessLabel } from "@/lib/freshness";
 
 /**
- * "Scores synced 34 seconds ago" — driven by the *primary* (score/status)
+ * "Last checked 34 seconds ago" — driven by the *primary* (score/status)
  * provider's last successful fetch, not the snapshot's generatedAt (which
  * advances even while serving last-known-good data during a primary
  * provider outage). Ticks client-side so the age stays accurate without a
