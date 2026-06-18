@@ -1,0 +1,70 @@
+# TEMPORARY DIAGNOSTIC WORKFLOW — REVERT AFTER RECORDING RESULT
+# Tests whether GitHub Actions (ubuntu-latest) can reach api.kickoffapi.com
+# with the project's KICKOFF_API_KEY secret.
+# Triggered manually only. Never prints key, headers, or raw payload.
+
+name: KickoffAPI Connectivity Probe (temp)
+
+on:
+  workflow_dispatch:
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Probe KickoffAPI fixtures endpoint
+        env:
+          KICKOFF_API_KEY: ${{ secrets.KICKOFF_API_KEY }}
+        run: |
+          START_MS=$(date +%s%3N)
+
+          RESPONSE=$(curl -s -w "\nHTTP_STATUS:%{http_code}\nTIME_MS:%{time_total}" \
+            -H "x-api-key: $KICKOFF_API_KEY" \
+            "https://api.kickoffapi.com/api/v1/fixtures?league=1&season=2026" \
+            --max-time 15 \
+            -o /tmp/kickoff_body.txt \
+            2>/dev/null)
+
+          HTTP_CODE=$(echo "$RESPONSE" | grep "HTTP_STATUS:" | cut -d: -f2 | tr -d '[:space:]')
+          TIME_MS=$(echo "$RESPONSE" | grep "TIME_MS:" | cut -d: -f2 | tr -d '[:space:]')
+
+          echo "=== KickoffAPI Probe Result ==="
+          echo "HTTP status: $HTTP_CODE"
+          echo "Response time: ${TIME_MS}s"
+
+          if [ "$HTTP_CODE" = "200" ]; then
+            # Count fixtures without printing any fixture data or the key
+            FIXTURE_COUNT=$(python3 -c "
+          import json, sys
+          try:
+              body = open('/tmp/kickoff_body.txt').read()
+              data = json.loads(body)
+              items = data if isinstance(data, list) else data.get('response', data.get('data', []))
+              print(len(items))
+          except Exception as e:
+              print('parse_error')
+          " 2>/dev/null)
+            echo "Fixture count: $FIXTURE_COUNT"
+            echo "Category: success"
+          elif [ "$HTTP_CODE" = "401" ]; then
+            echo "Category: unauthorized (key rejected)"
+          elif [ "$HTTP_CODE" = "403" ]; then
+            echo "Category: forbidden (IP block)"
+          elif [ "$HTTP_CODE" = "429" ]; then
+            echo "Category: rate_limited"
+          elif [ -z "$HTTP_CODE" ] || [ "$HTTP_CODE" = "000" ]; then
+            echo "Category: network_error (no response)"
+          else
+            echo "Category: http_error_$HTTP_CODE"
+          fi
+
+          # Clean up — never persist response body
+          rm -f /tmp/kickoff_body.txt
+
+          # Fail the job only on network error (connectivity metric)
+          if [ -z "$HTTP_CODE" ] || [ "$HTTP_CODE" = "000" ]; then
+            exit 1
+          fi
+          exit 0
