@@ -18,8 +18,11 @@ class EspnCacheError extends Error {
 
 // Bounds the number of upstream ESPN requests a single snapshot build may make,
 // independent of how many candidates exist. The scoreboard costs one request; each
-// candidate summary costs one more.
-const MAX_UPSTREAM_REQUESTS_PER_OPERATION = 6;
+// candidate summary costs one more. Sized to clear a full matchday's worth of
+// not-yet-cached finished matches in a single build (summaries are then cached for
+// up to 24h, so this ceiling is only approached on a cold cache, never in steady
+// state).
+const MAX_UPSTREAM_REQUESTS_PER_OPERATION = 12;
 
 export class EspnEventCacheManager {
   private upstreamRequestsConsumed = 0;

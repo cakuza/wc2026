@@ -99,7 +99,7 @@ export async function enrichSnapshotScorers(
   if (!dateRange) return;
 
   const client = new EspnClient();
-  const manager = new EspnEventCacheManager(client, 6);
+  const manager = new EspnEventCacheManager(client);
 
   const scoreboardRes = await manager.getCachedScoreboard(dateRange, SCOREBOARD_TTL_SECONDS);
   if (scoreboardRes.category !== "success" || !scoreboardRes.data) {
