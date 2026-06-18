@@ -29,24 +29,19 @@ import type { GoalScorerEvent } from "./worldcup26Provider";
 // from the per-match summary cache.
 const SCOREBOARD_TTL_SECONDS = 3600;
 
-// Public, sanitized provider label for enriched scorers. The internal secondary
-// provider name is never surfaced in public output; enriched scorers ride under the
-// canonical authority that owns the match.
-const PUBLIC_SCORER_PROVIDER: GoalScorerEvent["provider"] = "football-data.org";
+// Accurate provider label for enriched scorers. ESPN is the real source; it is
+// never rewritten to football-data.org or any other authority.
+const PUBLIC_SCORER_PROVIDER: GoalScorerEvent["provider"] = "espn";
 
 /**
  * Whether scorer enrichment is active.
  *
- * ESPN requires no secret, so an explicit SCORER_ENRICHMENT_ENABLED always wins
- * ("true" forces on, "false" is the kill switch). With no explicit value it defaults
- * on inside the live Next.js server runtime and off everywhere else — standalone test
- * scripts and the production build stay hermetic and never make provider requests.
+ * Fail-closed: enrichment runs ONLY when SCORER_ENRICHMENT_ENABLED is the exact
+ * string "true". Any other value — absent, "false", "1", or anything else — is
+ * treated as disabled. No inference from NEXT_RUNTIME, Vercel env, or build phase.
  */
 export function isScorerEnrichmentEnabled(): boolean {
-  const flag = process.env.SCORER_ENRICHMENT_ENABLED;
-  if (flag === "false") return false;
-  if (flag === "true") return true;
-  return process.env.NEXT_RUNTIME === "nodejs" && process.env.NEXT_PHASE !== "phase-production-build";
+  return process.env.SCORER_ENRICHMENT_ENABLED === "true";
 }
 
 function tournamentDateRange(): string {
