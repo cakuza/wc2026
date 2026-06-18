@@ -1,0 +1,196 @@
+{
+  "events": [
+    {
+      "id": "760415",
+      "date": "2026-06-11T19:00Z",
+      "status": {
+        "type": {
+          "state": "post",
+          "name": "STATUS_FULL_TIME"
+        }
+      },
+      "competitions": [
+        {
+          "competitors": [
+            {
+              "homeAway": "home",
+              "score": "2",
+              "team": {
+                "id": "203",
+                "displayName": "Mexico"
+              }
+            },
+            {
+              "homeAway": "away",
+              "score": "0",
+              "team": {
+                "id": "467",
+                "displayName": "South Africa"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "760414",
+      "date": "2026-06-12T02:00Z",
+      "status": {
+        "type": {
+          "state": "post",
+          "name": "STATUS_FULL_TIME"
+        }
+      },
+      "competitions": [
+        {
+          "competitors": [
+            {
+              "homeAway": "home",
+              "score": "2",
+              "team": {
+                "id": "451",
+                "displayName": "South Korea"
+              }
+            },
+            {
+              "homeAway": "away",
+              "score": "1",
+              "team": {
+                "id": "450",
+                "displayName": "Czechia"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "760420",
+      "date": "2026-06-13T19:00Z",
+      "status": {
+        "type": {
+          "state": "post",
+          "name": "STATUS_FULL_TIME"
+        }
+      },
+      "competitions": [
+        {
+          "competitors": [
+            {
+              "homeAway": "home",
+              "score": "1",
+              "team": {
+                "id": "4398",
+                "displayName": "Qatar"
+              }
+            },
+            {
+              "homeAway": "away",
+              "score": "1",
+              "team": {
+                "id": "475",
+                "displayName": "Switzerland"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "760422",
+      "date": "2026-06-14T17:00Z",
+      "status": {
+        "type": {
+          "state": "post",
+          "name": "STATUS_FULL_TIME"
+        }
+      },
+      "competitions": [
+        {
+          "competitors": [
+            {
+              "homeAway": "home",
+              "score": "7",
+              "team": {
+                "id": "481",
+                "displayName": "Germany"
+              }
+            },
+            {
+              "homeAway": "away",
+              "score": "1",
+              "team": {
+                "id": "11678",
+                "displayName": "Curaçao"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "760427",
+      "date": "2026-06-16T01:00Z",
+      "status": {
+        "type": {
+          "state": "post",
+          "name": "STATUS_FULL_TIME"
+        }
+      },
+      "competitions": [
+        {
+          "competitors": [
+            {
+              "homeAway": "home",
+              "score": "2",
+              "team": {
+                "id": "469",
+                "displayName": "Iran"
+              }
+            },
+            {
+              "homeAway": "away",
+              "score": "2",
+              "team": {
+                "id": "2666",
+                "displayName": "New Zealand"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "760441",
+      "date": "2026-06-19T01:00Z",
+      "status": {
+        "type": {
+          "state": "pre",
+          "name": "STATUS_SCHEDULED"
+        }
+      },
+      "competitions": [
+        {
+          "competitors": [
+            {
+              "homeAway": "home",
+              "score": "0",
+              "team": {
+                "id": "203",
+                "displayName": "Mexico"
+              }
+            },
+            {
+              "homeAway": "away",
+              "score": "0",
+              "team": {
+                "id": "451",
+                "displayName": "South Korea"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,914 @@
+{
+  "keyEvents": [
+    {
+      "id": "49527980",
+      "type": {
+        "id": "80",
+        "text": "Kickoff",
+        "type": "kickoff"
+      },
+      "scoringPlay": false,
+      "shootout": false,
+      "clock": {
+        "displayValue": ""
+      },
+      "participants": []
+    },
+    {
+      "id": "49528195",
+      "type": {
+        "id": "70",
+        "text": "Goal",
+        "type": "goal"
+      },
+      "scoringPlay": true,
+      "shootout": false,
+      "clock": {
+        "displayValue": "7'"
+      },
+      "team": {
+        "id": "2666",
+        "displayName": "New Zealand"
+      },
+      "participants": [
+        {
+          "athlete": {
+            "id": "266555",
+            "displayName": "Elijah Just"
+          }
+        },
+        {
+          "athlete": {
+            "id": "134190",
+            "displayName": "Chris Wood"
+          }
+        }
+      ]
+    },
+    {
+      "id": "49528683",
+      "type": {
+        "id": "129",
+        "text": "Start Delay",
+        "type": "start-delay"
+      },
+      "scoringPlay": false,
+      "shootout": false,
+      "clock": {
+        "displayValue": "17'"
+      },
+      "team": {
+        "id": "469",
+        "displayName": "Iran"
+      },
+      "participants": []
+    },
+    {
+      "id": "49528682",
+      "type": {
+        "id": "129",
+        "text": "Start Delay",
+        "type": "start-delay"
+      },
+      "scoringPlay": false,
+      "shootout": false,
+      "clock": {
+        "displayValue": "17'"
+      },
+      "team": {
+        "id": "2666",
+        "displayName": "New Zealand"
+      },
+      "participants": []
+    },
+    {
+      "id": "49528737",
+      "type": {
+        "id": "130",
+        "text": "End Delay",
+        "type": "end-delay"
+      },
+      "scoringPlay": false,
+      "shootout": false,
+      "clock": {
+        "displayValue": "18'"
+      },
+      "team": {
+        "id": "469",
+        "displayName": "Iran"
+      },
+      "participants": []
+    },
+    {
+      "id": "49528736",
+      "type": {
+        "id": "130",
+        "text": "End Delay",
+        "type": "end-delay"
+      },
+      "scoringPlay": false,
+      "shootout": false,
+      "clock": {
+        "displayValue": "18'"
+      },
+      "team": {
+        "id": "2666",
+        "displayName": "New Zealand"
+      },
+      "participants": []
+    },
+    {
+      "id": "49528988",
+      "type": {
+        "id": "129",
+        "text": "Start Delay",
+        "type": "start-delay"
+      },
+      "scoringPlay": false,
+      "shootout": false,
+      "clock": {
+        "displayValue": "25'"
+      },
+      "team": {
+        "id": "2666",
+        "displayName": "New Zealand"
+      },
+      "participants": []
+    },
+    {
+      "id": "49528989",
+      "type": {
+        "id": "129",
+        "text": "Start Delay",
+        "type": "start-delay"
+      },
+      "scoringPlay": false,
+      "shootout": false,
+      "clock": {
+        "displayValue": "25'"
+      },
+      "team": {
+        "id": "469",
+        "displayName": "Iran"
+      },
+      "participants": []
+    },
+    {
+      "id": "49529060",
+      "type": {
+        "id": "130",
+        "text": "End Delay",
+        "type": "end-delay"
+      },
+      "scoringPlay": false,
+      "shootout": false,
+      "clock": {
+        "displayValue": "28'"
+      },
+      "team": {
+        "id": "2666",
+        "displayName": "New Zealand"
+      },
+      "participants": []
+    },
+    {
+      "id": "49529059",
+      "type": {
+        "id": "130",
+        "text": "End Delay",
+        "type": "end-delay"
+      },
+      "scoringPlay": false,
+      "shootout": false,
+      "clock": {
+        "displayValue": "28'"
+      },
+      "team": {
+        "id": "469",
+        "displayName": "Iran"
+      },
+      "participants": []
+    },
+    {
+      "id": "49529312",
+      "type": {
+        "id": "70",
+        "text": "Goal",
+        "type": "goal"
+      },
+      "scoringPlay": true,
+      "shootout": false,
+      "clock": {
+        "displayValue": "32'"
+      },
+      "team": {
+        "id": "469",
+        "displayName": "Iran"
+      },
+      "participants": [
+        {
+          "athlete": {
+            "id": "218086",
+            "displayName": "Ramin Rezaeian"
+          }
+        }
+      ]
+    },
+    {
+      "id": "49529371",
+      "type": {
+        "id": "129",
+        "text": "Start Delay",
+        "type": "start-delay"
+      },
+      "scoringPlay": false,
+      "shootout": false,
+      "clock": {
+        "displayValue": "35'"
+      },
+      "team": {
+        "id": "469",
+        "displayName": "Iran"
+      },
+      "participants": []
+    },
+    {
+      "id": "49529372",
+      "type": {
+        "id": "129",
+        "text": "Start Delay",
+        "type": "start-delay"
+      },
+      "scoringPlay": false,
+      "shootout": false,
+      "clock": {
+        "displayValue": "35'"
+      },
+      "team": {
+        "id": "2666",
+        "displayName": "New Zealand"
+      },
+      "participants": []
+    },
+    {
+      "id": "49529373",
+      "type": {
+        "id": "130",
+        "text": "End Delay",
+        "type": "end-delay"
+      },
+      "scoringPlay": false,
+      "shootout": false,
+      "clock": {
+        "displayValue": "35'"
+      },
+      "team": {
+        "id": "469",
+        "displayName": "Iran"
+      },
+      "participants": []
+    },
+    {
+      "id": "49529374",
+      "type": {
+        "id": "130",
+        "text": "End Delay",
+        "type": "end-delay"
+      },
+      "scoringPlay": false,
+      "shootout": false,
+      "clock": {
+        "displayValue": "35'"
+      },
+      "team": {
+        "id": "2666",
+        "displayName": "New Zealand"
+      },
+      "participants": []
+    },
+    {
+      "id": "49529603",
+      "type": {
+        "id": "129",
+        "text": "Start Delay",
+        "type": "start-delay"
+      },
+      "scoringPlay": false,
+      "shootout": false,
+      "clock": {
+        "displayValue": "39'"
+      },
+      "team": {
+        "id": "469",
+        "displayName": "Iran"
+      },
+      "participants": []
+    },
+    {
+      "id": "49529601",
+      "type": {
+        "id": "129",
+        "text": "Start Delay",
+        "type": "start-delay"
+      },
+      "scoringPlay": false,
+      "shootout": false,
+      "clock": {
+        "displayValue": "39'"
+      },
+      "team": {
+        "id": "2666",
+        "displayName": "New Zealand"
+      },
+      "participants": []
+    },
+    {
+      "id": "49529651",
+      "type": {
+        "id": "130",
+        "text": "End Delay",
+        "type": "end-delay"
+      },
+      "scoringPlay": false,
+      "shootout": false,
+      "clock": {
+        "displayValue": "41'"
+      },
+      "team": {
+        "id": "469",
+        "displayName": "Iran"
+      },
+      "participants": []
+    },
+    {
+      "id": "49529652",
+      "type": {
+        "id": "130",
+        "text": "End Delay",
+        "type": "end-delay"
+      },
+      "scoringPlay": false,
+      "shootout": false,
+      "clock": {
+        "displayValue": "41'"
+      },
+      "team": {
+        "id": "2666",
+        "displayName": "New Zealand"
+      },
+      "participants": []
+    },
+    {
+      "id": "49530101",
+      "type": {
+        "id": "81",
+        "text": "Halftime",
+        "type": "halftime"
+      },
+      "scoringPlay": false,
+      "shootout": false,
+      "clock": {
+        "displayValue": "45'+7'"
+      },
+      "participants": []
+    },
+    {
+      "id": "49530194",
+      "type": {
+        "id": "76",
+        "text": "Substitution",
+        "type": "substitution"
+      },
+      "scoringPlay": false,
+      "shootout": false,
+      "clock": {
+        "displayValue": "45'"
+      },
+      "team": {
+        "id": "469",
+        "displayName": "Iran"
+      },
+      "participants": [
+        {
+          "athlete": {
+            "id": "256581",
+            "displayName": "Mehdi Ghayedi"
+          }
+        },
+        {
+          "athlete": {
+            "id": "339178",
+            "displayName": "Arya Yousefi"
+          }
+        }
+      ]
+    },
+    {
+      "id": "49530215",
+      "type": {
+        "id": "82",
+        "text": "Start 2nd Half",
+        "type": "start-2nd-half"
+      },
+      "scoringPlay": false,
+      "shootout": false,
+      "clock": {
+        "displayValue": "45'"
+      },
+      "participants": []
+    },
+    {
+      "id": "49530328",
+      "type": {
+        "id": "76",
+        "text": "Substitution",
+        "type": "substitution"
+      },
+      "scoringPlay": false,
+      "shootout": false,
+      "clock": {
+        "displayValue": "53'"
+      },
+      "team": {
+        "id": "469",
+        "displayName": "Iran"
+      },
+      "participants": [
+        {
+          "athlete": {
+            "id": "219617",
+            "displayName": "Ali Alipour"
+          }
+        },
+        {
+          "athlete": {
+            "id": "308077",
+            "displayName": "Shahriyar Moghanloo"
+          }
+        }
+      ]
+    },
+    {
+      "id": "49530353",
+      "type": {
+        "id": "70",
+        "text": "Goal",
+        "type": "goal"
+      },
+      "scoringPlay": true,
+      "shootout": false,
+      "clock": {
+        "displayValue": "54'"
+      },
+      "team": {
+        "id": "2666",
+        "displayName": "New Zealand"
+      },
+      "participants": [
+        {
+          "athlete": {
+            "id": "266555",
+            "displayName": "Elijah Just"
+          }
+        },
+        {
+          "athlete": {
+            "id": "134190",
+            "displayName": "Chris Wood"
+          }
+        }
+      ]
+    },
+    {
+      "id": "49530497",
+      "type": {
+        "id": "137",
+        "text": "Goal - Header",
+        "type": "goal---header"
+      },
+      "scoringPlay": true,
+      "shootout": false,
+      "clock": {
+        "displayValue": "64'"
+      },
+      "team": {
+        "id": "469",
+        "displayName": "Iran"
+      },
+      "participants": [
+        {
+          "athlete": {
+            "id": "296999",
+            "displayName": "Mohammad Mohebbi"
+          }
+        },
+        {
+          "athlete": {
+            "id": "218086",
+            "displayName": "Ramin Rezaeian"
+          }
+        }
+      ]
+    },
+    {
+      "id": "49530499",
+      "type": {
+        "id": "76",
+        "text": "Substitution",
+        "type": "substitution"
+      },
+      "scoringPlay": false,
+      "shootout": false,
+      "clock": {
+        "displayValue": "65'"
+      },
+      "team": {
+        "id": "469",
+        "displayName": "Iran"
+      },
+      "participants": [
+        {
+          "athlete": {
+            "id": "203453",
+            "displayName": "Ehsan Hajsafi"
+          }
+        },
+        {
+          "athlete": {
+            "id": "235519",
+            "displayName": "Saman Ghoddos"
+          }
+        }
+      ]
+    },
+    {
+      "id": "49530532",
+      "type": {
+        "id": "76",
+        "text": "Substitution",
+        "type": "substitution"
+      },
+      "scoringPlay": false,
+      "shootout": false,
+      "clock": {
+        "displayValue": "68'"
+      },
+      "team": {
+        "id": "2666",
+        "displayName": "New Zealand"
+      },
+      "participants": [
+        {
+          "athlete": {
+            "id": "156146",
+            "displayName": "Ryan Thomas"
+          }
+        },
+        {
+          "athlete": {
+            "id": "228279",
+            "displayName": "Callum McCowatt"
+          }
+        }
+      ]
+    },
+    {
+      "id": "49530534",
+      "type": {
+        "id": "76",
+        "text": "Substitution",
+        "type": "substitution"
+      },
+      "scoringPlay": false,
+      "shootout": false,
+      "clock": {
+        "displayValue": "68'"
+      },
+      "team": {
+        "id": "2666",
+        "displayName": "New Zealand"
+      },
+      "participants": [
+        {
+          "athlete": {
+            "id": "297802",
+            "displayName": "Ben Old"
+          }
+        },
+        {
+          "athlete": {
+            "id": "266554",
+            "displayName": "Liberato Cacace"
+          }
+        }
+      ]
+    },
+    {
+      "id": "49530536",
+      "type": {
+        "id": "129",
+        "text": "Start Delay",
+        "type": "start-delay"
+      },
+      "scoringPlay": false,
+      "shootout": false,
+      "clock": {
+        "displayValue": "68'"
+      },
+      "team": {
+        "id": "2666",
+        "displayName": "New Zealand"
+      },
+      "participants": []
+    },
+    {
+      "id": "49530535",
+      "type": {
+        "id": "129",
+        "text": "Start Delay",
+        "type": "start-delay"
+      },
+      "scoringPlay": false,
+      "shootout": false,
+      "clock": {
+        "displayValue": "68'"
+      },
+      "team": {
+        "id": "469",
+        "displayName": "Iran"
+      },
+      "participants": []
+    },
+    {
+      "id": "49530537",
+      "type": {
+        "id": "130",
+        "text": "End Delay",
+        "type": "end-delay"
+      },
+      "scoringPlay": false,
+      "shootout": false,
+      "clock": {
+        "displayValue": "70'"
+      },
+      "team": {
+        "id": "2666",
+        "displayName": "New Zealand"
+      },
+      "participants": []
+    },
+    {
+      "id": "49530538",
+      "type": {
+        "id": "130",
+        "text": "End Delay",
+        "type": "end-delay"
+      },
+      "scoringPlay": false,
+      "shootout": false,
+      "clock": {
+        "displayValue": "70'"
+      },
+      "team": {
+        "id": "469",
+        "displayName": "Iran"
+      },
+      "participants": []
+    },
+    {
+      "id": "49530632",
+      "type": {
+        "id": "76",
+        "text": "Substitution",
+        "type": "substitution"
+      },
+      "scoringPlay": false,
+      "shootout": false,
+      "clock": {
+        "displayValue": "78'"
+      },
+      "team": {
+        "id": "2666",
+        "displayName": "New Zealand"
+      },
+      "participants": [
+        {
+          "athlete": {
+            "id": "282239",
+            "displayName": "Callan Elliot"
+          }
+        },
+        {
+          "athlete": {
+            "id": "159470",
+            "displayName": "Tim Payne"
+          }
+        }
+      ]
+    },
+    {
+      "id": "49530643",
+      "type": {
+        "id": "129",
+        "text": "Start Delay",
+        "type": "start-delay"
+      },
+      "scoringPlay": false,
+      "shootout": false,
+      "clock": {
+        "displayValue": "78'"
+      },
+      "team": {
+        "id": "469",
+        "displayName": "Iran"
+      },
+      "participants": []
+    },
+    {
+      "id": "49530642",
+      "type": {
+        "id": "129",
+        "text": "Start Delay",
+        "type": "start-delay"
+      },
+      "scoringPlay": false,
+      "shootout": false,
+      "clock": {
+        "displayValue": "78'"
+      },
+      "team": {
+        "id": "2666",
+        "displayName": "New Zealand"
+      },
+      "participants": []
+    },
+    {
+      "id": "49530645",
+      "type": {
+        "id": "130",
+        "text": "End Delay",
+        "type": "end-delay"
+      },
+      "scoringPlay": false,
+      "shootout": false,
+      "clock": {
+        "displayValue": "79'"
+      },
+      "team": {
+        "id": "2666",
+        "displayName": "New Zealand"
+      },
+      "participants": []
+    },
+    {
+      "id": "49530644",
+      "type": {
+        "id": "130",
+        "text": "End Delay",
+        "type": "end-delay"
+      },
+      "scoringPlay": false,
+      "shootout": false,
+      "clock": {
+        "displayValue": "79'"
+      },
+      "team": {
+        "id": "469",
+        "displayName": "Iran"
+      },
+      "participants": []
+    },
+    {
+      "id": "49530658",
+      "type": {
+        "id": "76",
+        "text": "Substitution",
+        "type": "substitution"
+      },
+      "scoringPlay": false,
+      "shootout": false,
+      "clock": {
+        "displayValue": "80'"
+      },
+      "team": {
+        "id": "469",
+        "displayName": "Iran"
+      },
+      "participants": [
+        {
+          "athlete": {
+            "id": "266729",
+            "displayName": "Amirhossein Hosseinzadeh"
+          }
+        },
+        {
+          "athlete": {
+            "id": "219611",
+            "displayName": "Mehdi Taremi"
+          }
+        }
+      ]
+    },
+    {
+      "id": "49530808",
+      "type": {
+        "id": "94",
+        "text": "Yellow Card",
+        "type": "yellow-card"
+      },
+      "scoringPlay": false,
+      "shootout": false,
+      "clock": {
+        "displayValue": "89'"
+      },
+      "team": {
+        "id": "469",
+        "displayName": "Iran"
+      },
+      "participants": [
+        {
+          "athlete": {
+            "id": "203453",
+            "displayName": "Ehsan Hajsafi"
+          }
+        }
+      ]
+    },
+    {
+      "id": "49530833",
+      "type": {
+        "id": "76",
+        "text": "Substitution",
+        "type": "substitution"
+      },
+      "scoringPlay": false,
+      "shootout": false,
+      "clock": {
+        "displayValue": "90'+2'"
+      },
+      "team": {
+        "id": "2666",
+        "displayName": "New Zealand"
+      },
+      "participants": [
+        {
+          "athlete": {
+            "id": "297794",
+            "displayName": "Jesse Randall"
+          }
+        },
+        {
+          "athlete": {
+            "id": "228283",
+            "displayName": "Sarpreet Singh"
+          }
+        }
+      ]
+    },
+    {
+      "id": "49530834",
+      "type": {
+        "id": "76",
+        "text": "Substitution",
+        "type": "substitution"
+      },
+      "scoringPlay": false,
+      "shootout": false,
+      "clock": {
+        "displayValue": "90'+2'"
+      },
+      "team": {
+        "id": "2666",
+        "displayName": "New Zealand"
+      },
+      "participants": [
+        {
+          "athlete": {
+            "id": "367427",
+            "displayName": "Tyler Bindon"
+          }
+        },
+        {
+          "athlete": {
+            "id": "297798",
+            "displayName": "Marko Stamenic"
+          }
+        }
+      ]
+    },
+    {
+      "id": "49530898",
+      "type": {
+        "id": "83",
+        "text": "End Regular Time",
+        "type": "end-regular-time"
+      },
+      "scoringPlay": false,
+      "shootout": false,
+      "clock": {
+        "displayValue": "90'+6'"
+      },
+      "participants": []
+    }
+  ]
+}

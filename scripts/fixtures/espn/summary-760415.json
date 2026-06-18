@@ -1,0 +1,875 @@
+{
+  "keyEvents": [
+    {
+      "id": "49483569",
+      "type": {
+        "id": "80",
+        "text": "Kickoff",
+        "type": "kickoff"
+      },
+      "scoringPlay": false,
+      "shootout": false,
+      "clock": {
+        "displayValue": ""
+      },
+      "participants": []
+    },
+    {
+      "id": "49483413",
+      "type": {
+        "id": "70",
+        "text": "Goal",
+        "type": "goal"
+      },
+      "scoringPlay": true,
+      "shootout": false,
+      "clock": {
+        "displayValue": "9'"
+      },
+      "team": {
+        "id": "203",
+        "displayName": "Mexico"
+      },
+      "participants": [
+        {
+          "athlete": {
+            "id": "233075",
+            "displayName": "Julián Quiñones"
+          }
+        },
+        {
+          "athlete": {
+            "id": "276942",
+            "displayName": "Érik Lira"
+          }
+        }
+      ]
+    },
+    {
+      "id": "49483541",
+      "type": {
+        "id": "94",
+        "text": "Yellow Card",
+        "type": "yellow-card"
+      },
+      "scoringPlay": false,
+      "shootout": false,
+      "clock": {
+        "displayValue": "17'"
+      },
+      "team": {
+        "id": "467",
+        "displayName": "South Africa"
+      },
+      "participants": [
+        {
+          "athlete": {
+            "id": "256691",
+            "displayName": "Teboho Mokoena"
+          }
+        }
+      ]
+    },
+    {
+      "id": "49483587",
+      "type": {
+        "id": "94",
+        "text": "Yellow Card",
+        "type": "yellow-card"
+      },
+      "scoringPlay": false,
+      "shootout": false,
+      "clock": {
+        "displayValue": "23'"
+      },
+      "team": {
+        "id": "203",
+        "displayName": "Mexico"
+      },
+      "participants": [
+        {
+          "athlete": {
+            "id": "303577",
+            "displayName": "Brian Gutiérrez"
+          }
+        }
+      ]
+    },
+    {
+      "id": "49483601",
+      "type": {
+        "id": "129",
+        "text": "Start Delay",
+        "type": "start-delay"
+      },
+      "scoringPlay": false,
+      "shootout": false,
+      "clock": {
+        "displayValue": "25'"
+      },
+      "team": {
+        "id": "203",
+        "displayName": "Mexico"
+      },
+      "participants": []
+    },
+    {
+      "id": "49483602",
+      "type": {
+        "id": "129",
+        "text": "Start Delay",
+        "type": "start-delay"
+      },
+      "scoringPlay": false,
+      "shootout": false,
+      "clock": {
+        "displayValue": "25'"
+      },
+      "team": {
+        "id": "467",
+        "displayName": "South Africa"
+      },
+      "participants": []
+    },
+    {
+      "id": "49483603",
+      "type": {
+        "id": "130",
+        "text": "End Delay",
+        "type": "end-delay"
+      },
+      "scoringPlay": false,
+      "shootout": false,
+      "clock": {
+        "displayValue": "27'"
+      },
+      "team": {
+        "id": "203",
+        "displayName": "Mexico"
+      },
+      "participants": []
+    },
+    {
+      "id": "49483604",
+      "type": {
+        "id": "130",
+        "text": "End Delay",
+        "type": "end-delay"
+      },
+      "scoringPlay": false,
+      "shootout": false,
+      "clock": {
+        "displayValue": "27'"
+      },
+      "team": {
+        "id": "467",
+        "displayName": "South Africa"
+      },
+      "participants": []
+    },
+    {
+      "id": "49483962",
+      "type": {
+        "id": "81",
+        "text": "Halftime",
+        "type": "halftime"
+      },
+      "scoringPlay": false,
+      "shootout": false,
+      "clock": {
+        "displayValue": "45'+4'"
+      },
+      "participants": []
+    },
+    {
+      "id": "49483976",
+      "type": {
+        "id": "82",
+        "text": "Start 2nd Half",
+        "type": "start-2nd-half"
+      },
+      "scoringPlay": false,
+      "shootout": false,
+      "clock": {
+        "displayValue": "45'"
+      },
+      "participants": []
+    },
+    {
+      "id": "49484043",
+      "type": {
+        "id": "93",
+        "text": "Red Card",
+        "type": "red-card"
+      },
+      "scoringPlay": false,
+      "shootout": false,
+      "clock": {
+        "displayValue": "49'"
+      },
+      "team": {
+        "id": "467",
+        "displayName": "South Africa"
+      },
+      "participants": [
+        {
+          "athlete": {
+            "id": "228595",
+            "displayName": "Sphephelo Sithole"
+          }
+        }
+      ]
+    },
+    {
+      "id": "49484117",
+      "type": {
+        "id": "76",
+        "text": "Substitution",
+        "type": "substitution"
+      },
+      "scoringPlay": false,
+      "shootout": false,
+      "clock": {
+        "displayValue": "56'"
+      },
+      "team": {
+        "id": "467",
+        "displayName": "South Africa"
+      },
+      "participants": [
+        {
+          "athlete": {
+            "id": "301321",
+            "displayName": "Thalente Mbatha"
+          }
+        },
+        {
+          "athlete": {
+            "id": "264751",
+            "displayName": "Lyle Foster"
+          }
+        }
+      ]
+    },
+    {
+      "id": "49484186",
+      "type": {
+        "id": "76",
+        "text": "Substitution",
+        "type": "substitution"
+      },
+      "scoringPlay": false,
+      "shootout": false,
+      "clock": {
+        "displayValue": "61'"
+      },
+      "team": {
+        "id": "467",
+        "displayName": "South Africa"
+      },
+      "participants": [
+        {
+          "athlete": {
+            "id": "157046",
+            "displayName": "Themba Zwane"
+          }
+        },
+        {
+          "athlete": {
+            "id": "304736",
+            "displayName": "Jayden Adams"
+          }
+        }
+      ]
+    },
+    {
+      "id": "49484243",
+      "type": {
+        "id": "76",
+        "text": "Substitution",
+        "type": "substitution"
+      },
+      "scoringPlay": false,
+      "shootout": false,
+      "clock": {
+        "displayValue": "66'"
+      },
+      "team": {
+        "id": "203",
+        "displayName": "Mexico"
+      },
+      "participants": [
+        {
+          "athlete": {
+            "id": "104497",
+            "displayName": "Luis Chávez"
+          }
+        },
+        {
+          "athlete": {
+            "id": "303577",
+            "displayName": "Brian Gutiérrez"
+          }
+        }
+      ]
+    },
+    {
+      "id": "49484244",
+      "type": {
+        "id": "76",
+        "text": "Substitution",
+        "type": "substitution"
+      },
+      "scoringPlay": false,
+      "shootout": false,
+      "clock": {
+        "displayValue": "66'"
+      },
+      "team": {
+        "id": "203",
+        "displayName": "Mexico"
+      },
+      "participants": [
+        {
+          "athlete": {
+            "id": "389575",
+            "displayName": "Gilberto Mora"
+          }
+        },
+        {
+          "athlete": {
+            "id": "283827",
+            "displayName": "Álvaro Fidalgo"
+          }
+        }
+      ]
+    },
+    {
+      "id": "49484266",
+      "type": {
+        "id": "137",
+        "text": "Goal - Header",
+        "type": "goal---header"
+      },
+      "scoringPlay": true,
+      "shootout": false,
+      "clock": {
+        "displayValue": "67'"
+      },
+      "team": {
+        "id": "203",
+        "displayName": "Mexico"
+      },
+      "participants": [
+        {
+          "athlete": {
+            "id": "167060",
+            "displayName": "Raúl Jiménez"
+          }
+        },
+        {
+          "athlete": {
+            "id": "194308",
+            "displayName": "Roberto Alvarado"
+          }
+        }
+      ]
+    },
+    {
+      "id": "49484269",
+      "type": {
+        "id": "129",
+        "text": "Start Delay",
+        "type": "start-delay"
+      },
+      "scoringPlay": false,
+      "shootout": false,
+      "clock": {
+        "displayValue": "68'"
+      },
+      "team": {
+        "id": "203",
+        "displayName": "Mexico"
+      },
+      "participants": []
+    },
+    {
+      "id": "49484268",
+      "type": {
+        "id": "129",
+        "text": "Start Delay",
+        "type": "start-delay"
+      },
+      "scoringPlay": false,
+      "shootout": false,
+      "clock": {
+        "displayValue": "68'"
+      },
+      "team": {
+        "id": "467",
+        "displayName": "South Africa"
+      },
+      "participants": []
+    },
+    {
+      "id": "49484274",
+      "type": {
+        "id": "130",
+        "text": "End Delay",
+        "type": "end-delay"
+      },
+      "scoringPlay": false,
+      "shootout": false,
+      "clock": {
+        "displayValue": "70'"
+      },
+      "team": {
+        "id": "203",
+        "displayName": "Mexico"
+      },
+      "participants": []
+    },
+    {
+      "id": "49484271",
+      "type": {
+        "id": "130",
+        "text": "End Delay",
+        "type": "end-delay"
+      },
+      "scoringPlay": false,
+      "shootout": false,
+      "clock": {
+        "displayValue": "70'"
+      },
+      "team": {
+        "id": "467",
+        "displayName": "South Africa"
+      },
+      "participants": []
+    },
+    {
+      "id": "49484314",
+      "type": {
+        "id": "129",
+        "text": "Start Delay",
+        "type": "start-delay"
+      },
+      "scoringPlay": false,
+      "shootout": false,
+      "clock": {
+        "displayValue": "73'"
+      },
+      "team": {
+        "id": "203",
+        "displayName": "Mexico"
+      },
+      "participants": []
+    },
+    {
+      "id": "49484313",
+      "type": {
+        "id": "129",
+        "text": "Start Delay",
+        "type": "start-delay"
+      },
+      "scoringPlay": false,
+      "shootout": false,
+      "clock": {
+        "displayValue": "73'"
+      },
+      "team": {
+        "id": "467",
+        "displayName": "South Africa"
+      },
+      "participants": []
+    },
+    {
+      "id": "49484317",
+      "type": {
+        "id": "130",
+        "text": "End Delay",
+        "type": "end-delay"
+      },
+      "scoringPlay": false,
+      "shootout": false,
+      "clock": {
+        "displayValue": "73'"
+      },
+      "team": {
+        "id": "203",
+        "displayName": "Mexico"
+      },
+      "participants": []
+    },
+    {
+      "id": "49484316",
+      "type": {
+        "id": "130",
+        "text": "End Delay",
+        "type": "end-delay"
+      },
+      "scoringPlay": false,
+      "shootout": false,
+      "clock": {
+        "displayValue": "73'"
+      },
+      "team": {
+        "id": "467",
+        "displayName": "South Africa"
+      },
+      "participants": []
+    },
+    {
+      "id": "49484324",
+      "type": {
+        "id": "94",
+        "text": "Yellow Card",
+        "type": "yellow-card"
+      },
+      "scoringPlay": false,
+      "shootout": false,
+      "clock": {
+        "displayValue": "74'"
+      },
+      "team": {
+        "id": "467",
+        "displayName": "South Africa"
+      },
+      "participants": [
+        {
+          "athlete": {
+            "id": "266125",
+            "displayName": "Nkosinathi Sibisi"
+          }
+        }
+      ]
+    },
+    {
+      "id": "49484359",
+      "type": {
+        "id": "76",
+        "text": "Substitution",
+        "type": "substitution"
+      },
+      "scoringPlay": false,
+      "shootout": false,
+      "clock": {
+        "displayValue": "76'"
+      },
+      "team": {
+        "id": "203",
+        "displayName": "Mexico"
+      },
+      "participants": [
+        {
+          "athlete": {
+            "id": "241627",
+            "displayName": "Edson Álvarez"
+          }
+        },
+        {
+          "athlete": {
+            "id": "276942",
+            "displayName": "Érik Lira"
+          }
+        }
+      ]
+    },
+    {
+      "id": "49484360",
+      "type": {
+        "id": "76",
+        "text": "Substitution",
+        "type": "substitution"
+      },
+      "scoringPlay": false,
+      "shootout": false,
+      "clock": {
+        "displayValue": "76'"
+      },
+      "team": {
+        "id": "203",
+        "displayName": "Mexico"
+      },
+      "participants": [
+        {
+          "athlete": {
+            "id": "376110",
+            "displayName": "Armando González"
+          }
+        },
+        {
+          "athlete": {
+            "id": "167060",
+            "displayName": "Raúl Jiménez"
+          }
+        }
+      ]
+    },
+    {
+      "id": "49484361",
+      "type": {
+        "id": "76",
+        "text": "Substitution",
+        "type": "substitution"
+      },
+      "scoringPlay": false,
+      "shootout": false,
+      "clock": {
+        "displayValue": "76'"
+      },
+      "team": {
+        "id": "467",
+        "displayName": "South Africa"
+      },
+      "participants": [
+        {
+          "athlete": {
+            "id": "303312",
+            "displayName": "Evidence Makgopa"
+          }
+        },
+        {
+          "athlete": {
+            "id": "291141",
+            "displayName": "Iqraam Rayners"
+          }
+        }
+      ]
+    },
+    {
+      "id": "49484362",
+      "type": {
+        "id": "76",
+        "text": "Substitution",
+        "type": "substitution"
+      },
+      "scoringPlay": false,
+      "shootout": false,
+      "clock": {
+        "displayValue": "77'"
+      },
+      "team": {
+        "id": "467",
+        "displayName": "South Africa"
+      },
+      "participants": [
+        {
+          "athlete": {
+            "id": "288771",
+            "displayName": "Oswin Appollis"
+          }
+        },
+        {
+          "athlete": {
+            "id": "223818",
+            "displayName": "Aubrey Modiba"
+          }
+        }
+      ]
+    },
+    {
+      "id": "49484390",
+      "type": {
+        "id": "76",
+        "text": "Substitution",
+        "type": "substitution"
+      },
+      "scoringPlay": false,
+      "shootout": false,
+      "clock": {
+        "displayValue": "79'"
+      },
+      "team": {
+        "id": "203",
+        "displayName": "Mexico"
+      },
+      "participants": [
+        {
+          "athlete": {
+            "id": "229487",
+            "displayName": "Alexis Vega"
+          }
+        },
+        {
+          "athlete": {
+            "id": "233075",
+            "displayName": "Julián Quiñones"
+          }
+        }
+      ]
+    },
+    {
+      "id": "49484422",
+      "type": {
+        "id": "129",
+        "text": "Start Delay",
+        "type": "start-delay"
+      },
+      "scoringPlay": false,
+      "shootout": false,
+      "clock": {
+        "displayValue": "81'"
+      },
+      "team": {
+        "id": "203",
+        "displayName": "Mexico"
+      },
+      "participants": []
+    },
+    {
+      "id": "49484421",
+      "type": {
+        "id": "129",
+        "text": "Start Delay",
+        "type": "start-delay"
+      },
+      "scoringPlay": false,
+      "shootout": false,
+      "clock": {
+        "displayValue": "81'"
+      },
+      "team": {
+        "id": "467",
+        "displayName": "South Africa"
+      },
+      "participants": []
+    },
+    {
+      "id": "49484423",
+      "type": {
+        "id": "130",
+        "text": "End Delay",
+        "type": "end-delay"
+      },
+      "scoringPlay": false,
+      "shootout": false,
+      "clock": {
+        "displayValue": "81'"
+      },
+      "team": {
+        "id": "203",
+        "displayName": "Mexico"
+      },
+      "participants": []
+    },
+    {
+      "id": "49484424",
+      "type": {
+        "id": "130",
+        "text": "End Delay",
+        "type": "end-delay"
+      },
+      "scoringPlay": false,
+      "shootout": false,
+      "clock": {
+        "displayValue": "81'"
+      },
+      "team": {
+        "id": "467",
+        "displayName": "South Africa"
+      },
+      "participants": []
+    },
+    {
+      "id": "49484425",
+      "type": {
+        "id": "129",
+        "text": "Start Delay",
+        "type": "start-delay"
+      },
+      "scoringPlay": false,
+      "shootout": false,
+      "clock": {
+        "displayValue": "82'"
+      },
+      "team": {
+        "id": "467",
+        "displayName": "South Africa"
+      },
+      "participants": []
+    },
+    {
+      "id": "49484427",
+      "type": {
+        "id": "130",
+        "text": "End Delay",
+        "type": "end-delay"
+      },
+      "scoringPlay": false,
+      "shootout": false,
+      "clock": {
+        "displayValue": "84'"
+      },
+      "team": {
+        "id": "467",
+        "displayName": "South Africa"
+      },
+      "participants": []
+    },
+    {
+      "id": "49484429",
+      "type": {
+        "id": "93",
+        "text": "Red Card",
+        "type": "red-card"
+      },
+      "scoringPlay": false,
+      "shootout": false,
+      "clock": {
+        "displayValue": "84'"
+      },
+      "team": {
+        "id": "467",
+        "displayName": "South Africa"
+      },
+      "participants": [
+        {
+          "athlete": {
+            "id": "157046",
+            "displayName": "Themba Zwane"
+          }
+        }
+      ]
+    },
+    {
+      "id": "49484548",
+      "type": {
+        "id": "93",
+        "text": "Red Card",
+        "type": "red-card"
+      },
+      "scoringPlay": false,
+      "shootout": false,
+      "clock": {
+        "displayValue": "90'+2'"
+      },
+      "team": {
+        "id": "203",
+        "displayName": "Mexico"
+      },
+      "participants": [
+        {
+          "athlete": {
+            "id": "224323",
+            "displayName": "César Montes"
+          }
+        }
+      ]
+    },
+    {
+      "id": "49484603",
+      "type": {
+        "id": "83",
+        "text": "End Regular Time",
+        "type": "end-regular-time"
+      },
+      "scoringPlay": false,
+      "shootout": false,
+      "clock": {
+        "displayValue": "90'+8'"
+      },
+      "participants": []
+    }
+  ]
+}

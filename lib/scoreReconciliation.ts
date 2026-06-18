@@ -1,5 +1,23 @@
 import type { SnapshotMatchStatus } from "./liveSnapshot";
-import { normalizeTeamName } from "./liveSnapshot";
+
+const TEAM_NAME_ALIASES: Record<string, string> = {
+  czechrepublic: "czechia",
+  bosniaandherzegovina: "bosniaherzegovina",
+  cotedivoire: "ivorycoast",
+  capeverdeislands: "capeverde",
+  democraticrepublicofthecongo: "drcongo",
+  congodr: "drcongo",
+  korearepublic: "southkorea",
+};
+
+export function normalizeTeamName(name: string): string {
+  const norm = name
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]/g, "");
+  return TEAM_NAME_ALIASES[norm] ?? norm;
+}
 
 export interface MinuteOrdered {
   minute?: number | null;
@@ -128,4 +146,15 @@ export function reconcileGoalEvents<T extends ReconcilableGoalEvent>({
 export function isMatchPollingActive(status: SnapshotMatchStatus, kickoffMs: number, now: number): boolean {
   if (status === "LIVE" || status === "HALFTIME" || status === "SYNCING") return true;
   return Math.abs(kickoffMs - now) <= 15 * 60 * 1000;
+}
+
+export const POST_MATCH_RECONCILIATION_WINDOW_MS = 4 * 60 * 60 * 1000;
+
+export function isMatchInReconciliationWindow(
+  status: string,
+  kickoffMs: number,
+  nowMs: number
+): boolean {
+  if (status !== "FINISHED") return true;
+  return nowMs <= kickoffMs + POST_MATCH_RECONCILIATION_WINDOW_MS;
 }

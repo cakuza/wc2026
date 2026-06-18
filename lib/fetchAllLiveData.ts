@@ -66,10 +66,7 @@ function parseSubs(raw: unknown[]): LiveMatchEvent[] {
   });
 }
 
-export async function fetchAllLiveData(): Promise<Map<number, LiveMatchData>> {
-  const key = process.env.FOOTBALL_DATA_API_KEY;
-  if (!key) return new Map();
-
+function parseApiResponse(data: Record<string, unknown>): Map<number, LiveMatchData> {
   const relevantIds = new Set(
     MATCHES
       .filter((m) => m.providerIds?.footballData)
@@ -77,14 +74,6 @@ export async function fetchAllLiveData(): Promise<Map<number, LiveMatchData>> {
   );
   if (relevantIds.size === 0) return new Map();
 
-  const fetchResult = await providerFetch(
-    `${BASE}/competitions/${COMPETITION_ID}/matches`,
-    key,
-    { revalidate: 30 },
-  );
-  if (!fetchResult.ok) return new Map();
-
-  const data = fetchResult.data as Record<string, unknown>;
   const raw: unknown[] = Array.isArray(data?.matches) ? (data.matches as unknown[]) : [];
   const result = new Map<number, LiveMatchData>();
   const now = new Date().toISOString();
@@ -139,4 +128,38 @@ export async function fetchAllLiveData(): Promise<Map<number, LiveMatchData>> {
   }
 
   return result;
+}
+
+export async function fetchAllLiveData(): Promise<Map<number, LiveMatchData>> {
+  // ── Deterministic test seam: bypass HTTP when fixture file is provided ────
+  // Both FOOTBALL_DATA_FIXTURE_FILE and INTEGRATION_TEST=1 must be set.
+  // The double-flag requirement prevents accidental activation if only one
+  // variable leaks into a non-test environment.
+  const fixturePath = process.env.FOOTBALL_DATA_FIXTURE_FILE;
+  if (fixturePath && process.env.INTEGRATION_TEST === "1") {
+    // webpackIgnore prevents bundling the Node built-in into the client chunk;
+    // this branch is only reached on the server (process.env is server-side).
+    const { readFileSync } = await import(/* webpackIgnore: true */ "fs");
+    const data = JSON.parse(readFileSync(fixturePath, "utf-8")) as Record<string, unknown>;
+    return parseApiResponse(data);
+  }
+
+  const key = process.env.FOOTBALL_DATA_API_KEY;
+  if (!key) return new Map();
+
+  const relevantIds = new Set(
+    MATCHES
+      .filter((m) => m.providerIds?.footballData)
+      .map((m) => m.providerIds!.footballData!),
+  );
+  if (relevantIds.size === 0) return new Map();
+
+  const fetchResult = await providerFetch(
+    `${BASE}/competitions/${COMPETITION_ID}/matches`,
+    key,
+    { revalidate: 30 },
+  );
+  if (!fetchResult.ok) return new Map();
+
+  return parseApiResponse(fetchResult.data as Record<string, unknown>);
 }

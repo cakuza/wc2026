@@ -22,7 +22,7 @@ export type GoalScorerEvent = {
   playerName: string;
   isOwnGoal?: boolean;
   isPenalty?: boolean;
-  provider: "worldcup26.ir" | "football-data.org";
+  provider: "worldcup26.ir" | "football-data.org" | "espn";
   confidence: "high" | "low";
 };
 
@@ -151,19 +151,27 @@ function parseGame(raw: RawGame): WorldCup26Game | null {
   };
 }
 
-// ── Public API ────────────────────────────────────────────────────────────────
-
-let cachedGames: WorldCup26Game[] | null = null;
-let cacheExpiresAt = 0;
-const CACHE_TTL_MS = 30_000; // 30s in-process cache, aligned with the live snapshot
+let bulkPromise: Promise<WorldCup26Game[]> | null = null;
 
 /**
- * Fetch all games from worldcup26.ir. Returns null on failure.
- * Uses a simple module-level cache to avoid hammering the endpoint.
+ * Fetch all games from worldcup26.ir. Throws an error on failure to ensure
+ * Next.js unstable_cache or caller can properly handle the Last-Known-Good state.
+ * Deduplicated per Node process tick so N concurrent cache-misses trigger exactly 1 request.
  */
-export async function fetchWorldCup26Games(): Promise<WorldCup26Game[] | null> {
-  const now = Date.now();
-  if (cachedGames && now < cacheExpiresAt) return cachedGames;
+export async function fetchWorldCup26Games(): Promise<WorldCup26Game[]> {
+  if (bulkPromise) return bulkPromise;
+  bulkPromise = fetchWorldCup26GamesInternal().finally(() => {
+    bulkPromise = null;
+  });
+  return bulkPromise;
+}
+
+async function fetchWorldCup26GamesInternal(): Promise<WorldCup26Game[]> {
+  // ── Deterministic test seam ───────────────────────────────────────────────
+  // Both WORLDCUP26_FORCE_FAIL=1 and INTEGRATION_TEST=1 must be set.
+  if (process.env.WORLDCUP26_FORCE_FAIL === "1" && process.env.INTEGRATION_TEST === "1") {
+    throw new Error("worldcup26: forced failure (WORLDCUP26_FORCE_FAIL=1 INTEGRATION_TEST=1)");
+  }
 
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), TIMEOUT_MS);
@@ -173,8 +181,7 @@ export async function fetchWorldCup26Games(): Promise<WorldCup26Game[] | null> {
     clearTimeout(timer);
 
     if (!res.ok) {
-      console.warn(`[worldcup26] HTTP ${res.status} from ${ENDPOINT}`);
-      return null;
+      throw new Error(`worldcup26: HTTP ${res.status} from ${ENDPOINT}`);
     }
 
     const raw = (await res.json()) as unknown;
@@ -190,14 +197,10 @@ export async function fetchWorldCup26Games(): Promise<WorldCup26Game[] | null> {
       .map((g) => parseGame(g as RawGame))
       .filter((g): g is WorldCup26Game => g !== null);
 
-    cachedGames = parsed;
-    cacheExpiresAt = now + CACHE_TTL_MS;
     return parsed;
   } catch (err) {
     clearTimeout(timer);
-    const msg = err instanceof Error ? err.message : String(err);
-    console.warn(`[worldcup26] fetch error: ${msg}`);
-    return null;
+    throw err;
   }
 }
 
@@ -209,18 +212,20 @@ export async function fetchScorersForMatch(
   homeTeamNameEn: string,
   awayTeamNameEn: string,
 ): Promise<{ homeScorers: GoalScorerEvent[]; awayScorers: GoalScorerEvent[] } | null> {
-  const games = await fetchWorldCup26Games();
-  if (!games) return null;
+  try {
+    const games = await fetchWorldCup26Games();
+    const normalize = (s: string) => s.toLowerCase().trim();
+    const game = games.find(
+      (g) =>
+        normalize(g.homeTeamName) === normalize(homeTeamNameEn) &&
+        normalize(g.awayTeamName) === normalize(awayTeamNameEn),
+    );
 
-  const normalize = (s: string) => s.toLowerCase().trim();
-  const game = games.find(
-    (g) =>
-      normalize(g.homeTeamName) === normalize(homeTeamNameEn) &&
-      normalize(g.awayTeamName) === normalize(awayTeamNameEn),
-  );
+    if (!game) return null;
+    if (game.homeScorers.length === 0 && game.awayScorers.length === 0) return null;
 
-  if (!game) return null;
-  if (game.homeScorers.length === 0 && game.awayScorers.length === 0) return null;
-
-  return { homeScorers: game.homeScorers, awayScorers: game.awayScorers };
+    return { homeScorers: game.homeScorers, awayScorers: game.awayScorers };
+  } catch (err) {
+    return null;
+  }
 }

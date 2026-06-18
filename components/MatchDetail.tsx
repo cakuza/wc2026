@@ -8,14 +8,14 @@ import { FreshnessLabel } from "@/components/FreshnessLabel";
 import { useLang } from "@/components/LanguageProvider";
 import { MATCHES, matchSlug, matchUtcDate, type Match } from "@/lib/matches";
 import type { MatchEvents } from "@/lib/matchEvents";
-import type { LiveMatchData } from "@/lib/liveMatchData";
+import type { LiveMatchData, LiveMatchEvent } from "@/lib/liveMatchData";
 import type { StandingRow } from "@/lib/groupStandings";
 import type { ThirdPlaceRow } from "@/lib/thirdPlaceRanking";
 import { countryName } from "@/lib/i18n";
 import { buildScorerSentence } from "@/lib/resultSummary";
 import { missingScorerDetailText, type GoalEventCompleteness } from "@/lib/goalEventCompleteness";
-import { type SnapshotMatchStatus, toLiveGoalEvent } from "@/lib/liveSnapshot";
-import { reconcileGoalEvents, isMatchPollingActive } from "@/lib/scoreReconciliation";
+import { type SnapshotMatchStatus } from "@/lib/liveSnapshot";
+import { reconcileGoalEvents, isMatchPollingActive, isMatchInReconciliationWindow } from "@/lib/scoreReconciliation";
 import type { GoalScorerEvent } from "@/lib/worldcup26Provider";
 import { slugFor } from "@/lib/teams";
 
@@ -37,6 +37,19 @@ interface Props {
 }
 
 type DisplayStatus = "upcoming" | "live" | "halftime" | "finished" | "syncing";
+
+function toLiveGoalEvent(event: GoalScorerEvent): LiveMatchEvent {
+  return {
+    type: event.isOwnGoal ? "OWN_GOAL" : event.isPenalty || event.type === "PENALTY_GOAL" ? "PENALTY_GOAL" : "GOAL",
+    minute: event.minute,
+    stoppageTime: event.stoppageTime,
+    minuteLabel: event.minuteLabel,
+    teamName: event.teamName,
+    playerTeamName: event.playerTeamName,
+    playerName: event.playerName,
+    isOwnGoal: event.isOwnGoal,
+  };
+}
 
 /** SnapshotMatchStatus maps 1:1 onto our display states. */
 export function snapshotStatusToDisplay(status: SnapshotMatchStatus): DisplayStatus {
@@ -277,7 +290,9 @@ export function MatchDetail({
           ? `${homeName} and ${awayName} drew ${homeScore}–${awayScore}`
           : "";
   const goalCompleteness = liveState.goalEventCompleteness;
-  const missingGoalText = missingScorerDetailText(goalCompleteness.missingGoalEventCount);
+  const nowMs = Date.now();
+  const isOldCompletedMatch = !isMatchInReconciliationWindow(liveState.status, matchTime, nowMs);
+  const missingGoalText = missingScorerDetailText(goalCompleteness.missingGoalEventCount, isOldCompletedMatch);
   // Scorer events carry English provider team names regardless of UI
   // language, so match against English names rather than the localized
   // display names used elsewhere on the page.

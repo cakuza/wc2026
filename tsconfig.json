@@ -42,6 +42,7 @@
     "wc2026-audit-copy",
     "recovered-deployment-*",
     "recovery-backups",
-    "design-reference"
+    "design-reference",
+    "scripts/scratch"
   ]
 }
