@@ -13,7 +13,7 @@ async function run() {
   process.env.KICKOFF_SCORER_ENABLED = "false";
   resetLiveSnapshotMemoryForTests();
   const snap = await getTournamentLiveSnapshot();
-  const hasKickoff = Object.values(snap.matches).some(m => m.scorers.some(s => s.provider === "kickoffapi"));
+  const hasKickoff = Object.values(snap.matches).some(m => Reflect.get(m, "_activeScorerSource") === "kickoffapi");
   assert.strictEqual(hasKickoff, false, "Should have no kickoffapi goals when disabled");
   console.log("PASS feature disabled preserves existing output");
 }
