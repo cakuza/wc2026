@@ -1,0 +1,251 @@
+import "server-only";
+
+import { MATCHES } from "./matches";
+import { countryName } from "./i18n";
+import { EspnClient } from "./espnClient";
+import { EspnEventCacheManager, summaryTtlForStatus } from "./espnEventCache";
+import {
+  mapEspnFixturesToCanonicalMatches,
+  parseEspnGoalEvents,
+  parseEspnScoreboard,
+  type EspnFixture,
+} from "./espnProvider";
+import { adaptEspnEventToLedger } from "./espnScorerAdapter";
+import {
+  mergeProviderAttempt,
+  type MergeCanonicalContext,
+  type MergeProviderAttempt,
+} from "./scorerEventLedger";
+import type { SerializableSnapshotMatch } from "./liveSnapshot";
+import type { GoalScorerEvent } from "./worldcup26Provider";
+
+// Provider-neutral scorer enrichment runtime. football-data.org remains the sole
+// authority for match identity, status, score, teams, and kickoff; this runtime may
+// only supply scorer/event enrichment on top of an existing canonical baseline, and
+// it fails closed on any provider error, schema drift, or ambiguity. The active
+// secondary event provider is ESPN's public soccer JSON API (no key, no auth).
+
+// Scoreboard identity is stable, so it is cached for a long TTL; freshness comes
+// from the per-match summary cache.
+const SCOREBOARD_TTL_SECONDS = 3600;
+
+// Public, sanitized provider label for enriched scorers. The internal secondary
+// provider name is never surfaced in public output; enriched scorers ride under the
+// canonical authority that owns the match.
+const PUBLIC_SCORER_PROVIDER: GoalScorerEvent["provider"] = "football-data.org";
+
+/**
+ * Whether scorer enrichment is active.
+ *
+ * ESPN requires no secret, so an explicit SCORER_ENRICHMENT_ENABLED always wins
+ * ("true" forces on, "false" is the kill switch). With no explicit value it defaults
+ * on inside the live Next.js server runtime and off everywhere else — standalone test
+ * scripts and the production build stay hermetic and never make provider requests.
+ */
+export function isScorerEnrichmentEnabled(): boolean {
+  const flag = process.env.SCORER_ENRICHMENT_ENABLED;
+  if (flag === "false") return false;
+  if (flag === "true") return true;
+  return process.env.NEXT_RUNTIME === "nodejs" && process.env.NEXT_PHASE !== "phase-production-build";
+}
+
+function tournamentDateRange(): string {
+  let min = Infinity;
+  let max = -Infinity;
+  for (const match of MATCHES) {
+    const t = Date.parse(`${match.date}T00:00:00Z`);
+    if (Number.isFinite(t)) {
+      if (t < min) min = t;
+      if (t > max) max = t;
+    }
+  }
+  if (!Number.isFinite(min) || !Number.isFinite(max)) {
+    // Fail closed at the caller if the canonical calendar is unexpectedly empty.
+    return "";
+  }
+  const pad = 24 * 60 * 60 * 1000; // ±1 day absorbs timezone rounding at the edges.
+  const fmt = (ms: number) => {
+    const d = new Date(ms);
+    const y = d.getUTCFullYear();
+    const m = String(d.getUTCMonth() + 1).padStart(2, "0");
+    const day = String(d.getUTCDate()).padStart(2, "0");
+    return `${y}${m}${day}`;
+  };
+  return `${fmt(min - pad)}-${fmt(max + pad)}`;
+}
+
+function baselineIsComplete(match: SerializableSnapshotMatch): boolean {
+  if (match.goalEventCompleteness.missingGoalEventCount !== 0) return false;
+  const hasLowConfidence = match.scorers.some((s) => s.confidence === "low");
+  const hasUnresolvedOwnGoals = match.scorers.some((s) => s.isOwnGoal && !s.playerTeamName);
+  // An own goal with no scorer-club attribution is the canonical "safe" shape, not an
+  // unresolved gap; only treat genuinely missing scorers as incomplete.
+  return !hasLowConfidence && !hasUnresolvedOwnGoals;
+}
+
+/**
+ * Enrich the snapshot's scorer events from the secondary provider, in place. Never
+ * alters canonical score/status/team data; only replaces a match's scorer list when
+ * the provider can represent at least as many goal events as the existing baseline.
+ */
+export async function enrichSnapshotScorers(
+  matches: Record<string, SerializableSnapshotMatch>,
+  _primaryProviderOk: boolean,
+  _snapshotGeneratedAt: string,
+): Promise<void> {
+  if (!isScorerEnrichmentEnabled()) return;
+
+  const dateRange = tournamentDateRange();
+  if (!dateRange) return;
+
+  const client = new EspnClient();
+  const manager = new EspnEventCacheManager(client, 6);
+
+  const scoreboardRes = await manager.getCachedScoreboard(dateRange, SCOREBOARD_TTL_SECONDS);
+  if (scoreboardRes.category !== "success" || !scoreboardRes.data) {
+    console.warn("[scorerProviderRuntime] Scoreboard fetch failed; preserving baseline for this snapshot.");
+    return;
+  }
+
+  const parsedScoreboard = parseEspnScoreboard(scoreboardRes.data);
+  if (parsedScoreboard.fixtures.length === 0) {
+    console.warn("[scorerProviderRuntime] Scoreboard produced no fixtures; preserving baseline.");
+    return;
+  }
+
+  const mapResult = mapEspnFixturesToCanonicalMatches({ providerFixtures: parsedScoreboard.fixtures });
+  const mappingByCanonical = new Map(mapResult.mappings.map((m) => [m.canonicalMatchId, m]));
+  const fixtureById = new Map<string, EspnFixture>(
+    parsedScoreboard.fixtures.map((fixture) => [fixture.providerFixtureId, fixture]),
+  );
+
+  // Candidate selection: never request scheduled matches; skip already-complete
+  // finished matches; prioritize live, then most-recent finished.
+  type Candidate = {
+    match: SerializableSnapshotMatch;
+    providerFixtureId: string;
+    fixture: EspnFixture;
+    sortKey: number;
+  };
+  const candidates: Candidate[] = [];
+
+  for (const internalId of Object.keys(matches)) {
+    const matchData = matches[internalId];
+    if (matchData.status === "SCHEDULED") continue;
+    if (matchData.status === "FINISHED" && baselineIsComplete(matchData)) continue;
+
+    const mapping = mappingByCanonical.get(internalId);
+    if (!mapping) continue;
+    const fixture = fixtureById.get(mapping.providerFixtureId);
+    if (!fixture) continue;
+    // The provider must also believe the match has started before we read events.
+    if (fixture.status === "pre") continue;
+
+    const live = matchData.status === "LIVE" || matchData.status === "HALFTIME" || matchData.status === "SYNCING";
+    const timeVal = matchData.sourceUpdatedAt ? new Date(matchData.sourceUpdatedAt).getTime() : 0;
+    candidates.push({
+      match: matchData,
+      providerFixtureId: mapping.providerFixtureId,
+      fixture,
+      sortKey: (live ? 1 : 2) * 1e13 - timeVal,
+    });
+  }
+
+  candidates.sort((a, b) => a.sortKey - b.sortKey);
+
+  for (const candidate of candidates) {
+    const { match, providerFixtureId, fixture } = candidate;
+
+    const finishedAndConsistent = match.status === "FINISHED" && baselineIsComplete(match);
+    const ttl = summaryTtlForStatus(match.status, finishedAndConsistent);
+    const summaryRes = await manager.getCachedSummary(providerFixtureId, ttl);
+    if (summaryRes.category !== "success" || !summaryRes.data) {
+      // Rate-limited means the budget is spent — stop cleanly; other failures just
+      // skip this match. Either way the canonical baseline is preserved.
+      if (summaryRes.category === "rate_limited") break;
+      continue;
+    }
+
+    const parsedEvents = parseEspnGoalEvents(summaryRes.data, { providerFixtureId });
+
+    const context: MergeCanonicalContext = {
+      canonicalMatchId: match.internalId,
+      canonicalHomeTeamId: match.match.homeKey,
+      canonicalAwayTeamId: match.match.awayKey,
+      canonicalHomeScore: match.homeScore ?? 0,
+      canonicalAwayScore: match.awayScore ?? 0,
+      canonicalStatus: toLedgerStatus(match.status),
+    };
+
+    const inputs = [];
+    for (const ev of parsedEvents.events) {
+      const adapted = adaptEspnEventToLedger({
+        event: ev,
+        mapping: { canonicalMatchId: match.internalId, providerFixtureId, kickoffDifferenceMinutes: 0, source: "automatic" },
+        context,
+        providerHomeTeamId: fixture.homeProviderTeamId,
+        providerAwayTeamId: fixture.awayProviderTeamId,
+      });
+      if (adapted.attemptEvent) inputs.push(adapted.attemptEvent);
+    }
+
+    const attempt: MergeProviderAttempt = {
+      state: "complete_snapshot",
+      events: inputs,
+      fetchedAt: _snapshotGeneratedAt,
+      provenance: "espn",
+      providerHomeTeamId: fixture.homeProviderTeamId,
+      providerAwayTeamId: fixture.awayProviderTeamId,
+    };
+
+    const ledgerOutput = mergeProviderAttempt([], attempt, context);
+    if (ledgerOutput.completeness.state === "conflicted") {
+      // Provider over-reports vs canonical score — never let it corrupt the baseline.
+      continue;
+    }
+
+    const activeEvents = ledgerOutput.nextLedger.filter((o) => o.lifecycleState === "active");
+    const baselineAcceptedCount = match.scorers.length;
+
+    // Adoption rule: only adopt when the provider is at least as complete as the
+    // existing baseline. A richer baseline is never degraded.
+    if (activeEvents.length < baselineAcceptedCount) continue;
+
+    const homeDisplay = countryName(match.match.homeKey, "en");
+    const awayDisplay = countryName(match.match.awayKey, "en");
+
+    const mappedScorers: GoalScorerEvent[] = activeEvents.map((event) => ({
+      type: event.isPenalty ? "PENALTY_GOAL" : "GOAL",
+      minute: event.minute,
+      stoppageTime: event.extraMinute,
+      minuteLabel: event.extraMinute ? `${event.minute}+${event.extraMinute}'` : `${event.minute}'`,
+      teamName: event.creditedCanonicalSide === "home" ? homeDisplay : awayDisplay,
+      // Never infer the scorer's own club — especially for own goals, where the
+      // credited side is the beneficiary, not the player's team.
+      playerTeamName: undefined,
+      playerName: event.playerName,
+      isOwnGoal: event.isOwnGoal,
+      isPenalty: event.isPenalty,
+      provider: PUBLIC_SCORER_PROVIDER,
+      confidence: "high",
+    }));
+
+    match.scorers = mappedScorers;
+    const expectedGoals = (match.homeScore ?? 0) + (match.awayScore ?? 0);
+    match.goalEventCompleteness.missingGoalEventCount = Math.max(0, expectedGoals - activeEvents.length);
+  }
+}
+
+function toLedgerStatus(status: SerializableSnapshotMatch["status"]): MergeCanonicalContext["canonicalStatus"] {
+  switch (status) {
+    case "LIVE":
+      return "IN_PLAY";
+    case "HALFTIME":
+    case "SYNCING":
+      return "PAUSED";
+    case "FINISHED":
+      return "FINISHED";
+    default:
+      return "SCHEDULED";
+  }
+}

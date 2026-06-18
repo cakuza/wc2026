@@ -412,9 +412,21 @@ export async function buildTournamentLiveSnapshot({
   const standingsByGroup = computeGroupStandings(canonicalLiveData);
   const thirdPlaceRanking = computeThirdPlaceRanking(standingsByGroup);
 
-  // Trigger new KickoffAPI enrichment (handles budget and kill switches internally)
-  if (process.env.KICKOFF_SCORER_ENABLED === "true" && Boolean(process.env.KICKOFF_API_KEY)) {
-    const { enrichSnapshotScorers } = await import("./kickoffScorerRuntime");
+  // Secondary scorer enrichment via the provider-neutral runtime (active provider:
+  // ESPN public JSON). football-data.org stays the sole authority for score, status,
+  // teams, and kickoff; this only enriches scorer/event data and fails closed on any
+  // provider error. This inline gate mirrors isScorerEnrichmentEnabled() so the
+  // server-only runtime module is never even imported in standalone tests or the
+  // build phase — it loads only when enrichment will actually run.
+  const enrichmentFlag = process.env.SCORER_ENRICHMENT_ENABLED;
+  const enrichmentEnabled =
+    enrichmentFlag === "true"
+      ? true
+      : enrichmentFlag === "false"
+        ? false
+        : process.env.NEXT_RUNTIME === "nodejs" && process.env.NEXT_PHASE !== "phase-production-build";
+  if (enrichmentEnabled) {
+    const { enrichSnapshotScorers } = await import("./scorerProviderRuntime");
     await enrichSnapshotScorers(matches, primaryProviderOk, generatedAt);
   }
 
