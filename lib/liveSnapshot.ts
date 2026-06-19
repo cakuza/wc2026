@@ -637,7 +637,7 @@ export function resetLiveSnapshotMemoryForTests() {
 // so one canonical snapshot is shared across all viewers and is not invalidated
 // merely by a deploy.
 // ───────────────────────────────────────────────────────────────────────────
-export const SNAPSHOT_SCHEMA_VERSION = "v1";
+export const SNAPSHOT_SCHEMA_VERSION = "v2";
 const SHARED_SNAPSHOT_REVALIDATE_SECONDS = LIVE_SNAPSHOT_REVALIDATE_SECONDS;
 // If the shared cache is cold/empty and the build would block longer than this,
 // serve a fallback immediately and let the build finish + populate in the
