@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { LiveDataAutoRefresh } from "@/components/LiveDataAutoRefresh";
 import { LiveSnapshotDebug } from "@/components/LiveSnapshotDebug";
+import { LiveDataUnavailableNotice } from "@/components/LiveDataUnavailableNotice";
 import { ScheduleContent } from "./ScheduleContent";
 import { getLiveRefreshPolicy } from "@/lib/liveRefreshPolicy";
 import { getTournamentLiveSnapshot } from "@/lib/liveSnapshot";
@@ -60,6 +61,11 @@ export default async function SchedulePage() {
     <>
       <LiveDataAutoRefresh intervalMs={refreshPolicy.intervalMs} />
       <LiveSnapshotDebug snapshotId={snapshot.snapshotId} generatedAt={snapshot.generatedAt} />
+      {snapshot.isFallback ? (
+        <div className="mx-auto max-w-4xl px-4 pt-6">
+          <LiveDataUnavailableNotice show />
+        </div>
+      ) : null}
       <ScheduleContent liveScores={liveScores} scorerLines={scorerLines} />
     </>
   );

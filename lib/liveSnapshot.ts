@@ -1,7 +1,8 @@
+import { after } from "next/server";
 import { unstable_cache } from "./cacheAdapter";
 import { fetchAllLiveData } from "./fetchAllLiveData";
 import { computeGroupStandings, type StandingRow } from "./groupStandings";
-import { MATCHES, matchSlug, type Match } from "./matches";
+import { MATCHES, matchSlug, matchUtcDate, type Match } from "./matches";
 import { computeThirdPlaceRanking, type ThirdPlaceRow } from "./thirdPlaceRanking";
 import {
   computeTeamLeaderboards,
@@ -38,6 +39,14 @@ export type SerializableSnapshotMatch = {
   sourceUpdatedAt: string | null;
   providerUpdatedAt: string | null;
   live: LiveMatchData | null;
+  /**
+   * True only in the cold-start fallback snapshot, for a match whose kickoff has
+   * passed: its result is genuinely unknown (live data not yet available), so it
+   * must NOT be presented as SCHEDULED. The canonical `status` enum is left
+   * untouched; consumers render an honest "live data unavailable" state when this
+   * is set rather than inferring a status.
+   */
+  liveDataUnavailable?: boolean;
 };
 
 export type TournamentLiveSnapshot = {
@@ -56,6 +65,13 @@ export type TournamentLiveSnapshot = {
   secondaryProviderOk: boolean;
   primaryProviderFetchedAt: string | null;
   secondaryProviderFetchedAt: string | null;
+  /**
+   * True when this is the cold-start fallback (no validated live snapshot yet):
+   * the canonical schedule is shown but standings/Top Scorers are NOT authoritative
+   * and live results are unavailable. Consumers surface an honest notice and must
+   * not present fallback standings/rankings as final.
+   */
+  isFallback?: boolean;
 };
 
 type SnapshotProviderPayload = {
@@ -600,7 +616,8 @@ export function resetLiveSnapshotMemoryForTests() {
   memoryPrimaryFetchedAt = null;
   memorySecondaryFetchedAt = null;
   lastKnownGoodSnapshot = null;
-  staticFallbackSnapshot = null;
+  truthfulFallbackSnapshot = null;
+  sharedRefreshInFlight = null;
 }
 
 // ───────────────────────────────────────────────────────────────────────────
@@ -633,16 +650,22 @@ const getSharedBuiltSnapshot = unstable_cache(
   { revalidate: SHARED_SNAPSHOT_REVALIDATE_SECONDS, tags: ["built-snapshot"] },
 );
 
-let staticFallbackSnapshot: TournamentLiveSnapshot | null = null;
+let truthfulFallbackSnapshot: TournamentLiveSnapshot | null = null;
 
-// Deterministic, non-fabricated fallback for a cold/empty shared cache: the
-// canonical schedule with every match SCHEDULED, no scores/scorers, empty
-// standings, and freshness honestly marked unavailable (primaryProviderOk=false
-// → "Scores syncing…"). It invents nothing, and skips enrichment so it is
-// instant (no provider network calls).
-async function getStaticScheduleFallback(): Promise<TournamentLiveSnapshot> {
-  if (staticFallbackSnapshot) return staticFallbackSnapshot;
-  staticFallbackSnapshot = await buildTournamentLiveSnapshot({
+// Truthful, non-fabricated fallback for a cold/empty shared cache.
+//
+// It shows the canonical schedule (real teams + kickoffs) but invents nothing:
+// no scores, no scorers, no authoritative standings. Crucially, a match whose
+// kickoff has already passed is NOT presented as SCHEDULED — its result is
+// genuinely unknown, so it is flagged `liveDataUnavailable` and consumers render
+// an honest "live data unavailable" state. The snapshot is flagged `isFallback`
+// so standings / Top Scorers are shown as not-yet-authoritative, and freshness
+// is honestly "unavailable" (primaryProviderOk=false, no fetchedAt → never a
+// "Last checked … ago" that implies a successful sync). Enrichment is skipped so
+// it is instant (no provider network calls).
+async function getTruthfulFallbackSnapshot(): Promise<TournamentLiveSnapshot> {
+  if (truthfulFallbackSnapshot) return truthfulFallbackSnapshot;
+  const base = await buildTournamentLiveSnapshot({
     liveData: new Map(),
     worldcupGames: null,
     generatedAt: new Date().toISOString(),
@@ -652,7 +675,16 @@ async function getStaticScheduleFallback(): Promise<TournamentLiveSnapshot> {
     secondaryProviderFetchedAt: null,
     skipEnrichment: true,
   });
-  return staticFallbackSnapshot;
+
+  const nowMs = Date.now();
+  const matches: Record<string, SerializableSnapshotMatch> = {};
+  for (const [id, m] of Object.entries(base.matches)) {
+    const kickoffPassed = matchUtcDate(m.match).getTime() <= nowMs;
+    matches[id] = kickoffPassed ? { ...m, liveDataUnavailable: true } : m;
+  }
+
+  truthfulFallbackSnapshot = { ...base, matches, isFallback: true };
+  return truthfulFallbackSnapshot;
 }
 
 // Active only inside the Next.js server runtime. Test scripts (no NEXT_RUNTIME)
@@ -663,23 +695,56 @@ function sharedSnapshotEnabled(): boolean {
 
 const COLD_SENTINEL = Symbol("cold-snapshot");
 
+// Single-flight shared refresh: at most one expensive build per instance is in
+// flight at a time; concurrent callers reuse it. It updates last-known-good and
+// captures errors safely — the underlying unstable_cache write is what populates
+// the cross-instance Data Cache.
+let sharedRefreshInFlight: Promise<TournamentLiveSnapshot | null> | null = null;
+function beginSharedRefresh(): Promise<TournamentLiveSnapshot | null> {
+  if (sharedRefreshInFlight) return sharedRefreshInFlight;
+  sharedRefreshInFlight = getSharedBuiltSnapshot()
+    .then((snapshot) => {
+      lastKnownGoodSnapshot = snapshot;
+      return snapshot as TournamentLiveSnapshot | null;
+    })
+    .catch(() => {
+      // Stale-on-error: never throw to the page, never leak provider detail.
+      console.warn("[liveSnapshot] shared snapshot refresh failed; serving last validated/fallback.");
+      return lastKnownGoodSnapshot;
+    })
+    .finally(() => {
+      sharedRefreshInFlight = null;
+    });
+  return sharedRefreshInFlight;
+}
+
+// Keep an in-flight refresh alive past the response so it populates the shared
+// cache. after() (Next 15.5) extends the serverless function lifetime until the
+// callback settles — an un-awaited Promise would otherwise be abandoned when the
+// response is sent. Rejections are swallowed (no unhandled rejection, no leak).
+function keepRefreshAlive(refresh: Promise<unknown>): void {
+  const safe = Promise.resolve(refresh).then(() => undefined, () => undefined);
+  try {
+    after(() => safe);
+  } catch {
+    // Not in a request scope (build/SSG/tests) — the promise still settles within
+    // the current task; nothing further to register.
+    void safe;
+  }
+}
+
 export async function getTournamentLiveSnapshot(): Promise<TournamentLiveSnapshot> {
   if (!sharedSnapshotEnabled()) {
     return buildLiveSnapshotNow();
   }
 
-  // Read (or, on miss, build) the shared snapshot. Warm/stale reads from the
+  // Read (or, on a miss, build) the shared snapshot. Warm/stale reads from the
   // Data Cache resolve immediately (stale-while-revalidate); only a truly cold
   // cache blocks on the build.
-  const pending = getSharedBuiltSnapshot()
-    .then((snapshot) => {
-      lastKnownGoodSnapshot = snapshot;
-      return snapshot;
-    })
-    .catch(() => lastKnownGoodSnapshot); // stale-on-error: never throw to the page
+  const refresh = beginSharedRefresh();
 
   const raced = await Promise.race([
-    pending,
+    refresh,
     new Promise<typeof COLD_SENTINEL>((resolve) => setTimeout(() => resolve(COLD_SENTINEL), COLD_START_FALLBACK_MS)),
   ]);
 
@@ -687,11 +752,12 @@ export async function getTournamentLiveSnapshot(): Promise<TournamentLiveSnapsho
     return raced as TournamentLiveSnapshot;
   }
 
-  // Cold/empty cache (or an error with no last-known-good on this instance):
-  // do not block the page. The build keeps running and populates the shared
-  // cache for the next request.
-  void pending.catch(() => {});
-  return lastKnownGoodSnapshot ?? (await getStaticScheduleFallback());
+  // Cold/empty cache (or an error with no last-known-good on this instance): do
+  // not block the page. Register the in-flight build with after() so Vercel keeps
+  // the function alive until it finishes populating the shared cache, then serve
+  // a truthful fallback now.
+  keepRefreshAlive(refresh);
+  return lastKnownGoodSnapshot ?? (await getTruthfulFallbackSnapshot());
 }
 
 async function buildLiveSnapshotNow(): Promise<TournamentLiveSnapshot> {

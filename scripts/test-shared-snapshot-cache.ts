@@ -20,7 +20,7 @@ import {
   resetLiveSnapshotMemoryForTests,
   SNAPSHOT_SCHEMA_VERSION,
 } from "../lib/liveSnapshot";
-import { MATCHES, matchSlug } from "../lib/matches";
+import { MATCHES, matchSlug, matchUtcDate } from "../lib/matches";
 
 const adapter = new MemoryCacheAdapter();
 setCacheAdapter(adapter);
@@ -97,21 +97,56 @@ await test("3. concurrent misses collapse onto one shared snapshot (single-fligh
   assert.strictEqual(b, c, "concurrent calls share one object");
 });
 
-await test("4. cold/empty cache returns a prompt NON-FABRICATED schedule fallback", async () => {
+await test("4. cold cache returns a prompt TRUTHFUL fallback (no false SCHEDULED, nothing fabricated)", async () => {
   resetAll();
   fetchDelayMs = 2500; // build is slower than COLD_START_FALLBACK_MS (1500ms)
   const t0 = Date.now();
   const snap = await getTournamentLiveSnapshot();
   const elapsed = Date.now() - t0;
   assert.ok(elapsed < 2200, `returned before the slow build completed (${elapsed}ms)`);
-  // Fallback = full canonical schedule, every match SCHEDULED, nothing invented.
+  assert.strictEqual(snap.isFallback, true, "snapshot flagged isFallback (non-authoritative)");
+
   const matchVals = Object.values(snap.matches);
   assert.strictEqual(matchVals.length, MATCHES.length, "fallback contains the full canonical schedule");
-  assert.ok(matchVals.every((m: any) => m.status === "SCHEDULED"), "every match is SCHEDULED");
   assert.ok(matchVals.every((m: any) => m.homeScore === null && m.awayScore === null), "no fabricated scores");
   assert.ok(matchVals.every((m: any) => m.scorers.length === 0), "no fabricated scorers");
-  assert.strictEqual(snap.primaryProviderOk, false, "freshness honestly marks live data unavailable");
-  assert.ok(Object.keys(snap.standingsByGroup).every((g) => snap.standingsByGroup[g].every((r) => r.played === 0)), "no fabricated standings");
+
+  // A historically-started match (Switzerland–Bosnia, 18 Jun, before the test
+  // clock of 20 Jun) must NOT be presented as SCHEDULED — it is flagged unknown.
+  const pastMatch = snap.matches["switzerland-vs-bosnia-jun18"];
+  assert.ok(pastMatch, "past match present in fallback");
+  assert.strictEqual(pastMatch.liveDataUnavailable, true, "started match flagged liveDataUnavailable (never shown as Scheduled)");
+
+  // A genuinely future match keeps its honest SCHEDULED meaning (not flagged).
+  const futureMatch = matchVals.find((m: any) => matchUtcDate(m.match).getTime() > Date.now());
+  if (futureMatch) assert.notStrictEqual(futureMatch.liveDataUnavailable, true, "future match is not flagged unavailable");
+
+  // Standings + Top Scorers are NOT presented as authoritative.
+  assert.strictEqual(snap.topScorers.length, 0, "no fallback Top Scorers presented");
+  assert.ok(Object.values(snap.standingsByGroup).flat().every((r) => r.played === 0), "no fabricated standings (all played=0)");
+  // Freshness is honestly unavailable — never a 'Last checked' implying a sync.
+  assert.strictEqual(snap.primaryProviderOk, false, "primaryProviderOk false");
+  assert.strictEqual(snap.primaryProviderFetchedAt, null, "no fetchedAt → no false 'Last checked … ago'");
+});
+
+await test("4b. background refresh survives the response and populates the shared cache; next request is validated (no fabricated state)", async () => {
+  resetAll();
+  fetchDelayMs = 900; // build ≈1.8s (>1.5s) → first request gets the fallback
+  const t0 = Date.now();
+  const first = await getTournamentLiveSnapshot();
+  assert.ok(Date.now() - t0 < 1700, `first request returns promptly (${Date.now() - t0}ms)`);
+  assert.strictEqual(first.isFallback, true, "first request served the truthful fallback");
+
+  // The in-flight build keeps running past the (fallback) response and writes the
+  // shared cache. Wait for that population (poll the shared key).
+  const builtKey = () => [...adapter.store.keys()].some((k) => k.includes("worldcup-built-snapshot"));
+  for (let i = 0; i < 40 && !builtKey(); i++) await new Promise((r) => setTimeout(r, 100));
+  assert.ok(builtKey(), "background refresh populated the shared cache after the response");
+
+  const second = await getTournamentLiveSnapshot();
+  assert.notStrictEqual(second.isFallback, true, "next request reads the VALIDATED snapshot, not another fallback");
+  assert.strictEqual(second.matches[matchSlug(targetMatch)].homeScore, 2, "validated provider data present");
+  assert.strictEqual(second.matches[matchSlug(targetMatch)].status, "FINISHED", "validated FINISHED status, not fabricated/SCHEDULED");
 });
 
 await test("5. refresh error serves the last validated snapshot (stale-on-error)", async () => {

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { LiveDataAutoRefresh } from "@/components/LiveDataAutoRefresh";
 import { LiveSnapshotDebug } from "@/components/LiveSnapshotDebug";
+import { LiveDataUnavailableNotice } from "@/components/LiveDataUnavailableNotice";
 import { GroupsContent } from "./GroupsContent";
 import { getLiveRefreshPolicy } from "@/lib/liveRefreshPolicy";
 import { getTournamentLiveSnapshot } from "@/lib/liveSnapshot";
@@ -31,6 +32,11 @@ export default async function GroupsPage() {
     <>
       <LiveDataAutoRefresh intervalMs={refreshPolicy.intervalMs} />
       <LiveSnapshotDebug snapshotId={snapshot.snapshotId} generatedAt={snapshot.generatedAt} />
+      {snapshot.isFallback ? (
+        <div className="mx-auto max-w-5xl px-4 pt-6">
+          <LiveDataUnavailableNotice show />
+        </div>
+      ) : null}
       <GroupsContent standings={snapshot.standingsByGroup} />
     </>
   );

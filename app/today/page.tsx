@@ -8,6 +8,7 @@ import { LiveDataAutoRefresh } from "@/components/LiveDataAutoRefresh";
 import { LiveSnapshotDebug } from "@/components/LiveSnapshotDebug";
 import { FreshnessLabel } from "@/components/FreshnessLabel";
 import { MatchdayDateNav } from "@/components/MatchdayDateNav";
+import { LiveDataUnavailableNotice } from "@/components/LiveDataUnavailableNotice";
 import { matchSlug, matchUtcDate, type Match } from "@/lib/matches";
 import { countryName } from "@/lib/i18n";
 import type { LiveMatchData } from "@/lib/liveMatchData";
@@ -239,17 +240,21 @@ function MatchRow({
   m,
   live,
   scorerEvents,
+  liveDataUnavailable,
 }: {
   m: Match;
   live: LiveMatchData | undefined;
   scorerEvents?: GoalScorerEvent[];
+  liveDataUnavailable?: boolean;
 }) {
   const home = countryName(m.homeKey, "en");
   const away = countryName(m.awayKey, "en");
-  const hasScore = live && live.homeScore !== null && live.awayScore !== null;
-  const isLive = live?.status === "IN_PLAY" || live?.status === "PAUSED";
-  const isFinished = live?.status === "FINISHED";
-  const goals = scorerText(scorerEvents);
+  // In the cold-start fallback a started match has an unknown result — never
+  // show it as Scheduled or invent a score.
+  const hasScore = !liveDataUnavailable && live && live.homeScore !== null && live.awayScore !== null;
+  const isLive = !liveDataUnavailable && (live?.status === "IN_PLAY" || live?.status === "PAUSED");
+  const isFinished = !liveDataUnavailable && live?.status === "FINISHED";
+  const goals = liveDataUnavailable ? null : scorerText(scorerEvents);
 
   return (
     <Link
@@ -281,9 +286,14 @@ function MatchRow({
         </div>
         <div data-today-right-meta className="flex shrink-0 items-center justify-between gap-3 text-xs text-white/50 sm:w-36 sm:flex-col sm:items-end sm:text-end">
           <div className="flex items-center gap-2 sm:justify-end">
-            {!hasScore && !isLive && !isFinished ? (
+            {!hasScore && !isLive && !isFinished && !liveDataUnavailable ? (
               <MatchTime match={m} withZone className="font-semibold text-white/80" />
             ) : null}
+            {liveDataUnavailable && (
+              <span className="rounded bg-amber-400/15 px-1.5 py-0.5 font-heading text-[10px] font-extrabold uppercase tracking-widest text-amber-300">
+                Live data unavailable
+              </span>
+            )}
             {isLive && hasScore && (
               <span className="rounded bg-red-600 px-1.5 py-0.5 font-heading text-[10px] font-extrabold uppercase tracking-widest text-white">
                 {live?.status === "PAUSED" ? "HT" : "Live"}
@@ -299,7 +309,7 @@ function MatchRow({
                 FT
               </span>
             )}
-            {!hasScore && !isLive && !isFinished && (
+            {!hasScore && !isLive && !isFinished && !liveDataUnavailable && (
               <span className="rounded bg-white/5 px-1.5 py-0.5 font-heading text-[10px] font-extrabold uppercase tracking-widest text-white/30">
                 Scheduled
               </span>
@@ -353,6 +363,7 @@ export default async function TodayPage({
 
   // One bulk fetch for all today's matches — no per-match API calls.
   const snapshot = await getTournamentLiveSnapshot();
+  const isFallbackSnapshot = snapshot.isFallback === true;
   const liveData = snapshot.liveDataByProviderId;
   const scorerLines: Record<string, GoalScorerEvent[]> = {};
   for (const [id, entry] of Object.entries(snapshot.matches)) {
@@ -408,6 +419,8 @@ export default async function TodayPage({
           nextDate={resolved.nextDate}
         />
 
+        <LiveDataUnavailableNotice show={isFallbackSnapshot} />
+
         {previousMatchday && (
           <Link
             href={`/today?date=${previousMatchday}&tz=${encodeURIComponent(selectedTimeZone)}`}
@@ -459,6 +472,7 @@ export default async function TodayPage({
                     m={m}
                     live={m.providerIds?.footballData ? liveData[String(m.providerIds.footballData)] : undefined}
                     scorerEvents={scorerLines[matchSlug(m)]}
+                    liveDataUnavailable={snapshot.matches[matchSlug(m)]?.liveDataUnavailable}
                   />
                 ))}
               </div>
