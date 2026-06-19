@@ -596,9 +596,61 @@ export function resetLiveSnapshotMemoryForTests() {
   memorySecondaryData = null;
   memoryPrimaryFetchedAt = null;
   memorySecondaryFetchedAt = null;
+  snapshotResultCache = null;
+  snapshotInFlight = null;
+}
+
+// Short-lived in-memory cache of the fully-built tournament snapshot.
+//
+// A mere /today?date= change must not rebuild the whole snapshot (provider
+// orchestration + ESPN enrichment): that work made date navigation take ~10s
+// with no feedback on mobile. The snapshot is tournament-wide and identical
+// regardless of the selected calendar date, so reusing it for a few seconds is
+// safe and changes no scorer/score/standings/provider semantics — the
+// underlying provider data is itself cached for LIVE_SNAPSHOT_REVALIDATE_SECONDS,
+// so rebuilding more often only re-derives identical data. Single-flight
+// collapses concurrent renders onto one build, and a stale snapshot is served
+// if a rebuild fails.
+//
+// Gated on NEXT_RUNTIME so it is active only inside the Next.js server runtime;
+// standalone test scripts (which assert rebuild-on-every-call behaviour) run
+// with it disabled and are therefore unaffected.
+const SNAPSHOT_RESULT_TTL_MS = 10_000;
+let snapshotResultCache: { snapshot: TournamentLiveSnapshot; expiresAt: number } | null = null;
+let snapshotInFlight: Promise<TournamentLiveSnapshot> | null = null;
+
+function snapshotResultCacheEnabled(): boolean {
+  return Boolean(process.env.NEXT_RUNTIME);
 }
 
 export async function getTournamentLiveSnapshot(): Promise<TournamentLiveSnapshot> {
+  if (!snapshotResultCacheEnabled()) {
+    return buildLiveSnapshotNow();
+  }
+
+  const nowMs = Date.now();
+  if (snapshotResultCache && nowMs < snapshotResultCache.expiresAt) {
+    return snapshotResultCache.snapshot;
+  }
+  if (snapshotInFlight) return snapshotInFlight;
+
+  snapshotInFlight = buildLiveSnapshotNow()
+    .then((snapshot) => {
+      snapshotResultCache = { snapshot, expiresAt: Date.now() + SNAPSHOT_RESULT_TTL_MS };
+      return snapshot;
+    })
+    .catch((err) => {
+      if (snapshotResultCache) return snapshotResultCache.snapshot;
+      throw err;
+    })
+    .finally(() => {
+      snapshotInFlight = null;
+    });
+
+  return snapshotInFlight;
+}
+
+async function buildLiveSnapshotNow(): Promise<TournamentLiveSnapshot> {
   const generatedAt = new Date().toISOString();
 
   let primaryOk = false;
