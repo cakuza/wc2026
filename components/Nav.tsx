@@ -179,11 +179,11 @@ export function Nav() {
 
   return (
     <header className="sticky top-0 z-40 border-b-[3px] border-accent bg-navy">
-      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-4 px-4">
-        <div className="flex items-center gap-6">
-          <Link href="/" className="flex items-center gap-2" onClick={closeMenu}>
-            <span className="font-heading text-xl font-extrabold tracking-tight text-white">WorldCupMatchDay</span>
-            <span className="font-sans text-[11px] font-black tracking-widest bg-red-600 text-white px-1.5 py-0.5 rounded">2026</span>
+      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-2 px-4 sm:gap-4">
+        <div className="flex min-w-0 items-center gap-6">
+          <Link href="/" className="flex min-w-0 items-center gap-1.5 sm:gap-2" onClick={closeMenu}>
+            <span className="truncate font-heading text-base font-extrabold tracking-tight text-white sm:text-xl">WorldCupMatchDay</span>
+            <span className="shrink-0 font-sans text-[11px] font-black tracking-widest bg-red-600 text-white px-1.5 py-0.5 rounded">2026</span>
           </Link>
           {/* Desktop nav */}
           <nav aria-label="Primary" className="hidden items-center gap-1 lg:flex">
@@ -205,7 +205,7 @@ export function Nav() {
           </nav>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex shrink-0 items-center gap-2 sm:gap-3">
           <LanguageSwitcher />
           {/* Hamburger button — mobile only, opens the secondary drawer */}
           <button
