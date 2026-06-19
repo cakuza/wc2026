@@ -60,8 +60,14 @@ export function Hero({
            * Renders the live "5 DAYS / HH MM SS" countdown post-hydration.
            * Visually extends the section; the static h1 above acts as a
            * no-JS fallback and permanent SEO anchor.
+           *
+           * The wrapper reserves the island's height so the post-hydration
+           * content fills reserved space instead of pushing the host-nations
+           * block down (eliminating this client island as a layout-shift source).
            */}
-          <CountdownClient />
+          <div className="min-h-[208px] sm:min-h-[268px]">
+            <CountdownClient />
+          </div>
 
           {/* Host nations */}
           <div className="mt-6">

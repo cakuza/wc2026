@@ -66,6 +66,8 @@ type SnapshotProviderPayload = {
   secondaryProviderOk?: boolean;
   primaryProviderFetchedAt?: string | null;
   secondaryProviderFetchedAt?: string | null;
+  /** Skip secondary ESPN scorer enrichment (used for the instant cold-start fallback). */
+  skipEnrichment?: boolean;
 };
 
 type SnapshotCacheOptions = {
@@ -345,6 +347,7 @@ export async function buildTournamentLiveSnapshot({
   secondaryProviderOk = worldcupGames !== null,
   primaryProviderFetchedAt = primaryProviderOk ? generatedAt : null,
   secondaryProviderFetchedAt = secondaryProviderOk ? generatedAt : null,
+  skipEnrichment = false,
 }: SnapshotProviderPayload): Promise<TournamentLiveSnapshot> {
   const knownProviderIds = new Set(
     MATCHES.map((match) => match.providerIds?.footballData).filter((id): id is number => typeof id === "number"),
@@ -415,7 +418,7 @@ export async function buildTournamentLiveSnapshot({
   // (score/status failover) and update canonicalLiveData so standings below
   // reflect the corrected result. Fail-closed: only the exact string "true" enables
   // enrichment; any other value leaves the module unimported and the baseline unchanged.
-  if (process.env.SCORER_ENRICHMENT_ENABLED === "true") {
+  if (!skipEnrichment && process.env.SCORER_ENRICHMENT_ENABLED === "true") {
     const { enrichSnapshotScorers } = await import("./scorerProviderRuntime");
     await enrichSnapshotScorers(matches, primaryProviderOk, generatedAt, canonicalLiveData);
   }
@@ -596,58 +599,99 @@ export function resetLiveSnapshotMemoryForTests() {
   memorySecondaryData = null;
   memoryPrimaryFetchedAt = null;
   memorySecondaryFetchedAt = null;
-  snapshotResultCache = null;
-  snapshotInFlight = null;
+  lastKnownGoodSnapshot = null;
+  staticFallbackSnapshot = null;
 }
 
-// Short-lived in-memory cache of the fully-built tournament snapshot.
+// ───────────────────────────────────────────────────────────────────────────
+// Shared snapshot architecture (stale-while-revalidate).
 //
-// A mere /today?date= change must not rebuild the whole snapshot (provider
-// orchestration + ESPN enrichment): that work made date navigation take ~10s
-// with no feedback on mobile. The snapshot is tournament-wide and identical
-// regardless of the selected calendar date, so reusing it for a few seconds is
-// safe and changes no scorer/score/standings/provider semantics — the
-// underlying provider data is itself cached for LIVE_SNAPSHOT_REVALIDATE_SECONDS,
-// so rebuilding more often only re-derives identical data. Single-flight
-// collapses concurrent renders onto one build, and a stale snapshot is served
-// if a rebuild fails.
+// The fully-built tournament snapshot is tournament-wide and identical for every
+// viewer — timezone and language are applied later, at render time — so it is
+// cached ONCE in the Next.js/Vercel Data Cache (cross-instance, persistent) via
+// unstable_cache. Public page requests read that serialized snapshot instead of
+// rebuilding it; football-data.org / ESPN orchestration + standings computation
+// run only on a cache miss or background revalidation, never on the page's
+// critical render path. This is what removes the multi-second cold TTFB while
+// preserving every existing correctness gate (the build itself is unchanged).
 //
-// Gated on NEXT_RUNTIME so it is active only inside the Next.js server runtime;
-// standalone test scripts (which assert rebuild-on-every-call behaviour) run
-// with it disabled and are therefore unaffected.
-const SNAPSHOT_RESULT_TTL_MS = 10_000;
-let snapshotResultCache: { snapshot: TournamentLiveSnapshot; expiresAt: number } | null = null;
-let snapshotInFlight: Promise<TournamentLiveSnapshot> | null = null;
+// The cache key is stable and schema-versioned (bump SNAPSHOT_SCHEMA_VERSION for
+// an incompatible snapshot shape) and deliberately carries NO timezone/language,
+// so one canonical snapshot is shared across all viewers and is not invalidated
+// merely by a deploy.
+// ───────────────────────────────────────────────────────────────────────────
+export const SNAPSHOT_SCHEMA_VERSION = "v1";
+const SHARED_SNAPSHOT_REVALIDATE_SECONDS = LIVE_SNAPSHOT_REVALIDATE_SECONDS;
+// If the shared cache is cold/empty and the build would block longer than this,
+// serve a fallback immediately and let the build finish + populate in the
+// background — a brand-new deployment must never show a 10–20s blank page.
+const COLD_START_FALLBACK_MS = 1500;
 
-function snapshotResultCacheEnabled(): boolean {
+const getSharedBuiltSnapshot = unstable_cache(
+  () => buildLiveSnapshotNow(),
+  ["worldcup-built-snapshot", SNAPSHOT_SCHEMA_VERSION],
+  { revalidate: SHARED_SNAPSHOT_REVALIDATE_SECONDS, tags: ["built-snapshot"] },
+);
+
+let staticFallbackSnapshot: TournamentLiveSnapshot | null = null;
+
+// Deterministic, non-fabricated fallback for a cold/empty shared cache: the
+// canonical schedule with every match SCHEDULED, no scores/scorers, empty
+// standings, and freshness honestly marked unavailable (primaryProviderOk=false
+// → "Scores syncing…"). It invents nothing, and skips enrichment so it is
+// instant (no provider network calls).
+async function getStaticScheduleFallback(): Promise<TournamentLiveSnapshot> {
+  if (staticFallbackSnapshot) return staticFallbackSnapshot;
+  staticFallbackSnapshot = await buildTournamentLiveSnapshot({
+    liveData: new Map(),
+    worldcupGames: null,
+    generatedAt: new Date().toISOString(),
+    primaryProviderOk: false,
+    secondaryProviderOk: false,
+    primaryProviderFetchedAt: null,
+    secondaryProviderFetchedAt: null,
+    skipEnrichment: true,
+  });
+  return staticFallbackSnapshot;
+}
+
+// Active only inside the Next.js server runtime. Test scripts (no NEXT_RUNTIME)
+// build directly, preserving the rebuild-on-every-call contract their suites assert.
+function sharedSnapshotEnabled(): boolean {
   return Boolean(process.env.NEXT_RUNTIME);
 }
 
+const COLD_SENTINEL = Symbol("cold-snapshot");
+
 export async function getTournamentLiveSnapshot(): Promise<TournamentLiveSnapshot> {
-  if (!snapshotResultCacheEnabled()) {
+  if (!sharedSnapshotEnabled()) {
     return buildLiveSnapshotNow();
   }
 
-  const nowMs = Date.now();
-  if (snapshotResultCache && nowMs < snapshotResultCache.expiresAt) {
-    return snapshotResultCache.snapshot;
-  }
-  if (snapshotInFlight) return snapshotInFlight;
-
-  snapshotInFlight = buildLiveSnapshotNow()
+  // Read (or, on miss, build) the shared snapshot. Warm/stale reads from the
+  // Data Cache resolve immediately (stale-while-revalidate); only a truly cold
+  // cache blocks on the build.
+  const pending = getSharedBuiltSnapshot()
     .then((snapshot) => {
-      snapshotResultCache = { snapshot, expiresAt: Date.now() + SNAPSHOT_RESULT_TTL_MS };
+      lastKnownGoodSnapshot = snapshot;
       return snapshot;
     })
-    .catch((err) => {
-      if (snapshotResultCache) return snapshotResultCache.snapshot;
-      throw err;
-    })
-    .finally(() => {
-      snapshotInFlight = null;
-    });
+    .catch(() => lastKnownGoodSnapshot); // stale-on-error: never throw to the page
 
-  return snapshotInFlight;
+  const raced = await Promise.race([
+    pending,
+    new Promise<typeof COLD_SENTINEL>((resolve) => setTimeout(() => resolve(COLD_SENTINEL), COLD_START_FALLBACK_MS)),
+  ]);
+
+  if (raced && raced !== COLD_SENTINEL) {
+    return raced as TournamentLiveSnapshot;
+  }
+
+  // Cold/empty cache (or an error with no last-known-good on this instance):
+  // do not block the page. The build keeps running and populates the shared
+  // cache for the next request.
+  void pending.catch(() => {});
+  return lastKnownGoodSnapshot ?? (await getStaticScheduleFallback());
 }
 
 async function buildLiveSnapshotNow(): Promise<TournamentLiveSnapshot> {
