@@ -7,33 +7,56 @@ import { TimezonePicker } from "@/components/TimezoneLabel";
 import { LiveDataAutoRefresh } from "@/components/LiveDataAutoRefresh";
 import { LiveSnapshotDebug } from "@/components/LiveSnapshotDebug";
 import { FreshnessLabel } from "@/components/FreshnessLabel";
+import { MatchdayDateNav } from "@/components/MatchdayDateNav";
 import { matchSlug, matchUtcDate, type Match } from "@/lib/matches";
 import { countryName } from "@/lib/i18n";
 import type { LiveMatchData } from "@/lib/liveMatchData";
 import type { GoalScorerEvent } from "@/lib/worldcup26Provider";
 import { getTournamentLiveSnapshot } from "@/lib/liveSnapshot";
 import { getLiveRefreshPolicy } from "@/lib/liveRefreshPolicy";
-import { getTodayMatchesForTimeZone, nextUpcomingMatchesForTimeZone, resolveSelectedTimeZone } from "@/lib/todaySelection";
+import {
+  getMatchesForDateInZone,
+  localHourInTimeZone,
+  nextUpcomingMatchesForTimeZone,
+  previousMatchdayWithMatches,
+  resolveSelectedMatchday,
+  resolveSelectedTimeZone,
+} from "@/lib/todaySelection";
 import { TZ_COOKIE } from "@/lib/timezone";
 
 const BASE_URL = "https://www.worldcupmatchday.com";
 
+// Local-time window after midnight where users still think of the just-finished
+// matchday as "tonight's games" — drives the previous-matchday continuity link.
+const MIDNIGHT_CONTINUITY_END_HOUR = 3;
+
 export const revalidate = 30;
 export const dynamic = "force-dynamic";
 
-export const metadata: Metadata = {
-  title: "World Cup Matches Today — Scores, Fixtures & Kickoff Times",
-  description:
-    "See today's World Cup matches with scores, kickoff times, venues, goal scorers and timezone support.",
-  alternates: { canonical: `${BASE_URL}/today` },
-  openGraph: {
+export async function generateMetadata({
+  searchParams,
+}: {
+  searchParams?: Promise<Record<string, string | string[] | undefined>>;
+}): Promise<Metadata> {
+  const params = searchParams ? await searchParams : {};
+  const hasDateParam = typeof params.date === "string" && params.date.length > 0;
+  return {
     title: "World Cup Matches Today — Scores, Fixtures & Kickoff Times",
     description:
       "See today's World Cup matches with scores, kickoff times, venues, goal scorers and timezone support.",
-    url: `${BASE_URL}/today`,
-    type: "website",
-  },
-};
+    // A single canonical /today regardless of ?date=/?tz= avoids duplicate
+    // indexable URLs; dated views are explicitly de-indexed.
+    alternates: { canonical: `${BASE_URL}/today` },
+    robots: hasDateParam ? { index: false, follow: true } : undefined,
+    openGraph: {
+      title: "World Cup Matches Today — Scores, Fixtures & Kickoff Times",
+      description:
+        "See today's World Cup matches with scores, kickoff times, venues, goal scorers and timezone support.",
+      url: `${BASE_URL}/today`,
+      type: "website",
+    },
+  };
+}
 
 const FAQS: { q: string; a: string }[] = [
   {
@@ -236,7 +259,7 @@ function MatchRow({
       <div className="flex flex-col gap-2 sm:flex-row sm:items-start">
         <div data-today-score-cluster className="min-w-0 flex-1">
           <div className="flex items-center gap-3">
-            <div className="flex flex-1 items-center justify-end gap-2 text-end">
+            <div className="flex min-w-0 flex-1 items-center justify-end gap-2 text-end">
               <span className="truncate font-semibold text-white">{home}</span>
               <Flag code={m.homeCode} alt="" width={30} height={22} />
             </div>
@@ -249,7 +272,7 @@ function MatchRow({
                 vs
               </span>
             )}
-            <div className="flex flex-1 items-center gap-2">
+            <div className="flex min-w-0 flex-1 items-center gap-2">
               <Flag code={m.awayCode} alt="" width={30} height={22} />
               <span className="truncate font-semibold text-white">{away}</span>
             </div>
@@ -301,11 +324,32 @@ export default async function TodayPage({
   const params = searchParams ? await searchParams : {};
   const cookieTz = (await cookies()).get(TZ_COOKIE)?.value;
   const selectedTimeZone = resolveSelectedTimeZone(params.tz, cookieTz);
-  const today = getTodayMatchesForTimeZone({ timeZone: selectedTimeZone });
-  const isToday = today.matches.length > 0;
-  const fallbackDays = isToday ? [] : nextUpcomingMatchesForTimeZone({ timeZone: selectedTimeZone });
-  const days = isToday ? [{ date: today.date, matches: today.matches }] : fallbackDays;
-  const summaryMatches = isToday ? today.matches : (fallbackDays[0]?.matches ?? []);
+
+  // Resolve which local calendar date to show: a valid in-range ?date= wins,
+  // otherwise the viewer's actual local today. "Today" never changes meaning.
+  const resolved = resolveSelectedMatchday({ dateParam: params.date, timeZone: selectedTimeZone });
+  const selectedMatches = getMatchesForDateInZone({ date: resolved.date, timeZone: selectedTimeZone });
+  const hasSelectedMatches = selectedMatches.length > 0;
+
+  // Only the default (no explicit date) today-view with nothing scheduled falls
+  // back to "next upcoming"; an explicit empty date shows an empty state.
+  const showUpcomingFallback = !resolved.isExplicitDate && !hasSelectedMatches;
+  const fallbackDays = showUpcomingFallback
+    ? nextUpcomingMatchesForTimeZone({ timeZone: selectedTimeZone })
+    : [];
+
+  const days = hasSelectedMatches ? [{ date: resolved.date, matches: selectedMatches }] : fallbackDays;
+  const summaryMatches = hasSelectedMatches ? selectedMatches : (fallbackDays[0]?.matches ?? []);
+  const isToday = resolved.isToday;
+
+  // Post-midnight continuity: while it's still the early hours locally and
+  // yesterday actually had matches, surface a one-tap link back to them.
+  const localHour = localHourInTimeZone(new Date(), selectedTimeZone);
+  const inMidnightWindow = localHour >= 0 && localHour < MIDNIGHT_CONTINUITY_END_HOUR;
+  const previousMatchday =
+    !resolved.isExplicitDate && inMidnightWindow
+      ? previousMatchdayWithMatches({ fromDate: resolved.todayDate, timeZone: selectedTimeZone })
+      : null;
 
   // One bulk fetch for all today's matches — no per-match API calls.
   const snapshot = await getTournamentLiveSnapshot();
@@ -336,10 +380,16 @@ export default async function TodayPage({
 
       <div className="mx-auto max-w-4xl px-4 py-8">
         <h1 className="mb-2 font-heading text-4xl font-extrabold uppercase tracking-wide text-white">
-          {isToday ? "World Cup Matches Today" : "No World Cup Matches Today"}
+          {hasSelectedMatches
+            ? isToday
+              ? "World Cup Matches Today"
+              : "World Cup Matches"
+            : isToday
+              ? "No World Cup Matches Today"
+              : "No World Cup Matches"}
         </h1>
         <p className="mb-2 max-w-3xl text-sm text-white/50">
-          Follow today&apos;s World Cup matches with scores, kickoff times in your selected timezone,
+          Follow World Cup matches with scores, kickoff times in your selected timezone,
           venues and match status. Finished matches include final scores and goal scorers when available.
         </p>
         <div className="mb-6 flex flex-wrap items-center justify-between gap-2">
@@ -350,9 +400,33 @@ export default async function TodayPage({
           />
         </div>
 
-        {isToday && <TodaySummary matches={summaryMatches} liveData={liveData} scorerLines={scorerLines} />}
+        <MatchdayDateNav
+          selectedDate={resolved.date}
+          todayDate={resolved.todayDate}
+          isToday={resolved.isToday}
+          prevDate={resolved.prevDate}
+          nextDate={resolved.nextDate}
+        />
 
-        {!isToday && (
+        {previousMatchday && (
+          <Link
+            href={`/today?date=${previousMatchday}&tz=${encodeURIComponent(selectedTimeZone)}`}
+            className="mb-6 flex items-center justify-between gap-3 rounded-xl border border-accent/30 bg-accent/10 px-4 py-3 text-sm transition hover:border-accent/50 hover:bg-accent/15"
+          >
+            <span className="font-semibold text-white">
+              Just after midnight — view the previous matchday&apos;s completed matches.
+            </span>
+            <span className="shrink-0 font-heading text-xs font-bold uppercase tracking-wide text-accent">
+              {longDate(previousMatchday)} →
+            </span>
+          </Link>
+        )}
+
+        {isToday && hasSelectedMatches && (
+          <TodaySummary matches={summaryMatches} liveData={liveData} scorerLines={scorerLines} />
+        )}
+
+        {showUpcomingFallback && (
           <div className="mb-6 rounded-xl border border-white/10 bg-navyCard px-4 py-4 text-sm text-white/60">
             <p className="font-semibold text-white/80">No World Cup matches are scheduled today.</p>
             <p className="mt-1">Here are the next upcoming fixtures. See the full {" "}
@@ -363,11 +437,20 @@ export default async function TodayPage({
           </div>
         )}
 
+        {resolved.isExplicitDate && !hasSelectedMatches && (
+          <div className="mb-6 rounded-xl border border-white/10 bg-navyCard px-4 py-4 text-sm text-white/60">
+            <p className="font-semibold text-white/80">No World Cup matches on this date.</p>
+            <p className="mt-1">Use the date controls above to find another matchday, or see the full {" "}
+              <Link href="/schedule" className="font-semibold text-accent underline underline-offset-2 hover:text-white">match schedule</Link>.
+            </p>
+          </div>
+        )}
+
         <div className="space-y-8">
           {days.map(({ date, matches }) => (
             <section key={date}>
               <h2 className="mb-3 border-b-2 border-accent pb-2 font-heading text-xl font-extrabold uppercase tracking-wide text-white">
-                {isToday ? "Today" : "Next"} · {longDate(date)}
+                {showUpcomingFallback ? "Next" : isToday ? "Today" : "Matches"} · {longDate(date)}
               </h2>
               <div className="space-y-2">
                 {matches.map((m, i) => (

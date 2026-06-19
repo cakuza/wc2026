@@ -63,10 +63,154 @@ export function groupMatchesByCalendarDate(
   return [...byDate.entries()].map(([date, dayMatches]) => ({ date, matches: dayMatches }));
 }
 
-function addCalendarDays(dateISO: string, days: number): string {
+export function addCalendarDays(dateISO: string, days: number): string {
   const [year, month, day] = dateISO.split("-").map(Number);
   const date = new Date(Date.UTC(year, month - 1, day + days));
   return date.toISOString().slice(0, 10);
+}
+
+/** Strict YYYY-MM-DD validation that also rejects impossible calendar dates (e.g. 2026-13-40). */
+export function isValidISODate(value: string | string[] | undefined): value is string {
+  const candidate = Array.isArray(value) ? value[0] : value;
+  if (typeof candidate !== "string") return false;
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(candidate)) return false;
+  const [year, month, day] = candidate.split("-").map(Number);
+  const date = new Date(Date.UTC(year, month - 1, day));
+  return (
+    date.getUTCFullYear() === year &&
+    date.getUTCMonth() === month - 1 &&
+    date.getUTCDate() === day
+  );
+}
+
+/** Local wall-clock hour (0–23) for an instant in the given timezone. */
+export function localHourInTimeZone(date: Date, timeZone: string): number {
+  const part = new Intl.DateTimeFormat("en-GB", {
+    timeZone,
+    hour: "2-digit",
+    hourCycle: "h23",
+  }).formatToParts(date).find((p) => p.type === "hour")?.value;
+  const hour = Number(part);
+  return Number.isFinite(hour) ? hour : 0;
+}
+
+/** All matches whose local calendar date in `timeZone` equals `date`, kickoff-sorted. */
+export function getMatchesForDateInZone({
+  date,
+  timeZone,
+  matches = MATCHES,
+}: {
+  date: string;
+  timeZone: string;
+  matches?: Match[];
+}): Match[] {
+  return matches
+    .filter((match) => getMatchCalendarDateInZone(matchUtcDate(match), timeZone) === date)
+    .sort((a, b) => matchUtcDate(a).getTime() - matchUtcDate(b).getTime());
+}
+
+/**
+ * First and last local calendar dates the tournament occupies in `timeZone`.
+ * Used to bound the date navigator so users cannot page into empty infinity.
+ */
+export function getTournamentDateRangeInZone({
+  timeZone,
+  matches = MATCHES,
+}: {
+  timeZone: string;
+  matches?: Match[];
+}): { min: string; max: string } {
+  let min: string | null = null;
+  let max: string | null = null;
+  for (const match of matches) {
+    const date = getMatchCalendarDateInZone(matchUtcDate(match), timeZone);
+    if (min === null || date < min) min = date;
+    if (max === null || date > max) max = date;
+  }
+  // MATCHES is never empty in production; fall back to a stable single-day range.
+  return { min: min ?? "2026-06-11", max: max ?? "2026-06-11" };
+}
+
+/**
+ * The most recent local matchday strictly before `fromDate` that actually has
+ * matches, or null if none. Drives the post-midnight "previous matchday"
+ * continuity affordance.
+ */
+export function previousMatchdayWithMatches({
+  fromDate,
+  timeZone,
+  matches = MATCHES,
+}: {
+  fromDate: string;
+  timeZone: string;
+  matches?: Match[];
+}): string | null {
+  let best: string | null = null;
+  for (const match of matches) {
+    const date = getMatchCalendarDateInZone(matchUtcDate(match), timeZone);
+    if (date < fromDate && (best === null || date > best)) best = date;
+  }
+  return best;
+}
+
+export type ResolvedMatchday = {
+  /** The local calendar date being displayed (YYYY-MM-DD). */
+  date: string;
+  /** The viewer's actual local "today" in this timezone. */
+  todayDate: string;
+  /** Whether `date` equals the viewer's local today (i.e. no explicit ?date=). */
+  isToday: boolean;
+  /** Whether an explicit, in-range ?date= drove the selection. */
+  isExplicitDate: boolean;
+  /** Tournament local-date bounds in this timezone. */
+  min: string;
+  max: string;
+  /** Adjacent navigable dates, null when at/over a tournament bound. */
+  prevDate: string | null;
+  nextDate: string | null;
+};
+
+/**
+ * Resolve which local calendar date `/today` should display.
+ *
+ * Priority: a valid, in-tournament-range ?date= param wins; otherwise the
+ * viewer's current local date in the selected timezone. "Today" always means
+ * the real local calendar date — an out-of-range or malformed ?date= is ignored
+ * and treated as today, never invented.
+ */
+export function resolveSelectedMatchday({
+  dateParam,
+  timeZone,
+  now = new Date(),
+  matches = MATCHES,
+}: {
+  dateParam: string | string[] | undefined;
+  timeZone: string;
+  now?: Date;
+  matches?: Match[];
+}): ResolvedMatchday {
+  const todayDate = getMatchCalendarDateInZone(now, timeZone);
+  const { min, max } = getTournamentDateRangeInZone({ timeZone, matches });
+
+  const candidate = isValidISODate(dateParam)
+    ? Array.isArray(dateParam)
+      ? dateParam[0]
+      : dateParam
+    : null;
+  const inRange = candidate !== null && candidate >= min && candidate <= max;
+  const isExplicitDate = inRange && candidate !== todayDate;
+  const date = inRange ? (candidate as string) : todayDate;
+
+  return {
+    date,
+    todayDate,
+    isToday: date === todayDate,
+    isExplicitDate,
+    min,
+    max,
+    prevDate: date > min ? addCalendarDays(date, -1) : null,
+    nextDate: date < max ? addCalendarDays(date, 1) : null,
+  };
 }
 
 export function getDisplayMatchdayForTimeZone({

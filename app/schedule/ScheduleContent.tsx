@@ -154,7 +154,7 @@ export function ScheduleContent({ liveScores, scorerLines }: Props) {
                     <div className="flex flex-col gap-2 sm:flex-row sm:items-start">
                       <div data-schedule-score-cluster className="min-w-0 flex-1">
                         <div className="flex items-center gap-3">
-                          <div className="flex flex-1 items-center justify-end gap-2 text-end">
+                          <div className="flex min-w-0 flex-1 items-center justify-end gap-2 text-end">
                             <span className="truncate font-semibold text-white">
                               {country(m.homeKey)}
                             </span>
@@ -175,7 +175,7 @@ export function ScheduleContent({ liveScores, scorerLines }: Props) {
                             </span>
                           )}
 
-                          <div className="flex flex-1 items-center gap-2">
+                          <div className="flex min-w-0 flex-1 items-center gap-2">
                             <Flag
                               code={m.awayCode}
                               alt=""

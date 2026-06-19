@@ -113,14 +113,14 @@ export function TimezoneSchedule({
                   <span className="w-6 shrink-0 text-center font-heading text-xs font-bold tabular-nums text-white/50">
                     {num}
                   </span>
-                  <div className="flex flex-1 items-center justify-end gap-2 text-end">
+                  <div className="flex min-w-0 flex-1 items-center justify-end gap-2 text-end">
                     <span className="truncate font-semibold text-white">{home}</span>
                     <Flag code={m.homeCode} alt="" width={28} height={20} />
                   </div>
                   <span className="shrink-0 rounded bg-navy px-2 py-1 font-heading text-[11px] font-bold uppercase text-white/70">
                     {hasScore ? `${score!.homeScore}–${score!.awayScore}` : t("vs")}
                   </span>
-                  <div className="flex flex-1 items-center gap-2">
+                  <div className="flex min-w-0 flex-1 items-center gap-2">
                     <Flag code={m.awayCode} alt="" width={28} height={20} />
                     <span className="truncate font-semibold text-white">{away}</span>
                   </div>

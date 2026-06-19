@@ -51,5 +51,7 @@ export function getScoreFreshnessLabel({
     return { label: `Live data may be delayed · Last checked ${age}`, state: "stale" };
   }
 
+  // "Last checked" — the timestamp is the latest application poll, not a
+  // guarantee that the underlying provider data is itself fresh.
   return { label: `Last checked ${age}`, state: getFreshnessState(primaryProviderFetchedAt, now) };
 }
