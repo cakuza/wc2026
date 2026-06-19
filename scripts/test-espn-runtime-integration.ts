@@ -158,7 +158,7 @@ async function run() {
   // 1. Mexico–South Africa: 2-0, two confirmed scorers, unresolved 0.
   await test("Mexico–South Africa: 2-0 → 2 scorers, unresolved 0", async () => {
     const m = buildMatch("mexico", "southAfrica", 2, 0, "FINISHED");
-    await enrichSnapshotScorers(snapshotOf(m), true, STAMP);
+    await enrichSnapshotScorers(snapshotOf(m), true, STAMP, new Map());
     assert.strictEqual(m.scorers.length, 2);
     assert.strictEqual(m.goalEventCompleteness.missingGoalEventCount, 0);
     assert.deepStrictEqual(m.scorers.map((s) => s.playerName), ["Julián Quiñones", "Raúl Jiménez"]);
@@ -168,7 +168,7 @@ async function run() {
   // 2. South Korea–Czechia: 2-1, three confirmed scorers, unresolved 0.
   await test("South Korea–Czechia: 2-1 → 3 scorers, unresolved 0", async () => {
     const m = buildMatch("southKorea", "czechia", 2, 1, "FINISHED");
-    await enrichSnapshotScorers(snapshotOf(m), true, STAMP);
+    await enrichSnapshotScorers(snapshotOf(m), true, STAMP, new Map());
     assert.strictEqual(m.scorers.length, 3);
     assert.strictEqual(m.goalEventCompleteness.missingGoalEventCount, 0);
     const czGoals = m.scorers.filter((s) => s.teamName === "Czechia").length;
@@ -180,7 +180,7 @@ async function run() {
   // 3. Iran–New Zealand: 2-2, four confirmed scorers, unresolved 0.
   await test("Iran–New Zealand: 2-2 → 4 scorers, unresolved 0 (no fabrication)", async () => {
     const m = buildMatch("iran", "newZealand", 2, 2, "FINISHED");
-    await enrichSnapshotScorers(snapshotOf(m), true, STAMP);
+    await enrichSnapshotScorers(snapshotOf(m), true, STAMP, new Map());
     assert.strictEqual(m.scorers.length, 4);
     assert.strictEqual(m.goalEventCompleteness.missingGoalEventCount, 0);
     assert.strictEqual(m.scorers.filter((s) => s.teamName === "Iran").length, 2);
@@ -190,7 +190,7 @@ async function run() {
   // 4. Germany–Curaçao: penalty counted, all eight goals represented exactly once.
   await test("Germany–Curaçao: 7-1 → 8 goals, penalty counted exactly once", async () => {
     const m = buildMatch("germany", "curacao", 7, 1, "FINISHED");
-    await enrichSnapshotScorers(snapshotOf(m), true, STAMP);
+    await enrichSnapshotScorers(snapshotOf(m), true, STAMP, new Map());
     assert.strictEqual(m.scorers.length, 8);
     assert.strictEqual(m.goalEventCompleteness.missingGoalEventCount, 0);
     const penalties = m.scorers.filter((s) => s.isPenalty);
@@ -205,7 +205,7 @@ async function run() {
   await test("Scheduled match: no summary request, no fabrication", async () => {
     const sched = buildMatch("mexico", "southKorea", 0, 0, "SCHEDULED");
     sched.goalEventCompleteness = { missingGoalEventCount: 0, expectedGoalEventCount: 0, hasAllGoalEvents: true } as any;
-    await enrichSnapshotScorers(snapshotOf(sched), true, STAMP);
+    await enrichSnapshotScorers(snapshotOf(sched), true, STAMP, new Map());
     assert.strictEqual(sched.scorers.length, 0);
     assert.ok(!requestedSummaries.has(EV.scheduled), "scheduled summary must never be requested");
   });
@@ -213,7 +213,7 @@ async function run() {
   // 6. Own goal: explicit own-goal fixture; no team/credited-side inference; no GB credit.
   await test("Own goal: credited to beneficiary, no scorer-team inference", async () => {
     const m = buildMatch("qatar", "switzerland", 1, 1, "FINISHED");
-    await enrichSnapshotScorers(snapshotOf(m), true, STAMP);
+    await enrichSnapshotScorers(snapshotOf(m), true, STAMP, new Map());
     assert.strictEqual(m.scorers.length, 2);
     assert.strictEqual(m.goalEventCompleteness.missingGoalEventCount, 0);
     const og = m.scorers.find((s) => s.isOwnGoal);
@@ -236,7 +236,7 @@ async function run() {
       ]),
     });
     const m = buildMatch("mexico", "southAfrica", 2, 0, "FINISHED");
-    await enrichSnapshotScorers(snapshotOf(m), true, STAMP);
+    await enrichSnapshotScorers(snapshotOf(m), true, STAMP, new Map());
     assert.strictEqual(m.scorers.length, 2);
     assert.ok(!m.scorers.some((s) => s.playerName === "Phantom"));
   });
@@ -252,7 +252,7 @@ async function run() {
       ]),
     });
     const m = buildMatch("mexico", "southAfrica", 2, 0, "FINISHED");
-    await enrichSnapshotScorers(snapshotOf(m), true, STAMP);
+    await enrichSnapshotScorers(snapshotOf(m), true, STAMP, new Map());
     assert.strictEqual(m.scorers.length, 2);
   });
 
@@ -272,7 +272,7 @@ async function run() {
       ];
       const m = buildMatch("iran", "newZealand", 2, 2, "FINISHED", baseline);
       const beforeMissing = m.goalEventCompleteness.missingGoalEventCount;
-      await enrichSnapshotScorers(snapshotOf(m), true, STAMP);
+      await enrichSnapshotScorers(snapshotOf(m), true, STAMP, new Map());
       assert.strictEqual(m.scorers.length, 1, "baseline scorers preserved");
       assert.strictEqual(m.scorers[0].playerName, "Baseline Scorer");
       assert.strictEqual(m.goalEventCompleteness.missingGoalEventCount, beforeMissing);
@@ -282,7 +282,7 @@ async function run() {
   await test("Scoreboard fetch failure: all baselines preserved", async () => {
     scoreboardMode = "network";
     const m = buildMatch("iran", "newZealand", 2, 2, "FINISHED");
-    await enrichSnapshotScorers(snapshotOf(m), true, STAMP);
+    await enrichSnapshotScorers(snapshotOf(m), true, STAMP, new Map());
     assert.strictEqual(m.scorers.length, 0); // unchanged baseline (was empty)
     assert.ok(!requestedSummaries.has(EV.irnNz), "no summary fetched when scoreboard fails");
   });
@@ -290,7 +290,7 @@ async function run() {
   // 10. Canonical protection: ESPN score/status differences cannot alter canonical values.
   await test("Canonical protection: score/status never mutated by enrichment", async () => {
     const m = buildMatch("mexico", "southAfrica", 2, 0, "FINISHED");
-    await enrichSnapshotScorers(snapshotOf(m), true, STAMP);
+    await enrichSnapshotScorers(snapshotOf(m), true, STAMP, new Map());
     assert.strictEqual(m.homeScore, 2);
     assert.strictEqual(m.awayScore, 0);
     assert.strictEqual(m.status, "FINISHED");
@@ -309,7 +309,7 @@ async function run() {
       { type: "GOAL", minute: 9, minuteLabel: "9'", teamName: "Mexico", playerName: "Canonical Scorer", isOwnGoal: false, isPenalty: false, provider: "football-data.org", confidence: "low" },
     ];
     const m = buildMatch("mexico", "southAfrica", 1, 0, "FINISHED", baseline);
-    await enrichSnapshotScorers(snapshotOf(m), true, STAMP);
+    await enrichSnapshotScorers(snapshotOf(m), true, STAMP, new Map());
     assert.strictEqual(m.homeScore, 1, "canonical score untouched");
     assert.strictEqual(m.scorers.length, 1, "conflicting provider data not adopted");
     assert.strictEqual(m.scorers[0].playerName, "Canonical Scorer");
@@ -329,7 +329,7 @@ async function run() {
       { type: "GOAL", minute: 67, minuteLabel: "67'", teamName: "Mexico", playerName: "Rich Two", isOwnGoal: false, isPenalty: false, provider: "football-data.org", confidence: "low" },
     ];
     const m = buildMatch("mexico", "southAfrica", 2, 0, "FINISHED", baseline);
-    await enrichSnapshotScorers(snapshotOf(m), true, STAMP);
+    await enrichSnapshotScorers(snapshotOf(m), true, STAMP, new Map());
     assert.strictEqual(m.scorers.length, 2, "provider with fewer events must not replace richer baseline");
     assert.deepStrictEqual(m.scorers.map((s) => s.playerName), ["Rich One", "Rich Two"]);
   });
@@ -341,14 +341,14 @@ async function run() {
       { type: "GOAL", minute: 67, minuteLabel: "67'", teamName: "Mexico", playerName: "B", isOwnGoal: false, isPenalty: false, provider: "football-data.org", confidence: "high" },
     ];
     const m = buildMatch("mexico", "southAfrica", 2, 0, "FINISHED", baseline);
-    await enrichSnapshotScorers(snapshotOf(m), true, STAMP);
+    await enrichSnapshotScorers(snapshotOf(m), true, STAMP, new Map());
     assert.ok(!requestedSummaries.has(EV.mexSA), "complete finished match should not be re-fetched");
   });
 
   // Public-output hygiene: enriched scorers carry accurate ESPN provenance; no raw payload fields.
   await test("Public hygiene: accurate ESPN provenance, no raw ESPN payload fields", async () => {
     const m = buildMatch("mexico", "southAfrica", 2, 0, "FINISHED");
-    await enrichSnapshotScorers(snapshotOf(m), true, STAMP);
+    await enrichSnapshotScorers(snapshotOf(m), true, STAMP, new Map());
     const json = JSON.stringify(m.scorers);
     assert.ok(!/keyEvents|scoringPlay|displayValue|participants|athlete/i.test(json), "no raw ESPN fields leaked");
     for (const s of m.scorers) {
@@ -371,7 +371,7 @@ async function run() {
     try {
       assert.strictEqual(isScorerEnrichmentEnabled(), false, "absent → disabled");
       const m = buildMatch("mexico", "southAfrica", 2, 0, "FINISHED");
-      await enrichSnapshotScorers(snapshotOf(m), true, STAMP);
+      await enrichSnapshotScorers(snapshotOf(m), true, STAMP, new Map());
       assert.strictEqual(scoreboardRequested, false, "no scoreboard request when disabled");
       assert.strictEqual(requestedSummaries.size, 0, "no summary requests when disabled");
       assert.strictEqual(m.scorers.length, 0, "baseline unchanged");
@@ -386,7 +386,7 @@ async function run() {
     try {
       assert.strictEqual(isScorerEnrichmentEnabled(), false, "'false' → disabled");
       const m = buildMatch("mexico", "southAfrica", 2, 0, "FINISHED");
-      await enrichSnapshotScorers(snapshotOf(m), true, STAMP);
+      await enrichSnapshotScorers(snapshotOf(m), true, STAMP, new Map());
       assert.strictEqual(scoreboardRequested, false, "no scoreboard request");
       assert.strictEqual(requestedSummaries.size, 0, "no summary requests");
       assert.strictEqual(m.scorers.length, 0, "baseline unchanged");
@@ -401,7 +401,7 @@ async function run() {
     try {
       assert.strictEqual(isScorerEnrichmentEnabled(), false, "invalid value → disabled");
       const m = buildMatch("mexico", "southAfrica", 2, 0, "FINISHED");
-      await enrichSnapshotScorers(snapshotOf(m), true, STAMP);
+      await enrichSnapshotScorers(snapshotOf(m), true, STAMP, new Map());
       assert.strictEqual(scoreboardRequested, false, "no scoreboard request for invalid value");
     } finally {
       process.env.SCORER_ENRICHMENT_ENABLED = saved;
@@ -414,7 +414,7 @@ async function run() {
     try {
       assert.strictEqual(isScorerEnrichmentEnabled(), false, "'1' → disabled");
       const m = buildMatch("mexico", "southAfrica", 2, 0, "FINISHED");
-      await enrichSnapshotScorers(snapshotOf(m), true, STAMP);
+      await enrichSnapshotScorers(snapshotOf(m), true, STAMP, new Map());
       assert.strictEqual(scoreboardRequested, false, "no scoreboard request for '1'");
     } finally {
       process.env.SCORER_ENRICHMENT_ENABLED = saved;
@@ -427,7 +427,7 @@ async function run() {
     try {
       assert.strictEqual(isScorerEnrichmentEnabled(), true, "'true' → enabled");
       const m = buildMatch("mexico", "southAfrica", 2, 0, "FINISHED");
-      await enrichSnapshotScorers(snapshotOf(m), true, STAMP);
+      await enrichSnapshotScorers(snapshotOf(m), true, STAMP, new Map());
       assert.ok(scoreboardRequested, "scoreboard fetched when enabled");
       assert.ok(requestedSummaries.size > 0, "at least one summary fetched");
       assert.strictEqual(m.scorers.length, 2, "scorers enriched");
@@ -441,7 +441,7 @@ async function run() {
   // ESPN-enriched scorers must carry "espn" provenance; never "football-data.org".
   await test("Provenance: ESPN events labeled 'espn', never 'football-data.org'", async () => {
     const m = buildMatch("mexico", "southAfrica", 2, 0, "FINISHED");
-    await enrichSnapshotScorers(snapshotOf(m), true, STAMP);
+    await enrichSnapshotScorers(snapshotOf(m), true, STAMP, new Map());
     assert.ok(m.scorers.length > 0, "scorers were enriched");
     for (const s of m.scorers) {
       assert.strictEqual(s.provider, "espn", `"${s.playerName}" must have provider=espn`);
@@ -462,7 +462,7 @@ async function run() {
     ];
     const m = buildMatch("mexico", "southAfrica", 2, 0, "FINISHED", baseline);
     // Match is already complete — enrichment skips it, baseline retained unchanged.
-    await enrichSnapshotScorers(snapshotOf(m), true, STAMP);
+    await enrichSnapshotScorers(snapshotOf(m), true, STAMP, new Map());
     assert.strictEqual(m.scorers.length, 2);
     for (const s of m.scorers) {
       assert.strictEqual(s.provider, "football-data.org", "fd.org-originated scorers keep fd.org provenance");
@@ -478,7 +478,7 @@ async function run() {
   await test("Stats invariant: enrichment never alters canonical scores or status", async () => {
     const m1 = buildMatch("mexico", "southAfrica", 2, 0, "FINISHED");
     const m2 = buildMatch("southKorea", "czechia", 2, 1, "FINISHED");
-    await enrichSnapshotScorers(snapshotOf(m1, m2), true, STAMP);
+    await enrichSnapshotScorers(snapshotOf(m1, m2), true, STAMP, new Map());
     assert.strictEqual(m1.homeScore, 2);
     assert.strictEqual(m1.awayScore, 0);
     assert.strictEqual(m1.status, "FINISHED");

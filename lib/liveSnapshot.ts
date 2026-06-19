@@ -409,20 +409,20 @@ export async function buildTournamentLiveSnapshot({
     };
   }
 
-  const standingsByGroup = computeGroupStandings(canonicalLiveData);
-  const thirdPlaceRanking = computeThirdPlaceRanking(standingsByGroup);
-
   // Secondary scorer enrichment via the provider-neutral runtime (active provider:
-  // ESPN public JSON). football-data.org stays the sole authority for score, status,
-  // teams, and kickoff; this only enriches scorer/event data and fails closed on any
-  // provider error. Fail-closed: only the exact string "true" enables enrichment; any
-  // other value (absent, "false", "1", etc.) leaves the module unimported and the
-  // baseline unchanged.
+  // ESPN public JSON). When ESPN's scoreboard shows "post" but football-data.org
+  // is stuck LIVE, the runtime may also advance the match status and score
+  // (score/status failover) and update canonicalLiveData so standings below
+  // reflect the corrected result. Fail-closed: only the exact string "true" enables
+  // enrichment; any other value leaves the module unimported and the baseline unchanged.
   if (process.env.SCORER_ENRICHMENT_ENABLED === "true") {
     const { enrichSnapshotScorers } = await import("./scorerProviderRuntime");
-    await enrichSnapshotScorers(matches, primaryProviderOk, generatedAt);
+    await enrichSnapshotScorers(matches, primaryProviderOk, generatedAt, canonicalLiveData);
   }
 
+  // Standings computed AFTER enrichment so ESPN-advanced finishes count in group tables.
+  const standingsByGroup = computeGroupStandings(canonicalLiveData);
+  const thirdPlaceRanking = computeThirdPlaceRanking(standingsByGroup);
   const tournamentStats = computeTournamentStats(canonicalLiveData, matches);
   const teamLeaderboards = computeTeamLeaderboards(standingsByGroup);
   const topScorers = topScorersFromSnapshot(scorerEventsByMatch, canonicalLiveData, matches);
