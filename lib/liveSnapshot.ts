@@ -627,6 +627,7 @@ export function resetLiveSnapshotMemoryForTests() {
   memorySecondaryFetchedAt = null;
   lastKnownGoodSnapshot = null;
   truthfulFallbackSnapshot = null;
+  truthfulFallbackInFlight = null;
   sharedRefreshInFlight = null;
 }
 
@@ -696,15 +697,89 @@ function snapshotCacheKey(stage: "live" | "idle"): string[] {
   return ns ? [...key, ns] : key;
 }
 
-// Two stage-scoped SWR wrappers over the SAME canonical build, with distinct
+// ───────────────────────────────────────────────────────────────────────────
+// Snapshot acceptance gate — the SINGLE decision for whether a freshly built
+// candidate may be committed to the durable shared (validated) Data Cache.
+//
+// A provider-degraded "schedule shell" (both providers failed → every match
+// collapses to SCHEDULED) must NEVER be accepted, persisted, or served as a
+// validated live snapshot, and a candidate must never regress a result the last
+// validated snapshot already knew. When this returns false the caller throws, so
+// unstable_cache does not persist the candidate and instead keeps the prior
+// validated value (stale-while-revalidate). This is what makes the shared cache
+// poison-proof: only accepted, validated snapshots are ever written.
+// ───────────────────────────────────────────────────────────────────────────
+export function isCacheableValidatedSnapshot(
+  candidate: TournamentLiveSnapshot,
+  previous: TournamentLiveSnapshot | null,
+): boolean {
+  // 1. A fallback / schedule shell is never a validated snapshot.
+  if (candidate.isFallback) return false;
+
+  // 2. No live-data evidence at all (both providers unhealthy) ⇒ not validated.
+  //    This is the exact degraded state from the QA report: providers failed and
+  //    every match read back as SCHEDULED. Reject it before it can be cached, so
+  //    the shared validated key is never poisoned with a static schedule shell.
+  if (!candidate.primaryProviderOk && !candidate.secondaryProviderOk) return false;
+
+  // 3. Monotonic, no-regression vs the last validated snapshot.
+  if (previous && !previous.isFallback) {
+    for (const [id, prev] of Object.entries(previous.matches)) {
+      const next = candidate.matches[id];
+      if (!next) continue;
+      // FINISHED must never regress.
+      if (prev.status === "FINISHED" && next.status !== "FINISHED") return false;
+      // A match already elapsed/known must never fall back to SCHEDULED.
+      if (prev.status !== "SCHEDULED" && next.status === "SCHEDULED") return false;
+      // A real score must never decrease or vanish.
+      if (prev.homeScore !== null && (next.homeScore === null || next.homeScore < prev.homeScore)) return false;
+      if (prev.awayScore !== null && (next.awayScore === null || next.awayScore < prev.awayScore)) return false;
+      // Known scorer events must never disappear.
+      if (prev.scorers.length > 0 && next.scorers.length < prev.scorers.length) return false;
+    }
+    // Authoritative aggregates must not be wiped out by a degraded refresh.
+    if (previous.topScorers.length > 0 && candidate.topScorers.length === 0) return false;
+    const prevPlayed = Object.values(previous.standingsByGroup).flat().some((r) => r.played > 0);
+    const nextPlayed = Object.values(candidate.standingsByGroup).flat().some((r) => r.played > 0);
+    if (prevPlayed && !nextPlayed) return false;
+  }
+  return true;
+}
+
+// Thrown when a built candidate fails the acceptance gate. Throwing (rather than
+// returning) is the mechanism that prevents cache poisoning: unstable_cache never
+// persists a thrown result, so the prior validated snapshot is preserved and
+// served stale-while-revalidate.
+class DegradedSnapshotError extends Error {
+  constructor() {
+    super("Provider-degraded snapshot rejected — not committable as a validated snapshot");
+    this.name = "DegradedSnapshotError";
+  }
+}
+
+// Build a fresh candidate and commit it to the durable cache ONLY if it passes
+// the acceptance gate. The previous validated snapshot (best-effort, this
+// instance's last-known-good) is the regression reference. This is the function
+// the unstable_cache wrappers invoke, so a rejected candidate is never written.
+async function buildValidatedSnapshotForCache(): Promise<TournamentLiveSnapshot> {
+  const candidate = await buildLiveSnapshotNow();
+  if (!isCacheableValidatedSnapshot(candidate, lastKnownGoodSnapshot)) {
+    throw new DegradedSnapshotError();
+  }
+  return candidate;
+}
+
+// Two stage-scoped SWR wrappers over the SAME validated build, with distinct
 // revalidate cadences. The active one is chosen per request from the schedule.
+// They wrap buildValidatedSnapshotForCache (NOT the raw build), so only accepted
+// validated snapshots ever reach the durable shared cache.
 const liveSnapshotCache = unstable_cache(
-  () => buildLiveSnapshotNow(),
+  () => buildValidatedSnapshotForCache(),
   snapshotCacheKey("live"),
   { revalidate: LIVE_SNAPSHOT_CACHE_REVALIDATE_SECONDS, tags: ["built-snapshot"] },
 );
 const idleSnapshotCache = unstable_cache(
-  () => buildLiveSnapshotNow(),
+  () => buildValidatedSnapshotForCache(),
   snapshotCacheKey("idle"),
   { revalidate: IDLE_SNAPSHOT_CACHE_REVALIDATE_SECONDS, tags: ["built-snapshot"] },
 );
@@ -726,28 +801,37 @@ let truthfulFallbackSnapshot: TournamentLiveSnapshot | null = null;
 // is honestly "unavailable" (primaryProviderOk=false, no fetchedAt → never a
 // "Last checked … ago" that implies a successful sync). Enrichment is skipped so
 // it is instant (no provider network calls).
+let truthfulFallbackInFlight: Promise<TournamentLiveSnapshot> | null = null;
 async function getTruthfulFallbackSnapshot(): Promise<TournamentLiveSnapshot> {
   if (truthfulFallbackSnapshot) return truthfulFallbackSnapshot;
-  const base = await buildTournamentLiveSnapshot({
-    liveData: new Map(),
-    worldcupGames: null,
-    generatedAt: new Date().toISOString(),
-    primaryProviderOk: false,
-    secondaryProviderOk: false,
-    primaryProviderFetchedAt: null,
-    secondaryProviderFetchedAt: null,
-    skipEnrichment: true,
+  // Single-flight: concurrent cold callers share one fallback build (it is cheap
+  // — no network, enrichment skipped — but they must return the same object).
+  if (truthfulFallbackInFlight) return truthfulFallbackInFlight;
+  truthfulFallbackInFlight = (async () => {
+    const base = await buildTournamentLiveSnapshot({
+      liveData: new Map(),
+      worldcupGames: null,
+      generatedAt: new Date().toISOString(),
+      primaryProviderOk: false,
+      secondaryProviderOk: false,
+      primaryProviderFetchedAt: null,
+      secondaryProviderFetchedAt: null,
+      skipEnrichment: true,
+    });
+
+    const nowMs = Date.now();
+    const matches: Record<string, SerializableSnapshotMatch> = {};
+    for (const [id, m] of Object.entries(base.matches)) {
+      const kickoffPassed = matchUtcDate(m.match).getTime() <= nowMs;
+      matches[id] = kickoffPassed ? { ...m, liveDataUnavailable: true } : m;
+    }
+
+    truthfulFallbackSnapshot = { ...base, matches, isFallback: true };
+    return truthfulFallbackSnapshot;
+  })().finally(() => {
+    truthfulFallbackInFlight = null;
   });
-
-  const nowMs = Date.now();
-  const matches: Record<string, SerializableSnapshotMatch> = {};
-  for (const [id, m] of Object.entries(base.matches)) {
-    const kickoffPassed = matchUtcDate(m.match).getTime() <= nowMs;
-    matches[id] = kickoffPassed ? { ...m, liveDataUnavailable: true } : m;
-  }
-
-  truthfulFallbackSnapshot = { ...base, matches, isFallback: true };
-  return truthfulFallbackSnapshot;
+  return truthfulFallbackInFlight;
 }
 
 // Active only inside the Next.js server runtime. Test scripts (no NEXT_RUNTIME)
@@ -767,7 +851,12 @@ function beginSharedRefresh(): Promise<TournamentLiveSnapshot | null> {
   if (sharedRefreshInFlight) return sharedRefreshInFlight;
   sharedRefreshInFlight = getSharedBuiltSnapshot()
     .then((snapshot) => {
-      lastKnownGoodSnapshot = snapshot;
+      // getSharedBuiltSnapshot only ever resolves to a validated snapshot (the
+      // cached build throws on a degraded candidate and is served stale otherwise),
+      // but guard defensively: last-known-good must never become a fallback/shell.
+      if (snapshot && !snapshot.isFallback) {
+        lastKnownGoodSnapshot = snapshot;
+      }
       return snapshot as TournamentLiveSnapshot | null;
     })
     .catch(() => {

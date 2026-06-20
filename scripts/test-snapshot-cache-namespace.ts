@@ -9,9 +9,26 @@ async function main() {
   console.log("=== Snapshot cache namespace ===\n");
 
   const { MemoryCacheAdapter, setCacheAdapter } = await import("../lib/cacheAdapter");
+  const { MATCHES } = await import("../lib/matches");
+  const providerId = MATCHES[0].providerIds?.footballData as number;
 
-  // Providers fail fast so the background build completes quickly and writes the key.
-  globalThis.fetch = (async () => { throw new Error("provider unavailable"); }) as typeof fetch;
+  // HEALTHY providers so the build VALIDATES and writes a validated key carrying
+  // the namespace. (A degraded both-down build is correctly rejected and never
+  // written — see the acceptance gate — so it cannot be used to probe the key.)
+  process.env.FOOTBALL_DATA_API_KEY = "mock";
+  globalThis.fetch = (async (input: any) => {
+    const url = input.toString();
+    if (url.includes("worldcup26.ir")) {
+      return { ok: true, json: async () => [{
+        id: "f995fc1d", home_team_name_en: "Mexico", away_team_name_en: "South Africa",
+        home_score: 2, away_score: 0, home_scorers: `{"Player A 10'"}`, away_scorers: `{}`, finished: true,
+      }] } as Response;
+    }
+    if (url.includes("api.football-data.org")) {
+      return { ok: true, json: async () => ({ matches: [{ id: providerId, status: "FINISHED", score: { fullTime: { home: 2, away: 0 } } }] }) } as Response;
+    }
+    throw new Error(`unexpected fetch ${url}`);
+  }) as typeof fetch;
 
   // (A) With a namespace set BEFORE module init, the built-snapshot key carries it.
   process.env.NEXT_RUNTIME = "nodejs";
