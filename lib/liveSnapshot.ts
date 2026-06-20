@@ -113,6 +113,9 @@ const TEAM_NAME_ALIASES: Record<string, string> = {
 };
 
 let lastKnownGoodSnapshot: TournamentLiveSnapshot | null = null;
+// The last validated snapshot this instance accepted, staged for promotion into
+// the durable cross-instance baseline cache (see durableBaselineCache below).
+let pendingBaselineSnapshot: TournamentLiveSnapshot | null = null;
 
 export function normalizeTeamName(name: string): string {
   const norm = name
@@ -626,6 +629,7 @@ export function resetLiveSnapshotMemoryForTests() {
   memoryPrimaryFetchedAt = null;
   memorySecondaryFetchedAt = null;
   lastKnownGoodSnapshot = null;
+  pendingBaselineSnapshot = null;
   truthfulFallbackSnapshot = null;
   truthfulFallbackInFlight = null;
   sharedRefreshInFlight = null;
@@ -757,15 +761,98 @@ class DegradedSnapshotError extends Error {
   }
 }
 
+// ───────────────────────────────────────────────────────────────────────────
+// Durable cross-instance validated baseline.
+//
+// Module memory (lastKnownGoodSnapshot) is null on a brand-new serverless
+// instance, so it cannot, by itself, stop a fresh instance with a stale/partial
+// provider from persisting a regressed candidate over the durable validated
+// snapshot. The regression gate therefore also consults a DURABLE baseline that
+// survives across instances, read from the Vercel Data Cache before acceptance.
+//
+// Implementation within unstable_cache's constraints (read-through only; the
+// cache key embeds the callback source — see next/dist/.../unstable-cache.js —
+// so a single callback is used for BOTH read and write, and revalidate:0 is
+// illegal):
+//   • The fetcher returns this instance's last accepted snapshot
+//     (pendingBaselineSnapshot) when one is staged, else THROWS. Throwing never
+//     overwrites the stored entry, so a fresh instance (nothing staged) reading
+//     the baseline receives the durable stored value (cache hit on Vercel; the
+//     adapter's stale-on-error in tests) and never clobbers it with null.
+//   • Reading it is deadlock-free: the baseline key is distinct from the snapshot
+//     stage keys, and it is never read from inside its own fetcher.
+// This is best-effort eventual consistency (no paid KV / no atomic CAS): a
+// terminal result such as FINISHED 4–1 can never regress, while the in-memory
+// reference closes any sub-revalidate window within a warm instance.
+const BASELINE_REVALIDATE_SECONDS = 15;
+function baselineCacheKey(): string[] {
+  const ns = process.env.SNAPSHOT_CACHE_NAMESPACE;
+  const key = ["worldcup-validated-baseline", SNAPSHOT_SCHEMA_VERSION];
+  return ns ? [...key, ns] : key;
+}
+const durableBaselineCache = unstable_cache(
+  async () => {
+    if (!pendingBaselineSnapshot) {
+      // Nothing to promote on this instance — never write/overwrite the durable
+      // baseline; the stored value (if any) is preserved and returned instead.
+      throw new Error("no-staged-baseline");
+    }
+    return pendingBaselineSnapshot;
+  },
+  baselineCacheKey(),
+  { revalidate: BASELINE_REVALIDATE_SECONDS, tags: ["validated-baseline"] },
+);
+
+// Read the durable previously-validated snapshot (cross-instance), or null if no
+// durable baseline exists yet. Never throws to the caller.
+async function getDurablePreviousValidated(): Promise<TournamentLiveSnapshot | null> {
+  try {
+    const snapshot = await durableBaselineCache();
+    return snapshot && !snapshot.isFallback ? snapshot : null;
+  } catch {
+    return null;
+  }
+}
+
+// Record an accepted validated snapshot as both the in-memory last-known-good and
+// the staged durable baseline, then promote it to the durable cache. Promotion
+// only writes through unstable_cache on a stale/missing entry (bounded lag on
+// Vercel; immediate in the test adapter), which is sufficient because acceptance
+// already gated the candidate against the durable previous + in-memory reference.
+async function recordValidatedSnapshot(candidate: TournamentLiveSnapshot): Promise<void> {
+  lastKnownGoodSnapshot = candidate;
+  pendingBaselineSnapshot = candidate;
+  try {
+    await durableBaselineCache();
+  } catch {
+    // Promotion is best-effort; a failed write never blocks serving.
+  }
+}
+
 // Build a fresh candidate and commit it to the durable cache ONLY if it passes
-// the acceptance gate. The previous validated snapshot (best-effort, this
-// instance's last-known-good) is the regression reference. This is the function
-// the unstable_cache wrappers invoke, so a rejected candidate is never written.
+// the acceptance gate against BOTH the durable cross-instance baseline and this
+// instance's in-memory last-known-good. This is the function the unstable_cache
+// snapshot wrappers invoke, so a rejected candidate is never written.
 async function buildValidatedSnapshotForCache(): Promise<TournamentLiveSnapshot> {
+  // 1. Obtain the durable previous validated snapshot BEFORE building, so a fresh
+  //    instance has a real regression reference even with empty module memory.
+  const durablePrevious = await getDurablePreviousValidated();
+
+  // 2. Build the candidate.
   const candidate = await buildLiveSnapshotNow();
-  if (!isCacheableValidatedSnapshot(candidate, lastKnownGoodSnapshot)) {
+
+  // 3. Validate intrinsic health + no-regression vs the durable baseline …
+  if (!isCacheableValidatedSnapshot(candidate, durablePrevious)) {
     throw new DegradedSnapshotError();
   }
+  // … and vs the in-memory last-known-good (closes any sub-revalidate window
+  //    where the durable baseline lags a within-instance advance).
+  if (lastKnownGoodSnapshot && !isCacheableValidatedSnapshot(candidate, lastKnownGoodSnapshot)) {
+    throw new DegradedSnapshotError();
+  }
+
+  // 4. Accept: promote to the durable baseline + in-memory reference, then commit.
+  await recordValidatedSnapshot(candidate);
   return candidate;
 }
 
@@ -851,10 +938,15 @@ function beginSharedRefresh(): Promise<TournamentLiveSnapshot | null> {
   if (sharedRefreshInFlight) return sharedRefreshInFlight;
   sharedRefreshInFlight = getSharedBuiltSnapshot()
     .then((snapshot) => {
-      // getSharedBuiltSnapshot only ever resolves to a validated snapshot (the
-      // cached build throws on a degraded candidate and is served stale otherwise),
-      // but guard defensively: last-known-good must never become a fallback/shell.
-      if (snapshot && !snapshot.isFallback) {
+      // getSharedBuiltSnapshot resolves to a validated snapshot (a freshly built
+      // candidate is already recorded; a stale read returns the durable validated
+      // value). Seed last-known-good monotonically: never let a fallback/shell or
+      // a stale read REGRESS the in-memory reference.
+      if (
+        snapshot &&
+        !snapshot.isFallback &&
+        (!lastKnownGoodSnapshot || isCacheableValidatedSnapshot(snapshot, lastKnownGoodSnapshot))
+      ) {
         lastKnownGoodSnapshot = snapshot;
       }
       return snapshot as TournamentLiveSnapshot | null;
