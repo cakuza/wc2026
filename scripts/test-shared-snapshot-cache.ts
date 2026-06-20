@@ -84,8 +84,10 @@ await test("2. cache key is independent of timezone/language", async () => {
   const keys = [...adapter.store.keys()];
   const builtKey = keys.find((k) => k.includes("worldcup-built-snapshot"));
   assert.ok(builtKey, "built-snapshot key present");
-  assert.ok(/worldcup-built-snapshot,v\d+$/.test(builtKey!), `key is stable+versioned with no tz/lang (got "${builtKey}")`);
-  assert.ok(!/Europe|America|Asia|en|tr|tz=|lang/i.test(builtKey!), "key carries no timezone/language");
+  // Stable, schema-versioned, with a deterministic stage suffix (live|idle) and
+  // NO timezone/language segment (and no namespace unless SNAPSHOT_CACHE_NAMESPACE).
+  assert.ok(/^worldcup-built-snapshot,v\d+,(live|idle)$/.test(builtKey!), `key is stable+versioned+staged with no tz/lang (got "${builtKey}")`);
+  assert.ok(!/Europe|America|Asia|\btz=|\blang\b/i.test(builtKey!), "key carries no timezone/language");
 });
 
 await test("3. concurrent misses collapse onto one shared snapshot (single-flight)", async () => {
@@ -165,7 +167,7 @@ await test("6. schema-version bump yields a distinct cache key", async () => {
   // Documented invalidation mechanism: the version is part of the key.
   assert.ok(/^v\d+$/.test(SNAPSHOT_SCHEMA_VERSION), `schema version is explicit (got "${SNAPSHOT_SCHEMA_VERSION}")`);
   const keys = [...adapter.store.keys()];
-  assert.ok(keys.some((k) => k.endsWith(`,${SNAPSHOT_SCHEMA_VERSION}`)), "current key embeds the schema version");
+  assert.ok(keys.some((k) => k.includes(`,${SNAPSHOT_SCHEMA_VERSION},`)), "current key embeds the schema version (before the stage suffix)");
 });
 
 await test("7. served snapshot never regresses FINISHED or decreases a real score", async () => {

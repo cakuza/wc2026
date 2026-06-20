@@ -24,6 +24,8 @@ interface Props {
   events?: MatchEvents | null;
   live?: LiveMatchData | null;
   status: SnapshotMatchStatus;
+  /** Cold-start fallback: kickoff has passed but the result is unknown (not SCHEDULED). */
+  liveDataUnavailable?: boolean;
   homeScore: number | null;
   awayScore: number | null;
   scorers: GoalScorerEvent[];
@@ -144,6 +146,7 @@ export function MatchDetail({
   events,
   live,
   status: initialStatus,
+  liveDataUnavailable: initialLiveDataUnavailable = false,
   homeScore: initialHomeScore,
   awayScore: initialAwayScore,
   scorers: initialScorers,
@@ -164,6 +167,7 @@ export function MatchDetail({
     awayScore: initialAwayScore,
     scorers: initialScorers,
     goalEventCompleteness: initialCompleteness,
+    liveDataUnavailable: initialLiveDataUnavailable,
     primaryProviderFetchedAt: initialPrimaryProviderFetchedAt,
     primaryProviderOk: initialPrimaryProviderOk,
     secondaryProviderFetchedAt: initialSecondaryProviderFetchedAt,
@@ -223,6 +227,8 @@ export function MatchDetail({
                 awayScore,
                 scorers,
                 goalEventCompleteness,
+                // Cleared as soon as a validated snapshot arrives (false).
+                liveDataUnavailable: update.liveDataUnavailable ?? false,
                 primaryProviderFetchedAt: data.primaryProviderFetchedAt,
                 primaryProviderOk: data.primaryProviderOk,
                 secondaryProviderFetchedAt: data.secondaryProviderFetchedAt,
@@ -385,9 +391,18 @@ export function MatchDetail({
             </Link>
           </div>
 
-          {/* Status badge */}
+          {/* Status badge — in the cold-start fallback a started match's result
+              is unknown, so show an honest unavailable state rather than a stale
+              "scheduled"/score. Clears automatically once polling returns a
+              validated snapshot. */}
           <div className="mt-4 flex justify-center">
-            <StatusBadge status={status} t={t} />
+            {liveState.liveDataUnavailable ? (
+              <span className="inline-flex items-center rounded-full border border-amber-400/30 bg-amber-400/15 px-3 py-1 font-heading text-xs font-extrabold uppercase tracking-widest text-amber-300">
+                Live data unavailable
+              </span>
+            ) : (
+              <StatusBadge status={status} t={t} />
+            )}
           </div>
 
           {/* Date / time / venue */}

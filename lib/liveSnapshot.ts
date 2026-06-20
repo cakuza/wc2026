@@ -24,6 +24,11 @@ import { countryName } from "./i18n";
 
 export const LIVE_SNAPSHOT_CACHE_KEY = "worldcup-tournament-live-snapshot-v7";
 export const LIVE_SNAPSHOT_REVALIDATE_SECONDS = 25;
+// Provider Data-Cache revalidate. Kept short so that when the snapshot rebuilds
+// during a live window the football-data / worldcup26 reads it consumes are fresh;
+// revalidation is lazy, so during idle periods (snapshot cadence ~90s) providers
+// are still only refetched at that slower cadence.
+export const PROVIDER_REVALIDATE_SECONDS = 10;
 
 export type SnapshotMatchStatus = "SCHEDULED" | "LIVE" | "HALFTIME" | "FINISHED" | "SYNCING";
 
@@ -572,7 +577,7 @@ const getCachedPrimaryData = unstable_cache(
     };
   },
   ["worldcup-primary-live-data-v8"],
-  { revalidate: LIVE_SNAPSHOT_REVALIDATE_SECONDS, tags: ["primary-live-data"] }
+  { revalidate: PROVIDER_REVALIDATE_SECONDS, tags: ["primary-live-data"] }
 );
 
 /**
@@ -589,7 +594,7 @@ const getBulkSecondaryData = unstable_cache(
     return games;
   },
   ["worldcup-bulk-secondary-v8"],
-  { revalidate: LIVE_SNAPSHOT_REVALIDATE_SECONDS, tags: ["bulk-secondary-data"] }
+  { revalidate: PROVIDER_REVALIDATE_SECONDS, tags: ["bulk-secondary-data"] }
 );
 
 /**
@@ -638,17 +643,70 @@ export function resetLiveSnapshotMemoryForTests() {
 // merely by a deploy.
 // ───────────────────────────────────────────────────────────────────────────
 export const SNAPSHOT_SCHEMA_VERSION = "v2";
-const SHARED_SNAPSHOT_REVALIDATE_SECONDS = LIVE_SNAPSHOT_REVALIDATE_SECONDS;
+
+// Stage-aware revalidation. A live match needs a fresh score quickly; while every
+// match is scheduled or finished the snapshot can be cached far longer. The stage
+// is decided from the static schedule + clock alone — no provider call — so it
+// never reintroduces provider work onto the page-render path.
+export const LIVE_SNAPSHOT_CACHE_REVALIDATE_SECONDS = 10;
+export const IDLE_SNAPSHOT_CACHE_REVALIDATE_SECONDS = 90;
+// A fixture is "live-ish" from kickoff until this long after (covers HT, stoppage
+// and extra time), used only to pick the revalidation cadence.
+const LIVE_WINDOW_MS = 2.75 * 60 * 60 * 1000;
+
+// Declared, enforced maximum application-added staleness for a LIVE score beyond
+// provider availability:
+//   provider revalidate (≤10s, lazily driven at the snapshot cadence)
+//   + snapshot revalidate (10s live)
+//   + client live poll (15s, see liveRefreshPolicy)
+//   = 35s.
+export const MAX_LIVE_APP_STALENESS_SECONDS = 35;
+
+/** Whether any fixture is currently within its live window (schedule + clock only). */
+export function hasLiveWindow(now: Date = new Date(), matches: readonly Match[] = MATCHES): boolean {
+  const t = now.getTime();
+  return matches.some((m) => {
+    const k = matchUtcDate(m).getTime();
+    return t >= k && t <= k + LIVE_WINDOW_MS;
+  });
+}
+
+/** Snapshot revalidate cadence for the current stage (seconds). */
+export function snapshotRevalidateSeconds(now: Date = new Date()): number {
+  return hasLiveWindow(now) ? LIVE_SNAPSHOT_CACHE_REVALIDATE_SECONDS : IDLE_SNAPSHOT_CACHE_REVALIDATE_SECONDS;
+}
+
 // If the shared cache is cold/empty and the build would block longer than this,
 // serve a fallback immediately and let the build finish + populate in the
 // background — a brand-new deployment must never show a 10–20s blank page.
 const COLD_START_FALLBACK_MS = 1500;
 
-const getSharedBuiltSnapshot = unstable_cache(
+// Stable, schema-versioned, tz/lang-free cache key. An optional, env-supplied
+// namespace (SNAPSHOT_CACHE_NAMESPACE) is appended ONLY when set — used to force a
+// fresh cold-miss namespace in Preview QA. It is never hard-coded, so Production
+// (no such env) keeps the stable key and is not invalidated by a deploy.
+function snapshotCacheKey(stage: "live" | "idle"): string[] {
+  const ns = process.env.SNAPSHOT_CACHE_NAMESPACE;
+  const key = ["worldcup-built-snapshot", SNAPSHOT_SCHEMA_VERSION, stage];
+  return ns ? [...key, ns] : key;
+}
+
+// Two stage-scoped SWR wrappers over the SAME canonical build, with distinct
+// revalidate cadences. The active one is chosen per request from the schedule.
+const liveSnapshotCache = unstable_cache(
   () => buildLiveSnapshotNow(),
-  ["worldcup-built-snapshot", SNAPSHOT_SCHEMA_VERSION],
-  { revalidate: SHARED_SNAPSHOT_REVALIDATE_SECONDS, tags: ["built-snapshot"] },
+  snapshotCacheKey("live"),
+  { revalidate: LIVE_SNAPSHOT_CACHE_REVALIDATE_SECONDS, tags: ["built-snapshot"] },
 );
+const idleSnapshotCache = unstable_cache(
+  () => buildLiveSnapshotNow(),
+  snapshotCacheKey("idle"),
+  { revalidate: IDLE_SNAPSHOT_CACHE_REVALIDATE_SECONDS, tags: ["built-snapshot"] },
+);
+
+function getSharedBuiltSnapshot(): Promise<TournamentLiveSnapshot> {
+  return (hasLiveWindow() ? liveSnapshotCache() : idleSnapshotCache()) as Promise<TournamentLiveSnapshot>;
+}
 
 let truthfulFallbackSnapshot: TournamentLiveSnapshot | null = null;
 

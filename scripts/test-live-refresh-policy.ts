@@ -21,11 +21,11 @@ console.log("=== Live refresh policy test ===\n");
 
 const live = getLiveRefreshPolicy([{ match, status: "LIVE" }], now);
 assert(live.reason === "live", "LIVE uses live refresh policy");
-assert(live.intervalMs !== null && live.intervalMs >= 20_000 && live.intervalMs <= 30_000, "LIVE interval is 20-30 seconds");
+assert(live.intervalMs !== null && live.intervalMs >= 10_000 && live.intervalMs <= 20_000, "LIVE interval is 10-20 seconds (tightened for live freshness budget)");
 
 const halftime = getLiveRefreshPolicy([{ match, status: "HALFTIME" }], now);
 assert(halftime.reason === "live", "HALFTIME uses live refresh policy");
-assert(halftime.intervalMs !== null && halftime.intervalMs >= 20_000 && halftime.intervalMs <= 30_000, "HALFTIME interval is 20-30 seconds");
+assert(halftime.intervalMs !== null && halftime.intervalMs >= 10_000 && halftime.intervalMs <= 20_000, "HALFTIME interval is 10-20 seconds");
 
 const syncing = getLiveRefreshPolicy([{ match, status: "SYNCING" }], now);
 assert(syncing.reason === "live", "SYNCING uses live refresh policy");

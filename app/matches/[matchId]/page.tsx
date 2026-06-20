@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { LiveSnapshotDebug } from "@/components/LiveSnapshotDebug";
+import { LiveDataUnavailableNotice } from "@/components/LiveDataUnavailableNotice";
 import { MatchDetail } from "@/components/MatchDetail";
 import { countryName } from "@/lib/i18n";
 import { getGoalEventCompleteness } from "@/lib/goalEventCompleteness";
@@ -105,11 +106,17 @@ export default async function MatchPage({
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(faqLd) }}
       />
+      {snapshot.isFallback ? (
+        <div className="mx-auto max-w-4xl px-4 pt-6">
+          <LiveDataUnavailableNotice show />
+        </div>
+      ) : null}
       <MatchDetail
         match={match}
         events={events}
         live={live}
         status={snap?.status ?? "SCHEDULED"}
+        liveDataUnavailable={snap?.liveDataUnavailable ?? false}
         homeScore={snap?.homeScore ?? null}
         awayScore={snap?.awayScore ?? null}
         scorers={snap?.scorers ?? []}
