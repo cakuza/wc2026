@@ -20,11 +20,19 @@ export async function GET() {
     secondaryProviderOk: snapshot.secondaryProviderOk,
     primaryProviderFetchedAt: snapshot.primaryProviderFetchedAt,
     secondaryProviderFetchedAt: snapshot.secondaryProviderFetchedAt,
+    // Honest availability signal: when true this is the cold-start fallback —
+    // standings/Top Scorers are not authoritative and per-match
+    // `liveDataUnavailable` marks started fixtures whose result is unknown. API
+    // consumers must not treat such fixtures as genuinely SCHEDULED.
+    isFallback: snapshot.isFallback ?? false,
     matches: Object.fromEntries(
       Object.entries(snapshot.matches).map(([id, m]) => [
         id,
         {
           status: m.status,
+          // Explicit availability field so no consumer silently reads a stale
+          // SCHEDULED for a fixture that has actually kicked off.
+          liveDataUnavailable: m.liveDataUnavailable ?? false,
           homeScore: m.homeScore,
           awayScore: m.awayScore,
           scorers: m.scorers,

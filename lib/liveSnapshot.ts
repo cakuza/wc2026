@@ -1,7 +1,8 @@
+import { after } from "next/server";
 import { unstable_cache } from "./cacheAdapter";
 import { fetchAllLiveData } from "./fetchAllLiveData";
 import { computeGroupStandings, type StandingRow } from "./groupStandings";
-import { MATCHES, matchSlug, type Match } from "./matches";
+import { MATCHES, matchSlug, matchUtcDate, type Match } from "./matches";
 import { computeThirdPlaceRanking, type ThirdPlaceRow } from "./thirdPlaceRanking";
 import {
   computeTeamLeaderboards,
@@ -23,6 +24,16 @@ import { countryName } from "./i18n";
 
 export const LIVE_SNAPSHOT_CACHE_KEY = "worldcup-tournament-live-snapshot-v7";
 export const LIVE_SNAPSHOT_REVALIDATE_SECONDS = 25;
+// Provider Data-Cache revalidate (seconds). Lazily driven by the snapshot
+// rebuild, so idle periods (snapshot cadence ~90s) refetch providers only at
+// that slower cadence. Tuned to keep providers comfortably within free-tier
+// limits even during live windows:
+//   - PRIMARY (football-data scores/status): 12s → ≤5 req/min, the freshness-
+//     critical source for the live-score budget.
+//   - SECONDARY (worldcup26.ir scorer enrichment): 30s → ≤2 req/min, gentler
+//     because it is enrichment, not the canonical score.
+export const PROVIDER_REVALIDATE_SECONDS = 12;
+const SECONDARY_PROVIDER_REVALIDATE_SECONDS = 30;
 
 export type SnapshotMatchStatus = "SCHEDULED" | "LIVE" | "HALFTIME" | "FINISHED" | "SYNCING";
 
@@ -38,6 +49,14 @@ export type SerializableSnapshotMatch = {
   sourceUpdatedAt: string | null;
   providerUpdatedAt: string | null;
   live: LiveMatchData | null;
+  /**
+   * True only in the cold-start fallback snapshot, for a match whose kickoff has
+   * passed: its result is genuinely unknown (live data not yet available), so it
+   * must NOT be presented as SCHEDULED. The canonical `status` enum is left
+   * untouched; consumers render an honest "live data unavailable" state when this
+   * is set rather than inferring a status.
+   */
+  liveDataUnavailable?: boolean;
 };
 
 export type TournamentLiveSnapshot = {
@@ -56,6 +75,13 @@ export type TournamentLiveSnapshot = {
   secondaryProviderOk: boolean;
   primaryProviderFetchedAt: string | null;
   secondaryProviderFetchedAt: string | null;
+  /**
+   * True when this is the cold-start fallback (no validated live snapshot yet):
+   * the canonical schedule is shown but standings/Top Scorers are NOT authoritative
+   * and live results are unavailable. Consumers surface an honest notice and must
+   * not present fallback standings/rankings as final.
+   */
+  isFallback?: boolean;
 };
 
 type SnapshotProviderPayload = {
@@ -66,6 +92,8 @@ type SnapshotProviderPayload = {
   secondaryProviderOk?: boolean;
   primaryProviderFetchedAt?: string | null;
   secondaryProviderFetchedAt?: string | null;
+  /** Skip secondary ESPN scorer enrichment (used for the instant cold-start fallback). */
+  skipEnrichment?: boolean;
 };
 
 type SnapshotCacheOptions = {
@@ -85,6 +113,9 @@ const TEAM_NAME_ALIASES: Record<string, string> = {
 };
 
 let lastKnownGoodSnapshot: TournamentLiveSnapshot | null = null;
+// The last validated snapshot this instance accepted, staged for promotion into
+// the durable cross-instance baseline cache (see durableBaselineCache below).
+let pendingBaselineSnapshot: TournamentLiveSnapshot | null = null;
 
 export function normalizeTeamName(name: string): string {
   const norm = name
@@ -345,6 +376,7 @@ export async function buildTournamentLiveSnapshot({
   secondaryProviderOk = worldcupGames !== null,
   primaryProviderFetchedAt = primaryProviderOk ? generatedAt : null,
   secondaryProviderFetchedAt = secondaryProviderOk ? generatedAt : null,
+  skipEnrichment = false,
 }: SnapshotProviderPayload): Promise<TournamentLiveSnapshot> {
   const knownProviderIds = new Set(
     MATCHES.map((match) => match.providerIds?.footballData).filter((id): id is number => typeof id === "number"),
@@ -415,7 +447,7 @@ export async function buildTournamentLiveSnapshot({
   // (score/status failover) and update canonicalLiveData so standings below
   // reflect the corrected result. Fail-closed: only the exact string "true" enables
   // enrichment; any other value leaves the module unimported and the baseline unchanged.
-  if (process.env.SCORER_ENRICHMENT_ENABLED === "true") {
+  if (!skipEnrichment && process.env.SCORER_ENRICHMENT_ENABLED === "true") {
     const { enrichSnapshotScorers } = await import("./scorerProviderRuntime");
     await enrichSnapshotScorers(matches, primaryProviderOk, generatedAt, canonicalLiveData);
   }
@@ -553,7 +585,7 @@ const getCachedPrimaryData = unstable_cache(
     };
   },
   ["worldcup-primary-live-data-v8"],
-  { revalidate: LIVE_SNAPSHOT_REVALIDATE_SECONDS, tags: ["primary-live-data"] }
+  { revalidate: PROVIDER_REVALIDATE_SECONDS, tags: ["primary-live-data"] }
 );
 
 /**
@@ -570,7 +602,7 @@ const getBulkSecondaryData = unstable_cache(
     return games;
   },
   ["worldcup-bulk-secondary-v8"],
-  { revalidate: LIVE_SNAPSHOT_REVALIDATE_SECONDS, tags: ["bulk-secondary-data"] }
+  { revalidate: SECONDARY_PROVIDER_REVALIDATE_SECONDS, tags: ["bulk-secondary-data"] }
 );
 
 /**
@@ -596,58 +628,380 @@ export function resetLiveSnapshotMemoryForTests() {
   memorySecondaryData = null;
   memoryPrimaryFetchedAt = null;
   memorySecondaryFetchedAt = null;
-  snapshotResultCache = null;
-  snapshotInFlight = null;
+  lastKnownGoodSnapshot = null;
+  pendingBaselineSnapshot = null;
+  truthfulFallbackSnapshot = null;
+  truthfulFallbackInFlight = null;
+  sharedRefreshInFlight = null;
 }
 
-// Short-lived in-memory cache of the fully-built tournament snapshot.
+// ───────────────────────────────────────────────────────────────────────────
+// Shared snapshot architecture (stale-while-revalidate).
 //
-// A mere /today?date= change must not rebuild the whole snapshot (provider
-// orchestration + ESPN enrichment): that work made date navigation take ~10s
-// with no feedback on mobile. The snapshot is tournament-wide and identical
-// regardless of the selected calendar date, so reusing it for a few seconds is
-// safe and changes no scorer/score/standings/provider semantics — the
-// underlying provider data is itself cached for LIVE_SNAPSHOT_REVALIDATE_SECONDS,
-// so rebuilding more often only re-derives identical data. Single-flight
-// collapses concurrent renders onto one build, and a stale snapshot is served
-// if a rebuild fails.
+// The fully-built tournament snapshot is tournament-wide and identical for every
+// viewer — timezone and language are applied later, at render time — so it is
+// cached ONCE in the Next.js/Vercel Data Cache (cross-instance, persistent) via
+// unstable_cache. Public page requests read that serialized snapshot instead of
+// rebuilding it; football-data.org / ESPN orchestration + standings computation
+// run only on a cache miss or background revalidation, never on the page's
+// critical render path. This is what removes the multi-second cold TTFB while
+// preserving every existing correctness gate (the build itself is unchanged).
 //
-// Gated on NEXT_RUNTIME so it is active only inside the Next.js server runtime;
-// standalone test scripts (which assert rebuild-on-every-call behaviour) run
-// with it disabled and are therefore unaffected.
-const SNAPSHOT_RESULT_TTL_MS = 10_000;
-let snapshotResultCache: { snapshot: TournamentLiveSnapshot; expiresAt: number } | null = null;
-let snapshotInFlight: Promise<TournamentLiveSnapshot> | null = null;
+// The cache key is stable and schema-versioned (bump SNAPSHOT_SCHEMA_VERSION for
+// an incompatible snapshot shape) and deliberately carries NO timezone/language,
+// so one canonical snapshot is shared across all viewers and is not invalidated
+// merely by a deploy.
+// ───────────────────────────────────────────────────────────────────────────
+export const SNAPSHOT_SCHEMA_VERSION = "v2";
 
-function snapshotResultCacheEnabled(): boolean {
+// Stage-aware revalidation. A live match needs a fresh score quickly; while every
+// match is scheduled or finished the snapshot can be cached far longer. The stage
+// is decided from the static schedule + clock alone — no provider call — so it
+// never reintroduces provider work onto the page-render path.
+export const LIVE_SNAPSHOT_CACHE_REVALIDATE_SECONDS = 10;
+export const IDLE_SNAPSHOT_CACHE_REVALIDATE_SECONDS = 90;
+// A fixture is "live-ish" from kickoff until this long after (covers HT, stoppage
+// and extra time), used only to pick the revalidation cadence.
+const LIVE_WINDOW_MS = 2.75 * 60 * 60 * 1000;
+
+// Declared, enforced maximum application-added staleness for a LIVE score beyond
+// provider availability:
+//   provider revalidate (≤10s, lazily driven at the snapshot cadence)
+//   + snapshot revalidate (10s live)
+//   + client live poll (15s, see liveRefreshPolicy)
+//   = 35s.
+export const MAX_LIVE_APP_STALENESS_SECONDS = 35;
+
+/** Whether any fixture is currently within its live window (schedule + clock only). */
+export function hasLiveWindow(now: Date = new Date(), matches: readonly Match[] = MATCHES): boolean {
+  const t = now.getTime();
+  return matches.some((m) => {
+    const k = matchUtcDate(m).getTime();
+    return t >= k && t <= k + LIVE_WINDOW_MS;
+  });
+}
+
+/** Snapshot revalidate cadence for the current stage (seconds). */
+export function snapshotRevalidateSeconds(now: Date = new Date()): number {
+  return hasLiveWindow(now) ? LIVE_SNAPSHOT_CACHE_REVALIDATE_SECONDS : IDLE_SNAPSHOT_CACHE_REVALIDATE_SECONDS;
+}
+
+// If the shared cache is cold/empty and the build would block longer than this,
+// serve a fallback immediately and let the build finish + populate in the
+// background — a brand-new deployment must never show a 10–20s blank page.
+const COLD_START_FALLBACK_MS = 1500;
+
+// Stable, schema-versioned, tz/lang-free cache key. An optional, env-supplied
+// namespace (SNAPSHOT_CACHE_NAMESPACE) is appended ONLY when set — used to force a
+// fresh cold-miss namespace in Preview QA. It is never hard-coded, so Production
+// (no such env) keeps the stable key and is not invalidated by a deploy.
+function snapshotCacheKey(stage: "live" | "idle"): string[] {
+  const ns = process.env.SNAPSHOT_CACHE_NAMESPACE;
+  const key = ["worldcup-built-snapshot", SNAPSHOT_SCHEMA_VERSION, stage];
+  return ns ? [...key, ns] : key;
+}
+
+// ───────────────────────────────────────────────────────────────────────────
+// Snapshot acceptance gate — the SINGLE decision for whether a freshly built
+// candidate may be committed to the durable shared (validated) Data Cache.
+//
+// A provider-degraded "schedule shell" (both providers failed → every match
+// collapses to SCHEDULED) must NEVER be accepted, persisted, or served as a
+// validated live snapshot, and a candidate must never regress a result the last
+// validated snapshot already knew. When this returns false the caller throws, so
+// unstable_cache does not persist the candidate and instead keeps the prior
+// validated value (stale-while-revalidate). This is what makes the shared cache
+// poison-proof: only accepted, validated snapshots are ever written.
+// ───────────────────────────────────────────────────────────────────────────
+export function isCacheableValidatedSnapshot(
+  candidate: TournamentLiveSnapshot,
+  previous: TournamentLiveSnapshot | null,
+): boolean {
+  // 1. A fallback / schedule shell is never a validated snapshot.
+  if (candidate.isFallback) return false;
+
+  // 2. No live-data evidence at all (both providers unhealthy) ⇒ not validated.
+  //    This is the exact degraded state from the QA report: providers failed and
+  //    every match read back as SCHEDULED. Reject it before it can be cached, so
+  //    the shared validated key is never poisoned with a static schedule shell.
+  if (!candidate.primaryProviderOk && !candidate.secondaryProviderOk) return false;
+
+  // 3. Monotonic, no-regression vs the last validated snapshot.
+  if (previous && !previous.isFallback) {
+    for (const [id, prev] of Object.entries(previous.matches)) {
+      const next = candidate.matches[id];
+      if (!next) continue;
+      // FINISHED must never regress.
+      if (prev.status === "FINISHED" && next.status !== "FINISHED") return false;
+      // A match already elapsed/known must never fall back to SCHEDULED.
+      if (prev.status !== "SCHEDULED" && next.status === "SCHEDULED") return false;
+      // A real score must never decrease or vanish.
+      if (prev.homeScore !== null && (next.homeScore === null || next.homeScore < prev.homeScore)) return false;
+      if (prev.awayScore !== null && (next.awayScore === null || next.awayScore < prev.awayScore)) return false;
+      // Known scorer events must never disappear.
+      if (prev.scorers.length > 0 && next.scorers.length < prev.scorers.length) return false;
+    }
+    // Authoritative aggregates must not be wiped out by a degraded refresh.
+    if (previous.topScorers.length > 0 && candidate.topScorers.length === 0) return false;
+    const prevPlayed = Object.values(previous.standingsByGroup).flat().some((r) => r.played > 0);
+    const nextPlayed = Object.values(candidate.standingsByGroup).flat().some((r) => r.played > 0);
+    if (prevPlayed && !nextPlayed) return false;
+  }
+  return true;
+}
+
+// Thrown when a built candidate fails the acceptance gate. Throwing (rather than
+// returning) is the mechanism that prevents cache poisoning: unstable_cache never
+// persists a thrown result, so the prior validated snapshot is preserved and
+// served stale-while-revalidate.
+class DegradedSnapshotError extends Error {
+  constructor() {
+    super("Provider-degraded snapshot rejected — not committable as a validated snapshot");
+    this.name = "DegradedSnapshotError";
+  }
+}
+
+// ───────────────────────────────────────────────────────────────────────────
+// Durable cross-instance validated baseline.
+//
+// Module memory (lastKnownGoodSnapshot) is null on a brand-new serverless
+// instance, so it cannot, by itself, stop a fresh instance with a stale/partial
+// provider from persisting a regressed candidate over the durable validated
+// snapshot. The regression gate therefore also consults a DURABLE baseline that
+// survives across instances, read from the Vercel Data Cache before acceptance.
+//
+// Implementation within unstable_cache's constraints (read-through only; the
+// cache key embeds the callback source — see next/dist/.../unstable-cache.js —
+// so a single callback is used for BOTH read and write, and revalidate:0 is
+// illegal):
+//   • The fetcher returns this instance's last accepted snapshot
+//     (pendingBaselineSnapshot) when one is staged, else THROWS. Throwing never
+//     overwrites the stored entry, so a fresh instance (nothing staged) reading
+//     the baseline receives the durable stored value (cache hit on Vercel; the
+//     adapter's stale-on-error in tests) and never clobbers it with null.
+//   • Reading it is deadlock-free: the baseline key is distinct from the snapshot
+//     stage keys, and it is never read from inside its own fetcher.
+// This is best-effort eventual consistency (no paid KV / no atomic CAS): a
+// terminal result such as FINISHED 4–1 can never regress, while the in-memory
+// reference closes any sub-revalidate window within a warm instance.
+const BASELINE_REVALIDATE_SECONDS = 15;
+function baselineCacheKey(): string[] {
+  const ns = process.env.SNAPSHOT_CACHE_NAMESPACE;
+  const key = ["worldcup-validated-baseline", SNAPSHOT_SCHEMA_VERSION];
+  return ns ? [...key, ns] : key;
+}
+const durableBaselineCache = unstable_cache(
+  async () => {
+    if (!pendingBaselineSnapshot) {
+      // Nothing to promote on this instance — never write/overwrite the durable
+      // baseline; the stored value (if any) is preserved and returned instead.
+      throw new Error("no-staged-baseline");
+    }
+    return pendingBaselineSnapshot;
+  },
+  baselineCacheKey(),
+  { revalidate: BASELINE_REVALIDATE_SECONDS, tags: ["validated-baseline"] },
+);
+
+// Read the durable previously-validated snapshot (cross-instance), or null if no
+// durable baseline exists yet. Never throws to the caller.
+async function getDurablePreviousValidated(): Promise<TournamentLiveSnapshot | null> {
+  try {
+    const snapshot = await durableBaselineCache();
+    return snapshot && !snapshot.isFallback ? snapshot : null;
+  } catch {
+    return null;
+  }
+}
+
+// Record an accepted validated snapshot as both the in-memory last-known-good and
+// the staged durable baseline, then promote it to the durable cache. Promotion
+// only writes through unstable_cache on a stale/missing entry (bounded lag on
+// Vercel; immediate in the test adapter), which is sufficient because acceptance
+// already gated the candidate against the durable previous + in-memory reference.
+async function recordValidatedSnapshot(candidate: TournamentLiveSnapshot): Promise<void> {
+  lastKnownGoodSnapshot = candidate;
+  pendingBaselineSnapshot = candidate;
+  try {
+    await durableBaselineCache();
+  } catch {
+    // Promotion is best-effort; a failed write never blocks serving.
+  }
+}
+
+// Build a fresh candidate and commit it to the durable cache ONLY if it passes
+// the acceptance gate against BOTH the durable cross-instance baseline and this
+// instance's in-memory last-known-good. This is the function the unstable_cache
+// snapshot wrappers invoke, so a rejected candidate is never written.
+async function buildValidatedSnapshotForCache(): Promise<TournamentLiveSnapshot> {
+  // 1. Obtain the durable previous validated snapshot BEFORE building, so a fresh
+  //    instance has a real regression reference even with empty module memory.
+  const durablePrevious = await getDurablePreviousValidated();
+
+  // 2. Build the candidate.
+  const candidate = await buildLiveSnapshotNow();
+
+  // 3. Validate intrinsic health + no-regression vs the durable baseline …
+  if (!isCacheableValidatedSnapshot(candidate, durablePrevious)) {
+    throw new DegradedSnapshotError();
+  }
+  // … and vs the in-memory last-known-good (closes any sub-revalidate window
+  //    where the durable baseline lags a within-instance advance).
+  if (lastKnownGoodSnapshot && !isCacheableValidatedSnapshot(candidate, lastKnownGoodSnapshot)) {
+    throw new DegradedSnapshotError();
+  }
+
+  // 4. Accept: promote to the durable baseline + in-memory reference, then commit.
+  await recordValidatedSnapshot(candidate);
+  return candidate;
+}
+
+// Two stage-scoped SWR wrappers over the SAME validated build, with distinct
+// revalidate cadences. The active one is chosen per request from the schedule.
+// They wrap buildValidatedSnapshotForCache (NOT the raw build), so only accepted
+// validated snapshots ever reach the durable shared cache.
+const liveSnapshotCache = unstable_cache(
+  () => buildValidatedSnapshotForCache(),
+  snapshotCacheKey("live"),
+  { revalidate: LIVE_SNAPSHOT_CACHE_REVALIDATE_SECONDS, tags: ["built-snapshot"] },
+);
+const idleSnapshotCache = unstable_cache(
+  () => buildValidatedSnapshotForCache(),
+  snapshotCacheKey("idle"),
+  { revalidate: IDLE_SNAPSHOT_CACHE_REVALIDATE_SECONDS, tags: ["built-snapshot"] },
+);
+
+function getSharedBuiltSnapshot(): Promise<TournamentLiveSnapshot> {
+  return (hasLiveWindow() ? liveSnapshotCache() : idleSnapshotCache()) as Promise<TournamentLiveSnapshot>;
+}
+
+let truthfulFallbackSnapshot: TournamentLiveSnapshot | null = null;
+
+// Truthful, non-fabricated fallback for a cold/empty shared cache.
+//
+// It shows the canonical schedule (real teams + kickoffs) but invents nothing:
+// no scores, no scorers, no authoritative standings. Crucially, a match whose
+// kickoff has already passed is NOT presented as SCHEDULED — its result is
+// genuinely unknown, so it is flagged `liveDataUnavailable` and consumers render
+// an honest "live data unavailable" state. The snapshot is flagged `isFallback`
+// so standings / Top Scorers are shown as not-yet-authoritative, and freshness
+// is honestly "unavailable" (primaryProviderOk=false, no fetchedAt → never a
+// "Last checked … ago" that implies a successful sync). Enrichment is skipped so
+// it is instant (no provider network calls).
+let truthfulFallbackInFlight: Promise<TournamentLiveSnapshot> | null = null;
+async function getTruthfulFallbackSnapshot(): Promise<TournamentLiveSnapshot> {
+  if (truthfulFallbackSnapshot) return truthfulFallbackSnapshot;
+  // Single-flight: concurrent cold callers share one fallback build (it is cheap
+  // — no network, enrichment skipped — but they must return the same object).
+  if (truthfulFallbackInFlight) return truthfulFallbackInFlight;
+  truthfulFallbackInFlight = (async () => {
+    const base = await buildTournamentLiveSnapshot({
+      liveData: new Map(),
+      worldcupGames: null,
+      generatedAt: new Date().toISOString(),
+      primaryProviderOk: false,
+      secondaryProviderOk: false,
+      primaryProviderFetchedAt: null,
+      secondaryProviderFetchedAt: null,
+      skipEnrichment: true,
+    });
+
+    const nowMs = Date.now();
+    const matches: Record<string, SerializableSnapshotMatch> = {};
+    for (const [id, m] of Object.entries(base.matches)) {
+      const kickoffPassed = matchUtcDate(m.match).getTime() <= nowMs;
+      matches[id] = kickoffPassed ? { ...m, liveDataUnavailable: true } : m;
+    }
+
+    truthfulFallbackSnapshot = { ...base, matches, isFallback: true };
+    return truthfulFallbackSnapshot;
+  })().finally(() => {
+    truthfulFallbackInFlight = null;
+  });
+  return truthfulFallbackInFlight;
+}
+
+// Active only inside the Next.js server runtime. Test scripts (no NEXT_RUNTIME)
+// build directly, preserving the rebuild-on-every-call contract their suites assert.
+function sharedSnapshotEnabled(): boolean {
   return Boolean(process.env.NEXT_RUNTIME);
 }
 
+const COLD_SENTINEL = Symbol("cold-snapshot");
+
+// Single-flight shared refresh: at most one expensive build per instance is in
+// flight at a time; concurrent callers reuse it. It updates last-known-good and
+// captures errors safely — the underlying unstable_cache write is what populates
+// the cross-instance Data Cache.
+let sharedRefreshInFlight: Promise<TournamentLiveSnapshot | null> | null = null;
+function beginSharedRefresh(): Promise<TournamentLiveSnapshot | null> {
+  if (sharedRefreshInFlight) return sharedRefreshInFlight;
+  sharedRefreshInFlight = getSharedBuiltSnapshot()
+    .then((snapshot) => {
+      // getSharedBuiltSnapshot resolves to a validated snapshot (a freshly built
+      // candidate is already recorded; a stale read returns the durable validated
+      // value). Seed last-known-good monotonically: never let a fallback/shell or
+      // a stale read REGRESS the in-memory reference.
+      if (
+        snapshot &&
+        !snapshot.isFallback &&
+        (!lastKnownGoodSnapshot || isCacheableValidatedSnapshot(snapshot, lastKnownGoodSnapshot))
+      ) {
+        lastKnownGoodSnapshot = snapshot;
+      }
+      return snapshot as TournamentLiveSnapshot | null;
+    })
+    .catch(() => {
+      // Stale-on-error: never throw to the page, never leak provider detail.
+      console.warn("[liveSnapshot] shared snapshot refresh failed; serving last validated/fallback.");
+      return lastKnownGoodSnapshot;
+    })
+    .finally(() => {
+      sharedRefreshInFlight = null;
+    });
+  return sharedRefreshInFlight;
+}
+
+// Keep an in-flight refresh alive past the response so it populates the shared
+// cache. after() (Next 15.5) extends the serverless function lifetime until the
+// callback settles — an un-awaited Promise would otherwise be abandoned when the
+// response is sent. Rejections are swallowed (no unhandled rejection, no leak).
+function keepRefreshAlive(refresh: Promise<unknown>): void {
+  const safe = Promise.resolve(refresh).then(() => undefined, () => undefined);
+  try {
+    after(() => safe);
+  } catch {
+    // Not in a request scope (build/SSG/tests) — the promise still settles within
+    // the current task; nothing further to register.
+    void safe;
+  }
+}
+
 export async function getTournamentLiveSnapshot(): Promise<TournamentLiveSnapshot> {
-  if (!snapshotResultCacheEnabled()) {
+  if (!sharedSnapshotEnabled()) {
     return buildLiveSnapshotNow();
   }
 
-  const nowMs = Date.now();
-  if (snapshotResultCache && nowMs < snapshotResultCache.expiresAt) {
-    return snapshotResultCache.snapshot;
+  // Read (or, on a miss, build) the shared snapshot. Warm/stale reads from the
+  // Data Cache resolve immediately (stale-while-revalidate); only a truly cold
+  // cache blocks on the build.
+  const refresh = beginSharedRefresh();
+
+  const raced = await Promise.race([
+    refresh,
+    new Promise<typeof COLD_SENTINEL>((resolve) => setTimeout(() => resolve(COLD_SENTINEL), COLD_START_FALLBACK_MS)),
+  ]);
+
+  if (raced && raced !== COLD_SENTINEL) {
+    return raced as TournamentLiveSnapshot;
   }
-  if (snapshotInFlight) return snapshotInFlight;
 
-  snapshotInFlight = buildLiveSnapshotNow()
-    .then((snapshot) => {
-      snapshotResultCache = { snapshot, expiresAt: Date.now() + SNAPSHOT_RESULT_TTL_MS };
-      return snapshot;
-    })
-    .catch((err) => {
-      if (snapshotResultCache) return snapshotResultCache.snapshot;
-      throw err;
-    })
-    .finally(() => {
-      snapshotInFlight = null;
-    });
-
-  return snapshotInFlight;
+  // Cold/empty cache (or an error with no last-known-good on this instance): do
+  // not block the page. Register the in-flight build with after() so Vercel keeps
+  // the function alive until it finishes populating the shared cache, then serve
+  // a truthful fallback now.
+  keepRefreshAlive(refresh);
+  return lastKnownGoodSnapshot ?? (await getTruthfulFallbackSnapshot());
 }
 
 async function buildLiveSnapshotNow(): Promise<TournamentLiveSnapshot> {

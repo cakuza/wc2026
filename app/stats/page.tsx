@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { LiveDataAutoRefresh } from "@/components/LiveDataAutoRefresh";
 import { LiveSnapshotDebug } from "@/components/LiveSnapshotDebug";
+import { LiveDataUnavailableNotice } from "@/components/LiveDataUnavailableNotice";
 import StatsContent from "@/components/StatsContent";
 import { getLiveRefreshPolicy } from "@/lib/liveRefreshPolicy";
 import { getTournamentLiveSnapshot } from "@/lib/liveSnapshot";
@@ -44,6 +45,11 @@ export default async function StatsPage() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
+      {snapshot.isFallback ? (
+        <div className="mx-auto max-w-5xl px-4 pt-6">
+          <LiveDataUnavailableNotice show />
+        </div>
+      ) : null}
       <StatsContent
         tournamentStats={snapshot.tournamentStats}
         teamLeaderboards={snapshot.teamLeaderboards}

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { TeamDetail } from "@/components/TeamDetail";
+import { LiveDataUnavailableNotice } from "@/components/LiveDataUnavailableNotice";
 import { TEAMS, slugFor, teamBySlug, teamsInGroup, withArticle } from "@/lib/teams";
 import { matchesInGroup } from "@/lib/matches";
 import { squadFor } from "@/lib/squads";
@@ -196,6 +197,11 @@ export default async function TeamPage({ params }: { params: Promise<{ slug: str
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(faqLd) }}
       />
+      {snapshot.isFallback ? (
+        <div className="mx-auto max-w-4xl px-4 pt-6">
+          <LiveDataUnavailableNotice show />
+        </div>
+      ) : null}
       <TeamDetail
         team={team}
         groupTeams={groupTeams}
