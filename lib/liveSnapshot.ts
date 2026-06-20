@@ -24,11 +24,16 @@ import { countryName } from "./i18n";
 
 export const LIVE_SNAPSHOT_CACHE_KEY = "worldcup-tournament-live-snapshot-v7";
 export const LIVE_SNAPSHOT_REVALIDATE_SECONDS = 25;
-// Provider Data-Cache revalidate. Kept short so that when the snapshot rebuilds
-// during a live window the football-data / worldcup26 reads it consumes are fresh;
-// revalidation is lazy, so during idle periods (snapshot cadence ~90s) providers
-// are still only refetched at that slower cadence.
-export const PROVIDER_REVALIDATE_SECONDS = 10;
+// Provider Data-Cache revalidate (seconds). Lazily driven by the snapshot
+// rebuild, so idle periods (snapshot cadence ~90s) refetch providers only at
+// that slower cadence. Tuned to keep providers comfortably within free-tier
+// limits even during live windows:
+//   - PRIMARY (football-data scores/status): 12s → ≤5 req/min, the freshness-
+//     critical source for the live-score budget.
+//   - SECONDARY (worldcup26.ir scorer enrichment): 30s → ≤2 req/min, gentler
+//     because it is enrichment, not the canonical score.
+export const PROVIDER_REVALIDATE_SECONDS = 12;
+const SECONDARY_PROVIDER_REVALIDATE_SECONDS = 30;
 
 export type SnapshotMatchStatus = "SCHEDULED" | "LIVE" | "HALFTIME" | "FINISHED" | "SYNCING";
 
@@ -594,7 +599,7 @@ const getBulkSecondaryData = unstable_cache(
     return games;
   },
   ["worldcup-bulk-secondary-v8"],
-  { revalidate: PROVIDER_REVALIDATE_SECONDS, tags: ["bulk-secondary-data"] }
+  { revalidate: SECONDARY_PROVIDER_REVALIDATE_SECONDS, tags: ["bulk-secondary-data"] }
 );
 
 /**
