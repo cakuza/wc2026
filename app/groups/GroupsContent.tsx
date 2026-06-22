@@ -5,6 +5,7 @@ import { useLang } from "@/components/LanguageProvider";
 import { GROUP_LETTERS, teamsInGroup } from "@/lib/teams";
 import { matchesInGroup } from "@/lib/matches";
 import { StandingsTable } from "@/components/StandingsTable";
+import { letterToGroupSlug } from "@/lib/groupSlug";
 import type { StandingRow } from "@/lib/groupStandings";
 
 type PreviewEntry = {
@@ -66,6 +67,12 @@ export function GroupsContent({ standings }: GroupsContentProps) {
                 <span className="font-heading text-xl font-extrabold uppercase text-white">
                   {t("lbl_group")} {g}
                 </span>
+                <Link
+                  href={`/groups/${letterToGroupSlug(g)}`}
+                  className="font-heading text-[10px] font-bold uppercase tracking-wide text-accent/70 hover:text-accent transition-colors"
+                >
+                  Full standings →
+                </Link>
               </div>
 
               {/* Standings table — rows prop carries live data when available */}

@@ -1,0 +1,39 @@
+{
+  "generated": "2026-06-23",
+  "branch": "seo/intent-clusters-freshness-v1",
+  "phases": {
+    "phase1_audit": "complete",
+    "phase2_p0_crawl_freshness": "complete",
+    "phase3_on_page_intent": "complete",
+    "phase4_landing_pages": "complete",
+    "phase5_internal_linking": "complete",
+    "phase6_aeo_geo": "complete",
+    "phase7_structured_data": "complete",
+    "phase8_indexnow": "dry_run_only",
+    "phase9_tests": "complete",
+    "phase10_preview_qa": "pending"
+  },
+  "newRoutes": [
+    "/groups/group-a", "/groups/group-b", "/groups/group-c", "/groups/group-d",
+    "/groups/group-e", "/groups/group-f", "/groups/group-g", "/groups/group-h",
+    "/groups/group-i", "/groups/group-j", "/groups/group-k", "/groups/group-l",
+    "/stats/top-scorers",
+    "/qualified-eliminated-teams",
+    "/teams/england/qualification",
+    "/teams/turkey/qualification",
+    "/matchdays/[date] (all tournament dates)"
+  ],
+  "newComponents": [
+    "QuickAnswer", "LastUpdated", "BreadcrumbNav", "SourcesAndMethodology", "DataAvailabilityNotice"
+  ],
+  "newLibs": [
+    "lib/groupSlug.ts", "lib/matchdays.ts", "lib/indexnow/indexnow.ts"
+  ],
+  "sitemapChanges": {
+    "added": ["12 group pages", "matchday pages", "top-scorers", "qualified-eliminated-teams", "2 qual canary pages"],
+    "fixed": "lastmod discipline — static pages now use stable date; live pages omit lastModified"
+  },
+  "robotsChanges": "documented AI-crawler policy; no behavioral change to existing allow-all rule",
+  "indexnowStatus": "dry_run — INDEXNOW_ENABLED=false by default; key infrastructure not yet provisioned",
+  "productionTouched": false
+}

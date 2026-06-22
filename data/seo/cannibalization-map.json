@@ -1,0 +1,41 @@
+{
+  "generated": "2026-06-23",
+  "cannibalizationRisks": [
+    {
+      "querySet": "todays world cup matches",
+      "competingPages": ["/", "/today"],
+      "resolution": "Homepage shows today's matches as primary content; /today is the canonical destination. Homepage uses a different title and intent (live hub). No direct cannibalization.",
+      "severity": "low"
+    },
+    {
+      "querySet": "world cup group standings",
+      "competingPages": ["/groups", "/groups/group-*"],
+      "resolution": "/groups is the hub — its title and H1 cover 'all groups'. Individual group pages own specific group queries ('Group D standings', 'Turkey group', etc.). Parent/child relationship, not cannibalization.",
+      "severity": "none"
+    },
+    {
+      "querySet": "world cup stats / statistics",
+      "competingPages": ["/stats", "/stats/top-scorers"],
+      "resolution": "/stats is the hub; /stats/top-scorers owns the scorer-specific intent. Clearly differentiated.",
+      "severity": "none"
+    },
+    {
+      "querySet": "turkey world cup group / fixtures",
+      "competingPages": ["/teams/turkey", "/groups/group-d", "/teams/turkey/qualification"],
+      "resolution": "/teams/turkey owns team identity, fixtures, squad. /groups/group-d owns the group-wide table. /teams/turkey/qualification owns the 'can turkey qualify' intent. No overlap — each has a distinct canonical intent.",
+      "severity": "low"
+    },
+    {
+      "querySet": "world cup schedule june 23",
+      "competingPages": ["/today", "/schedule", "/matchdays/2026-06-23"],
+      "resolution": "/today?date= is noindex; /matchdays/2026-06-23 is the canonical permanent page for that date. /schedule is the full-season hub with no specific-date content.",
+      "severity": "none"
+    },
+    {
+      "querySet": "third place world cup",
+      "competingPages": ["/world-cup-third-place-qualification", "/qualified-eliminated-teams"],
+      "resolution": "/world-cup-third-place-qualification owns the ranking/methodology intent; /qualified-eliminated-teams owns the broader tracker intent (includes all 3 states). Both are complementary and cross-linked.",
+      "severity": "low"
+    }
+  ]
+}

@@ -1,0 +1,36 @@
+{
+  "generated": "2026-06-23",
+  "mode": "dry_run",
+  "enabled": false,
+  "note": "INDEXNOW_ENABLED=false (default). No real submissions made. To activate, set INDEXNOW_ENABLED=true + INDEXNOW_KEY in Production env and serve /[key].txt.",
+  "exampleUrlsForMatchChange": {
+    "example_match": "england-vs-ghana-jun23",
+    "homeTeamSlug": "england",
+    "awayTeamSlug": "ghana",
+    "groupLetter": "L",
+    "matchdayDate": "2026-06-23",
+    "urlsToSubmit": [
+      "https://www.worldcupmatchday.com/matches/england-vs-ghana-jun23",
+      "https://www.worldcupmatchday.com/teams/england",
+      "https://www.worldcupmatchday.com/teams/ghana",
+      "https://www.worldcupmatchday.com/groups/group-l",
+      "https://www.worldcupmatchday.com/groups",
+      "https://www.worldcupmatchday.com/stats/top-scorers",
+      "https://www.worldcupmatchday.com/stats",
+      "https://www.worldcupmatchday.com/world-cup-third-place-qualification",
+      "https://www.worldcupmatchday.com/qualified-eliminated-teams",
+      "https://www.worldcupmatchday.com/matchdays/2026-06-23",
+      "https://www.worldcupmatchday.com/today",
+      "https://www.worldcupmatchday.com"
+    ]
+  },
+  "activationChecklist": [
+    "Generate IndexNow key (UUID4 format)",
+    "Set INDEXNOW_KEY=<key> in Vercel Production env only (NOT Preview)",
+    "Create public/<key>.txt containing just the key",
+    "Set INDEXNOW_ENABLED=true in Vercel Production env only",
+    "Test dry-run: verify urlsForMatchChange() output is correct",
+    "Monitor Bing Webmaster Tools for submission acceptance",
+    "Do NOT set these vars in Preview to avoid polluting the submission quota with non-production URLs"
+  ]
+}
