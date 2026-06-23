@@ -31,16 +31,6 @@ const nextConfig = {
         permanent: true
       },
       {
-        source: "/groups/:group",
-        destination: "/groups",
-        permanent: true
-      },
-      {
-        source: "/tr/groups/:group",
-        destination: "/groups",
-        permanent: true
-      },
-      {
         source: "/teams/:slug(.*)-world-cup-schedule",
         destination: "/teams/:slug",
         permanent: true

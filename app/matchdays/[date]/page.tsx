@@ -147,7 +147,7 @@ export default async function MatchdayPage({
       homeTeam: { "@type": "SportsTeam", name: countryName(m.homeKey, "en") },
       awayTeam: { "@type": "SportsTeam", name: countryName(m.awayKey, "en") },
       url: `${BASE}/matches/${matchSlug(m)}`,
-      eventStatus: "https://schema.org/EventScheduled",
+      eventStatus: "https://schema.org/EventCompleted",
       eventAttendanceMode: "https://schema.org/OfflineEventAttendanceMode",
       ...(snap?.homeScore !== null && snap?.awayScore !== null
         ? {
@@ -258,13 +258,9 @@ export default async function MatchdayPage({
                       <span className="font-heading text-[10px] text-white/30">{m.venue}</span>
                     )}
                     {m.group && (
-                      <Link
-                        href={`/groups/group-${m.group.toLowerCase()}`}
-                        onClick={(e) => e.stopPropagation()}
-                        className="font-heading text-[10px] font-bold uppercase tracking-wide text-accent/60 hover:text-accent"
-                      >
+                      <span className="font-heading text-[10px] font-bold uppercase tracking-wide text-accent/60">
                         Group {m.group}
-                      </Link>
+                      </span>
                     )}
                   </div>
 

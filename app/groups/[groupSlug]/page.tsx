@@ -11,7 +11,7 @@ import { BreadcrumbNav, breadcrumbLd } from "@/components/BreadcrumbNav";
 import { SourcesAndMethodology } from "@/components/SourcesAndMethodology";
 import { Flag } from "@/components/Flag";
 import { groupSlugToLetter, generateGroupStaticParams, letterToGroupSlug } from "@/lib/groupSlug";
-import { teamsInGroup, GROUP_LETTERS } from "@/lib/teams";
+import { teamsInGroup, GROUP_LETTERS, slugFor } from "@/lib/teams";
 import { matchesInGroup, matchSlug, matchUtcDate } from "@/lib/matches";
 import { countryName } from "@/lib/i18n";
 import { getTournamentLiveSnapshot } from "@/lib/liveSnapshot";
@@ -66,21 +66,6 @@ function fmtMatchDate(m: { date: string; time?: string }): string {
   }).format(matchUtcDate(m as Parameters<typeof matchUtcDate>[0]));
 }
 
-function QualBadge({ rank }: { rank: number }) {
-  if (rank <= 2)
-    return (
-      <span className="ml-2 rounded bg-green-600/20 px-1.5 py-0.5 font-heading text-[9px] font-bold uppercase tracking-wide text-green-400">
-        Qualified
-      </span>
-    );
-  if (rank === 3)
-    return (
-      <span className="ml-2 rounded bg-amber-500/20 px-1.5 py-0.5 font-heading text-[9px] font-bold uppercase tracking-wide text-amber-400">
-        3rd
-      </span>
-    );
-  return null;
-}
 
 export default async function GroupPage({
   params,
@@ -138,10 +123,6 @@ export default async function GroupPage({
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(webPageLd) }}
-      />
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
       />
 
       <div className="mx-auto max-w-3xl px-4 py-8">
@@ -282,7 +263,7 @@ export default async function GroupPage({
             {teams.map((t) => (
               <Link
                 key={t.key}
-                href={`/teams/${t.key.replace(/([A-Z])/g, (c) => `-${c.toLowerCase()}`)}`}
+                href={`/teams/${slugFor(t.key)}`}
                 className="flex items-center gap-2 rounded-lg border border-white/10 bg-navyCard px-3 py-2 text-xs font-bold text-white/70 transition hover:border-white/30 hover:text-white"
               >
                 <Flag code={t.code} width={22} height={16} />

@@ -10,10 +10,8 @@ import { BreadcrumbNav, breadcrumbLd } from "@/components/BreadcrumbNav";
 import { SourcesAndMethodology } from "@/components/SourcesAndMethodology";
 import { getTournamentLiveSnapshot } from "@/lib/liveSnapshot";
 import { getLiveRefreshPolicy } from "@/lib/liveRefreshPolicy";
-import { GROUP_LETTERS, teamsInGroup, slugFor } from "@/lib/teams";
-import { matchesInGroup } from "@/lib/matches";
+import { GROUP_LETTERS, teamsInGroup, slugFor, TEAMS } from "@/lib/teams";
 import { countryName } from "@/lib/i18n";
-import { TEAMS } from "@/lib/teams";
 
 const BASE = "https://www.worldcupmatchday.com";
 
@@ -36,6 +34,14 @@ export const metadata: Metadata = {
 
 type TeamStatus = "qualified" | "alive" | "eliminated" | "pending";
 
+type TeamEntry = {
+  key: string;
+  group: string;
+  status: TeamStatus;
+  points?: number;
+  rank?: number;
+};
+
 function teamCodeForKey(key: string): string {
   return TEAMS.find((t) => t.key === key)?.code ?? "un";
 }
@@ -45,25 +51,71 @@ const breadcrumbs = [
   { label: "Qualified & Eliminated Teams" },
 ];
 
+function TeamCard({ entry }: { entry: TeamEntry }) {
+  const name = countryName(entry.key, "en");
+  const code = teamCodeForKey(entry.key);
+  const slug = slugFor(entry.key);
+  return (
+    <Link
+      href={`/teams/${slug}`}
+      className="flex items-center gap-2 rounded-lg border border-white/10 bg-navyCard px-3 py-2 text-xs font-bold text-white/70 transition hover:border-white/30 hover:text-white"
+    >
+      <Flag code={code} width={26} height={18} />
+      <div className="min-w-0">
+        <p className="truncate font-bold text-white">{name}</p>
+        <p className="text-[10px] text-white/40">Group {entry.group}</p>
+      </div>
+    </Link>
+  );
+}
+
+function Section({
+  title,
+  color,
+  badge,
+  teams,
+  empty,
+}: {
+  title: string;
+  color: string;
+  badge: string;
+  teams: TeamEntry[];
+  empty: string;
+}) {
+  return (
+    <section className="mb-6">
+      <div className="mb-2 flex items-center gap-2">
+        <h2 className={`font-heading text-lg font-extrabold uppercase tracking-wide ${color}`}>
+          {title}
+        </h2>
+        <span
+          className={`rounded px-2 py-0.5 font-heading text-xs font-bold ${color} bg-current/10`}
+        >
+          {badge} ({teams.length})
+        </span>
+      </div>
+      {teams.length > 0 ? (
+        <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+          {teams.map((e) => (
+            <TeamCard key={e.key} entry={e} />
+          ))}
+        </div>
+      ) : (
+        <p className="text-sm text-white/40">{empty}</p>
+      )}
+    </section>
+  );
+}
+
 export default async function QualifiedEliminatedPage() {
   const snapshot = await getTournamentLiveSnapshot();
   const refreshPolicy = getLiveRefreshPolicy(Object.values(snapshot.matches));
-
-  type TeamEntry = {
-    key: string;
-    group: string;
-    status: TeamStatus;
-    points?: number;
-    rank?: number;
-  };
 
   const entries: TeamEntry[] = [];
 
   for (const letter of GROUP_LETTERS) {
     const standingsRows = snapshot.standingsByGroup[letter] ?? [];
-    const groupMatches = matchesInGroup(letter);
     const matchesPlayed = standingsRows.reduce((sum, r) => sum + r.played, 0) / 2;
-    const totalMatches = 6; // 6 matches per group
 
     // How many matches has each team played?
     for (const team of teamsInGroup(letter)) {
@@ -112,63 +164,6 @@ export default async function QualifiedEliminatedPage() {
   const pending = entries.filter((e) => e.status === "pending");
 
   const breadcrumbSchema = breadcrumbLd(breadcrumbs, BASE);
-
-  function TeamCard({ entry }: { entry: TeamEntry }) {
-    const name = countryName(entry.key, "en");
-    const code = teamCodeForKey(entry.key);
-    const slug = slugFor(entry.key);
-    return (
-      <Link
-        href={`/teams/${slug}`}
-        className="flex items-center gap-2 rounded-lg border border-white/10 bg-navyCard px-3 py-2 text-xs font-bold text-white/70 transition hover:border-white/30 hover:text-white"
-      >
-        <Flag code={code} width={26} height={18} />
-        <div className="min-w-0">
-          <p className="truncate font-bold text-white">{name}</p>
-          <p className="text-[10px] text-white/40">Group {entry.group}</p>
-        </div>
-      </Link>
-    );
-  }
-
-  function Section({
-    title,
-    color,
-    badge,
-    teams,
-    empty,
-  }: {
-    title: string;
-    color: string;
-    badge: string;
-    teams: TeamEntry[];
-    empty: string;
-  }) {
-    return (
-      <section className="mb-6">
-        <div className="mb-2 flex items-center gap-2">
-          <h2 className={`font-heading text-lg font-extrabold uppercase tracking-wide ${color}`}>
-            {title}
-          </h2>
-          <span
-            className={`rounded px-2 py-0.5 font-heading text-xs font-bold ${color} bg-current/10`}
-          >
-            {badge} ({teams.length})
-          </span>
-        </div>
-        {teams.length > 0 ? (
-          <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
-            {teams.map((e) => (
-              <TeamCard key={e.key} entry={e} />
-            ))}
-          </div>
-        ) : (
-          <p className="text-sm text-white/40">{empty}</p>
-        )}
-      </section>
-    );
-  }
-
   const totalKnownQualified = qualified.length;
   const maxPossibleQualified = 32; // 24 auto + 8 third-place
 
