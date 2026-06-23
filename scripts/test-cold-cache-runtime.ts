@@ -182,6 +182,20 @@ async function run(): Promise<void> {
     return;
   }
 
+  // ── Clear persistent fetch-cache so the server starts truly cold ──────────
+  // The Next.js SWR cache in .next/cache/fetch-cache/ survives process restarts.
+  // If it contains stale-but-valid scorer data from earlier prod-server runs, the
+  // first request would be served from disk rather than from the fixture, making
+  // this "cold-cache" test non-deterministic. Clearing it before each run restores
+  // the invariant: first request builds a fresh snapshot from the fixture only.
+  const fetchCacheDir = path.join(PROJECT_ROOT, ".next", "cache", "fetch-cache");
+  if (fs.existsSync(fetchCacheDir)) {
+    for (const entry of fs.readdirSync(fetchCacheDir)) {
+      try { fs.unlinkSync(path.join(fetchCacheDir, entry)); } catch { /* ignore */ }
+    }
+    console.log("[cold-cache] Cleared .next/cache/fetch-cache/");
+  }
+
   // ── Find free port ────────────────────────────────────────────────────────
 
   const port = await getFreePort();
