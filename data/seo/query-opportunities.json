@@ -1,0 +1,119 @@
+{
+  "generated": "2026-06-23",
+  "notes": "Based on GSC export June 14-15 + competitive analysis. Position estimates from GSC where available.",
+  "opportunities": [
+    {
+      "query": "world cup matches today",
+      "gscImpressions": 28,
+      "gscPosition": 11.14,
+      "targetPage": "/today",
+      "priority": "high",
+      "action": "CTR improvement via better title/description",
+      "status": "existing-page"
+    },
+    {
+      "query": "turkey group world cup",
+      "gscImpressions": 11,
+      "gscPosition": 12.82,
+      "targetPage": "/groups/group-d",
+      "priority": "high",
+      "action": "New group landing page created",
+      "status": "new-page"
+    },
+    {
+      "query": "world cup 2026 turkey group",
+      "gscImpressions": 10,
+      "gscPosition": 14.4,
+      "targetPage": "/groups/group-d",
+      "priority": "high",
+      "action": "New group landing page created",
+      "status": "new-page"
+    },
+    {
+      "query": "england world cup group",
+      "gscImpressions": 6,
+      "gscPosition": 27.25,
+      "targetPage": "/groups/group-l",
+      "priority": "high",
+      "action": "New group landing page created",
+      "status": "new-page"
+    },
+    {
+      "query": "who is in england world cup group",
+      "gscImpressions": 6,
+      "gscPosition": 10.5,
+      "targetPage": "/groups/group-l",
+      "priority": "medium",
+      "action": "Group page + QuickAnswer covers this",
+      "status": "new-page"
+    },
+    {
+      "query": "world cup 2026 best third place teams",
+      "gscPosition": 65,
+      "targetPage": "/world-cup-third-place-qualification",
+      "priority": "high",
+      "action": "Existing page already ranking — QuickAnswer added to improve",
+      "status": "existing-page"
+    },
+    {
+      "query": "how many 3rd places go through in world cup",
+      "gscImpressions": 1,
+      "gscPosition": 11,
+      "targetPage": "/world-cup-third-place-qualification",
+      "priority": "medium",
+      "action": "FAQ already covers this",
+      "status": "existing-page"
+    },
+    {
+      "query": "world cup top scorers / golden boot",
+      "gscPosition": null,
+      "targetPage": "/stats/top-scorers",
+      "priority": "high",
+      "action": "New page created",
+      "status": "new-page"
+    },
+    {
+      "query": "teams qualified for round of 32",
+      "gscPosition": null,
+      "targetPage": "/qualified-eliminated-teams",
+      "priority": "high",
+      "action": "New page created",
+      "status": "new-page"
+    },
+    {
+      "query": "world cup schedule eastern time",
+      "gscImpressions": 1,
+      "gscPosition": 75,
+      "targetPage": "/schedule/eastern-time",
+      "priority": "medium",
+      "action": "Under-linked — add to sitemap and internal links",
+      "status": "existing-page"
+    },
+    {
+      "query": "world cup matches june 23 2026",
+      "gscPosition": null,
+      "targetPage": "/matchdays/2026-06-23",
+      "priority": "medium",
+      "action": "DEFERRED — permanent matchday pages blocked until canonical 104-match schedule is complete",
+      "status": "deferred",
+      "deferredReason": "Canonical schedule has 72/104 matches; knockout stage absent from lib/matches.ts"
+    },
+    {
+      "query": "england world cup 2026 qualification",
+      "gscPosition": null,
+      "targetPage": "/teams/england/qualification",
+      "priority": "medium",
+      "action": "New qualification canary page created",
+      "status": "new-page"
+    },
+    {
+      "query": "turkey world cup 2026 qualification",
+      "gscImpressions": 1,
+      "gscPosition": 7,
+      "targetPage": "/teams/turkey/qualification",
+      "priority": "high",
+      "action": "New qualification canary page created",
+      "status": "new-page"
+    }
+  ]
+}

@@ -1,0 +1,70 @@
+{
+  "generated": "2026-06-23",
+  "nodes": [
+    { "url": "/", "type": "hub" },
+    { "url": "/today", "type": "live" },
+    { "url": "/groups", "type": "hub" },
+    { "url": "/groups/group-a", "type": "cluster" },
+    { "url": "/groups/group-b", "type": "cluster" },
+    { "url": "/groups/group-c", "type": "cluster" },
+    { "url": "/groups/group-d", "type": "cluster" },
+    { "url": "/groups/group-e", "type": "cluster" },
+    { "url": "/groups/group-f", "type": "cluster" },
+    { "url": "/groups/group-g", "type": "cluster" },
+    { "url": "/groups/group-h", "type": "cluster" },
+    { "url": "/groups/group-i", "type": "cluster" },
+    { "url": "/groups/group-j", "type": "cluster" },
+    { "url": "/groups/group-k", "type": "cluster" },
+    { "url": "/groups/group-l", "type": "cluster" },
+    { "url": "/stats", "type": "hub" },
+    { "url": "/stats/top-scorers", "type": "cluster" },
+    { "url": "/world-cup-third-place-qualification", "type": "cluster" },
+    { "url": "/qualified-eliminated-teams", "type": "cluster" },
+    { "url": "/teams/england/qualification", "type": "cluster" },
+    { "url": "/teams/turkey/qualification", "type": "cluster" },
+    { "url": "/schedule", "type": "hub" },
+    { "url": "/matchdays/[date]", "type": "DEFERRED", "note": "Route removed from this PR — canonical knockout schedule incomplete. Will be added when 104-match schedule is complete." }
+  ],
+  "edges": [
+    { "from": "/groups", "to": "/groups/group-[a-l]", "anchor": "Full standings →", "context": "group card header" },
+    { "from": "/groups/group-[a-l]", "to": "/groups", "anchor": "All Groups", "context": "related links" },
+    { "from": "/groups/group-[a-l]", "to": "/world-cup-third-place-qualification", "anchor": "Third-Place Table", "context": "related links" },
+    { "from": "/groups/group-[a-l]", "to": "/qualified-eliminated-teams", "anchor": "Qualified Teams", "context": "related links" },
+    { "from": "/groups/group-[a-l]", "to": "/stats/top-scorers", "anchor": "Top Scorers", "context": "related links" },
+    { "from": "/groups/group-[a-l]", "to": "/groups/group-[prev/next]", "anchor": "← Group X / Group Y →", "context": "prev/next nav" },
+    { "from": "/groups/group-[a-l]", "to": "/teams/[slug]", "anchor": "team name", "context": "teams section" },
+    { "from": "/groups/group-[a-l]", "to": "/matches/[matchId]", "anchor": "match fixture", "context": "fixtures list" },
+    { "from": "/stats", "to": "/stats/top-scorers", "anchor": "Top Scorers", "context": "existing stats nav (TBD in Sprint 2)" },
+    { "from": "/stats/top-scorers", "to": "/stats", "anchor": "All Stats", "context": "related links" },
+    { "from": "/stats/top-scorers", "to": "/teams/[slug]", "anchor": "team name", "context": "scorer row" },
+    { "from": "/stats/top-scorers", "to": "/groups", "anchor": "Group Standings", "context": "related links" },
+    { "from": "/qualified-eliminated-teams", "to": "/groups", "anchor": "All Groups", "context": "related links" },
+    { "from": "/qualified-eliminated-teams", "to": "/world-cup-third-place-qualification", "anchor": "Third-Place Table", "context": "methodology + related links" },
+    { "from": "/qualified-eliminated-teams", "to": "/teams/[slug]", "anchor": "team name", "context": "team card" },
+    { "from": "/teams/[slug]/qualification", "to": "/teams/[slug]", "anchor": "team name + team page", "context": "breadcrumb + related links" },
+    { "from": "/teams/[slug]/qualification", "to": "/groups/group-[X]", "anchor": "Group X Standings", "context": "related links" },
+    { "from": "/teams/[slug]/qualification", "to": "/world-cup-third-place-qualification", "anchor": "third-place table", "context": "qualification routes section" },
+    { "from": "/teams/[slug]/qualification", "to": "/qualified-eliminated-teams", "anchor": "All Qualified Teams", "context": "related links" }
+  ],
+  "deferredEdges": {
+    "note": "Matchday prev/next nav edges deferred with the /matchdays/[date] cluster",
+    "edges": [
+      { "from": "/matchdays/[date]", "to": "/matchdays/[prev]", "anchor": "← [day]", "context": "prev/next nav" },
+      { "from": "/matchdays/[date]", "to": "/matchdays/[next]", "anchor": "[day] →", "context": "prev/next nav" },
+      { "from": "/matchdays/[date]", "to": "/matches/[matchId]", "anchor": "match fixture", "context": "match list" },
+      { "from": "/matchdays/[date]", "to": "/groups/group-[X]", "anchor": "Group X", "context": "match venue/group label" },
+      { "from": "/matchdays/[date]", "to": "/today", "anchor": "Today's Matches", "context": "related links" },
+      { "from": "/matchdays/[date]", "to": "/schedule", "anchor": "Full Schedule", "context": "related links" }
+    ]
+  },
+  "orphanCheck": {
+    "newPages": [
+      "/groups/group-[a-l]: linked from /groups hub (12 links)",
+      "/stats/top-scorers: linked from /groups group pages + /qualified-eliminated-teams (needs link from /stats hub in Sprint 2)",
+      "/qualified-eliminated-teams: linked from /world-cup-third-place-qualification + group pages",
+      "/teams/england/qualification: linked from /teams/england (needs adding in Sprint 2) + group L page",
+      "/teams/turkey/qualification: linked from /teams/turkey (needs adding in Sprint 2) + group D page"
+    ],
+    "verdict": "All new pages have ≥1 inbound link. Some improvement possible in Sprint 2."
+  }
+}
