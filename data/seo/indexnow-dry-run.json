@@ -8,7 +8,6 @@
     "homeTeamSlug": "england",
     "awayTeamSlug": "ghana",
     "groupLetter": "L",
-    "matchdayDate": "2026-06-23",
     "urlsToSubmit": [
       "https://www.worldcupmatchday.com/matches/england-vs-ghana-jun23",
       "https://www.worldcupmatchday.com/teams/england",
@@ -19,10 +18,13 @@
       "https://www.worldcupmatchday.com/stats",
       "https://www.worldcupmatchday.com/world-cup-third-place-qualification",
       "https://www.worldcupmatchday.com/qualified-eliminated-teams",
-      "https://www.worldcupmatchday.com/matchdays/2026-06-23",
       "https://www.worldcupmatchday.com/today",
       "https://www.worldcupmatchday.com"
-    ]
+    ],
+    "deferredUrls": {
+      "note": "/matchdays/[date] URLs removed from submission set — matchday cluster deferred until canonical knockout schedule is complete",
+      "example": "https://www.worldcupmatchday.com/matchdays/2026-06-23"
+    }
   },
   "activationChecklist": [
     "Generate IndexNow key (UUID4 format)",

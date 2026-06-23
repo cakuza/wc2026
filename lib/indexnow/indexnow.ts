@@ -29,9 +29,8 @@ export function urlsForMatchChange(opts: {
   homeTeamSlug: string;
   awayTeamSlug: string;
   groupLetter: string;
-  matchdayDate: string;
 }): string[] {
-  const { matchSlug, homeTeamSlug, awayTeamSlug, groupLetter, matchdayDate } = opts;
+  const { matchSlug, homeTeamSlug, awayTeamSlug, groupLetter } = opts;
   return [
     `${BASE}/matches/${matchSlug}`,
     `${BASE}/teams/${homeTeamSlug}`,
@@ -42,7 +41,6 @@ export function urlsForMatchChange(opts: {
     `${BASE}/stats`,
     `${BASE}/world-cup-third-place-qualification`,
     `${BASE}/qualified-eliminated-teams`,
-    `${BASE}/matchdays/${matchdayDate}`,
     `${BASE}/today`,
     BASE,
   ];

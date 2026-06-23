@@ -24,7 +24,7 @@
     { "url": "/qualified-eliminated-teams", "intent": "qualified-eliminated-tracker", "cluster": "standings", "status": "new", "indexed": true },
     { "url": "/teams/england/qualification", "intent": "england-qualification-path", "cluster": "teams", "status": "new", "indexed": true },
     { "url": "/teams/turkey/qualification", "intent": "turkey-qualification-path", "cluster": "teams", "status": "new", "indexed": true, "notes": "216 impressions on turkey team page, 0 clicks" },
-    { "url": "/matchdays/[date]", "intent": "dated-matchday-results", "cluster": "matchday", "status": "new", "indexed": true, "notes": "Canonical permanent dated pages; /today?date= remains UX state + noindex" },
+    { "url": "/matchdays/[date]", "intent": "dated-matchday-results", "cluster": "matchday", "status": "DEFERRED", "indexed": false, "notes": "BLOCKED — canonical knockout schedule incomplete. Repository has 72/104 matches. Deferred to deferred-full-schedule-matchday-plan.md." },
     { "url": "/bracket", "intent": "knockout-bracket", "cluster": "standings", "status": "existing", "indexed": true },
     { "url": "/teams", "intent": "all-teams-hub", "cluster": "teams", "status": "existing", "indexed": true },
     { "url": "/teams/[slug]", "intent": "team-fixtures-squad-group", "cluster": "teams", "status": "existing", "indexed": true },

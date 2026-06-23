@@ -2,7 +2,6 @@ import type { MetadataRoute } from "next";
 import { TEAMS, slugFor, GROUP_LETTERS } from "@/lib/teams";
 import { TIMEZONE_SLUGS } from "@/lib/timezones";
 import { assertWorldCupData } from "@/lib/dataIntegrity";
-import { allMatchdayDates } from "@/lib/matchdays";
 import { letterToGroupSlug } from "@/lib/groupSlug";
 
 const BASE = "https://www.worldcupmatchday.com";
@@ -41,12 +40,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: 0.85,
   }));
 
-  const matchdayPages: MetadataRoute.Sitemap = allMatchdayDates().map((date) => ({
-    url: `${BASE}/matchdays/${date}`,
-    changeFrequency: "daily" as const,
-    priority: 0.75,
-  }));
-
   return [
     // Core live pages — no lastModified (content changes with live data)
     { url: BASE,                    changeFrequency: "hourly",  priority: 1.0 },
@@ -74,7 +67,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
 
     // Cluster pages
     ...groupPages,
-    ...matchdayPages,
     ...timezonePages,
     ...teamPages,
     ...teamQualPages,

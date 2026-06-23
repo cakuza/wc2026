@@ -27,9 +27,10 @@
     },
     {
       "querySet": "world cup schedule june 23",
-      "competingPages": ["/today", "/schedule", "/matchdays/2026-06-23"],
-      "resolution": "/today?date= is noindex; /matchdays/2026-06-23 is the canonical permanent page for that date. /schedule is the full-season hub with no specific-date content.",
-      "severity": "none"
+      "competingPages": ["/today", "/schedule"],
+      "resolution": "/today?date= is noindex; /schedule is the full-season hub with no specific-date content. /matchdays/[date] permanent pages are DEFERRED — canonical knockout schedule incomplete. When shipped, they will own the dated-matchday intent.",
+      "severity": "low",
+      "notes": "Dated permanent pages deferred — /today?date= remains noindex UX state only"
     },
     {
       "querySet": "third place world cup",

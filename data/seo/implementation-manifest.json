@@ -20,17 +20,29 @@
     "/stats/top-scorers",
     "/qualified-eliminated-teams",
     "/teams/england/qualification",
-    "/teams/turkey/qualification",
-    "/matchdays/[date] (all tournament dates)"
+    "/teams/turkey/qualification"
   ],
+  "deferredRoutes": {
+    "/matchdays/[date]": {
+      "status": "BLOCKED — canonical knockout schedule incomplete",
+      "reason": "Repository contains only 72 group-stage matches (matches 1–72). The full tournament requires 104 matches. The 32 knockout-stage matches (R32 × 16, R16 × 8, QF × 4, SF × 2, 3rd × 1, Final × 1) are absent from lib/matches.ts and cannot be added without verified official fixture data (dates, times, venues, participant slots).",
+      "canonicalMatchCount": 72,
+      "requiredMatchCount": 104,
+      "missingKnockoutMatches": 32,
+      "latestCanonicalDate": "2026-06-28",
+      "requiredFinalDate": "2026-07-19",
+      "deferredTo": "docs/seo/deferred-full-schedule-matchday-plan.md"
+    }
+  },
   "newComponents": [
     "QuickAnswer", "LastUpdated", "BreadcrumbNav", "SourcesAndMethodology", "DataAvailabilityNotice"
   ],
   "newLibs": [
-    "lib/groupSlug.ts", "lib/matchdays.ts", "lib/indexnow/indexnow.ts"
+    "lib/groupSlug.ts", "lib/indexnow/indexnow.ts"
   ],
   "sitemapChanges": {
-    "added": ["12 group pages", "matchday pages", "top-scorers", "qualified-eliminated-teams", "2 qual canary pages"],
+    "added": ["12 group pages", "top-scorers", "qualified-eliminated-teams", "2 qual canary pages"],
+    "deferred": ["matchday pages — awaiting complete 104-match canonical schedule"],
     "fixed": "lastmod discipline — static pages now use stable date; live pages omit lastModified"
   },
   "robotsChanges": "documented AI-crawler policy; no behavioral change to existing allow-all rule",

@@ -94,8 +94,9 @@
       "gscPosition": null,
       "targetPage": "/matchdays/2026-06-23",
       "priority": "medium",
-      "action": "New permanent matchday pages created",
-      "status": "new-page"
+      "action": "DEFERRED — permanent matchday pages blocked until canonical 104-match schedule is complete",
+      "status": "deferred",
+      "deferredReason": "Canonical schedule has 72/104 matches; knockout stage absent from lib/matches.ts"
     },
     {
       "query": "england world cup 2026 qualification",

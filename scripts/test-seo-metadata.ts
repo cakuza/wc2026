@@ -5,9 +5,8 @@
  * - Each indexable page produces a unique title
  * - Canonical URLs use correct format
  * - Group pages have group-specific titles containing the group letter
- * - Matchday pages have date-specific titles
  * - Qualification pages have team-specific titles
- * - noindex is only on /today?date= (not on group/stats/matchday pages)
+ * - noindex is only on /today?date= (not on group/stats pages)
  * - Structured data is valid JSON where emitted
  *
  *   npx tsx --tsconfig tsconfig.test.json scripts/test-seo-metadata.ts
@@ -15,7 +14,6 @@
 import assert from "assert";
 import { GROUP_LETTERS } from "../lib/teams";
 import { groupSlugToLetter, letterToGroupSlug } from "../lib/groupSlug";
-import { allMatchdayDates } from "../lib/matchdays";
 import { countryName } from "../lib/i18n";
 import { teamsInGroup } from "../lib/teams";
 
@@ -67,21 +65,6 @@ async function main() {
     assert.ok(groupITeams.includes("France"), "France not in Group I");
   });
 
-  // ── Matchday page title uniqueness ─────────────────────────────────────────
-
-  await test("matchday dates are unique (no date collision)", () => {
-    const dates = allMatchdayDates();
-    const unique = new Set(dates);
-    assert.strictEqual(unique.size, dates.length, "Duplicate matchday dates found");
-  });
-
-  await test("matchday page title pattern is date-specific", () => {
-    const dates = allMatchdayDates();
-    // Each date produces a different title (they embed the date label)
-    const titles = new Set(dates.map((d) => `World Cup 2026 Matches — ${d}`));
-    assert.strictEqual(titles.size, dates.length, "Non-unique matchday title pattern");
-  });
-
   // ── Canonical URL format ────────────────────────────────────────────────────
 
   await test("group page canonical URLs use /groups/group-[a-l] pattern", () => {
@@ -89,13 +72,6 @@ async function main() {
       const slug = letterToGroupSlug(letter);
       const canonical = `https://www.worldcupmatchday.com/groups/${slug}`;
       assert.match(canonical, /^https:\/\/www\.worldcupmatchday\.com\/groups\/group-[a-l]$/);
-    }
-  });
-
-  await test("matchday canonical URLs use /matchdays/YYYY-MM-DD pattern", () => {
-    for (const date of allMatchdayDates()) {
-      const canonical = `https://www.worldcupmatchday.com/matchdays/${date}`;
-      assert.match(canonical, /^https:\/\/www\.worldcupmatchday\.com\/matchdays\/\d{4}-\d{2}-\d{2}$/);
     }
   });
 
@@ -121,17 +97,6 @@ async function main() {
     assert.ok(
       !groupPageCode.includes('index: false'),
       "Group pages should not have noindex",
-    );
-  });
-
-  await test("matchday pages do not have noindex in their metadata", () => {
-    const matchdayPageCode = require("fs").readFileSync(
-      require("path").join(__dirname, "../app/matchdays/[date]/page.tsx"),
-      "utf-8",
-    );
-    assert.ok(
-      !matchdayPageCode.includes('index: false'),
-      "Matchday pages should not have noindex",
     );
   });
 
@@ -164,15 +129,6 @@ async function main() {
       sitemapCode.includes("qualified-eliminated-teams"),
       "sitemap should include qualified-eliminated-teams",
     );
-  });
-
-  await test("sitemap includes matchday pages", () => {
-    const sitemapCode = require("fs").readFileSync(
-      require("path").join(__dirname, "../app/sitemap.ts"),
-      "utf-8",
-    );
-    assert.ok(sitemapCode.includes("matchdayPages"), "sitemap should include matchdayPages");
-    assert.ok(sitemapCode.includes("allMatchdayDates"), "sitemap should use allMatchdayDates");
   });
 
   await test("sitemap has fixed lastModified for static pages", () => {
@@ -209,15 +165,6 @@ async function main() {
     );
     assert.ok(pageCode.includes("ItemList"), "top-scorers should have ItemList schema");
     assert.ok(pageCode.includes("itemListLd"), "top-scorers should use itemListLd");
-  });
-
-  await test("matchday page emits SportsEvent schema for finished matches", () => {
-    const pageCode = require("fs").readFileSync(
-      require("path").join(__dirname, "../app/matchdays/[date]/page.tsx"),
-      "utf-8",
-    );
-    assert.ok(pageCode.includes("SportsEvent"), "matchday should have SportsEvent schema");
-    assert.ok(pageCode.includes("sportsEvents"), "matchday should use sportsEvents array");
   });
 
   // ── AEO components ──────────────────────────────────────────────────────────
@@ -258,7 +205,6 @@ async function main() {
       homeTeamSlug: "england",
       awayTeamSlug: "ghana",
       groupLetter: "L",
-      matchdayDate: "2026-06-23",
     });
     assert.ok(Array.isArray(urls), "urlsForMatchChange should return array");
     assert.ok(urls.length > 0, "Should return non-empty URL list");
@@ -272,20 +218,19 @@ async function main() {
     if (prev !== undefined) process.env.INDEXNOW_ENABLED = prev;
   });
 
-  await test("IndexNow URL list includes match, teams, group, and matchday", () => {
+  await test("IndexNow URL list includes match, teams, group, and key pages", () => {
     const { urlsForMatchChange } = require("../lib/indexnow/indexnow");
     const urls = urlsForMatchChange({
       matchSlug: "turkey-vs-paraguay-jun19",
       homeTeamSlug: "turkey",
       awayTeamSlug: "paraguay",
       groupLetter: "D",
-      matchdayDate: "2026-06-19",
     });
     assert.ok(urls.some((u: string) => u.includes("/matches/turkey")), "Should include match URL");
     assert.ok(urls.some((u: string) => u.includes("/teams/turkey")), "Should include home team");
     assert.ok(urls.some((u: string) => u.includes("/teams/paraguay")), "Should include away team");
     assert.ok(urls.some((u: string) => u.includes("/groups/group-d")), "Should include group page");
-    assert.ok(urls.some((u: string) => u.includes("/matchdays/2026-06-19")), "Should include matchday page");
+    assert.ok(urls.some((u: string) => u.includes("/stats/top-scorers")), "Should include top-scorers");
   });
 
   console.log(`\n${passed} passed, ${failed} failed`);

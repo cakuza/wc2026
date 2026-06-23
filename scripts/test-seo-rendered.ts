@@ -76,7 +76,6 @@ async function main() {
 
   ok("GET /groups/group-a returns 200", await fetchStatus("/groups/group-a") === 200);
   ok("GET /groups/group-l returns 200", await fetchStatus("/groups/group-l") === 200);
-  ok("GET /matchdays/2026-06-12 returns 200", await fetchStatus("/matchdays/2026-06-12") === 200);
   ok("GET /stats/top-scorers returns 200", await fetchStatus("/stats/top-scorers") === 200);
   ok("GET /qualified-eliminated-teams returns 200", await fetchStatus("/qualified-eliminated-teams") === 200);
   ok("GET /teams/england/qualification returns 200", await fetchStatus("/teams/england/qualification") === 200);
@@ -99,13 +98,6 @@ async function main() {
   const groupLHtml = await fetchHtml("/groups/group-l");
   ok("group-l title contains 'Group L'", getTitle(groupLHtml).includes("Group L"));
   ok("group-l title contains England", getTitle(groupLHtml).includes("England"));
-
-  const matchdayHtml = await fetchHtml("/matchdays/2026-06-12");
-  ok(
-    "matchday canonical = /matchdays/2026-06-12",
-    getCanonical(matchdayHtml) === "https://www.worldcupmatchday.com/matchdays/2026-06-12",
-  );
-  ok("matchday title contains date", getTitle(matchdayHtml).includes("June") || getTitle(matchdayHtml).includes("2026"));
 
   const todayParamHtml = await fetchHtml("/today?date=2026-06-23");
   ok(
@@ -131,17 +123,6 @@ async function main() {
     groupBlocks.filter((b) => b["@type"] === "BreadcrumbList").length <= 1,
   );
 
-  const matchdayBlocks = extractJsonLd(matchdayHtml);
-  ok("matchday renders ItemList JSON-LD", hasType(matchdayBlocks, "ItemList"));
-  ok("matchday renders SportsEvent for finished matches", hasType(matchdayBlocks, "SportsEvent"));
-
-  const sportsEvents = matchdayBlocks.filter((b) => b["@type"] === "SportsEvent");
-  ok(
-    "all SportsEvent blocks use EventCompleted",
-    sportsEvents.length > 0 &&
-      sportsEvents.every((e) => typeof e["eventStatus"] === "string" && (e["eventStatus"] as string).includes("EventCompleted")),
-  );
-
   const topScorersHtml = await fetchHtml("/stats/top-scorers");
   const topScorersBlocks = extractJsonLd(topScorersHtml);
   ok("top-scorers renders ItemList JSON-LD", hasType(topScorersBlocks, "ItemList"));
@@ -160,7 +141,6 @@ async function main() {
   ok("sitemap.xml returns 200", sitemapRes.status === 200);
   const sitemapText = await sitemapRes.text();
   ok("sitemap includes /groups/group-a", sitemapText.includes("/groups/group-a"));
-  ok("sitemap includes /matchdays/2026-06-12", sitemapText.includes("/matchdays/2026-06-12"));
   ok("sitemap includes /stats/top-scorers", sitemapText.includes("/stats/top-scorers"));
   ok("sitemap includes /qualified-eliminated-teams", sitemapText.includes("/qualified-eliminated-teams"));
   ok("sitemap does NOT include /today?date=", !sitemapText.includes("/today?date="));
