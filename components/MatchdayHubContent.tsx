@@ -82,6 +82,33 @@ export function MatchdayHubContent() {
     },
   ];
 
+  const cornerstoneLinks: LinkItem[] = [
+    {
+      href: "/world-cup-2026-format-explained",
+      label: "Format Explained",
+      note: "48 teams, 12 groups, how to qualify",
+      icon: "📋",
+    },
+    {
+      href: "/world-cup-2026-group-tiebreakers",
+      label: "Group Tiebreakers",
+      note: "Full FIFA criteria order",
+      icon: "⚖️",
+    },
+    {
+      href: "/world-cup-2026-knockout-bracket-explained",
+      label: "Knockout Bracket",
+      note: "Rounds, dates and extra time rules",
+      icon: "🗂️",
+    },
+    {
+      href: "/world-cup-2026-data-sources",
+      label: "Data Sources",
+      note: "Where our data comes from",
+      icon: "🔍",
+    },
+  ];
+
   const coreLinks: LinkItem[] = [
     { href: "/today", label: t("sec_todayMatches"), icon: "⚽" },
     { href: "/schedule", label: t("hub_fullSchedule"), icon: "📅" },
@@ -112,6 +139,13 @@ export function MatchdayHubContent() {
           {t("hub_sec_guides")}
         </h2>
         <CardGrid items={guideLinks} />
+      </section>
+
+      <section className="mb-8">
+        <h2 className="mb-3 font-heading text-xl font-extrabold uppercase tracking-wide text-white">
+          Tournament Guides
+        </h2>
+        <CardGrid items={cornerstoneLinks} />
       </section>
 
       <section>

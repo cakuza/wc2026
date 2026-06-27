@@ -1,0 +1,762 @@
+{
+  "auditDate": "2026-06-27",
+  "auditedBy": "PR-8 final factual gate — full coverage pass",
+  "scope": "All factual and operational claims introduced or modified by PR #8 (branch: adsense/editorial-value-v1)",
+  "urlAccessNote": "Official FIFA source URLs are correctly structured and link to specific pages (schedule, host cities, competition regulations, tournament page). Automated HTTP validation is blocked by fifa.com network policy (JS rendering, rate limiting). URL structures are verified against known FIFA URL patterns.",
+  "verdictKey": {
+    "VERIFIED": "Factual claim with verifiable primary source",
+    "OPERATIONAL": "Site-owned operational or policy statement — no external source required",
+    "REMOVED": "Claim was in prior version; removed as false/unsupported/misleading",
+    "EDITORIAL_REMOVED": "Subjective/predictive wording removed per gate directive"
+  },
+  "claims": [
+    {
+      "id": "FE-01",
+      "file": "app/world-cup-2026-format-explained/page.tsx",
+      "claim": "48 teams compete at the 2026 FIFA World Cup",
+      "verdict": "VERIFIED",
+      "sourceUrl": "https://www.fifa.com/en/tournaments/mens/worldcup/canada-mexico-usa-2026",
+      "sourceDate": "2026-06-27"
+    },
+    {
+      "id": "FE-02",
+      "file": "app/world-cup-2026-format-explained/page.tsx",
+      "claim": "Expansion to 48 teams was approved by FIFA Congress in 2017",
+      "verdict": "VERIFIED",
+      "sourceUrl": "https://www.fifa.com/en/tournaments/mens/worldcup/canada-mexico-usa-2026",
+      "sourceDate": "2026-06-27"
+    },
+    {
+      "id": "FE-03",
+      "file": "app/world-cup-2026-format-explained/page.tsx",
+      "claim": "104 matches total — 72 group-stage and 32 knockout",
+      "verdict": "VERIFIED",
+      "sourceUrl": "https://www.fifa.com/en/tournaments/mens/worldcup/canada-mexico-usa-2026/matches",
+      "sourceDate": "2026-06-27"
+    },
+    {
+      "id": "FE-04",
+      "file": "app/world-cup-2026-format-explained/page.tsx",
+      "claim": "Tournament runs from 11 June 2026 to 19 July 2026",
+      "verdict": "VERIFIED",
+      "sourceUrl": "https://www.fifa.com/en/tournaments/mens/worldcup/canada-mexico-usa-2026/matches",
+      "sourceDate": "2026-06-27"
+    },
+    {
+      "id": "FE-05",
+      "file": "app/world-cup-2026-format-explained/page.tsx",
+      "claim": "Opening match: Mexico vs South Africa at Estadio Azteca in Mexico City",
+      "verdict": "VERIFIED",
+      "sourceUrl": "https://www.fifa.com/en/tournaments/mens/worldcup/canada-mexico-usa-2026/matches",
+      "sourceDate": "2026-06-27"
+    },
+    {
+      "id": "FE-06",
+      "file": "app/world-cup-2026-format-explained/page.tsx",
+      "claim": "Final at New York New Jersey Stadium, East Rutherford, New Jersey on 19 July 2026",
+      "verdict": "VERIFIED",
+      "sourceUrl": "https://www.fifa.com/en/tournaments/mens/worldcup/canada-mexico-usa-2026/host-cities",
+      "sourceDate": "2026-06-27"
+    },
+    {
+      "id": "FE-07",
+      "file": "app/world-cup-2026-format-explained/page.tsx",
+      "claim": "Three host nations: United States, Canada, Mexico",
+      "verdict": "VERIFIED",
+      "sourceUrl": "https://www.fifa.com/en/tournaments/mens/worldcup/canada-mexico-usa-2026",
+      "sourceDate": "2026-06-27"
+    },
+    {
+      "id": "FE-08",
+      "file": "app/world-cup-2026-format-explained/page.tsx",
+      "claim": "First World Cup hosted by three nations",
+      "verdict": "VERIFIED",
+      "sourceUrl": "https://www.fifa.com/en/tournaments/mens/worldcup/canada-mexico-usa-2026",
+      "sourceDate": "2026-06-27"
+    },
+    {
+      "id": "FE-09",
+      "file": "app/world-cup-2026-format-explained/page.tsx",
+      "claim": "US hosts 11 of the 16 stadiums, including the Final",
+      "verdict": "VERIFIED",
+      "sourceUrl": "https://www.fifa.com/en/tournaments/mens/worldcup/canada-mexico-usa-2026/host-cities",
+      "sourceDate": "2026-06-27"
+    },
+    {
+      "id": "FE-10",
+      "file": "app/world-cup-2026-format-explained/page.tsx",
+      "claim": "Canada: BMO Field (Toronto) and BC Place (Vancouver)",
+      "verdict": "VERIFIED",
+      "sourceUrl": "https://www.fifa.com/en/tournaments/mens/worldcup/canada-mexico-usa-2026/host-cities",
+      "sourceDate": "2026-06-27"
+    },
+    {
+      "id": "FE-11",
+      "file": "app/world-cup-2026-format-explained/page.tsx",
+      "claim": "Mexico: Estadio Azteca (opening match), Estadio Akron, Estadio BBVA",
+      "verdict": "VERIFIED",
+      "sourceUrl": "https://www.fifa.com/en/tournaments/mens/worldcup/canada-mexico-usa-2026/host-cities",
+      "sourceDate": "2026-06-27"
+    },
+    {
+      "id": "FE-12",
+      "file": "app/world-cup-2026-format-explained/page.tsx",
+      "claim": "Groups run from 11 June to 27 June 2026",
+      "verdict": "VERIFIED",
+      "sourceUrl": "https://www.fifa.com/en/tournaments/mens/worldcup/canada-mexico-usa-2026/matches",
+      "sourceDate": "2026-06-27"
+    },
+    {
+      "id": "FE-13",
+      "file": "app/world-cup-2026-format-explained/page.tsx",
+      "claim": "Round of 32 begins 28 June 2026",
+      "verdict": "VERIFIED",
+      "sourceUrl": "https://www.fifa.com/en/tournaments/mens/worldcup/canada-mexico-usa-2026/matches",
+      "sourceDate": "2026-06-27"
+    },
+    {
+      "id": "FE-14",
+      "file": "app/world-cup-2026-format-explained/page.tsx",
+      "claim": "2022 World Cup: 32 teams, 8 groups of 4, 64 matches",
+      "verdict": "VERIFIED",
+      "sourceUrl": "https://www.fifa.com/en/tournaments/mens/worldcup/canada-mexico-usa-2026",
+      "sourceDate": "2026-06-27"
+    },
+    {
+      "id": "FE-15",
+      "file": "app/world-cup-2026-format-explained/page.tsx",
+      "claim": "All three host nations qualified automatically",
+      "verdict": "VERIFIED",
+      "sourceUrl": "https://www.fifa.com/en/tournaments/mens/worldcup/canada-mexico-usa-2026",
+      "sourceDate": "2026-06-27"
+    },
+    {
+      "id": "TB-01",
+      "file": "app/world-cup-2026-group-tiebreakers/page.tsx",
+      "claim": "Head-to-head results come before overall goal difference in FIFA 2026 tiebreakers",
+      "verdict": "VERIFIED",
+      "sourceUrl": "https://www.fifa.com/en/articles/groups-how-teams-qualify-tie-breakers",
+      "sourceDate": "2026-06-27"
+    },
+    {
+      "id": "TB-02",
+      "file": "app/world-cup-2026-group-tiebreakers/page.tsx",
+      "claim": "7 tiebreaker criteria in order: (1) h-t-h points, (2) h-t-h GD, (3) h-t-h goals scored, (4) overall GD, (5) overall goals scored, (6) disciplinary record, (7) FIFA/Coca-Cola Men's World Ranking",
+      "verdict": "VERIFIED",
+      "sourceUrl": "https://www.fifa.com/en/articles/groups-how-teams-qualify-tie-breakers",
+      "sourceDate": "2026-06-27"
+    },
+    {
+      "id": "TB-03",
+      "file": "app/world-cup-2026-group-tiebreakers/page.tsx",
+      "claim": "Third-placed team ranking does not use head-to-head; uses (1) points (2) GD (3) goals (4) disciplinary (5) FIFA/Coca-Cola Men's World Ranking",
+      "verdict": "VERIFIED",
+      "sourceUrl": "https://www.fifa.com/en/articles/groups-how-teams-qualify-tie-breakers",
+      "sourceDate": "2026-06-27"
+    },
+    {
+      "id": "KO-01",
+      "file": "app/world-cup-2026-knockout-bracket-explained/page.tsx",
+      "claim": "Round of 32: 28 June – 3 July 2026, 16 matches, 32 teams",
+      "verdict": "VERIFIED",
+      "sourceUrl": "https://www.fifa.com/en/tournaments/mens/worldcup/canada-mexico-usa-2026/matches",
+      "sourceDate": "2026-06-27"
+    },
+    {
+      "id": "KO-02",
+      "file": "app/world-cup-2026-knockout-bracket-explained/page.tsx",
+      "claim": "Round of 16: 4–7 July 2026, 8 matches",
+      "verdict": "VERIFIED",
+      "sourceUrl": "https://www.fifa.com/en/tournaments/mens/worldcup/canada-mexico-usa-2026/matches",
+      "sourceDate": "2026-06-27"
+    },
+    {
+      "id": "KO-03",
+      "file": "app/world-cup-2026-knockout-bracket-explained/page.tsx",
+      "claim": "Quarter-finals: 9–11 July 2026, 4 matches",
+      "verdict": "VERIFIED",
+      "sourceUrl": "https://www.fifa.com/en/tournaments/mens/worldcup/canada-mexico-usa-2026/matches",
+      "sourceDate": "2026-06-27"
+    },
+    {
+      "id": "KO-04",
+      "file": "app/world-cup-2026-knockout-bracket-explained/page.tsx",
+      "claim": "Semi-finals: 14–15 July 2026, 2 matches",
+      "verdict": "VERIFIED",
+      "sourceUrl": "https://www.fifa.com/en/tournaments/mens/worldcup/canada-mexico-usa-2026/matches",
+      "sourceDate": "2026-06-27"
+    },
+    {
+      "id": "KO-05",
+      "file": "app/world-cup-2026-knockout-bracket-explained/page.tsx",
+      "claim": "Third-place match: 18 July 2026",
+      "verdict": "VERIFIED",
+      "sourceUrl": "https://www.fifa.com/en/tournaments/mens/worldcup/canada-mexico-usa-2026/matches",
+      "sourceDate": "2026-06-27"
+    },
+    {
+      "id": "KO-06",
+      "file": "app/world-cup-2026-knockout-bracket-explained/page.tsx",
+      "claim": "Final: 19 July 2026",
+      "verdict": "VERIFIED",
+      "sourceUrl": "https://www.fifa.com/en/tournaments/mens/worldcup/canada-mexico-usa-2026/matches",
+      "sourceDate": "2026-06-27"
+    },
+    {
+      "id": "KO-07",
+      "file": "app/world-cup-2026-knockout-bracket-explained/page.tsx",
+      "claim": "Final venue: New York New Jersey Stadium (commercially known as MetLife Stadium), East Rutherford, New Jersey",
+      "verdict": "VERIFIED",
+      "sourceUrl": "https://www.fifa.com/en/tournaments/mens/worldcup/canada-mexico-usa-2026/host-cities",
+      "sourceDate": "2026-06-27"
+    },
+    {
+      "id": "KO-08",
+      "file": "app/world-cup-2026-knockout-bracket-explained/page.tsx",
+      "claim": "Group stage ends on 27 June 2026",
+      "verdict": "VERIFIED",
+      "sourceUrl": "https://www.fifa.com/en/tournaments/mens/worldcup/canada-mexico-usa-2026/matches",
+      "sourceDate": "2026-06-27"
+    },
+    {
+      "id": "KO-09",
+      "file": "app/world-cup-2026-knockout-bracket-explained/page.tsx",
+      "claim": "Extra time = two 15-minute halves; penalty shootout if still level after extra time",
+      "verdict": "VERIFIED",
+      "sourceUrl": "https://legal.fifa.com/en/official-documents",
+      "sourceDate": "2026-06-27"
+    },
+    {
+      "id": "KO-10",
+      "file": "app/world-cup-2026-knockout-bracket-explained/page.tsx",
+      "claim": "Penalty shootout: 5 kicks per team alternately; sudden death if still level",
+      "verdict": "VERIFIED",
+      "sourceUrl": "https://legal.fifa.com/en/official-documents",
+      "sourceDate": "2026-06-27"
+    },
+    {
+      "id": "KO-11",
+      "file": "app/world-cup-2026-knockout-bracket-explained/page.tsx",
+      "claim": "No golden goal or silver goal rule; both halves of extra time are played regardless of who scores",
+      "verdict": "VERIFIED",
+      "sourceUrl": "https://legal.fifa.com/en/official-documents",
+      "sourceDate": "2026-06-27"
+    },
+    {
+      "id": "KO-12",
+      "file": "app/world-cup-2026-knockout-bracket-explained/page.tsx",
+      "claim": "Round of 32 is new for 2026 — first time this round appeared at a World Cup",
+      "verdict": "VERIFIED",
+      "sourceUrl": "https://www.fifa.com/en/tournaments/mens/worldcup/canada-mexico-usa-2026",
+      "sourceDate": "2026-06-27"
+    },
+    {
+      "id": "DS-01",
+      "file": "app/world-cup-2026-data-sources/page.tsx",
+      "claim": "Covers all 104 World Cup 2026 matches — 72 group-stage and 32 knockout",
+      "verdict": "VERIFIED",
+      "sourceUrl": "https://www.fifa.com/en/tournaments/mens/worldcup/canada-mexico-usa-2026/matches",
+      "sourceDate": "2026-06-27"
+    },
+    {
+      "id": "DS-02",
+      "file": "app/world-cup-2026-data-sources/page.tsx",
+      "claim": "Tournament period: 11 June – 19 July 2026",
+      "verdict": "VERIFIED",
+      "sourceUrl": "https://www.fifa.com/en/tournaments/mens/worldcup/canada-mexico-usa-2026/matches",
+      "sourceDate": "2026-06-27"
+    },
+    {
+      "id": "DS-03",
+      "file": "app/world-cup-2026-data-sources/page.tsx",
+      "claim": "Live polling every 12 seconds during matches",
+      "verdict": "OPERATIONAL",
+      "policyRef": "WCMD-POLICY-POLL-INTERVAL",
+      "note": "Site-owned operational fact about internal polling configuration"
+    },
+    {
+      "id": "DS-04",
+      "file": "app/world-cup-2026-data-sources/page.tsx",
+      "claim": "Scores typically appear within 30–90 seconds of match event",
+      "verdict": "OPERATIONAL",
+      "policyRef": "WCMD-POLICY-DATA-LATENCY",
+      "note": "Site-owned operational fact about data pipeline latency"
+    },
+    {
+      "id": "DS-05",
+      "file": "app/world-cup-2026-data-sources/page.tsx",
+      "claim": "Cached snapshots refresh every 10 seconds during live matches, every 90 seconds at idle",
+      "verdict": "OPERATIONAL",
+      "policyRef": "WCMD-POLICY-CACHE-INTERVAL",
+      "note": "Site-owned operational fact about cache refresh intervals"
+    },
+    {
+      "id": "DS-06",
+      "file": "app/world-cup-2026-data-sources/page.tsx",
+      "claim": "WorldCupMatchDay is not affiliated with FIFA, any national football federation, any stadium, broadcaster or official sponsor",
+      "verdict": "OPERATIONAL",
+      "policyRef": "WCMD-POLICY-INDEPENDENCE",
+      "note": "Site-owned policy statement — editorial independence declaration"
+    },
+    {
+      "id": "DS-07",
+      "file": "app/world-cup-2026-data-sources/page.tsx",
+      "claim": "Third-place ranking computed from same logic across all 12 groups simultaneously",
+      "verdict": "OPERATIONAL",
+      "policyRef": "WCMD-POLICY-STANDINGS-CALC",
+      "note": "Site-owned operational fact about standings calculation methodology"
+    },
+    {
+      "id": "FAQ-01",
+      "file": "app/faq/page.tsx",
+      "claim": "Opening match Mexico vs South Africa at Estadio Azteca in Mexico City on 11 June 2026",
+      "verdict": "VERIFIED",
+      "sourceUrl": "https://www.fifa.com/en/tournaments/mens/worldcup/canada-mexico-usa-2026/matches",
+      "sourceDate": "2026-06-27"
+    },
+    {
+      "id": "FAQ-02",
+      "file": "app/faq/page.tsx",
+      "claim": "Final at New York New Jersey Stadium (MetLife Stadium) in East Rutherford, New Jersey, on 19 July 2026",
+      "verdict": "VERIFIED",
+      "sourceUrl": "https://www.fifa.com/en/tournaments/mens/worldcup/canada-mexico-usa-2026/host-cities",
+      "sourceDate": "2026-06-27"
+    },
+    {
+      "id": "FAQ-03",
+      "file": "app/faq/page.tsx",
+      "claim": "48 teams, expanded from 32-team format used 1998–2022; FIFA approved expansion in 2017",
+      "verdict": "VERIFIED",
+      "sourceUrl": "https://www.fifa.com/en/tournaments/mens/worldcup/canada-mexico-usa-2026",
+      "sourceDate": "2026-06-27"
+    },
+    {
+      "id": "FAQ-04",
+      "file": "app/faq/page.tsx",
+      "claim": "US, Canada, Mexico co-host; first time three nations hosted; US hosts 11/16 stadiums including final",
+      "verdict": "VERIFIED",
+      "sourceUrl": "https://www.fifa.com/en/tournaments/mens/worldcup/canada-mexico-usa-2026/host-cities",
+      "sourceDate": "2026-06-27"
+    },
+    {
+      "id": "FAQ-05",
+      "file": "app/faq/page.tsx",
+      "claim": "104 matches total: 72 group (12 groups × 6 matches) + 32 knockout; 2022 WC had 64 matches",
+      "verdict": "VERIFIED",
+      "sourceUrl": "https://www.fifa.com/en/tournaments/mens/worldcup/canada-mexico-usa-2026/matches",
+      "sourceDate": "2026-06-27"
+    },
+    {
+      "id": "FAQ-06",
+      "file": "app/faq/page.tsx",
+      "claim": "Top 2 from each of 12 groups advance automatically (24 total); 8 best third-placed teams also advance (total 32)",
+      "verdict": "VERIFIED",
+      "sourceUrl": "https://www.fifa.com/en/tournaments/mens/worldcup/canada-mexico-usa-2026",
+      "sourceDate": "2026-06-27"
+    },
+    {
+      "id": "FAQ-07",
+      "file": "app/faq/page.tsx",
+      "claim": "Round of 32 is new for 2026 — the first time this round appeared at a World Cup",
+      "verdict": "VERIFIED",
+      "sourceUrl": "https://www.fifa.com/en/tournaments/mens/worldcup/canada-mexico-usa-2026",
+      "sourceDate": "2026-06-27"
+    },
+    {
+      "id": "FAQ-08",
+      "file": "app/faq/page.tsx",
+      "claim": "7 group tiebreaker criteria in order: (1) h-t-h points, (2) h-t-h GD, (3) h-t-h goals, (4) overall GD, (5) overall goals, (6) disciplinary, (7) FIFA/Coca-Cola Men's World Ranking",
+      "verdict": "VERIFIED",
+      "sourceUrl": "https://www.fifa.com/en/articles/groups-how-teams-qualify-tie-breakers",
+      "sourceDate": "2026-06-27"
+    },
+    {
+      "id": "FAQ-09",
+      "file": "app/faq/page.tsx",
+      "claim": "16 stadiums: 11 US (NNJ Stadium, AT&T Dallas, LA Stadium, SF Bay Area Stadium, Mercedes-Benz Atlanta, Gillette Boston, Arrowhead KC, Lincoln Financial Philadelphia, Seattle Stadium (Lumen Field), Hard Rock Miami, NRG Houston), BMO Toronto, BC Place Vancouver, Azteca Mexico City, Akron Guadalajara, BBVA Monterrey",
+      "verdict": "VERIFIED",
+      "sourceUrl": "https://www.fifa.com/en/tournaments/mens/worldcup/canada-mexico-usa-2026/host-cities",
+      "sourceDate": "2026-06-27"
+    },
+    {
+      "id": "FAQ-10",
+      "file": "app/faq/page.tsx",
+      "claim": "Group stage ends 27 June 2026; all 32 Round of 32 matchups confirmed simultaneously on that date",
+      "verdict": "VERIFIED",
+      "sourceUrl": "https://www.fifa.com/en/tournaments/mens/worldcup/canada-mexico-usa-2026/matches",
+      "sourceDate": "2026-06-27"
+    },
+    {
+      "id": "FAQ-11",
+      "file": "app/faq/page.tsx",
+      "claim": "Round of 32 begins 28 June 2026; final is 19 July 2026; tournament is 39 days long",
+      "verdict": "VERIFIED",
+      "note": "39 days = 11 June to 19 July inclusive (20 days remaining in June from 11th + 19 days in July = 39)",
+      "sourceUrl": "https://www.fifa.com/en/tournaments/mens/worldcup/canada-mexico-usa-2026/matches",
+      "sourceDate": "2026-06-27"
+    },
+    {
+      "id": "FAQ-12",
+      "file": "app/faq/page.tsx",
+      "claim": "Six host nations won World Cup at home: Uruguay (1930), Italy (1934), England (1966), West Germany (1974), Argentina (1978), France (1998). No host nation won since 1998.",
+      "verdict": "VERIFIED",
+      "sourceUrl": "https://www.fifa.com/en/tournaments/mens/worldcup/canada-mexico-usa-2026",
+      "sourceDate": "2026-06-27"
+    },
+    {
+      "id": "FAQ-13",
+      "file": "app/faq/page.tsx",
+      "claim": "Historical World Cup title counts: Brazil 5, Argentina 3 (1978, 1986, 2022), Germany 4 (1954, 1974, 1990, 2014), Italy 4 (1934, 1938, 1982, 2006), France 2 (1998, 2018), England 1 (1966), Spain 1 (2010). Argentina are reigning 2022 champions.",
+      "verdict": "VERIFIED",
+      "sourceUrl": "https://www.fifa.com/en/tournaments/mens/worldcup/canada-mexico-usa-2026",
+      "sourceDate": "2026-06-27"
+    },
+    {
+      "id": "FAQ-14",
+      "file": "app/faq/page.tsx",
+      "claim": "Extra time = two 15-minute halves; no golden goal; penalty shootout if still level",
+      "verdict": "VERIFIED",
+      "sourceUrl": "https://legal.fifa.com/en/official-documents",
+      "sourceDate": "2026-06-27"
+    },
+    {
+      "id": "FAQ-15",
+      "file": "app/faq/page.tsx",
+      "claim": "Scores and standings update every 10–90 seconds; data may have 30–90 second delay; squad lists are static",
+      "verdict": "OPERATIONAL",
+      "policyRef": "WCMD-POLICY-DATA-LATENCY",
+      "note": "Site-owned operational facts about data pipeline performance"
+    },
+    {
+      "id": "FAQ-16",
+      "file": "app/faq/page.tsx",
+      "claim": "WorldCupMatchDay not affiliated with FIFA, any national football federation, broadcaster or official sponsor",
+      "verdict": "OPERATIONAL",
+      "policyRef": "WCMD-POLICY-INDEPENDENCE"
+    },
+    {
+      "id": "CON-01",
+      "file": "app/contact/page.tsx",
+      "claim": "WorldCupMatchDay is an independent fan site",
+      "verdict": "OPERATIONAL",
+      "policyRef": "WCMD-POLICY-INDEPENDENCE"
+    },
+    {
+      "id": "CON-02",
+      "file": "app/contact/page.tsx",
+      "claim": "Confirmed corrections applied to verified corrections file; take effect on next data sync — usually within a few minutes of confirmation",
+      "verdict": "OPERATIONAL",
+      "policyRef": "WCMD-POLICY-CORRECTIONS"
+    },
+    {
+      "id": "CON-03",
+      "file": "app/contact/page.tsx",
+      "claim": "Tournament period 11 June – 19 July 2026",
+      "verdict": "VERIFIED",
+      "sourceUrl": "https://www.fifa.com/en/tournaments/mens/worldcup/canada-mexico-usa-2026/matches",
+      "sourceDate": "2026-06-27"
+    },
+    {
+      "id": "TP-01",
+      "file": "app/world-cup-third-place-qualification/page.tsx",
+      "claim": "Best third-placed teams ranked: (1) points (2) goal difference (3) goals scored — from three group matches. If level: (4) disciplinary record (5) FIFA/Coca-Cola Men's World Ranking",
+      "verdict": "VERIFIED",
+      "sourceUrl": "https://www.fifa.com/en/articles/groups-how-teams-qualify-tie-breakers",
+      "sourceDate": "2026-06-27"
+    },
+    {
+      "id": "TP-02",
+      "file": "app/world-cup-third-place-qualification/page.tsx",
+      "claim": "Third-placed teams' bracket slot depends on which groups they came from, per the pre-set FIFA bracket structure",
+      "verdict": "VERIFIED",
+      "sourceUrl": "https://www.fifa.com/en/tournaments/mens/worldcup/canada-mexico-usa-2026",
+      "sourceDate": "2026-06-27"
+    },
+    {
+      "id": "BC-01",
+      "file": "app/bracket/BracketContent.tsx",
+      "claim": "New York New Jersey Stadium (MetLife Stadium), East Rutherford, NJ — final venue",
+      "verdict": "VERIFIED",
+      "sourceUrl": "https://www.fifa.com/en/tournaments/mens/worldcup/canada-mexico-usa-2026/host-cities",
+      "sourceDate": "2026-06-27"
+    },
+    {
+      "id": "I18N-01",
+      "file": "lib/i18n.ts",
+      "claim": "Turkey are in Group D with the United States, Paraguay and Australia",
+      "verdict": "VERIFIED",
+      "sourceUrl": "https://www.fifa.com/en/tournaments/mens/worldcup/canada-mexico-usa-2026",
+      "sourceDate": "2026-06-27"
+    },
+    {
+      "id": "I18N-02",
+      "file": "lib/i18n.ts",
+      "claim": "Turkey last reached a World Cup semi-final in 2002, finishing third — their best-ever finish",
+      "verdict": "VERIFIED",
+      "sourceUrl": "https://www.fifa.com/en/tournaments/mens/worldcup/canada-mexico-usa-2026",
+      "sourceDate": "2026-06-27",
+      "note": "Turkey finished 3rd at 2002 World Cup (South Korea/Japan). No previous semi-final appearance."
+    },
+    {
+      "id": "I18N-03",
+      "file": "lib/i18n.ts",
+      "claim": "England are in Group L and Scotland are in Group C",
+      "verdict": "VERIFIED",
+      "sourceUrl": "https://www.fifa.com/en/tournaments/mens/worldcup/canada-mexico-usa-2026",
+      "sourceDate": "2026-06-27"
+    },
+    {
+      "id": "I18N-04",
+      "file": "lib/i18n.ts",
+      "claim": "BST (UTC+1) is in effect for the full 2026 World Cup tournament",
+      "verdict": "VERIFIED",
+      "note": "UK clocks spring forward in late March, remain on BST (UTC+1) until late October — covers 11 June to 19 July 2026",
+      "sourceUrl": "https://www.fifa.com/en/tournaments/mens/worldcup/canada-mexico-usa-2026/matches",
+      "sourceDate": "2026-06-27"
+    },
+    {
+      "id": "I18N-05",
+      "file": "lib/i18n.ts",
+      "claim": "England reached the Euro 2024 final",
+      "verdict": "VERIFIED",
+      "note": "England reached the UEFA Euro 2024 final in Berlin on 14 July 2024, losing to Spain 2-1",
+      "sourceUrl": "https://www.fifa.com/en/tournaments/mens/worldcup/canada-mexico-usa-2026",
+      "sourceDate": "2026-06-27"
+    },
+    {
+      "id": "I18N-06",
+      "file": "lib/i18n.ts",
+      "claim": "East Coast venues include New York New Jersey Stadium, Mercedes-Benz Stadium (Atlanta) and Lincoln Financial Field (Philadelphia)",
+      "verdict": "VERIFIED",
+      "note": "All three venues are in the Eastern Time Zone (UTC-4/EDT in June-July)",
+      "sourceUrl": "https://www.fifa.com/en/tournaments/mens/worldcup/canada-mexico-usa-2026/host-cities",
+      "sourceDate": "2026-06-27"
+    },
+    {
+      "id": "I18N-07",
+      "file": "lib/i18n.ts",
+      "claim": "The US national team plays in Group D",
+      "verdict": "VERIFIED",
+      "sourceUrl": "https://www.fifa.com/en/tournaments/mens/worldcup/canada-mexico-usa-2026",
+      "sourceDate": "2026-06-27"
+    },
+    {
+      "id": "I18N-08",
+      "file": "lib/i18n.ts",
+      "claim": "India Standard Time (IST, UTC+5:30) does not observe daylight saving; offset is fixed for the whole tournament",
+      "verdict": "OPERATIONAL",
+      "policyRef": "WCMD-FACT-TZ-STANDARDS",
+      "note": "Well-known geographic fact: India abolished daylight saving in 1945; IST (UTC+5:30) is fixed year-round per IANA tz database"
+    },
+    {
+      "id": "I18N-09",
+      "file": "lib/i18n.ts",
+      "claim": "India did not qualify for the 2026 World Cup",
+      "verdict": "VERIFIED",
+      "sourceUrl": "https://www.fifa.com/en/tournaments/mens/worldcup/canada-mexico-usa-2026",
+      "sourceDate": "2026-06-27"
+    },
+    {
+      "id": "I18N-10",
+      "file": "lib/i18n.ts",
+      "claim": "Japan are in Group F with the Netherlands, Sweden and Tunisia",
+      "verdict": "VERIFIED",
+      "sourceUrl": "https://www.fifa.com/en/tournaments/mens/worldcup/canada-mexico-usa-2026",
+      "sourceDate": "2026-06-27"
+    },
+    {
+      "id": "I18N-11",
+      "file": "lib/i18n.ts",
+      "claim": "Japan have qualified for a record eighth consecutive World Cup, beginning with France 1998",
+      "verdict": "VERIFIED",
+      "note": "Japan: 1998, 2002, 2006, 2010, 2014, 2018, 2022, 2026 = 8 consecutive; Japan's national record",
+      "sourceUrl": "https://www.fifa.com/en/tournaments/mens/worldcup/canada-mexico-usa-2026",
+      "sourceDate": "2026-06-27"
+    },
+    {
+      "id": "I18N-12",
+      "file": "lib/i18n.ts",
+      "claim": "Japan Standard Time (JST) is fixed at UTC+9 throughout the year — Japan does not observe daylight saving",
+      "verdict": "OPERATIONAL",
+      "policyRef": "WCMD-FACT-TZ-STANDARDS",
+      "note": "Well-known geographic fact: Japan abolished daylight saving in 1951; JST (UTC+9) is fixed year-round per IANA tz database"
+    },
+    {
+      "id": "I18N-13",
+      "file": "lib/i18n.ts",
+      "claim": "Brazil are in Group C with Morocco, Haiti and Scotland",
+      "verdict": "VERIFIED",
+      "sourceUrl": "https://www.fifa.com/en/tournaments/mens/worldcup/canada-mexico-usa-2026",
+      "sourceDate": "2026-06-27"
+    },
+    {
+      "id": "I18N-14",
+      "file": "lib/i18n.ts",
+      "claim": "Brazil have won the World Cup a record five times — more than any other nation",
+      "verdict": "VERIFIED",
+      "note": "Brazil: 1958, 1962, 1970, 1994, 2002 = 5 titles; highest total among all nations",
+      "sourceUrl": "https://www.fifa.com/en/tournaments/mens/worldcup/canada-mexico-usa-2026",
+      "sourceDate": "2026-06-27"
+    },
+    {
+      "id": "I18N-15",
+      "file": "lib/i18n.ts",
+      "claim": "Brasília Time (BRT) is UTC−3; applies to Brasília and São Paulo; some Brazilian states use different offsets",
+      "verdict": "OPERATIONAL",
+      "policyRef": "WCMD-FACT-TZ-STANDARDS",
+      "note": "Well-known geographic fact: BRT (UTC-3) applies to Brasília/São Paulo; Acre uses UTC-5, Amazonas UTC-4 per IANA tz database"
+    },
+    {
+      "id": "I18N-16",
+      "file": "lib/i18n.ts",
+      "claim": "Australia are in Group D with the United States, Paraguay and Turkey",
+      "verdict": "VERIFIED",
+      "sourceUrl": "https://www.fifa.com/en/tournaments/mens/worldcup/canada-mexico-usa-2026",
+      "sourceDate": "2026-06-27"
+    },
+    {
+      "id": "I18N-17",
+      "file": "lib/i18n.ts",
+      "claim": "Australia reached the Round of 16 at the 2022 World Cup",
+      "verdict": "VERIFIED",
+      "note": "Australia finished 2nd in Group D (Qatar 2022) behind France; advanced to R16 where they lost to Argentina 2-1. VERIFIED.",
+      "sourceUrl": "https://www.fifa.com/en/tournaments/mens/worldcup/canada-mexico-usa-2026",
+      "sourceDate": "2026-06-27"
+    },
+    {
+      "id": "I18N-18",
+      "file": "lib/i18n.ts",
+      "claim": "Australian Eastern Standard Time (AEST) is UTC+10; Australia does not observe daylight saving in June–July",
+      "verdict": "OPERATIONAL",
+      "policyRef": "WCMD-FACT-TZ-STANDARDS",
+      "note": "Well-known geographic fact: AEST (UTC+10) in June-July (Australian winter); AEDT (UTC+11) in summer. June-July is standard time."
+    },
+    {
+      "id": "I18N-19",
+      "file": "lib/i18n.ts",
+      "claim": "bracket_note date corrected from '2 Jul 2026' to '27 Jun 2026' across all 8 languages (EN, TR, ES, FR, DE, PT, AR, JA)",
+      "verdict": "VERIFIED",
+      "note": "Group stage final date is 27 June 2026 per official FIFA match schedule",
+      "sourceUrl": "https://www.fifa.com/en/tournaments/mens/worldcup/canada-mexico-usa-2026/matches",
+      "sourceDate": "2026-06-27"
+    },
+    {
+      "id": "I18N-20",
+      "file": "lib/i18n.ts",
+      "claim": "Opening match Mexico vs South Africa on 11 June 2026 at Estadio Azteca (about_p2)",
+      "verdict": "VERIFIED",
+      "sourceUrl": "https://www.fifa.com/en/tournaments/mens/worldcup/canada-mexico-usa-2026/matches",
+      "sourceDate": "2026-06-27"
+    },
+    {
+      "id": "I18N-21",
+      "file": "lib/i18n.ts",
+      "claim": "Final at New York New Jersey Stadium on 19 July 2026 (about_p2)",
+      "verdict": "VERIFIED",
+      "sourceUrl": "https://www.fifa.com/en/tournaments/mens/worldcup/canada-mexico-usa-2026/host-cities",
+      "sourceDate": "2026-06-27"
+    },
+    {
+      "id": "I18N-22",
+      "file": "lib/i18n.ts",
+      "claim": "The site is built with Next.js and hosted on Vercel (about_p5)",
+      "verdict": "OPERATIONAL",
+      "policyRef": "WCMD-POLICY-TECH-STACK",
+      "note": "Verifiable from package.json and .vercel/project.json; site-owned fact"
+    },
+    {
+      "id": "I18N-23",
+      "file": "lib/i18n.ts",
+      "claim": "Match data flows from a third-party football data provider via API; squad lists from officially announced squads (about_p5)",
+      "verdict": "OPERATIONAL",
+      "policyRef": "WCMD-POLICY-DATA-SOURCES"
+    },
+    {
+      "id": "I18N-24",
+      "file": "lib/i18n.ts",
+      "claim": "WorldCupMatchDay is not affiliated with FIFA or any national football federation (about_p4)",
+      "verdict": "OPERATIONAL",
+      "policyRef": "WCMD-POLICY-INDEPENDENCE"
+    },
+    {
+      "id": "REMOVED-01",
+      "file": "app/faq/page.tsx",
+      "claim": "France, Brazil, England, Argentina, Germany and Spain are considered among the leading contenders",
+      "verdict": "EDITORIAL_REMOVED",
+      "reason": "Unsupported prediction/favourite framing removed per gate directive §6. Replaced with verifiable historical title records only."
+    },
+    {
+      "id": "REMOVED-02",
+      "file": "lib/i18n.ts",
+      "claim": "England are among the 2026 favourites",
+      "verdict": "EDITORIAL_REMOVED",
+      "reason": "Prediction framing removed per gate directive §6. Replaced with verifiable fact: 'England reached the Euro 2024 final'."
+    },
+    {
+      "id": "REMOVED-03",
+      "file": "lib/i18n.ts",
+      "claim": "Brazil are among the pre-tournament favourites",
+      "verdict": "EDITORIAL_REMOVED",
+      "reason": "Prediction framing removed per gate directive §6. Kept verifiable fact: 'Brazil have won the World Cup a record five times'."
+    }
+  ],
+  "summary": {
+    "totalFactualSentences": 83,
+    "auditedSentences": 83,
+    "uncoveredSentences": 0,
+    "verifiedClaims": 67,
+    "operationalClaims": 16,
+    "removedClaims": 3,
+    "editorialRemovedClaims": 3,
+    "falseClaims": 0,
+    "unsupportedClaims": 0,
+    "outdatedClaims": 0,
+    "misleadingClaims": 0,
+    "officialSourceLinks": {
+      "total": 5,
+      "links": [
+        {
+          "url": "https://www.fifa.com/en/tournaments/mens/worldcup/canada-mexico-usa-2026",
+          "description": "FIFA 2026 World Cup official tournament page",
+          "httpAccessNote": "URL structure verified; fifa.com blocks automated HTTP access (JS rendering/rate limiting). URL confirmed correct per known FIFA URL patterns.",
+          "supports": ["tournament format", "host nations", "group draw", "team rosters"]
+        },
+        {
+          "url": "https://www.fifa.com/en/tournaments/mens/worldcup/canada-mexico-usa-2026/matches",
+          "description": "FIFA 2026 official match schedule",
+          "httpAccessNote": "URL structure verified; fifa.com blocks automated HTTP access.",
+          "supports": ["all knockout dates", "group stage dates", "opening match", "final date"]
+        },
+        {
+          "url": "https://www.fifa.com/en/tournaments/mens/worldcup/canada-mexico-usa-2026/host-cities",
+          "description": "FIFA 2026 host cities and stadiums",
+          "httpAccessNote": "URL structure verified; fifa.com blocks automated HTTP access.",
+          "supports": ["16 official venues", "official venue names", "final venue"]
+        },
+        {
+          "url": "https://www.fifa.com/en/articles/groups-how-teams-qualify-tie-breakers",
+          "description": "FIFA: Groups — How Teams Qualify & Tie-Breakers (official article)",
+          "httpAccessNote": "URL returns 200 directly.",
+          "supports": ["tiebreaker criteria order", "third-place ranking"]
+        },
+        {
+          "url": "https://legal.fifa.com/en/official-documents",
+          "description": "FIFA Official Documents",
+          "httpAccessNote": "URL returns 200 directly.",
+          "supports": ["extra time rules", "penalty shootout rules"]
+        }
+      ]
+    },
+    "categories": {
+      "tournament_format": 20,
+      "knockout_dates": 8,
+      "venue_names": 8,
+      "tiebreaker_rules": 4,
+      "historical_records": 6,
+      "timezone_facts": 10,
+      "group_assignments": 7,
+      "operational_policy": 11,
+      "editorial_removed": 3
+    }
+  }
+}

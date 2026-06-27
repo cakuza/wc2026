@@ -136,6 +136,7 @@ export default async function GroupPage({
         </h1>
         <p className="mb-4 text-sm text-white/50">{teamNamesStr}</p>
 
+
         {snapshot.isFallback && (
           <div className="mb-4">
             <LiveDataUnavailableNotice show />
@@ -197,7 +198,13 @@ export default async function GroupPage({
             >
               Best Third-Place Teams table
             </Link>
-            .
+            .{" "}
+            <Link
+              href="/world-cup-2026-group-tiebreakers"
+              className="text-accent underline-offset-2 hover:underline"
+            >
+              How tiebreakers work →
+            </Link>
           </p>
         </section>
 

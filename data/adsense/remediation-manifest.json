@@ -1,0 +1,204 @@
+{
+  "auditDate": "2026-06-27",
+  "branch": "adsense/editorial-value-v1",
+  "phase4_cornerstone": [
+    {
+      "id": "cs-01",
+      "route": "/world-cup-2026-format-explained",
+      "title": "World Cup 2026 Format Explained",
+      "targetWords": 500,
+      "sections": [
+        "48-team expansion: why and how vs previous 32-team format",
+        "12 groups of 4: how the draw worked, which teams are in which group",
+        "Group stage rules: 3 points for win, 1 draw, 0 loss",
+        "Which teams advance: top 2 automatic + 8 best third-placed",
+        "Round of 32 through Final: bracket structure",
+        "Host nation advantage and automatic qualification",
+        "Match count: 104 matches vs 64 in previous tournaments"
+      ],
+      "jsonLd": ["FAQPage", "WebPage"],
+      "internalLinks": ["/world-cup-2026-group-tiebreakers", "/world-cup-third-place-qualification", "/bracket", "/groups"],
+      "priority": 1,
+      "status": "pending"
+    },
+    {
+      "id": "cs-02",
+      "route": "/world-cup-2026-group-tiebreakers",
+      "title": "World Cup 2026 Group Stage Tiebreakers Explained",
+      "targetWords": 500,
+      "sections": [
+        "When tiebreakers apply: teams level on points",
+        "Official FIFA tiebreaker order (head-to-head first)",
+        "Head-to-head: goal difference and goals scored",
+        "Overall: goal difference, goals scored, wins",
+        "Fair play: yellow/red card count",
+        "Final resort: drawing of lots",
+        "Third-place ranking uses different criteria",
+        "Common scenarios: examples"
+      ],
+      "jsonLd": ["FAQPage", "WebPage"],
+      "internalLinks": ["/groups", "/world-cup-third-place-qualification", "/world-cup-2026-format-explained"],
+      "priority": 2,
+      "status": "pending"
+    },
+    {
+      "id": "cs-03",
+      "route": "/world-cup-2026-knockout-bracket-explained",
+      "title": "World Cup 2026 Knockout Bracket Explained",
+      "targetWords": 450,
+      "sections": [
+        "Round of 32: how 32 slots are filled",
+        "How group positions determine bracket placement",
+        "Third-place team bracket slots",
+        "Round of 16 through Final schedule",
+        "Extra time and penalty shootout rules",
+        "When knockout fixtures are confirmed",
+        "Key dates: Round of 32 starts 2 Jul 2026, Final 19 Jul 2026"
+      ],
+      "jsonLd": ["FAQPage", "WebPage"],
+      "internalLinks": ["/bracket", "/world-cup-third-place-qualification", "/world-cup-2026-format-explained"],
+      "priority": 3,
+      "status": "pending"
+    },
+    {
+      "id": "cs-04",
+      "route": "/world-cup-2026-data-sources",
+      "title": "WorldCupMatchDay — Data Sources and Methodology",
+      "targetWords": 400,
+      "sections": [
+        "Where match data comes from: primary provider, update frequency",
+        "Live score update cycle (12 seconds during matches)",
+        "Score reconciliation: how conflicts are resolved",
+        "Scorer data: enrichment source, limitations",
+        "Correction process: how to report errors, response time",
+        "Independence disclosure: not affiliated with FIFA",
+        "Data delay disclaimer",
+        "Historical data: what is static vs live"
+      ],
+      "jsonLd": ["WebPage"],
+      "internalLinks": ["/contact", "/about", "/faq"],
+      "priority": 4,
+      "status": "pending"
+    }
+  ],
+  "phase5_programmatic": [
+    {
+      "id": "p5-01",
+      "target": "Group pages (/groups/group-{a-l})",
+      "action": "Add static group-specific editorial paragraph to each of the 12 group pages",
+      "implementation": "New file: data/groups/group-editorial.ts — static object keyed by group letter; rendered in GroupPage above the standings table",
+      "targetWords": "50–80 words per group (unique per page)",
+      "priority": 1,
+      "status": "pending"
+    },
+    {
+      "id": "p5-02",
+      "target": "Timezone schedule pages (/schedule/{tz-slug})",
+      "action": "Expand tz_context_* strings in i18n.ts from 1 sentence to 3-5 sentences per timezone",
+      "implementation": "Update tz_context_* keys in lib/i18n.ts for all 7 zones; include team context, peak viewing hours, regional fan culture note",
+      "targetWords": "60–100 words per zone (unique per page)",
+      "priority": 2,
+      "status": "pending"
+    },
+    {
+      "id": "p5-03",
+      "target": "Team pages (/teams/{slug})",
+      "action": "Add short static team bio paragraph to TeamDetail component",
+      "implementation": "New file: data/teams/team-bios.ts — static object keyed by team key; ~50-70 words per team bio rendered above the squad section",
+      "targetWords": "50–70 words per team (unique per page)",
+      "priority": 3,
+      "status": "pending"
+    }
+  ],
+  "phase6_publisher_trust": [
+    {
+      "id": "p6-01",
+      "target": "/about",
+      "action": "Expand About page from ~120 words to 300+ words",
+      "content": "Add: when site was built and why, editorial approach (data accuracy, corrections policy), update frequency during tournament, team description, tech stack briefly, independence statement",
+      "priority": 1,
+      "status": "pending"
+    },
+    {
+      "id": "p6-02",
+      "target": "/contact",
+      "action": "Expand Contact from ~80 words to 150+ words",
+      "content": "Add: response time commitment, what kinds of reports are welcome, how to format a correction report, what happens after you report",
+      "priority": 2,
+      "status": "pending"
+    },
+    {
+      "id": "p6-03",
+      "target": "/faq",
+      "action": "Expand FAQ from 10 Q&A pairs to 20+ pairs; expand answers from 1 sentence to 2-3 sentences",
+      "content": "Add: format questions (48 teams, tiebreakers, bracket), schedule questions (when knockout fixtures known), data questions (update frequency, accuracy), site questions",
+      "priority": 3,
+      "status": "pending"
+    }
+  ],
+  "phase7_internal_links": [
+    {
+      "id": "p7-01",
+      "from": "/stats",
+      "to": "/stats/top-scorers",
+      "action": "Add visible anchor text link in body content of StatsContent component",
+      "priority": 1,
+      "status": "pending"
+    },
+    {
+      "id": "p7-02",
+      "from": "/groups/group-{a-l}",
+      "to": "/world-cup-2026-group-tiebreakers",
+      "action": "Add link in qualification box below 'Third-place → may advance...' text",
+      "priority": 2,
+      "status": "pending"
+    },
+    {
+      "id": "p7-03",
+      "from": "/world-cup-third-place-qualification",
+      "to": "/world-cup-2026-knockout-bracket-explained",
+      "action": "Add link in 'Why third place matters' section",
+      "priority": 3,
+      "status": "pending"
+    },
+    {
+      "id": "p7-04",
+      "from": "/matchday-hub",
+      "to": "all 4 cornerstone pages",
+      "action": "Add a 'Tournament Guides' section to MatchdayHubContent linking to all 4 new cornerstone pages",
+      "priority": 4,
+      "status": "pending"
+    },
+    {
+      "id": "p7-05",
+      "from": "/teams/{slug}",
+      "to": "/world-cup-2026-format-explained",
+      "action": "Add 'How the tournament works' link in the qualification section",
+      "priority": 5,
+      "status": "pending"
+    }
+  ],
+  "phase8_safeguards": [
+    {
+      "id": "p8-01",
+      "target": "All group pages — pre-kickoff state",
+      "action": "Ensure pre-kickoff empty standings has substantive explanation paragraph, not just 'will appear once play begins'",
+      "priority": 1,
+      "status": "pending"
+    },
+    {
+      "id": "p8-02",
+      "target": "/bracket",
+      "action": "Add editorial explanation of bracket format and timeline above the TBD slots",
+      "priority": 2,
+      "status": "pending"
+    },
+    {
+      "id": "p8-03",
+      "target": "/stats/top-scorers",
+      "action": "Add introductory paragraph explaining the top scorers section and data sourcing",
+      "priority": 3,
+      "status": "pending"
+    }
+  ]
+}

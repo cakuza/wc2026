@@ -1,0 +1,115 @@
+{
+  "auditDate": "2026-06-27",
+  "clusters": [
+    {
+      "id": "group-standings",
+      "label": "Group standings pages",
+      "count": 12,
+      "routes": [
+        "/groups/group-a", "/groups/group-b", "/groups/group-c", "/groups/group-d",
+        "/groups/group-e", "/groups/group-f", "/groups/group-g", "/groups/group-h",
+        "/groups/group-i", "/groups/group-j", "/groups/group-k", "/groups/group-l"
+      ],
+      "sharedComponents": ["BreadcrumbNav", "StandingsTable", "QuickAnswer", "LastUpdated", "SourcesAndMethodology"],
+      "identicalSections": [
+        "H1 pattern: 'Group {X} Standings'",
+        "Qualification info box (template text, team names interpolated)",
+        "Fixture list (data-driven, all same structure)",
+        "Teams in group (data-driven chips)",
+        "Prev/next group navigation",
+        "Related links (always same 4 links)",
+        "SourcesAndMethodology (identical text on all 12)"
+      ],
+      "uniqueContentPerPage": [
+        "Group letter in H1",
+        "4 team names in subtitle",
+        "Actual score/standings data (dynamic)",
+        "Leader name in QuickAnswer (dynamic)"
+      ],
+      "editorialDifferentiation": "NONE — no unique prose per group",
+      "riskLevel": "HIGH",
+      "remediationAction": "Add 2-3 sentences of group-specific editorial: competing teams' strengths, key fixture, historical note"
+    },
+    {
+      "id": "team-profile",
+      "label": "Team profile pages",
+      "count": 48,
+      "routes": ["REPRESENTATIVE: /teams/england, /teams/france, /teams/brazil, ... (all 48 teams)"],
+      "sharedComponents": ["TeamDetail"],
+      "identicalSections": [
+        "SportsOrganization JSON-LD (structure identical, values differ)",
+        "FAQPage JSON-LD (3 FAQ questions with team name interpolated)",
+        "Squad section (same positions: GK/DEF/MID/FWD)",
+        "Fixtures section (same 3-match layout)",
+        "Qualification path section (same 3-option layout)",
+        "Group standings section (same table structure)"
+      ],
+      "uniqueContentPerPage": [
+        "Team name throughout",
+        "Group letter",
+        "Opponent names",
+        "Squad players (unique data)",
+        "Match results (dynamic)",
+        "firstMatchResultSentence (1 dynamic sentence for past matches)"
+      ],
+      "editorialDifferentiation": "MINIMAL — squad data differentiates, but no editorial narrative",
+      "riskLevel": "HIGH",
+      "remediationAction": "Add per-team static bio paragraph (50-80 words) from static data file; expand FAQ answers from 1 sentence to 2-3"
+    },
+    {
+      "id": "timezone-schedule",
+      "label": "Timezone schedule pages",
+      "count": 7,
+      "routes": [
+        "/schedule/turkey-time",
+        "/schedule/uk-time",
+        "/schedule/eastern-time",
+        "/schedule/india-time",
+        "/schedule/japan-time",
+        "/schedule/brazil-time",
+        "/schedule/australia-time"
+      ],
+      "sharedComponents": ["TimezoneSchedulePageContent"],
+      "identicalSections": [
+        "H1 pattern: 'World Cup 2026 Schedule in {zone}'",
+        "Intro paragraph (template with {zone} interpolated)",
+        "Quick facts grid (Teams: 48, Groups: 12, Fixtures: N, Timezones: 7 — same except TZ name)",
+        "Full fixture table (same 104+ matches, only time values differ)",
+        "Other timezones section (same 6 other links)",
+        "FAQ section (identical 5 questions; only {zoneNote} changes per answer)",
+        "Core links section (identical 4 links)"
+      ],
+      "uniqueContentPerPage": [
+        "tz_context_* string (1 sentence per region, currently 15-25 words)",
+        "UTC offset applied to all kickoff times",
+        "Zone name in H1 and intro"
+      ],
+      "editorialDifferentiation": "VERY LOW — 1 sentence per page; FAQs are template with variable substitution",
+      "riskLevel": "MEDIUM-HIGH",
+      "remediationAction": "Expand tz_context_* to 3-5 sentences: which participating teams are from this region, peak viewing windows, cultural context. Add 3 region-specific FAQ questions."
+    },
+    {
+      "id": "legal-pages",
+      "label": "Legal / policy pages",
+      "count": 2,
+      "routes": ["/privacy", "/terms"],
+      "sharedComponents": [],
+      "identicalSections": [
+        "Section-loop rendering pattern (array of {heading, body})",
+        "Identical visual structure"
+      ],
+      "uniqueContentPerPage": ["Content is unique per page; legal boilerplate"],
+      "editorialDifferentiation": "HIGH — content differs; structure similar",
+      "riskLevel": "LOW",
+      "remediationAction": "None needed for similarity; content is appropriately different"
+    }
+  ],
+  "summary": {
+    "totalTemplateDerivedPages": 67,
+    "highRiskClusters": 2,
+    "mediumHighRiskClusters": 1,
+    "lowRiskClusters": 1,
+    "largestCluster": "team-profile (48 pages)",
+    "overallRatio": "75% of sitemap pages are template-derived"
+  }
+}

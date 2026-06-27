@@ -29,6 +29,7 @@ export function AboutContent() {
           </a>
           .
         </p>
+        <p>{t("about_p5")}</p>
       </div>
 
       <div className="mt-10 flex gap-4 text-sm">
