@@ -9,7 +9,7 @@
  * - Scores and standings are NOT taken from this source.
  */
 
-import { PLAYER_ALIAS_MAP } from "./worldcup26PlayerAliases";
+import { resolvePlayerName } from "./worldcup26PlayerAliases";
 
 const ENDPOINT = "https://worldcup26.ir/get/games";
 const TIMEOUT_MS = 8_000;
@@ -65,11 +65,18 @@ function fixMojibake(s: string): string {
 /**
  * Canonicalize a raw player-name string from worldcup26.ir.
  * 1. Repair Mojibake (UTF-8 decoded as Latin-1).
- * 2. Look up in the alias map (Persian transliteration corrections).
+ * 2. Look up in the constrained alias table (Persian transliteration / OG identity corrections).
+ *    Preferred lookup is on the Mojibake-fixed form; fallback to raw form.
+ *    teamName scopes the lookup so the same corrupted string never resolves
+ *    to a different player for an unrelated team.
  */
-function sanitizePlayerName(raw: string): string {
+function sanitizePlayerName(raw: string, teamName?: string): string {
   const fixed = fixMojibake(raw);
-  return PLAYER_ALIAS_MAP[fixed] ?? PLAYER_ALIAS_MAP[raw] ?? fixed;
+  const fromFixed = resolvePlayerName(fixed, teamName);
+  if (fromFixed !== fixed) return fromFixed;
+  const fromRaw = resolvePlayerName(raw, teamName);
+  if (fromRaw !== raw) return fromRaw;
+  return fixed;
 }
 const OWN_GOAL_RE = /\(OG\)\s*$/i;
 const PENALTY_GOAL_RE = /\((P|PEN|PENALTY)\)\s*$/i;
@@ -119,7 +126,7 @@ function parseScorerString(raw: string, teamName: string): GoalScorerEvent | nul
       stoppageTime,
       minuteLabel: `${minute}${stoppageTime ? `+${stoppageTime}` : ""}'`,
       teamName,
-      playerName: sanitizePlayerName(m[1].trim()),
+      playerName: sanitizePlayerName(m[1].trim(), teamName),
       isOwnGoal,
       isPenalty,
       playerTeamName: isOwnGoal ? undefined : teamName,
