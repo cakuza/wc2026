@@ -19,10 +19,11 @@ import {
   type GoalScorerEvent,
   type WorldCup26Game,
 } from "./worldcup26Provider";
+import { resolvePlayerAlias } from "./worldcup26PlayerAliases";
 import { applyVerifiedGoalCorrections } from "./verifiedMatchEventCorrections";
 import { countryName } from "./i18n";
 
-export const LIVE_SNAPSHOT_CACHE_KEY = "worldcup-tournament-live-snapshot-v7";
+export const LIVE_SNAPSHOT_CACHE_KEY = "worldcup-tournament-live-snapshot-v8";
 export const LIVE_SNAPSHOT_REVALIDATE_SECONDS = 25;
 // Provider Data-Cache revalidate (seconds). Lazily driven by the snapshot
 // rebuild, so idle periods (snapshot cadence ~90s) refetch providers only at
@@ -259,9 +260,29 @@ function scorersFromWorldcupGame(match: Match, game: WorldCup26Game | undefined)
   const homeDisplay = countryName(match.homeKey, "en");
   const awayDisplay = countryName(match.awayKey, "en");
   return applyVerifiedGoalCorrections(internalId, dedupeScorers([
-    ...game.homeScorers.map((event) => ({ ...event, teamName: homeDisplay })),
-    ...game.awayScorers.map((event) => ({ ...event, teamName: awayDisplay })),
+    ...game.homeScorers.map((event) => canonicalizeWorldcupScorer(event, internalId, homeDisplay)),
+    ...game.awayScorers.map((event) => canonicalizeWorldcupScorer(event, internalId, awayDisplay)),
   ]));
+}
+
+function canonicalizeWorldcupScorer(
+  event: GoalScorerEvent,
+  internalId: string,
+  scoringTeam: string,
+): GoalScorerEvent {
+  return {
+    ...event,
+    teamName: scoringTeam,
+    playerName: resolvePlayerAlias({
+      provider: "worldcup26.ir",
+      matchId: internalId,
+      eventMinute: event.minute,
+      stoppageMinute: event.stoppageTime ?? null,
+      scoringTeam,
+      playerTeam: event.playerTeamName,
+      rawName: event.playerName,
+    }),
+  };
 }
 
 function withCanonicalMatchState({
@@ -336,6 +357,7 @@ function topScorersFromSnapshot(
   for (const match of Object.values(matches)) {
     for (const goal of match.scorers) {
       if (goal.isOwnGoal) continue;
+      if (/^Scorer (unavailable|pending)$/i.test(goal.playerName)) continue;
       const key = goal.playerName;
       if (!scorerMap.has(key)) {
         scorerMap.set(key, {

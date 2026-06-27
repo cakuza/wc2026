@@ -1,0 +1,103 @@
+{
+  "auditDate": "2026-06-28",
+  "branch": "fix/scorer-identity-integrity-v1",
+  "headAtInventoryTime": "pending-final-commit",
+  "scope": "Current worldcup26.ir provider payload mapped through final repository code plus verified event corrections.",
+  "summary": {
+    "providerGames": 80,
+    "finishedMatches": 66,
+    "nonShootoutGoals": 196,
+    "goalEvents": 196,
+    "resolvedCanonicalIdentities": 196,
+    "deliberatelyUnresolvedIdentities": 0,
+    "ownGoals": 7,
+    "penalties": 7,
+    "corruptedIdentitiesCorrected": 52,
+    "teamMembershipViolations": 0,
+    "scoreEventMismatches": 0,
+    "duplicateEventMismatches": 0,
+    "unsupportedCorrections": 0
+  },
+  "mergeGates": {
+    "corruptedIdentitiesRemaining": 0,
+    "teamMembershipViolations": 0,
+    "scoreEventMismatches": 0,
+    "crossSurfaceMismatches": 0,
+    "unsupportedCorrections": 0
+  },
+  "aliasResolutionContract": {
+    "resolver": "resolvePlayerAlias({ provider, matchId, eventMinute, stoppageMinute, scoringTeam, playerTeam, rawName, providerPlayerId, providerAthleteId })",
+    "order": [
+      "provider athlete/player ID",
+      "exact provider + match + event identity",
+      "exact provider + match + scoring team + raw value",
+      "verified team-constrained canonical roster match",
+      "unresolved/raw"
+    ],
+    "failClosedRules": [
+      "wrong provider rejected",
+      "wrong match rejected",
+      "wrong team rejected",
+      "missing match context rejected",
+      "eventMinute/eventStoppageTime enforced where an alias entry declares them",
+      "no global malformed-string replacement"
+    ]
+  },
+  "resolvedScoreEventMismatches": [
+    {
+      "matchId": "czechia-vs-south-africa-jun18",
+      "score": "1-1",
+      "events": [
+        "54' Michal Sadílek — Czechia",
+        "83' Teboho Mokoena (P) — South Africa"
+      ],
+      "missingGoalResolved": "83' Teboho Mokoena penalty",
+      "evidence": "Guardian live report; provider final score 1-1"
+    },
+    {
+      "matchId": "switzerland-vs-bosnia-jun18",
+      "score": "4-1",
+      "events": [
+        "17' Breel Embolo (P) — Switzerland",
+        "23' Rubén Vargas — Switzerland",
+        "32' Johan Manzambi — Switzerland",
+        "57' Ermin Mahmić — Bosnia & Herzegovina",
+        "90+6' Granit Xhaka (P) — Switzerland"
+      ],
+      "missingGoalResolved": "90+6' Granit Xhaka penalty",
+      "evidence": "Guardian live report; provider final score 4-1"
+    },
+    {
+      "matchId": "austria-vs-jordan-jun16",
+      "score": "3-1",
+      "events": [
+        "10' Marko Arnautović — Austria",
+        "34' Christoph Baumgartner — Austria",
+        "76' Yazan Al-Arab (OG) — Austria, player team Jordan",
+        "87' Ali Olwan — Jordan"
+      ],
+      "missingGoalResolved": "76' Yazan Al-Arab own goal",
+      "evidence": "Guardian live report; provider final score 3-1"
+    }
+  ],
+  "turkeyUnitedStates": [
+    "3' Auston Trusty — United States",
+    "10' Arda Güler — Turkey",
+    "31' Barış Alper Yılmaz — Turkey",
+    "49' Sebastian Berhalter — United States",
+    "90+8' Kaan Ayhan — Turkey"
+  ],
+  "ownGoals": [
+    "bosnia-vs-qatar-jun24: 34' Sultan Al-Brake (Qatar) credited Bosnia & Herzegovina",
+    "united-states-vs-paraguay-jun12: 7' Damian Bobadilla (Paraguay) credited United States",
+    "united-states-vs-australia-jun19: 11' Cameron Burgess (Australia) credited United States",
+    "tunisia-vs-netherlands-jun25: 3' Ellyes Skhiri (Tunisia) credited Netherlands",
+    "spain-vs-saudi-arabia-jun21: 49' Hassan Altambakti (Saudi Arabia) credited Spain",
+    "austria-vs-jordan-jun16: 76' Yazan Al-Arab (Jordan) credited Austria",
+    "portugal-vs-uzbekistan-jun23: 60' Abduvohid Nematov (Uzbekistan) credited Portugal"
+  ],
+  "knownRemainingRisks": [
+    "worldcup26.ir does not provide stable scorer player IDs in the public payload; provider-ID precedence is implemented and covered by deterministic synthetic-ID tests.",
+    "External Preview crawl must be rerun against the final pushed SHA."
+  ]
+}

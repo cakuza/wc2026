@@ -125,7 +125,20 @@ async function main() {
 
   const topScorersHtml = await fetchHtml("/stats/top-scorers");
   const topScorersBlocks = extractJsonLd(topScorersHtml);
-  ok("top-scorers renders ItemList JSON-LD", hasType(topScorersBlocks, "ItemList"));
+  const normalizedTopScorersHtml = topScorersHtml.replace(/<!-- -->/g, "").replace(/\s+/g, " ");
+  const topScorersHasTable = /<h2[^>]*>\s*Golden Boot Standings\s*<\/h2>/i.test(normalizedTopScorersHtml);
+  if (topScorersHasTable) {
+    ok("top-scorers renders ItemList JSON-LD when trusted data is visible", hasType(topScorersBlocks, "ItemList"));
+  } else {
+    ok("top-scorers omits ItemList JSON-LD when scorer data is unavailable", !hasType(topScorersBlocks, "ItemList"));
+    const lowerTopScorersHtml = normalizedTopScorersHtml.toLowerCase();
+    ok(
+      "top-scorers displays an honest availability notice",
+      lowerTopScorersHtml.includes("no scorer data available yet") ||
+        lowerTopScorersHtml.includes("live data unavailable") ||
+        lowerTopScorersHtml.includes("live match data is temporarily unavailable"),
+    );
+  }
 
   // Gate 7: H1 uniqueness (spot check)
 

@@ -41,6 +41,33 @@ export type WorldCup26Game = {
 // Matches scorer strings like "J. Quinones 9'", "Lamine Yamal 31",
 // "F. Balogun 45'+5'", "D. Bobadilla 7'(OG)" and "Breel Embolo 17' (p)".
 const SCORER_RE = /^(.+?)\s+(\d+)'?(?:\+(\d+)'?)?(?:\s*\((OG|P|PEN|PENALTY)\))?$/i;
+
+/**
+ * Repair UTF-8 strings that were decoded as Latin-1 (Mojibake).
+ * worldcup26.ir sends UTF-8 text; when the JSON is parsed with the wrong
+ * encoding assumption the two bytes of a 2-byte UTF-8 sequence appear as two
+ * separate Latin-1 characters, e.g. ü (0xC3 0xBC) → "Ã¼".
+ * Detection: presence of U+00C2–U+00C5 immediately followed by U+0080–U+00BF.
+ */
+export function fixMojibake(s: string): string {
+  if (!/[\xC2-\xC5][\x80-\xBF]/.test(s)) return s;
+  try {
+    const bytes = new Uint8Array(s.length);
+    for (let i = 0; i < s.length; i++) bytes[i] = s.charCodeAt(i) & 0xff;
+    return new TextDecoder("utf-8", { fatal: true }).decode(bytes);
+  } catch {
+    return s;
+  }
+}
+
+/**
+ * Repair only byte-level mojibake during raw parsing. Malformed romanized
+ * provider names are resolved later, after the raw provider game has been
+ * mapped to an internal match id and event context.
+ */
+function sanitizePlayerName(raw: string): string {
+  return fixMojibake(raw);
+}
 const OWN_GOAL_RE = /\(OG\)\s*$/i;
 const PENALTY_GOAL_RE = /\((P|PEN|PENALTY)\)\s*$/i;
 
@@ -89,7 +116,7 @@ function parseScorerString(raw: string, teamName: string): GoalScorerEvent | nul
       stoppageTime,
       minuteLabel: `${minute}${stoppageTime ? `+${stoppageTime}` : ""}'`,
       teamName,
-      playerName: m[1].trim(),
+      playerName: sanitizePlayerName(m[1].trim()),
       isOwnGoal,
       isPenalty,
       playerTeamName: isOwnGoal ? undefined : teamName,
