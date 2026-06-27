@@ -19,9 +19,9 @@ export default function ContactPage() {
 
       <div className="space-y-5 text-sm leading-relaxed text-white/70">
         <p>
-          We&apos;d love to hear from you. Whether you&apos;ve spotted a data error, have a feature
-          suggestion, or just want to say hello — drop us an email and we&apos;ll get back to you
-          as soon as we can.
+          WorldCupMatchDay is run by a small independent team. Whether you&apos;ve spotted a data error,
+          have a feature suggestion, want to report incorrect match information, or just want to say
+          hello — drop us an email and we&apos;ll get back to you as soon as we can.
         </p>
 
         <div className="rounded-xl border border-white/10 bg-navyCard p-6">
@@ -34,17 +34,41 @@ export default function ContactPage() {
           >
             worldcupmatchday@proton.me
           </a>
+          <p className="mt-3 text-xs text-white/40">
+            We aim to respond within 24 hours during the tournament period (11 June – 19 July 2026).
+          </p>
+        </div>
+
+        <div className="rounded-xl border border-white/10 bg-navyCard p-5">
+          <p className="mb-2 font-heading text-xs font-bold uppercase tracking-widest text-white/40">
+            Reporting a data error
+          </p>
+          <p className="text-sm text-white/65">
+            For match data corrections — wrong score, missing goal scorer, incorrect venue or kickoff
+            time — please include the following in your message:
+          </p>
+          <ul className="mt-2 ml-4 list-disc space-y-1 text-sm text-white/50">
+            <li>The match name (e.g. &quot;England vs Scotland, Group B&quot;)</li>
+            <li>What you see that appears incorrect</li>
+            <li>The correct information, with a source reference if possible (e.g. a link to the official
+              match record or a broadcaster report)</li>
+          </ul>
+          <p className="mt-2 text-sm text-white/50">
+            Confirmed corrections are applied to our verified corrections file and take effect on the
+            next data sync — usually within a few minutes of confirmation.
+          </p>
         </div>
 
         <p>
-          For match data corrections (wrong score, missing player, incorrect venue), please include the
-          match name and the correct information in your message. We aim to respond within 24 hours during
-          the tournament period (11 June – 19 July 2026).
+          We also welcome feature suggestions, accessibility reports, and general feedback about the site.
+          If something isn&apos;t working as expected on your device or browser, including the match
+          schedule, live scores or timezone display, please let us know the device and browser you&apos;re
+          using so we can investigate.
         </p>
 
         <p className="text-white/40">
-          WorldCupMatchDay is a fan project — we are not affiliated with FIFA or any official tournament body.
-          For official FIFA communications, please visit{" "}
+          WorldCupMatchDay is an independent fan project — we are not affiliated with FIFA or any
+          official tournament body. For official FIFA communications, please visit{" "}
           <a
             href="https://www.fifa.com"
             target="_blank"

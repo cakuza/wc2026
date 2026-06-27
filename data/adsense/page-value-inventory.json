@@ -1,0 +1,95 @@
+{
+  "auditDate": "2026-06-27",
+  "productionSha": "4adcad5d1b3ec069c952f47d055974cc02f063b8",
+  "totalSitemapUrls": 89,
+  "pages": [
+    { "route": "/", "class": "live-editorial", "estimatedWords": 350, "value": "MEDIUM-HIGH", "hasJsonLd": true, "issues": ["data-heavy; editorial intro is 1 sentence"] },
+    { "route": "/today", "class": "live-editorial", "estimatedWords": 100, "value": "MEDIUM", "hasJsonLd": false, "issues": ["minimal editorial text; utility-first"] },
+    { "route": "/about", "class": "static-editorial", "estimatedWords": 120, "value": "LOW-MEDIUM", "hasJsonLd": false, "issues": ["too short; no author attribution; no editorial bio"] },
+    { "route": "/contact", "class": "static-editorial", "estimatedWords": 80, "value": "LOW", "hasJsonLd": false, "issues": ["minimal; no address; no team bio; < 100 words"] },
+    { "route": "/faq", "class": "static-editorial", "estimatedWords": 200, "value": "MEDIUM", "hasJsonLd": true, "issues": ["answers are 1-sentence; should expand to 2-3 sentences"] },
+    { "route": "/privacy", "class": "legal", "estimatedWords": 350, "value": "MEDIUM", "hasJsonLd": false, "issues": ["legal boilerplate; not editorial value signal"] },
+    { "route": "/terms", "class": "legal", "estimatedWords": 350, "value": "MEDIUM", "hasJsonLd": false, "issues": ["legal boilerplate; not editorial value signal"] },
+    { "route": "/quiz", "class": "interactive", "estimatedWords": 150, "value": "MEDIUM", "hasJsonLd": false, "issues": ["interactive component; no editorial context text"] },
+    { "route": "/bracket", "class": "live-data", "estimatedWords": 200, "value": "MEDIUM", "hasJsonLd": false, "issues": ["mostly TBD slots; no editorial format explanation"] },
+    { "route": "/schedule", "class": "live-data", "estimatedWords": 150, "value": "MEDIUM", "hasJsonLd": false, "issues": ["schedule hub; thin editorial"] },
+    { "route": "/stats", "class": "live-data", "estimatedWords": 400, "value": "MEDIUM-HIGH", "hasJsonLd": true, "issues": ["no visible link to /stats/top-scorers in body text"] },
+    { "route": "/stats/top-scorers", "class": "live-data", "estimatedWords": 150, "value": "MEDIUM", "hasJsonLd": false, "issues": ["thin editorial above the scorers table"] },
+    { "route": "/matchday-hub", "class": "navigation-hub", "estimatedWords": 80, "value": "LOW", "hasJsonLd": false, "issues": ["navigation-only; < 100 words editorial; no standalone value"] },
+    { "route": "/world-cup-schedule-local-time", "class": "hub-editorial", "estimatedWords": 120, "value": "MEDIUM-LOW", "hasJsonLd": false, "issues": ["hub page; mostly links; thin body copy"] },
+    { "route": "/world-cup-2026-prize-money", "class": "static-editorial", "estimatedWords": 300, "value": "HIGH", "hasJsonLd": true, "issues": [] },
+    { "route": "/world-cup-third-place-qualification", "class": "live-editorial", "estimatedWords": 400, "value": "HIGH", "hasJsonLd": true, "issues": [] },
+    { "route": "/world-cup-2026-teams-by-confederation", "class": "static-editorial", "estimatedWords": 200, "value": "MEDIUM", "hasJsonLd": true, "issues": ["intro is 1 sentence; no editorial context per confederation"] },
+    { "route": "/qualified-eliminated-teams", "class": "live-data", "estimatedWords": 300, "value": "HIGH", "hasJsonLd": true, "issues": [] },
+    { "route": "/groups", "class": "live-data", "estimatedWords": 150, "value": "MEDIUM", "hasJsonLd": false, "issues": ["overview page; minimal editorial"] },
+    { "route": "/teams", "class": "navigation-hub", "estimatedWords": 100, "value": "LOW-MEDIUM", "hasJsonLd": false, "issues": ["grid of team links; near-zero editorial content"] },
+    {
+      "route": "/groups/group-{a-l}",
+      "class": "template-live-data",
+      "templateCluster": "group-standings",
+      "instanceCount": 12,
+      "estimatedWords": 200,
+      "value": "MEDIUM-LOW",
+      "hasJsonLd": true,
+      "issues": [
+        "12 near-identical template pages",
+        "zero unique editorial copy per group",
+        "qualification box uses template text only",
+        "no group-specific editorial paragraph"
+      ]
+    },
+    {
+      "route": "/teams/{slug}",
+      "class": "template-live-data",
+      "templateCluster": "team-profile",
+      "instanceCount": 48,
+      "estimatedWords": 200,
+      "value": "MEDIUM",
+      "hasJsonLd": true,
+      "issues": [
+        "48 near-identical template pages",
+        "FAQ answers dynamically built from templates",
+        "no unique team bio or narrative text",
+        "squad list adds data value but no editorial"
+      ]
+    },
+    {
+      "route": "/teams/{slug}/qualification",
+      "class": "template-live-data",
+      "templateCluster": "team-qualification",
+      "instanceCount": 2,
+      "estimatedWords": 150,
+      "value": "MEDIUM-LOW",
+      "hasJsonLd": false,
+      "issues": ["2 template pages; likely thin editorial"]
+    },
+    {
+      "route": "/schedule/{tz-slug}",
+      "class": "template-live-data",
+      "templateCluster": "timezone-schedule",
+      "instanceCount": 7,
+      "estimatedWords": 200,
+      "value": "MEDIUM",
+      "hasJsonLd": true,
+      "issues": [
+        "7 near-identical template pages",
+        "only 1 sentence unique editorial per page (tz_context_*)",
+        "FAQ questions are identical; only zoneNote interpolated",
+        "utility is high but editorial differentiation is minimal"
+      ]
+    }
+  ],
+  "summary": {
+    "totalPages": 89,
+    "templateDerived": 67,
+    "templateRatio": 0.753,
+    "highValue": 3,
+    "mediumHighValue": 4,
+    "mediumValue": 12,
+    "mediumLowValue": 5,
+    "lowMediumValue": 3,
+    "lowValue": 4,
+    "pagesWithJsonLd": 11,
+    "estimatedAverageWords": 195
+  }
+}

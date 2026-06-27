@@ -134,6 +134,13 @@ export default async function ThirdPlaceQualificationPage() {
             third-placed teams across all 12 groups. That means every point and every goal in the group stage can matter,
             even in a match that doesn&apos;t decide first or second place.
           </p>
+          <p className="mt-2 text-sm leading-relaxed text-white/70">
+            Once the 8 best third-placed teams are confirmed, they enter the{" "}
+            <Link href="/world-cup-2026-knockout-bracket-explained" className="text-accent underline-offset-2 hover:underline">
+              knockout bracket
+            </Link>{" "}
+            for the Round of 32. Their bracket slot depends on which groups they came from, per the pre-set FIFA bracket structure.
+          </p>
         </section>
 
         {/* H2: What decides the best third-placed teams */}

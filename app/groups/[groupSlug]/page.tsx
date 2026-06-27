@@ -16,6 +16,7 @@ import { matchesInGroup, matchSlug, matchUtcDate } from "@/lib/matches";
 import { countryName } from "@/lib/i18n";
 import { getTournamentLiveSnapshot } from "@/lib/liveSnapshot";
 import { getLiveRefreshPolicy } from "@/lib/liveRefreshPolicy";
+import { GROUP_EDITORIAL } from "@/lib/groupEditorial";
 
 const BASE = "https://www.worldcupmatchday.com";
 
@@ -136,6 +137,17 @@ export default async function GroupPage({
         </h1>
         <p className="mb-4 text-sm text-white/50">{teamNamesStr}</p>
 
+        {GROUP_EDITORIAL[letter] && (
+          <div className="mb-6 space-y-2 text-sm leading-relaxed text-white/65">
+            <p>{GROUP_EDITORIAL[letter].summary}</p>
+            <p className="text-white/45">
+              <span className="font-semibold text-white/60">Key fixture:</span>{" "}
+              {GROUP_EDITORIAL[letter].keyFixture}
+            </p>
+            <p className="text-white/45">{GROUP_EDITORIAL[letter].context}</p>
+          </div>
+        )}
+
         {snapshot.isFallback && (
           <div className="mb-4">
             <LiveDataUnavailableNotice show />
@@ -197,7 +209,13 @@ export default async function GroupPage({
             >
               Best Third-Place Teams table
             </Link>
-            .
+            .{" "}
+            <Link
+              href="/world-cup-2026-group-tiebreakers"
+              className="text-accent underline-offset-2 hover:underline"
+            >
+              How tiebreakers work →
+            </Link>
           </p>
         </section>
 

@@ -294,10 +294,13 @@ export default function StatsContent({ tournamentStats, teamLeaderboards, standi
 
         {hasEventData && topScorers.length > 0 ? (
           <div className="rounded-xl border border-white/10 bg-navyCard overflow-hidden">
-            <div className="border-b border-white/10 bg-navy/50 px-4 py-3">
+            <div className="border-b border-white/10 bg-navy/50 px-4 py-3 flex items-center justify-between">
               <p className="font-heading text-xs font-extrabold uppercase tracking-widest text-white/60">
                 Top Scorers
               </p>
+              <Link href="/stats/top-scorers" className="font-heading text-xs font-bold uppercase tracking-wide text-accent hover:text-white transition">
+                Full list →
+              </Link>
             </div>
             <ul className="divide-y divide-white/5">
               {topScorers.map((scorer, i) => (

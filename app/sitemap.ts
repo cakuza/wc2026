@@ -65,6 +65,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${BASE}/privacy`,       lastModified: STATIC_DATE, changeFrequency: "monthly", priority: 0.3 },
     { url: `${BASE}/terms`,         lastModified: STATIC_DATE, changeFrequency: "monthly", priority: 0.3 },
 
+    // Cornerstone editorial guides
+    { url: `${BASE}/world-cup-2026-format-explained`,           lastModified: STATIC_DATE, changeFrequency: "monthly", priority: 0.7 },
+    { url: `${BASE}/world-cup-2026-group-tiebreakers`,          lastModified: STATIC_DATE, changeFrequency: "monthly", priority: 0.7 },
+    { url: `${BASE}/world-cup-2026-knockout-bracket-explained`, lastModified: STATIC_DATE, changeFrequency: "monthly", priority: 0.7 },
+    { url: `${BASE}/world-cup-2026-data-sources`,               lastModified: STATIC_DATE, changeFrequency: "monthly", priority: 0.5 },
+
     // Cluster pages
     ...groupPages,
     ...timezonePages,
