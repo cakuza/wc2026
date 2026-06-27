@@ -22,7 +22,7 @@ import {
 import { applyVerifiedGoalCorrections } from "./verifiedMatchEventCorrections";
 import { countryName } from "./i18n";
 
-export const LIVE_SNAPSHOT_CACHE_KEY = "worldcup-tournament-live-snapshot-v7";
+export const LIVE_SNAPSHOT_CACHE_KEY = "worldcup-tournament-live-snapshot-v8";
 export const LIVE_SNAPSHOT_REVALIDATE_SECONDS = 25;
 // Provider Data-Cache revalidate (seconds). Lazily driven by the snapshot
 // rebuild, so idle periods (snapshot cadence ~90s) refetch providers only at
