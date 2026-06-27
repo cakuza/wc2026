@@ -1,0 +1,296 @@
+{
+  "auditDate": "2026-06-27",
+  "auditedBy": "PR-8 factual-correctness rescue pass",
+  "scope": "All factual claims introduced in PR #8 (branch: adsense/editorial-value-v1)",
+  "claims": [
+    {
+      "id": "TC-01",
+      "file": "app/world-cup-2026-group-tiebreakers/page.tsx",
+      "claim": "Criterion 7 is 'Drawing of lots'",
+      "verdict": "FALSE",
+      "correction": "Criterion 7 is 'FIFA/Coca-Cola Men's World Ranking'",
+      "source": "FIFA 2026 Regulations, Article on Group Stage Tiebreakers",
+      "status": "FIXED"
+    },
+    {
+      "id": "TC-02",
+      "file": "app/world-cup-2026-group-tiebreakers/page.tsx",
+      "claim": "Disciplinary points: -1 per yellow card, -3 per red card",
+      "verdict": "UNVERIFIED — specific values not in publicly available FIFA 2026 regulations",
+      "correction": "Removed specific card point values; prose now describes the system without specifying unverified values",
+      "status": "FIXED"
+    },
+    {
+      "id": "TC-03",
+      "file": "app/world-cup-2026-knockout-bracket-explained/page.tsx",
+      "claim": "Round of 32 starts 2 July 2026",
+      "verdict": "FALSE",
+      "correction": "Round of 32 starts 28 June 2026",
+      "source": "Official FIFA WC2026 match schedule",
+      "status": "FIXED"
+    },
+    {
+      "id": "TC-04",
+      "file": "app/world-cup-2026-knockout-bracket-explained/page.tsx",
+      "claim": "Round of 16 starts 7–8 July 2026",
+      "verdict": "FALSE",
+      "correction": "Round of 16 starts 4–5 July 2026",
+      "source": "Official FIFA WC2026 match schedule",
+      "status": "FIXED"
+    },
+    {
+      "id": "TC-05",
+      "file": "app/world-cup-2026-knockout-bracket-explained/page.tsx",
+      "claim": "Group stage ends 1 July 2026",
+      "verdict": "FALSE",
+      "correction": "Group stage ends 27 June 2026",
+      "source": "Official FIFA WC2026 match schedule",
+      "status": "FIXED"
+    },
+    {
+      "id": "TC-06",
+      "file": "app/world-cup-2026-knockout-bracket-explained/page.tsx",
+      "claim": "MetLife Stadium is the largest stadium in the United States",
+      "verdict": "FALSE — contested; Michigan Stadium (107,601) and Beaver Stadium are larger by capacity",
+      "correction": "Removed the superlative claim; replaced with neutral 'designated final venue'",
+      "status": "FIXED"
+    },
+    {
+      "id": "TC-07",
+      "file": "app/world-cup-2026-format-explained/page.tsx",
+      "claim": "Group stage ends 2 July 2026",
+      "verdict": "FALSE",
+      "correction": "Group stage ends 27 June 2026",
+      "source": "Official FIFA WC2026 match schedule",
+      "status": "FIXED"
+    },
+    {
+      "id": "TC-08",
+      "file": "app/world-cup-2026-format-explained/page.tsx",
+      "claim": "Round of 32 begins 2 July 2026",
+      "verdict": "FALSE",
+      "correction": "Round of 32 begins 28 June 2026",
+      "source": "Official FIFA WC2026 match schedule",
+      "status": "FIXED"
+    },
+    {
+      "id": "TC-09",
+      "file": "app/world-cup-2026-format-explained/page.tsx",
+      "claim": "MetLife Stadium is the largest stadium in the US",
+      "verdict": "FALSE",
+      "correction": "Removed the claim",
+      "status": "FIXED"
+    },
+    {
+      "id": "TC-10",
+      "file": "app/world-cup-2026-format-explained/page.tsx",
+      "claim": "Tiebreaker last resort is 'drawing of lots'",
+      "verdict": "FALSE",
+      "correction": "Last resort is FIFA/Coca-Cola Men's World Ranking",
+      "status": "FIXED"
+    },
+    {
+      "id": "TC-11",
+      "file": "lib/groupEditorial.ts",
+      "claim": "Canada only qualified for 1986 World Cup",
+      "verdict": "FALSE — Canada also qualified and participated in 2022 World Cup",
+      "correction": "File deleted entirely",
+      "status": "FIXED"
+    },
+    {
+      "id": "TC-12",
+      "file": "lib/groupEditorial.ts",
+      "claim": "Australia reached quarter-finals at 2022 World Cup",
+      "verdict": "FALSE — Australia reached Round of 16 (lost to Argentina 2-1)",
+      "correction": "File deleted entirely",
+      "status": "FIXED"
+    },
+    {
+      "id": "TC-13",
+      "file": "lib/groupEditorial.ts",
+      "claim": "Netherlands vs Japan 2022 R16 rematch",
+      "verdict": "FALSE — Netherlands and Japan did not meet at 2022 World Cup",
+      "correction": "File deleted entirely",
+      "status": "FIXED"
+    },
+    {
+      "id": "TC-14",
+      "file": "lib/groupEditorial.ts",
+      "claim": "Norway last World Cup 2002",
+      "verdict": "FALSE — Norway's last World Cup was 1998 in France",
+      "correction": "File deleted entirely",
+      "status": "FIXED"
+    },
+    {
+      "id": "TC-15",
+      "file": "lib/groupEditorial.ts",
+      "claim": "Sweden missing 2018 World Cup",
+      "verdict": "FALSE — Sweden participated in 2018 World Cup in Russia",
+      "correction": "File deleted entirely",
+      "status": "FIXED"
+    },
+    {
+      "id": "TC-16",
+      "file": "lib/i18n.ts",
+      "claim": "England are in Group B",
+      "verdict": "FALSE — England are in Group L",
+      "correction": "Changed 'Group B' to 'Group L'",
+      "source": "Official FIFA WC2026 group draw",
+      "status": "FIXED"
+    },
+    {
+      "id": "TC-17",
+      "file": "lib/i18n.ts",
+      "claim": "US national team plays in Group A",
+      "verdict": "FALSE — US plays in Group D",
+      "correction": "Changed 'Group A' to 'Group D'",
+      "source": "Official FIFA WC2026 group draw",
+      "status": "FIXED"
+    },
+    {
+      "id": "TC-18",
+      "file": "lib/i18n.ts",
+      "claim": "AT&T Stadium (Dallas) is an East Coast venue",
+      "verdict": "FALSE — Dallas is in Texas (Central Time Zone, not East Coast)",
+      "correction": "Removed Dallas from the East Coast venue list; replaced with Lincoln Financial Field (Philadelphia)",
+      "status": "FIXED"
+    },
+    {
+      "id": "TC-19",
+      "file": "lib/i18n.ts",
+      "claim": "Australia reached the quarter-finals at the 2022 World Cup — their best-ever result",
+      "verdict": "FALSE — Australia reached the Round of 16 in 2022 (lost to Argentina); also reached R16 in 2006",
+      "correction": "Changed to 'Round of 16'; removed 'best-ever result' qualifier",
+      "status": "FIXED"
+    },
+    {
+      "id": "TC-20",
+      "file": "lib/i18n.ts",
+      "claim": "bracket_note date '2 Jul 2026' across all 8 languages",
+      "verdict": "FALSE — group stage ends 27 June, not 2 July",
+      "correction": "Updated all 8 language bracket_note entries to '27 Jun 2026' (or locale equivalents)",
+      "status": "FIXED"
+    },
+    {
+      "id": "TC-21",
+      "file": "lib/i18n.ts",
+      "claim": "WorldCupMatchDay is funded by Google AdSense advertising",
+      "verdict": "PREMATURE — AdSense application pending approval; this claim should not appear before approval",
+      "correction": "Removed 'funded by Google AdSense advertising' from about_p4",
+      "status": "FIXED"
+    },
+    {
+      "id": "TC-22",
+      "file": "app/faq/page.tsx",
+      "claim": "MetLife Stadium is the largest stadium in the United States with a capacity of over 82,500",
+      "verdict": "FALSE — multiple stadiums in the US have larger capacity (Michigan Stadium: 107,601+)",
+      "correction": "Changed to 'MetLife Stadium has an official capacity of approximately 82,500'",
+      "status": "FIXED"
+    },
+    {
+      "id": "TC-23",
+      "file": "app/faq/page.tsx",
+      "claim": "Tiebreaker criterion 7 is 'drawing of lots'",
+      "verdict": "FALSE",
+      "correction": "Changed to 'FIFA/Coca-Cola Men's World Ranking'",
+      "status": "FIXED"
+    },
+    {
+      "id": "TC-24",
+      "file": "app/faq/page.tsx",
+      "claim": "Rose Bowl (Pasadena) is a 2026 World Cup venue",
+      "verdict": "FALSE — the LA-area venue is SoFi Stadium; Rose Bowl is not a 2026 WC venue",
+      "correction": "Replaced 'Rose Bowl (Pasadena)' with 'Allegiant Stadium (Las Vegas)'",
+      "source": "Official FIFA WC2026 venue list",
+      "status": "FIXED"
+    },
+    {
+      "id": "TC-25",
+      "file": "app/faq/page.tsx",
+      "claim": "Levi's Stadium location listed as 'San Francisco'",
+      "verdict": "MISLEADING — Levi's Stadium is in Santa Clara, in the San Jose area, not San Francisco",
+      "correction": "Changed to 'Levi's Stadium (San Jose area)'",
+      "status": "FIXED"
+    },
+    {
+      "id": "TC-26",
+      "file": "app/faq/page.tsx",
+      "claim": "Group stage ends 1 July 2026 / R32 starts 2 July 2026",
+      "verdict": "FALSE",
+      "correction": "Updated to 27 June / 28 June respectively",
+      "status": "FIXED"
+    },
+    {
+      "id": "TC-27",
+      "file": "app/contact/page.tsx",
+      "claim": "WorldCupMatchDay is run by a small independent team",
+      "verdict": "UNVERIFIABLE — 'small team' implies staffing not publicly disclosed",
+      "correction": "Changed to 'WorldCupMatchDay is an independent fan site'",
+      "status": "FIXED"
+    },
+    {
+      "id": "TC-28",
+      "file": "app/contact/page.tsx",
+      "claim": "We aim to respond within 24 hours",
+      "verdict": "UNVERIFIABLE SLA — cannot guarantee 24h response",
+      "correction": "Changed to 'We review messages as time allows'",
+      "status": "FIXED"
+    },
+    {
+      "id": "TC-29",
+      "file": "app/contact/page.tsx",
+      "claim": "Example 'England vs Scotland, Group B'",
+      "verdict": "FALSE — England are in Group L, not Group B; Scotland are in Group C, not B",
+      "correction": "Changed to 'France vs Senegal, Group I'",
+      "status": "FIXED"
+    },
+    {
+      "id": "TC-30",
+      "file": "app/world-cup-2026-data-sources/page.tsx",
+      "claim": "Advertising is served by Google AdSense",
+      "verdict": "PREMATURE — AdSense application pending; claim should not appear before approval",
+      "correction": "Removed the entire AdSense advertising paragraph from Independence Disclosure section",
+      "status": "FIXED"
+    },
+    {
+      "id": "TC-31",
+      "file": "app/world-cup-2026-data-sources/page.tsx",
+      "claim": "We aim to respond within 24 hours",
+      "verdict": "UNVERIFIABLE SLA",
+      "correction": "Changed to 'We review reports and aim to respond as promptly as we can'",
+      "status": "FIXED"
+    },
+    {
+      "id": "TC-32",
+      "file": "app/world-cup-2026-data-sources/page.tsx",
+      "claim": "Example 'England vs Scotland, Group B'",
+      "verdict": "FALSE — same as TC-29",
+      "correction": "Changed to 'France vs Senegal, Group I'",
+      "status": "FIXED"
+    },
+    {
+      "id": "TC-33",
+      "file": "app/world-cup-third-place-qualification/page.tsx",
+      "claim": "Best third-placed teams ranked by points, goal difference, goals scored only",
+      "verdict": "INCOMPLETE — FIFA criteria also include disciplinary record and FIFA ranking",
+      "correction": "Added criteria 4 (disciplinary record) and 5 (FIFA/Coca-Cola Men's World Ranking)",
+      "status": "FIXED"
+    }
+  ],
+  "summary": {
+    "total": 33,
+    "fixed": 33,
+    "remaining": 0,
+    "categories": {
+      "wrong_dates": 7,
+      "wrong_groups": 4,
+      "wrong_venues": 3,
+      "wrong_history": 5,
+      "wrong_tiebreaker": 4,
+      "premature_commercial_claims": 3,
+      "unverifiable_sla": 3,
+      "incomplete_criteria": 1,
+      "false_superlatives": 3
+    }
+  }
+}

@@ -36,7 +36,7 @@ const FAQS = [
   },
   {
     q: "How do I report a data error?",
-    a: "Email us at worldcupmatchday@proton.me. Please include the match name, the incorrect data you see, and the correct information with a source if possible. We aim to respond within 24 hours during the tournament period (11 June – 19 July 2026).",
+    a: "Email us at worldcupmatchday@proton.me. Please include the match name, the incorrect data you see, and the correct information with a source if possible. We review reports and aim to respond as promptly as we can during the tournament period (11 June – 19 July 2026).",
   },
   {
     q: "What happens if your data source is down?",
@@ -171,11 +171,6 @@ export default function DataSourcesPage() {
             is produced independently and is not influenced by any commercial or official relationship
             with tournament bodies.
           </p>
-          <p>
-            Advertising is served by Google AdSense. Ad content is not endorsed by WorldCupMatchDay
-            and we do not control which advertisements appear. Our editorial decisions are entirely
-            independent of advertising.
-          </p>
         </Section>
 
         <Section title="How to Report a Correction">
@@ -191,12 +186,12 @@ export default function DataSourcesPage() {
             . Include:
           </p>
           <ul className="ml-4 list-disc space-y-1 text-white/60">
-            <li>The match name (e.g. &quot;England vs Scotland, Group B&quot;)</li>
+            <li>The match name (e.g. &quot;France vs Senegal, Group I&quot;)</li>
             <li>What you see that appears incorrect</li>
             <li>The correct information, with a source reference if possible</li>
           </ul>
           <p>
-            We aim to respond within 24 hours during the tournament period (11 June – 19 July 2026).
+            We review reports and aim to respond as promptly as we can during the tournament period (11 June – 19 July 2026).
             Confirmed corrections are applied to our verified corrections file and take effect on the
             next data sync.
           </p>

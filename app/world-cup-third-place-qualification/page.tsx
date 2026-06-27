@@ -149,9 +149,7 @@ export default async function ThirdPlaceQualificationPage() {
             What decides the best third-placed teams?
           </h2>
           <p className="text-sm leading-relaxed text-white/70">
-            Best third-placed teams are ranked here using points, goal difference and goals scored. Exact order can remain
-            unresolved when teams are level on the available criteria because fair-play and full official tie-break inputs are
-            not available in this table. The ranking above updates after completed matches are synced and is not final until all group-stage matches are complete.
+            Best third-placed teams are ranked by: (1) points, (2) goal difference, (3) goals scored — all from their three group matches. If still level: (4) disciplinary record (team conduct score) and (5) FIFA/Coca-Cola Men&apos;s World Ranking. Exact order can remain unresolved in live display because some tie-break inputs are not available until all group-stage matches are complete. The ranking above updates after completed matches are synced.
           </p>
         </section>
 

@@ -6,12 +6,12 @@ const BASE_URL = "https://www.worldcupmatchday.com";
 export const metadata: Metadata = {
   title: "World Cup 2026 Group Stage Tiebreakers Explained",
   description:
-    "How World Cup 2026 group stage tiebreakers work: the full FIFA criteria order for separating teams level on points, including head-to-head, goal difference, fair play, and drawing of lots.",
+    "How World Cup 2026 group stage tiebreakers work: the full FIFA criteria order for separating teams level on points, including head-to-head, goal difference, fair play record, and FIFA/Coca-Cola World Ranking.",
   alternates: { canonical: `${BASE_URL}/world-cup-2026-group-tiebreakers` },
   openGraph: {
     title: "World Cup 2026 Group Stage Tiebreakers Explained",
     description:
-      "The full FIFA criteria used to separate teams tied on points at the 2026 World Cup group stage — from head-to-head to drawing of lots.",
+      "The full FIFA criteria used to separate teams tied on points at the 2026 World Cup group stage — from head-to-head results to FIFA/Coca-Cola World Ranking.",
     url: `${BASE_URL}/world-cup-2026-group-tiebreakers`,
     type: "website",
   },
@@ -20,7 +20,7 @@ export const metadata: Metadata = {
 const FAQS = [
   {
     q: "What happens if two teams are tied on points in a World Cup 2026 group?",
-    a: "FIFA first looks at head-to-head results between the tied teams: points from the match(es) between them, then goal difference in those matches, then goals scored. If still level, overall goal difference and goals scored across all group matches are used. Disciplinary records and a drawing of lots are the final resorts.",
+    a: "FIFA first looks at head-to-head results between the tied teams: points from the match(es) between them, then goal difference in those matches, then goals scored. If still level, overall goal difference and goals scored across all group matches are used. The disciplinary record (team conduct score) is then applied, and the FIFA/Coca-Cola Men's World Ranking as a final differentiator.",
   },
   {
     q: "Does goal difference or head-to-head come first in the 2026 World Cup?",
@@ -28,19 +28,19 @@ const FAQS = [
   },
   {
     q: "What are the full FIFA tiebreaker criteria for World Cup 2026?",
-    a: "In order: (1) Points in head-to-head matches, (2) Goal difference in head-to-head matches, (3) Goals scored in head-to-head matches, (4) Goal difference in all group matches, (5) Goals scored in all group matches, (6) Disciplinary record (yellow/red cards), (7) Drawing of lots.",
+    a: "In order: (1) Points in head-to-head matches, (2) Goal difference in head-to-head matches, (3) Goals scored in head-to-head matches, (4) Goal difference in all group matches, (5) Goals scored in all group matches, (6) Disciplinary record (team conduct score), (7) FIFA/Coca-Cola Men's World Ranking.",
   },
   {
     q: "When do tiebreakers apply to three or more teams?",
-    a: "When three or more teams are tied on points, the head-to-head record among only those tied teams is used first. If the tie is partially resolved (some teams separate), the criteria restart for the remaining tied teams. If still level across all criteria, FIFA draws lots.",
+    a: "When three or more teams are tied on points, the head-to-head record among only those tied teams is used first. If the tie is partially resolved (some teams separate), the criteria restart for the remaining tied teams. If still level across all criteria, FIFA applies the FIFA/Coca-Cola Men's World Ranking as a final differentiator.",
   },
   {
     q: "What is the fair play tiebreaker at the World Cup?",
-    a: "If teams are still tied after points, goal difference, and goals scored in both head-to-head and overall matches, FIFA applies a disciplinary point system: a yellow card is −1 point, a red card (direct) is −3, a yellow followed by red is −3, and two yellows leading to a red are −3. The team with the higher (less negative) disciplinary score advances.",
+    a: "If teams are still tied after points, goal difference, and goals scored in both head-to-head and overall matches, FIFA applies a disciplinary points system based on cards received across all group matches. The team with the better (less negative) disciplinary record advances. If still equal, the FIFA/Coca-Cola Men's World Ranking is used as a final differentiator.",
   },
   {
     q: "Can third-placed teams also be separated by tiebreakers?",
-    a: "The ranking of third-placed teams uses the same criteria as group standings, but only considering matches played within the group stage. The eight best third-placed teams across all 12 groups qualify, ranked by points, then goal difference, then goals scored across their three group matches.",
+    a: "The ranking of third-placed teams does not use head-to-head (teams come from different groups). Instead it applies: (1) points, (2) goal difference, (3) goals scored — all from three group matches. If still level: (4) disciplinary record (team conduct score) and (5) FIFA/Coca-Cola Men's World Ranking. The eight best-ranked of the twelve third-placed teams advance.",
   },
 ];
 
@@ -91,13 +91,13 @@ const CRITERIA = [
   },
   {
     step: "6",
-    title: "Disciplinary record",
-    body: "Each yellow card is −1 point; a direct red card is −3; a yellow-then-red is −3; two yellows leading to a red are −3. The team with the higher (less negative) total advances. This criterion rewards clean play throughout the group stage.",
+    title: "Disciplinary record (team conduct score)",
+    body: "FIFA applies a disciplinary points system based on yellow and red cards received across all group matches. The team with the better (less negative) disciplinary record advances. This criterion rewards clean play throughout the group stage.",
   },
   {
     step: "7",
-    title: "Drawing of lots",
-    body: "If all six criteria above are still identical, FIFA's Organising Committee draws lots to separate the teams. This is an extremely rare outcome and has occurred only a handful of times in World Cup history.",
+    title: "FIFA/Coca-Cola Men's World Ranking",
+    body: "If all six criteria above are still identical, FIFA uses the latest FIFA/Coca-Cola Men's World Ranking to separate the teams. The higher-ranked team advances. This is an extremely rare scenario — the ranking almost always provides differentiation before this point.",
   },
 ];
 
@@ -180,8 +180,9 @@ export default function GroupTiebreakersPage() {
           <p className="text-sm leading-relaxed text-white/60">
             When ranking the eight best third-placed teams to fill the remaining Round of 32 slots, FIFA
             does not use head-to-head (since these teams come from different groups and never played each
-            other). Instead it uses: points, then overall goal difference, then overall goals scored —
-            all across the three group-stage matches only.
+            other). Instead it uses: (1) points, (2) goal difference, (3) goals scored — all across the
+            three group-stage matches only. If still level: (4) disciplinary record (team conduct score),
+            and (5) FIFA/Coca-Cola Men&apos;s World Ranking.
           </p>
           <p className="mt-2 text-sm leading-relaxed text-white/60">
             This means every goal in the group stage can matter for a third-placed team, since both goal

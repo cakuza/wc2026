@@ -18,7 +18,7 @@ const FAQS: { q: string; a: string }[] = [
   },
   {
     q: "Where is the 2026 World Cup final?",
-    a: "MetLife Stadium in East Rutherford, New Jersey, on July 19, 2026. MetLife Stadium is the largest stadium in the United States with a capacity of over 82,500.",
+    a: "MetLife Stadium in East Rutherford, New Jersey, on July 19, 2026. MetLife Stadium has an official capacity of approximately 82,500.",
   },
   {
     q: "How many matches are in the 2026 World Cup?",
@@ -38,15 +38,15 @@ const FAQS: { q: string; a: string }[] = [
   },
   {
     q: "What tiebreakers are used in the group stage?",
-    a: "Teams level on points are separated in this order: (1) head-to-head points between the tied teams, (2) head-to-head goal difference, (3) head-to-head goals scored, (4) overall goal difference, (5) overall goals scored, (6) disciplinary record, (7) drawing of lots. Head-to-head results come before overall goal difference.",
+    a: "Teams level on points are separated in this order: (1) head-to-head points between the tied teams, (2) head-to-head goal difference, (3) head-to-head goals scored, (4) overall goal difference, (5) overall goals scored, (6) disciplinary record (team conduct score), (7) FIFA/Coca-Cola Men's World Ranking. Head-to-head results come before overall goal difference.",
   },
   {
     q: "Which stadiums host 2026 World Cup matches?",
-    a: "16 stadiums across the US, Canada and Mexico. US venues include MetLife Stadium (NJ), AT&T Stadium (Dallas), SoFi Stadium (LA), Levi's Stadium (San Francisco), Mercedes-Benz Stadium (Atlanta), Gillette Stadium (Boston), Arrowhead Stadium (Kansas City), Lincoln Financial Field (Philadelphia), Rose Bowl (Pasadena), Hard Rock Stadium (Miami), and NRG Stadium (Houston). Canada hosts BMO Field (Toronto) and BC Place (Vancouver). Mexico hosts Estadio Azteca, Estadio Akron (Guadalajara) and Estadio BBVA (Monterrey).",
+    a: "16 stadiums across the US, Canada and Mexico. US venues include MetLife Stadium (NJ), AT&T Stadium (Dallas), SoFi Stadium (LA), Levi's Stadium (San Jose area), Mercedes-Benz Stadium (Atlanta), Gillette Stadium (Boston), Arrowhead Stadium (Kansas City), Lincoln Financial Field (Philadelphia), Allegiant Stadium (Las Vegas), Hard Rock Stadium (Miami), and NRG Stadium (Houston). Canada hosts BMO Field (Toronto) and BC Place (Vancouver). Mexico hosts Estadio Azteca, Estadio Akron (Guadalajara) and Estadio BBVA (Monterrey).",
   },
   {
     q: "When are knockout bracket fixtures confirmed?",
-    a: "Bracket matchups are set by FIFA before the tournament (which group position faces which), but the specific teams are only known once the group stage ends on 1 July 2026. All 16 Round of 32 matchups are confirmed simultaneously on that date.",
+    a: "Bracket matchups are set by FIFA before the tournament (which group position faces which), but the specific teams are only known once the group stage ends on 27 June 2026. All 32 Round of 32 matchups are confirmed simultaneously on that date.",
   },
   {
     q: "What happens if a knockout match ends in a draw?",
@@ -74,7 +74,7 @@ const FAQS: { q: string; a: string }[] = [
   },
   {
     q: "When does the 2026 World Cup knockout stage start?",
-    a: "The Round of 32 begins on 2 July 2026, the day after the last group-stage matches finish (1 July). The final is on 19 July, making the tournament 39 days long in total.",
+    a: "The Round of 32 begins on 28 June 2026, once the group stage concludes on 27 June. The final is on 19 July, making the tournament 39 days long in total.",
   },
   {
     q: "How many host nations have won the World Cup on home soil?",
@@ -82,7 +82,7 @@ const FAQS: { q: string; a: string }[] = [
   },
   {
     q: "How do I report a score or data error?",
-    a: "Email worldcupmatchday@proton.me with the match name and the correct information. We aim to respond within 24 hours during the tournament period. See the Data Sources page for full information on our data flow and correction process.",
+    a: "Email worldcupmatchday@proton.me with the match name and the correct information. We review reports and aim to respond as promptly as we can. See the Data Sources page for full information on our data flow and correction process.",
   },
 ];
 

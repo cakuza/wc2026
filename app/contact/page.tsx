@@ -19,7 +19,7 @@ export default function ContactPage() {
 
       <div className="space-y-5 text-sm leading-relaxed text-white/70">
         <p>
-          WorldCupMatchDay is run by a small independent team. Whether you&apos;ve spotted a data error,
+          WorldCupMatchDay is an independent fan site. Whether you&apos;ve spotted a data error,
           have a feature suggestion, want to report incorrect match information, or just want to say
           hello — drop us an email and we&apos;ll get back to you as soon as we can.
         </p>
@@ -35,7 +35,7 @@ export default function ContactPage() {
             worldcupmatchday@proton.me
           </a>
           <p className="mt-3 text-xs text-white/40">
-            We aim to respond within 24 hours during the tournament period (11 June – 19 July 2026).
+            We review messages as time allows during the tournament period (11 June – 19 July 2026).
           </p>
         </div>
 
@@ -48,7 +48,7 @@ export default function ContactPage() {
             time — please include the following in your message:
           </p>
           <ul className="mt-2 ml-4 list-disc space-y-1 text-sm text-white/50">
-            <li>The match name (e.g. &quot;England vs Scotland, Group B&quot;)</li>
+            <li>The match name (e.g. &quot;France vs Senegal, Group I&quot;)</li>
             <li>What you see that appears incorrect</li>
             <li>The correct information, with a source reference if possible (e.g. a link to the official
               match record or a broadcaster report)</li>

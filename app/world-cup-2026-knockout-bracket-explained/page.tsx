@@ -20,7 +20,7 @@ export const metadata: Metadata = {
 const FAQS = [
   {
     q: "When does the 2026 World Cup knockout stage start?",
-    a: "The Round of 32 begins on 2 July 2026, the day after the last group-stage matches finish on 1 July 2026. All 16 Round of 32 matches are played over four days.",
+    a: "The Round of 32 begins on 28 June 2026, once the group stage concludes on 27 June 2026. All 16 Round of 32 matches are played over four days.",
   },
   {
     q: "How many rounds are in the 2026 World Cup knockout stage?",
@@ -32,11 +32,11 @@ const FAQS = [
   },
   {
     q: "When is the 2026 World Cup final?",
-    a: "19 July 2026 at MetLife Stadium in East Rutherford, New Jersey — the largest stadium in the United States.",
+    a: "19 July 2026 at MetLife Stadium in East Rutherford, New Jersey.",
   },
   {
     q: "When are knockout bracket fixtures confirmed?",
-    a: "Knockout bracket matchups are confirmed once the group stage is complete on 1 July 2026. The bracket slots are based on group finishing positions, so all 32 slots become known simultaneously when the last group matches finish.",
+    a: "Knockout bracket matchups are confirmed once the group stage is complete on 27 June 2026. The bracket slots are based on group finishing positions, so all 32 slots become known simultaneously when the last group matches finish.",
   },
   {
     q: "Is there a third-place match at the 2026 World Cup?",
@@ -71,14 +71,14 @@ const ROUNDS = [
   {
     round: "Round of 32",
     matches: "16 matches",
-    dates: "2–5 July 2026",
+    dates: "28 June – 1 July 2026",
     teams: "32 teams",
     body: "The first knockout round — new for 2026. All 24 group winners and runners-up plus the 8 best third-placed teams enter. The bracket pairings are determined by group finishing position and are set by FIFA before the tournament begins.",
   },
   {
     round: "Round of 16",
     matches: "8 matches",
-    dates: "7–8 July 2026 (approx.)",
+    dates: "4–5 July 2026",
     teams: "16 teams",
     body: "Winners of the Round of 32 advance. Matches continue to follow the pre-set bracket, so the two halves of the bracket remain separate until the final.",
   },
@@ -108,7 +108,7 @@ const ROUNDS = [
     matches: "1 match",
     dates: "19 July 2026",
     teams: "2 teams",
-    body: "MetLife Stadium, East Rutherford, New Jersey. The largest stadium in the United States hosts the deciding match of the biggest World Cup in history.",
+    body: "MetLife Stadium, East Rutherford, New Jersey. The designated final venue hosts the deciding match of the biggest World Cup in history.",
   },
 ];
 
@@ -126,7 +126,7 @@ export default function KnockoutBracketExplainedPage() {
           Knockout Bracket Explained
         </h1>
         <p className="mb-8 max-w-2xl text-sm text-white/55">
-          Once the group stage ends on 1 July 2026, 32 teams enter the knockout stage. Every match from
+          Once the group stage ends on 27 June 2026, 32 teams enter the knockout stage. Every match from
           this point is win-or-go-home — no draws, no second chances. Here is how the bracket works,
           when fixtures are confirmed, and what dates lead to the final.
         </p>
@@ -137,7 +137,7 @@ export default function KnockoutBracketExplainedPage() {
             { k: "Knockout teams", v: "32" },
             { k: "Knockout matches", v: "32" },
             { k: "Rounds", v: "5 + 3rd place" },
-            { k: "Start", v: "2 Jul 2026" },
+            { k: "Start", v: "28 Jun 2026" },
             { k: "Final", v: "19 Jul 2026" },
             { k: "Final venue", v: "MetLife Stadium" },
           ].map((f) => (
@@ -162,7 +162,7 @@ export default function KnockoutBracketExplainedPage() {
             <p>
               Third-placed teams are ranked by points, then goal difference, then goals scored in their
               three group matches. The ranking is only finalised once the last group-stage matches
-              finish on 1 July 2026 — which means the identity of all 32 bracket participants is
+              finish on 27 June 2026 — which means the identity of all 32 bracket participants is
               confirmed simultaneously on that date.
             </p>
           </div>
@@ -218,7 +218,7 @@ export default function KnockoutBracketExplainedPage() {
           <p className="text-sm leading-relaxed text-white/60">
             The bracket structure — which group position faces which — is set by FIFA before the
             tournament. The specific teams filling each slot are only known once the group stage ends.
-            On 1 July 2026, the last group matches finish, and at that point all 32 Round of 32 matchups
+            On 27 June 2026, the last group matches finish, and at that point all 32 Round of 32 matchups
             are simultaneously confirmed. The{" "}
             <Link href="/bracket" className="text-accent hover:underline">
               bracket page

@@ -28,7 +28,7 @@ const FAQS = [
   },
   {
     q: "What happens if teams are level on points in the group stage?",
-    a: "Tied teams are first separated by head-to-head results between them, then by overall goal difference, then goals scored. If still tied, FIFA uses disciplinary records and, as a last resort, a drawing of lots. See our full tiebreaker guide for exact criteria.",
+    a: "Tied teams are first separated by head-to-head results between them, then by overall goal difference, then goals scored. If still tied, FIFA uses disciplinary records and the FIFA/Coca-Cola Men's World Ranking as a final differentiator. See our full tiebreaker guide for exact criteria.",
   },
   {
     q: "How many matches are in the 2026 World Cup?",
@@ -130,7 +130,7 @@ export default function FormatExplainedPage() {
           </p>
           <p>
             72 matches make up the group stage — each of the 12 groups producing six matches between
-            its four teams. Groups run from 11 June to 2 July 2026.
+            its four teams. Groups run from 11 June to 27 June 2026.
           </p>
         </Section>
 
@@ -163,11 +163,10 @@ export default function FormatExplainedPage() {
           </p>
           <p>
             There is also a Third-Place match between the two losing semi-finalists. The Final takes
-            place on 19 July 2026 at MetLife Stadium in East Rutherford, New Jersey — the largest
-            stadium in the US.
+            place on 19 July 2026 at MetLife Stadium in East Rutherford, New Jersey.
           </p>
           <p>
-            The Round of 32 begins on 2 July 2026, the day after all group matches are complete.
+            The Round of 32 begins on 28 June 2026, once the group stage concludes on 27 June.
             Bracket matchups are determined by group finishing positions and confirmed once the group
             stage ends.
           </p>
