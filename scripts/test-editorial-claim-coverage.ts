@@ -110,7 +110,8 @@ console.log("\n[Sources] URL quality");
 const GENERIC_HOMEPAGE = "https://www.fifa.com";
 const ALLOWED_SOURCES = [
   "https://www.fifa.com/en/tournaments/mens/worldcup/canada-mexico-usa-2026",
-  "https://digitalhub.fifa.com/",
+  "https://www.fifa.com/en/articles/",
+  "https://legal.fifa.com/",
 ];
 
 const verifiedClaims = activeClaims.filter((c) => c.verdict === "VERIFIED");
@@ -141,7 +142,8 @@ const specificSources = verifiedClaims.filter(
     (c.sourceUrl.startsWith(
       "https://www.fifa.com/en/tournaments/mens/worldcup/",
     ) ||
-      c.sourceUrl.startsWith("https://digitalhub.fifa.com/")),
+      c.sourceUrl.startsWith("https://www.fifa.com/en/articles/") ||
+      c.sourceUrl.startsWith("https://legal.fifa.com/")),
 );
 check(
   "all VERIFIED sources use specific FIFA pages (not root domain)",

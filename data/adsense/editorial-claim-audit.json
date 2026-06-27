@@ -135,7 +135,7 @@
       "file": "app/world-cup-2026-group-tiebreakers/page.tsx",
       "claim": "Head-to-head results come before overall goal difference in FIFA 2026 tiebreakers",
       "verdict": "VERIFIED",
-      "sourceUrl": "https://digitalhub.fifa.com/m/5371c48e7befe/original/FIFA_World_Cup_2026_Competition_Regulations_EN.pdf",
+      "sourceUrl": "https://www.fifa.com/en/articles/groups-how-teams-qualify-tie-breakers",
       "sourceDate": "2026-06-27"
     },
     {
@@ -143,7 +143,7 @@
       "file": "app/world-cup-2026-group-tiebreakers/page.tsx",
       "claim": "7 tiebreaker criteria in order: (1) h-t-h points, (2) h-t-h GD, (3) h-t-h goals scored, (4) overall GD, (5) overall goals scored, (6) disciplinary record, (7) FIFA/Coca-Cola Men's World Ranking",
       "verdict": "VERIFIED",
-      "sourceUrl": "https://digitalhub.fifa.com/m/5371c48e7befe/original/FIFA_World_Cup_2026_Competition_Regulations_EN.pdf",
+      "sourceUrl": "https://www.fifa.com/en/articles/groups-how-teams-qualify-tie-breakers",
       "sourceDate": "2026-06-27"
     },
     {
@@ -151,7 +151,7 @@
       "file": "app/world-cup-2026-group-tiebreakers/page.tsx",
       "claim": "Third-placed team ranking does not use head-to-head; uses (1) points (2) GD (3) goals (4) disciplinary (5) FIFA/Coca-Cola Men's World Ranking",
       "verdict": "VERIFIED",
-      "sourceUrl": "https://digitalhub.fifa.com/m/5371c48e7befe/original/FIFA_World_Cup_2026_Competition_Regulations_EN.pdf",
+      "sourceUrl": "https://www.fifa.com/en/articles/groups-how-teams-qualify-tie-breakers",
       "sourceDate": "2026-06-27"
     },
     {
@@ -223,7 +223,7 @@
       "file": "app/world-cup-2026-knockout-bracket-explained/page.tsx",
       "claim": "Extra time = two 15-minute halves; penalty shootout if still level after extra time",
       "verdict": "VERIFIED",
-      "sourceUrl": "https://digitalhub.fifa.com/m/5371c48e7befe/original/FIFA_World_Cup_2026_Competition_Regulations_EN.pdf",
+      "sourceUrl": "https://legal.fifa.com/en/official-documents",
       "sourceDate": "2026-06-27"
     },
     {
@@ -231,7 +231,7 @@
       "file": "app/world-cup-2026-knockout-bracket-explained/page.tsx",
       "claim": "Penalty shootout: 5 kicks per team alternately; sudden death if still level",
       "verdict": "VERIFIED",
-      "sourceUrl": "https://digitalhub.fifa.com/m/5371c48e7befe/original/FIFA_World_Cup_2026_Competition_Regulations_EN.pdf",
+      "sourceUrl": "https://legal.fifa.com/en/official-documents",
       "sourceDate": "2026-06-27"
     },
     {
@@ -239,7 +239,7 @@
       "file": "app/world-cup-2026-knockout-bracket-explained/page.tsx",
       "claim": "No golden goal or silver goal rule; both halves of extra time are played regardless of who scores",
       "verdict": "VERIFIED",
-      "sourceUrl": "https://digitalhub.fifa.com/m/5371c48e7befe/original/FIFA_World_Cup_2026_Competition_Regulations_EN.pdf",
+      "sourceUrl": "https://legal.fifa.com/en/official-documents",
       "sourceDate": "2026-06-27"
     },
     {
@@ -367,7 +367,7 @@
       "file": "app/faq/page.tsx",
       "claim": "7 group tiebreaker criteria in order: (1) h-t-h points, (2) h-t-h GD, (3) h-t-h goals, (4) overall GD, (5) overall goals, (6) disciplinary, (7) FIFA/Coca-Cola Men's World Ranking",
       "verdict": "VERIFIED",
-      "sourceUrl": "https://digitalhub.fifa.com/m/5371c48e7befe/original/FIFA_World_Cup_2026_Competition_Regulations_EN.pdf",
+      "sourceUrl": "https://www.fifa.com/en/articles/groups-how-teams-qualify-tie-breakers",
       "sourceDate": "2026-06-27"
     },
     {
@@ -416,7 +416,7 @@
       "file": "app/faq/page.tsx",
       "claim": "Extra time = two 15-minute halves; no golden goal; penalty shootout if still level",
       "verdict": "VERIFIED",
-      "sourceUrl": "https://digitalhub.fifa.com/m/5371c48e7befe/original/FIFA_World_Cup_2026_Competition_Regulations_EN.pdf",
+      "sourceUrl": "https://legal.fifa.com/en/official-documents",
       "sourceDate": "2026-06-27"
     },
     {
@@ -461,7 +461,7 @@
       "file": "app/world-cup-third-place-qualification/page.tsx",
       "claim": "Best third-placed teams ranked: (1) points (2) goal difference (3) goals scored — from three group matches. If level: (4) disciplinary record (5) FIFA/Coca-Cola Men's World Ranking",
       "verdict": "VERIFIED",
-      "sourceUrl": "https://digitalhub.fifa.com/m/5371c48e7befe/original/FIFA_World_Cup_2026_Competition_Regulations_EN.pdf",
+      "sourceUrl": "https://www.fifa.com/en/articles/groups-how-teams-qualify-tie-breakers",
       "sourceDate": "2026-06-27"
     },
     {
@@ -713,7 +713,7 @@
     "outdatedClaims": 0,
     "misleadingClaims": 0,
     "officialSourceLinks": {
-      "total": 4,
+      "total": 5,
       "links": [
         {
           "url": "https://www.fifa.com/en/tournaments/mens/worldcup/canada-mexico-usa-2026",
@@ -734,10 +734,16 @@
           "supports": ["16 official venues", "official venue names", "final venue"]
         },
         {
-          "url": "https://digitalhub.fifa.com/m/5371c48e7befe/original/FIFA_World_Cup_2026_Competition_Regulations_EN.pdf",
-          "description": "FIFA World Cup 2026 Competition Regulations (official PDF)",
-          "httpAccessNote": "URL structure verified; FIFA digital hub blocks automated HTTP access.",
-          "supports": ["tiebreaker criteria order", "extra time rules", "penalty shootout rules", "third-place ranking"]
+          "url": "https://www.fifa.com/en/articles/groups-how-teams-qualify-tie-breakers",
+          "description": "FIFA: Groups — How Teams Qualify & Tie-Breakers (official article)",
+          "httpAccessNote": "URL returns 200 directly.",
+          "supports": ["tiebreaker criteria order", "third-place ranking"]
+        },
+        {
+          "url": "https://legal.fifa.com/en/official-documents",
+          "description": "FIFA Official Documents",
+          "httpAccessNote": "URL returns 200 directly.",
+          "supports": ["extra time rules", "penalty shootout rules"]
         }
       ]
     },

@@ -249,9 +249,9 @@ export default function GroupTiebreakersPage() {
           </h2>
           <ul className="space-y-1 text-xs leading-relaxed text-white/50">
             <li>
-              <a href="https://digitalhub.fifa.com/m/5371c48e7befe/original/FIFA_World_Cup_2026_Competition_Regulations_EN.pdf" target="_blank" rel="noopener noreferrer" className="underline underline-offset-2 hover:text-white/70 transition">
-                FIFA World Cup 2026 Competition Regulations (PDF)
-              </a>{" "}— official tiebreaker criteria (Articles on Group Stage)
+              <a href="https://www.fifa.com/en/articles/groups-how-teams-qualify-tie-breakers" target="_blank" rel="noopener noreferrer" className="underline underline-offset-2 hover:text-white/70 transition">
+                FIFA: Groups — How Teams Qualify &amp; Tie-Breakers
+              </a>{" "}— official group qualification and tiebreaker criteria
             </li>
             <li>
               <a href="https://www.fifa.com/en/tournaments/mens/worldcup/canada-mexico-usa-2026" target="_blank" rel="noopener noreferrer" className="underline underline-offset-2 hover:text-white/70 transition">

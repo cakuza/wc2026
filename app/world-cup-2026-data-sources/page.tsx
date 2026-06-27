@@ -213,9 +213,9 @@ export default function DataSourcesPage() {
               </a>{" "}— official venue information
             </li>
             <li>
-              <a href="https://digitalhub.fifa.com/m/5371c48e7befe/original/FIFA_World_Cup_2026_Competition_Regulations_EN.pdf" target="_blank" rel="noopener noreferrer" className="underline underline-offset-2 hover:text-white/70 transition">
-                FIFA World Cup 2026 Competition Regulations (PDF)
-              </a>{" "}— official format, tiebreaker and qualification rules
+              <a href="https://legal.fifa.com/en/official-documents" target="_blank" rel="noopener noreferrer" className="underline underline-offset-2 hover:text-white/70 transition">
+                FIFA Official Documents
+              </a>{" "}— official competition regulations and rules
             </li>
           </ul>
         </section>
