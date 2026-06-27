@@ -66,8 +66,13 @@ for (const city of OFFICIAL_HOST_CITIES) {
   check(`FAQ contains host city: ${city}`, faq.includes(city));
 }
 
-// Lumen Field (Seattle) must be present
-check("Lumen Field (Seattle) present in FAQ", faq.includes("Lumen Field"));
+// Seattle Stadium must appear as the primary official FIFA name
+check("Seattle Stadium (primary) present in FAQ", faq.includes("Seattle Stadium"));
+// Lumen Field may appear as parenthetical only — not as the standalone primary name
+check(
+  "Lumen Field not primary in FAQ (commercial name must be parenthetical)",
+  !faq.includes("Lumen Field (Seattle)"),
+);
 
 // NNJ Stadium as primary name
 check(

@@ -42,7 +42,7 @@ const FAQS: { q: string; a: string }[] = [
   },
   {
     q: "Which stadiums host 2026 World Cup matches?",
-    a: "16 stadiums across the US, Canada and Mexico. US venues: New York New Jersey Stadium (New York/New Jersey), AT&T Stadium (Dallas), Los Angeles Stadium (Los Angeles), San Francisco Bay Area Stadium (San Francisco Bay Area), Mercedes-Benz Stadium (Atlanta), Gillette Stadium (Boston), Arrowhead Stadium (Kansas City), Lincoln Financial Field (Philadelphia), Lumen Field (Seattle), Hard Rock Stadium (Miami), and NRG Stadium (Houston). Canada: BMO Field (Toronto) and BC Place (Vancouver). Mexico: Estadio Azteca (Mexico City), Estadio Akron (Guadalajara) and Estadio BBVA (Monterrey).",
+    a: "16 stadiums across the US, Canada and Mexico. US venues: New York New Jersey Stadium (New York/New Jersey), AT&T Stadium (Dallas), Los Angeles Stadium (Los Angeles), San Francisco Bay Area Stadium (San Francisco Bay Area), Mercedes-Benz Stadium (Atlanta), Gillette Stadium (Boston), Arrowhead Stadium (Kansas City), Lincoln Financial Field (Philadelphia), Seattle Stadium (Lumen Field, Seattle), Hard Rock Stadium (Miami), and NRG Stadium (Houston). Canada: BMO Field (Toronto) and BC Place (Vancouver). Mexico: Estadio Azteca (Mexico City), Estadio Akron (Guadalajara) and Estadio BBVA (Monterrey).",
   },
   {
     q: "When are knockout bracket fixtures confirmed?",
@@ -54,7 +54,7 @@ const FAQS: { q: string; a: string }[] = [
   },
   {
     q: "Who are the favorites to win the 2026 World Cup?",
-    a: "France, Brazil, England, Argentina, Germany and Spain are considered among the leading contenders. France won in 2018, Argentina in 2022. Brazil have won five times — more than any other nation — while England last won in 1966.",
+    a: "Historically strongest nations include Brazil (five World Cup titles — more than any other nation), Argentina (three — 1978, 1986, 2022), Germany (four — 1954, 1974, 1990, 2014), Italy (four — 1934, 1938, 1982, 2006), France (two — 1998, 2018) and England (one — 1966). Argentina are the reigning world champions, having won in 2022.",
   },
   {
     q: "When is the 2026 World Cup draw?",
