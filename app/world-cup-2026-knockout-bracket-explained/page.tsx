@@ -20,7 +20,7 @@ export const metadata: Metadata = {
 const FAQS = [
   {
     q: "When does the 2026 World Cup knockout stage start?",
-    a: "The Round of 32 begins on 28 June 2026, once the group stage concludes on 27 June 2026. All 16 Round of 32 matches are played over four days.",
+    a: "The Round of 32 begins on 28 June 2026, once the group stage concludes on 27 June 2026. The 16 Round of 32 matches are played across six days (28 June to 3 July 2026).",
   },
   {
     q: "How many rounds are in the 2026 World Cup knockout stage?",
@@ -32,7 +32,7 @@ const FAQS = [
   },
   {
     q: "When is the 2026 World Cup final?",
-    a: "19 July 2026 at MetLife Stadium in East Rutherford, New Jersey.",
+    a: "19 July 2026 at New York New Jersey Stadium (MetLife Stadium) in East Rutherford, New Jersey.",
   },
   {
     q: "When are knockout bracket fixtures confirmed?",
@@ -71,28 +71,28 @@ const ROUNDS = [
   {
     round: "Round of 32",
     matches: "16 matches",
-    dates: "28 June – 1 July 2026",
+    dates: "28 June – 3 July 2026",
     teams: "32 teams",
     body: "The first knockout round — new for 2026. All 24 group winners and runners-up plus the 8 best third-placed teams enter. The bracket pairings are determined by group finishing position and are set by FIFA before the tournament begins.",
   },
   {
     round: "Round of 16",
     matches: "8 matches",
-    dates: "4–5 July 2026",
+    dates: "4–7 July 2026",
     teams: "16 teams",
     body: "Winners of the Round of 32 advance. Matches continue to follow the pre-set bracket, so the two halves of the bracket remain separate until the final.",
   },
   {
     round: "Quarter-finals",
     matches: "4 matches",
-    dates: "10–11 July 2026 (approx.)",
+    dates: "9–11 July 2026",
     teams: "8 teams",
     body: "The last eight nations in the tournament. Each match produces one semi-finalist.",
   },
   {
     round: "Semi-finals",
     matches: "2 matches",
-    dates: "14–15 July 2026 (approx.)",
+    dates: "14–15 July 2026",
     teams: "4 teams",
     body: "Winners go to the final. Losers play the third-place match on 18 July.",
   },
@@ -101,14 +101,14 @@ const ROUNDS = [
     matches: "1 match",
     dates: "18 July 2026",
     teams: "2 teams",
-    body: "The two losing semi-finalists compete. Winning the third-place match does not change the prize-money tier — both fourth and third place fall in different bands — but carries significant national prestige.",
+    body: "The two losing semi-finalists compete on 18 July 2026, one day before the final. The match carries significant national prestige and determines the tournament's bronze medal position.",
   },
   {
     round: "Final",
     matches: "1 match",
     dates: "19 July 2026",
     teams: "2 teams",
-    body: "MetLife Stadium, East Rutherford, New Jersey. The designated final venue hosts the deciding match of the biggest World Cup in history.",
+    body: "New York New Jersey Stadium (commercially known as MetLife Stadium), East Rutherford, New Jersey. The designated final venue hosts the deciding match of the biggest World Cup in history.",
   },
 ];
 
@@ -139,7 +139,7 @@ export default function KnockoutBracketExplainedPage() {
             { k: "Rounds", v: "5 + 3rd place" },
             { k: "Start", v: "28 Jun 2026" },
             { k: "Final", v: "19 Jul 2026" },
-            { k: "Final venue", v: "MetLife Stadium" },
+            { k: "Final venue", v: "New York New Jersey Stadium" },
           ].map((f) => (
             <div key={f.k} className="rounded-xl border border-white/10 bg-navyCard px-4 py-3">
               <div className="font-heading text-base font-extrabold text-white">{f.v}</div>
@@ -261,10 +261,26 @@ export default function KnockoutBracketExplainedPage() {
           </div>
         </section>
 
+        <section className="mt-8 rounded-xl border border-white/10 bg-navyCard px-4 py-4">
+          <h2 className="mb-2 font-heading text-xs font-bold uppercase tracking-widest text-white/40">
+            Official Sources
+          </h2>
+          <ul className="space-y-1 text-xs leading-relaxed text-white/50">
+            <li>
+              <a href="https://www.fifa.com/en/tournaments/mens/worldcup/canada-mexico-usa-2026/matches" target="_blank" rel="noopener noreferrer" className="underline underline-offset-2 hover:text-white/70 transition">
+                FIFA 2026 Match Schedule
+              </a>{" "}— official round-by-round dates
+            </li>
+            <li>
+              <a href="https://www.fifa.com/en/tournaments/mens/worldcup/canada-mexico-usa-2026/host-cities" target="_blank" rel="noopener noreferrer" className="underline underline-offset-2 hover:text-white/70 transition">
+                FIFA 2026 Host Cities &amp; Stadiums
+              </a>{" "}— official 16-venue list
+            </li>
+          </ul>
+        </section>
         <p className="mt-6 text-xs leading-relaxed text-white/40">
-          WorldCupMatchDay is an independent, fan-made resource and is not affiliated with FIFA. Dates are
-          approximate for rounds beyond the Round of 32 and subject to FIFA scheduling. Always verify
-          specific match dates with official FIFA sources.
+          WorldCupMatchDay is an independent, fan-made resource and is not affiliated with FIFA. Always verify
+          specific match dates and venues with official FIFA sources.
         </p>
       </div>
     </>

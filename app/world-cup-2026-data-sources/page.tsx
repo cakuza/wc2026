@@ -197,6 +197,29 @@ export default function DataSourcesPage() {
           </p>
         </Section>
 
+        <section className="mt-8 rounded-xl border border-white/10 bg-navyCard px-4 py-4">
+          <h2 className="mb-2 font-heading text-xs font-bold uppercase tracking-widest text-white/40">
+            Official Sources
+          </h2>
+          <ul className="space-y-1 text-xs leading-relaxed text-white/50">
+            <li>
+              <a href="https://www.fifa.com/en/tournaments/mens/worldcup/canada-mexico-usa-2026/matches" target="_blank" rel="noopener noreferrer" className="underline underline-offset-2 hover:text-white/70 transition">
+                FIFA 2026 Match Schedule
+              </a>{" "}— official fixtures and results source
+            </li>
+            <li>
+              <a href="https://www.fifa.com/en/tournaments/mens/worldcup/canada-mexico-usa-2026/host-cities" target="_blank" rel="noopener noreferrer" className="underline underline-offset-2 hover:text-white/70 transition">
+                FIFA 2026 Host Cities &amp; Stadiums
+              </a>{" "}— official venue information
+            </li>
+            <li>
+              <a href="https://digitalhub.fifa.com/m/5371c48e7befe/original/FIFA_World_Cup_2026_Competition_Regulations_EN.pdf" target="_blank" rel="noopener noreferrer" className="underline underline-offset-2 hover:text-white/70 transition">
+                FIFA World Cup 2026 Competition Regulations (PDF)
+              </a>{" "}— official format, tiebreaker and qualification rules
+            </li>
+          </ul>
+        </section>
+
         {/* Internal links */}
         <div className="mt-8 flex flex-wrap gap-3">
           {[

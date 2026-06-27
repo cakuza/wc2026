@@ -212,7 +212,7 @@ export function BracketContent() {
       {/* Final info */}
       <div className="mt-5 rounded-xl border border-accent/20 bg-accent/5 p-4 text-sm text-white/60">
         <span className="font-heading text-xs font-bold uppercase tracking-widest text-accent">{t("bracket_final")}</span>
-        <p className="mt-1">MetLife Stadium · East Rutherford, NJ · <strong className="text-white/80">{FINAL_DATE[lang] ?? FINAL_DATE["en"]}</strong></p>
+        <p className="mt-1">New York New Jersey Stadium (MetLife Stadium) · East Rutherford, NJ · <strong className="text-white/80">{FINAL_DATE[lang] ?? FINAL_DATE["en"]}</strong></p>
       </div>
 
       {/* Format note */}

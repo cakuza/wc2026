@@ -36,7 +36,7 @@ const FAQS = [
   },
   {
     q: "When does the 2026 World Cup start and end?",
-    a: "The tournament runs from 11 June 2026 (opening match: Mexico vs South Africa at Estadio Azteca) to 19 July 2026 (final at MetLife Stadium, New Jersey).",
+    a: "The tournament runs from 11 June 2026 (opening match: Mexico vs South Africa at Estadio Azteca) to 19 July 2026 (final at New York New Jersey Stadium, East Rutherford, New Jersey).",
   },
   {
     q: "How many host nations does the 2026 World Cup have?",
@@ -163,7 +163,7 @@ export default function FormatExplainedPage() {
           </p>
           <p>
             There is also a Third-Place match between the two losing semi-finalists. The Final takes
-            place on 19 July 2026 at MetLife Stadium in East Rutherford, New Jersey.
+            place on 19 July 2026 at New York New Jersey Stadium (MetLife Stadium) in East Rutherford, New Jersey.
           </p>
           <p>
             The Round of 32 begins on 28 June 2026, once the group stage concludes on 27 June.
@@ -192,7 +192,7 @@ export default function FormatExplainedPage() {
           <p>
             The United States, Canada, and Mexico jointly host the tournament — the first time three
             nations have shared a World Cup. The US hosts the most matches with 11 of the 16 stadiums,
-            including the Final at MetLife Stadium. Canada hosts BMO Field in Toronto and BC Place in
+            including the Final at New York New Jersey Stadium. Canada hosts BMO Field in Toronto and BC Place in
             Vancouver. Mexico hosts Estadio Azteca (opening match), Estadio Akron and Estadio BBVA.
           </p>
           <p>
@@ -235,6 +235,28 @@ export default function FormatExplainedPage() {
           </div>
         </section>
 
+        <section className="mt-8 rounded-xl border border-white/10 bg-navyCard px-4 py-4">
+          <h2 className="mb-2 font-heading text-xs font-bold uppercase tracking-widest text-white/40">
+            Official Sources
+          </h2>
+          <ul className="space-y-1 text-xs leading-relaxed text-white/50">
+            <li>
+              <a href="https://www.fifa.com/en/tournaments/mens/worldcup/canada-mexico-usa-2026" target="_blank" rel="noopener noreferrer" className="underline underline-offset-2 hover:text-white/70 transition">
+                FIFA World Cup 2026 — Official Tournament Page
+              </a>{" "}— format overview and team entries
+            </li>
+            <li>
+              <a href="https://www.fifa.com/en/tournaments/mens/worldcup/canada-mexico-usa-2026/host-cities" target="_blank" rel="noopener noreferrer" className="underline underline-offset-2 hover:text-white/70 transition">
+                FIFA 2026 Host Cities &amp; Stadiums
+              </a>{" "}— official 16 host locations and venues
+            </li>
+            <li>
+              <a href="https://www.fifa.com/en/tournaments/mens/worldcup/canada-mexico-usa-2026/matches" target="_blank" rel="noopener noreferrer" className="underline underline-offset-2 hover:text-white/70 transition">
+                FIFA 2026 Match Schedule
+              </a>{" "}— official dates for all 104 matches
+            </li>
+          </ul>
+        </section>
         <p className="mt-6 text-xs leading-relaxed text-white/40">
           WorldCupMatchDay is an independent, fan-made resource and is not affiliated with FIFA. Format
           details are based on publicly available FIFA regulations. Always verify specific rules with

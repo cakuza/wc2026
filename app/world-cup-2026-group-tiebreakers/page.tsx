@@ -243,6 +243,23 @@ export default function GroupTiebreakersPage() {
           </div>
         </section>
 
+        <section className="mt-8 rounded-xl border border-white/10 bg-navyCard px-4 py-4">
+          <h2 className="mb-2 font-heading text-xs font-bold uppercase tracking-widest text-white/40">
+            Official Sources
+          </h2>
+          <ul className="space-y-1 text-xs leading-relaxed text-white/50">
+            <li>
+              <a href="https://digitalhub.fifa.com/m/5371c48e7befe/original/FIFA_World_Cup_2026_Competition_Regulations_EN.pdf" target="_blank" rel="noopener noreferrer" className="underline underline-offset-2 hover:text-white/70 transition">
+                FIFA World Cup 2026 Competition Regulations (PDF)
+              </a>{" "}— official tiebreaker criteria (Articles on Group Stage)
+            </li>
+            <li>
+              <a href="https://www.fifa.com/en/tournaments/mens/worldcup/canada-mexico-usa-2026" target="_blank" rel="noopener noreferrer" className="underline underline-offset-2 hover:text-white/70 transition">
+                FIFA 2026 World Cup — Official Tournament Page
+              </a>{" "}— format and qualification rules
+            </li>
+          </ul>
+        </section>
         <p className="mt-6 text-xs leading-relaxed text-white/40">
           WorldCupMatchDay is an independent, fan-made resource and is not affiliated with FIFA. Tiebreaker
           details are based on publicly available FIFA 2026 regulations. Always verify with official FIFA

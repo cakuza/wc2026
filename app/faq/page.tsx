@@ -6,7 +6,7 @@ const BASE_URL = "https://www.worldcupmatchday.com";
 const FAQS: { q: string; a: string }[] = [
   {
     q: "When does the 2026 World Cup start?",
-    a: "June 11, 2026, with the opening match Mexico vs South Africa at Estadio Azteca in Mexico City. The tournament runs to 19 July 2026, when the final takes place at MetLife Stadium in New Jersey.",
+    a: "June 11, 2026, with the opening match Mexico vs South Africa at Estadio Azteca in Mexico City. The tournament runs to 19 July 2026, when the final takes place at New York New Jersey Stadium (MetLife Stadium) in East Rutherford, New Jersey.",
   },
   {
     q: "How many teams are in the 2026 World Cup?",
@@ -18,7 +18,7 @@ const FAQS: { q: string; a: string }[] = [
   },
   {
     q: "Where is the 2026 World Cup final?",
-    a: "MetLife Stadium in East Rutherford, New Jersey, on July 19, 2026. MetLife Stadium has an official capacity of approximately 82,500.",
+    a: "New York New Jersey Stadium (MetLife Stadium) in East Rutherford, New Jersey, on 19 July 2026.",
   },
   {
     q: "How many matches are in the 2026 World Cup?",
@@ -42,7 +42,7 @@ const FAQS: { q: string; a: string }[] = [
   },
   {
     q: "Which stadiums host 2026 World Cup matches?",
-    a: "16 stadiums across the US, Canada and Mexico. US venues include MetLife Stadium (NJ), AT&T Stadium (Dallas), SoFi Stadium (LA), Levi's Stadium (San Jose area), Mercedes-Benz Stadium (Atlanta), Gillette Stadium (Boston), Arrowhead Stadium (Kansas City), Lincoln Financial Field (Philadelphia), Allegiant Stadium (Las Vegas), Hard Rock Stadium (Miami), and NRG Stadium (Houston). Canada hosts BMO Field (Toronto) and BC Place (Vancouver). Mexico hosts Estadio Azteca, Estadio Akron (Guadalajara) and Estadio BBVA (Monterrey).",
+    a: "16 stadiums across the US, Canada and Mexico. US venues: New York New Jersey Stadium (New York/New Jersey), AT&T Stadium (Dallas), Los Angeles Stadium (Los Angeles), San Francisco Bay Area Stadium (San Francisco Bay Area), Mercedes-Benz Stadium (Atlanta), Gillette Stadium (Boston), Arrowhead Stadium (Kansas City), Lincoln Financial Field (Philadelphia), Lumen Field (Seattle), Hard Rock Stadium (Miami), and NRG Stadium (Houston). Canada: BMO Field (Toronto) and BC Place (Vancouver). Mexico: Estadio Azteca (Mexico City), Estadio Akron (Guadalajara) and Estadio BBVA (Monterrey).",
   },
   {
     q: "When are knockout bracket fixtures confirmed?",
