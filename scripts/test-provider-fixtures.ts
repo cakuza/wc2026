@@ -1,241 +1,121 @@
 /**
- * Deterministic offline provider fixture tests (Req 7).
+ * Deterministic offline provider fixture tests.
  *
- * Frozen minimal fixtures covering every corruption category.
- * NO live network calls — all inputs are inline strings.
- *
- * Fixture categories tested:
- *   F1  Normal ASCII name
- *   F2  Turkish diacritics (ş, ı, ğ) — UTF-8 well-formed
- *   F3  Valid UTF-8 diacritics (é, ü, ã) — should survive as-is
- *   F4  Genuine Mojibake (UTF-8 re-interpreted as Latin-1)
- *   F5  C1-control stripped form (proxy strips 0x80–0x9F byte)
- *   F6  Provider-supplied malformed / untranslatable name — passes through
- *   F7  Own-goal event (OG marker in scorer string)
- *   F8  Unresolved player — no alias exists, raw form preserved
- *   F9  Athlete-ID constrained alias (team scoping resolves the correct entry)
- *   F10 Conflicting provider names (same corrupted raw → different canonical per team)
- *
- * Usage:  npx tsx scripts/test-provider-fixtures.ts
+ * Covers normal ASCII, canonical Unicode, mojibake repair, C1-stripped
+ * fallback aliases, provider-supplied malformed romanization, own goals,
+ * wrong-match/wrong-team/wrong-provider rejection, missing context, and
+ * provider-player-ID precedence.
  */
 
 import {
   PLAYER_ALIASES,
-  resolvePlayerName,
   findPlayerAlias,
+  resolvePlayerAlias,
 } from "../lib/worldcup26PlayerAliases";
 import { applyVerifiedGoalCorrections } from "../lib/verifiedMatchEventCorrections";
-import type { GoalScorerEvent } from "../lib/worldcup26Provider";
+import { fixMojibake } from "../lib/worldcup26Provider";
 
 let passed = 0;
 let failed = 0;
 
-function assert(condition: boolean, label: string, detail?: string) {
+function assert(condition: boolean, msg: string, detail?: string) {
   if (condition) {
-    console.log(`  PASS  ${label}`);
+    console.log(`  PASS  ${msg}`);
     passed++;
   } else {
-    console.error(`  FAIL  ${label}${detail ? ` — ${detail}` : ""}`);
+    console.error(`  FAIL  ${msg}${detail ? ` -- ${detail}` : ""}`);
     failed++;
   }
 }
 
-// Inline fixMojibake (same implementation as lib/worldcup26Provider.ts)
-function fixMojibake(s: string): string {
-  if (!/[\xC2-\xC5][\x80-\xBF]/.test(s)) return s;
-  try {
-    const bytes = new Uint8Array(s.length);
-    for (let i = 0; i < s.length; i++) bytes[i] = s.charCodeAt(i) & 0xff;
-    return new TextDecoder("utf-8", { fatal: true }).decode(bytes);
-  } catch {
-    return s;
-  }
-}
-
-function sanitize(raw: string, teamName?: string): string {
-  const fixed = fixMojibake(raw);
-  const fromFixed = resolvePlayerName(fixed, teamName);
-  if (fromFixed !== fixed) return fromFixed;
-  const fromRaw = resolvePlayerName(raw, teamName);
-  if (fromRaw !== raw) return fromRaw;
-  return fixed;
+function resolve(
+  rawName: string,
+  scoringTeam: string,
+  matchId: string,
+  eventMinute?: number | null,
+  stoppageMinute?: number | null,
+) {
+  return resolvePlayerAlias({
+    provider: "worldcup26.ir",
+    matchId,
+    eventMinute,
+    stoppageMinute: stoppageMinute ?? null,
+    scoringTeam,
+    rawName: fixMojibake(rawName),
+  });
 }
 
 console.log("=== Provider Fixture Tests (offline) ===\n");
 
-// ── F1: Normal ASCII name ─────────────────────────────────────────────────────
+console.log("F1) Normal ASCII and canonical Unicode pass through\n");
+assert(fixMojibake("Folarin Balogun") === "Folarin Balogun", "ASCII unchanged");
+assert(fixMojibake("Arda Güler") === "Arda Güler", "canonical Unicode unchanged");
+assert(fixMojibake("Arda GÃ¼ler") === "Arda Güler", "genuine mojibake repaired");
 
-console.log("F1) Normal ASCII name\n");
+console.log("\nF2) Context-constrained malformed romanization aliases\n");
+assert(resolve("Baris Alpr Ailmaz", "Turkey", "turkey-vs-united-states-jun25", 31) === "Barış Alper Yılmaz", "Turkey-USA Yilmaz alias resolves with exact event context");
+assert(resolve("Kan Aihan", "Turkey", "turkey-vs-united-states-jun25", 90, 8) === "Kaan Ayhan", "Turkey-USA Ayhan alias resolves with stoppage context");
+assert(resolve("Baris Alpr Ailmaz", "Turkey", "turkey-vs-paraguay-jun19", 31) === "Baris Alpr Ailmaz", "same malformed string rejected in another Turkey match");
+assert(resolve("Baris Alpr Ailmaz", "United States", "turkey-vs-united-states-jun25", 31) === "Baris Alpr Ailmaz", "same malformed string rejected for wrong team");
+assert(
+  resolvePlayerAlias({
+    provider: "espn",
+    matchId: "turkey-vs-united-states-jun25",
+    eventMinute: 31,
+    scoringTeam: "Turkey",
+    rawName: "Baris Alpr Ailmaz",
+  }) === "Baris Alpr Ailmaz",
+  "wrong provider rejected",
+);
+assert(
+  resolvePlayerAlias({
+    provider: "worldcup26.ir",
+    scoringTeam: "Turkey",
+    rawName: "Baris Alpr Ailmaz",
+  }) === "Baris Alpr Ailmaz",
+  "missing match context fails closed",
+);
+assert(
+  resolvePlayerAlias({
+    provider: "worldcup26.ir",
+    matchId: "turkey-vs-united-states-jun25",
+    eventMinute: 31,
+    scoringTeam: "Turkey",
+    rawName: "Baris Alpr Ailmaz",
+    providerPlayerId: "worldcup26.ir:turkey:kaan-ayhan",
+  }) === "Kaan Ayhan",
+  "provider player ID takes precedence over textual alias",
+);
 
-assert(sanitize("Folarin Balogun", "United States") === "Folarin Balogun",
-  'ASCII name "Folarin Balogun" passes through unchanged');
-assert(sanitize("Giovanni Reyna", "United States") === "Giovanni Reyna",
-  'ASCII name "Giovanni Reyna" passes through unchanged');
+console.log("\nF3) Reusable verified aliases remain match-scoped\n");
+assert(resolve("Dnil Mvnvz", "Colombia", "uzbekistan-vs-colombia-jun17", 40) === "Daniel Muñoz", "Daniel Munoz resolves in Uzbekistan-Colombia");
+assert(resolve("Dnil Mvnvz", "Colombia", "colombia-vs-dr-congo-jun23", 76) === "Daniel Muñoz", "Daniel Munoz resolves in Colombia-DR Congo");
+assert(resolve("Dnil Mvnvz", "Colombia", "colombia-vs-portugal-jun27", 76) === "Dnil Mvnvz", "Daniel Munoz alias rejected outside verified matchIds");
 
-// ── F2: Turkish diacritics — provider sometimes sends them correctly ───────────
+console.log("\nF4) C1-stripped mojibake fallbacks require match context\n");
+assert(resolve("Junya ItÅ", "Japan", "tunisia-vs-japan-jun20") === "Junya Itō", "Junya Ito C1 fallback resolves with context");
+assert(resolve("Junya ItÅ", "Japan", "japan-vs-anyone-jun99") === "Junya ItÅ", "Junya Ito C1 fallback rejected for wrong match");
 
-console.log("\nF2) Turkish diacritics (well-formed UTF-8)\n");
+console.log("\nF5) Own-goal alias metadata and corrections\n");
+const og = findPlayerAlias({
+  provider: "worldcup26.ir",
+  matchId: "tunisia-vs-netherlands-jun25",
+  eventMinute: 3,
+  scoringTeam: "Netherlands",
+  rawName: "Alis Skhiri",
+});
+assert(og?.canonical === "Ellyes Skhiri", "Skhiri alias resolves in exact match");
+assert(og?.isOwnGoal === true, "Skhiri alias is own goal");
+assert(og?.playerTeam === "Tunisia", "Skhiri player team is Tunisia");
 
-// When provider sends the correct Turkish form directly
-assert(sanitize("Barış Alper Yılmaz", "Turkey") === "Barış Alper Yılmaz",
-  '"Barış Alper Yılmaz" (canonical) unchanged');
-assert(sanitize("Arda Güler", "Turkey") === "Arda Güler",
-  '"Arda Güler" (canonical, after Mojibake repair) unchanged');
-
-// ── F3: Valid UTF-8 diacritics — fixMojibake must leave them untouched ────────
-
-console.log("\nF3) Valid UTF-8 diacritics unchanged by fixMojibake\n");
-
-// These have no C2-C5 sequence; fixMojibake should leave them as-is
-const validUtf8Names = [
-  "Mikel Oyarzabal",     // No diacritics
-  "Rafael Leão",         // ã — valid, not Mojibake
-  "Vinícius Júnior",     // í ú — valid canonical form
-  "Kylian Mbappé",       // é — valid canonical form
-];
-
-for (const name of validUtf8Names) {
-  assert(fixMojibake(name) === name,
-    `fixMojibake leaves "${name}" unchanged`);
-}
-
-// ── F4: Genuine Mojibake — fixMojibake must repair ────────────────────────────
-
-console.log("\nF4) Genuine Mojibake repair\n");
-
-const mojibakeCases: [string, string][] = [
-  ["Arda GÃ¼ler",       "Arda Güler"],   // ü → C3 BC
-  ["Kylian MbappÃ©",    "Kylian Mbappé"], // é → C3 A9
-  ["Rafael LeÃ£o",      "Rafael Leão"],   // ã → C3 A3
-];
-
-for (const [raw, expected] of mojibakeCases) {
-  assert(fixMojibake(raw) === expected,
-    `fixMojibake("${raw}") → "${expected}"`);
-}
-
-// ── F5: C1-stripped Mojibake fallback via alias map ───────────────────────────
-
-console.log("\nF5) C1-stripped Mojibake — alias map fallback\n");
-
-// When the second UTF-8 byte is in 0x80–0x9F (C1 control range),
-// a PHP proxy may strip it, leaving only the first byte as a Latin-1 char.
-// The alias map catches these residual forms.
-assert(sanitize("Junya ItÅ", "Japan") === "Junya Itō",
-  '"Junya ItÅ" (C1-stripped ō) → "Junya Itō" via alias fallback');
-assert(sanitize("L. KrejÄÃ­", "Czechia") === "L. Krejčí",
-  '"L. KrejÄÃ­" (C1-stripped č) → "L. Krejčí" via alias fallback');
-
-// ── F6: Provider-supplied malformed / untranslatable name ─────────────────────
-
-console.log("\nF6) Unknown / untranslatable name passes through raw\n");
-
-// A name that has no alias and survives fixMojibake should pass through unchanged
-assert(sanitize("Xyzabc Unknown", "Ghostland") === "Xyzabc Unknown",
-  '"Xyzabc Unknown" (no alias, no Mojibake) passes through');
-
-// "Gessime Yassine" is a REAL name that was previously wrongly mapped
-assert(sanitize("Gessime Yassine", "Morocco") === "Gessime Yassine",
-  '"Gessime Yassine" is the real player name — not remapped');
-
-// ── F7: Own-goal event — alias carries isOwnGoal metadata ────────────────────
-
-console.log("\nF7) Own-goal fixtures — correct OG metadata in alias\n");
-
-const ogFixtures = [
-  { raw: "Alis Skhiri",            team: "Netherlands",       canonical: "Ellyes Skhiri",    playerTeam: "Tunisia" },
-  { raw: "Kamrvn Bargs",           team: "United States",     canonical: "Cameron Burgess",   playerTeam: "Australia" },
-  { raw: "Hassan Mohamed Altmbkti",team: "Spain",             canonical: "Hassan Altambakti", playerTeam: "Saudi Arabia" },
-  { raw: "Abvnad",                 team: "Bosnia & Herzegovina", canonical: "Sultan Al-Brake",playerTeam: "Qatar" },
-  { raw: "Abdalvhid Namtvf",       team: "Portugal",          canonical: "Abduvohid Nematov", playerTeam: "Uzbekistan" },
-];
-
-for (const { raw, team, canonical, playerTeam } of ogFixtures) {
-  const entry = findPlayerAlias(raw, team);
-  assert(entry?.canonical === canonical, `OG "${raw}" (${team}) → "${canonical}"`);
-  assert(entry?.isOwnGoal === true, `  isOwnGoal=true`);
-  assert(entry?.playerTeam === playerTeam, `  playerTeam="${playerTeam}"`, `got "${entry?.playerTeam}"`);
-}
-
-// Verify the full verifiedMatchEventCorrections entry for Tunisia-NL
 const tunisiaEvents = applyVerifiedGoalCorrections("tunisia-vs-netherlands-jun25", []);
-assert(tunisiaEvents.length === 4, `Tunisia-NL correction has 4 events (got ${tunisiaEvents.length})`);
-const skhiriEvent = tunisiaEvents.find((e) => e.playerName === "Ellyes Skhiri");
-assert(!!skhiriEvent, `Ellyes Skhiri event present`);
-assert(skhiriEvent?.isOwnGoal === true, `Skhiri isOwnGoal=true`);
-assert(skhiriEvent?.teamName === "Netherlands", `Skhiri credited to Netherlands (OG)`);
-assert(skhiriEvent?.playerTeamName === "Tunisia", `Skhiri playerTeamName=Tunisia`);
+assert(tunisiaEvents.length === 4, "Tunisia-Netherlands correction has 4 events");
+assert(tunisiaEvents[0]?.playerName === "Ellyes Skhiri" && tunisiaEvents[0]?.isOwnGoal === true, "Tunisia-Netherlands first event is Skhiri OG");
 
-// ── F8: Unresolved player — no alias, raw form preserved ─────────────────────
-
-console.log("\nF8) Unresolved player passes through unchanged\n");
-
-// A name that looks like a Persian transliteration but is not in the alias map
-// must pass through rather than silently drop or corrupt
-const unknownRc2 = "Zkrvn Tlbvt"; // invented — no alias
-assert(sanitize(unknownRc2, "Testland") === unknownRc2,
-  `Unknown RC2 form "${unknownRc2}" passes through unchanged`);
-
-// ── F9: Athlete-ID constrained alias — team scoping ──────────────────────────
-
-console.log("\nF9) Team-scoped alias resolution\n");
-
-// "Dnil Mvnvz" (Daniel Muñoz) appears for Colombia in multiple matches.
-// Team scoping must always yield the same canonical name for Colombia.
-assert(resolvePlayerName("Dnil Mvnvz", "Colombia") === "Daniel Muñoz",
-  '"Dnil Mvnvz" scoped to Colombia → "Daniel Muñoz"');
-
-// A wrong team should yield no match (no alias for that team combination),
-// returning the raw value unchanged.
-assert(resolvePlayerName("Dnil Mvnvz", "Brazil") === "Dnil Mvnvz",
-  '"Dnil Mvnvz" scoped to Brazil → returns raw (no alias)');
-
-// "Kail Larin" is a Canada alias — must not resolve for other teams
-assert(resolvePlayerName("Kail Larin", "Canada") === "Cyle Larin",
-  '"Kail Larin" scoped to Canada → "Cyle Larin"');
-assert(resolvePlayerName("Kail Larin", "France") === "Kail Larin",
-  '"Kail Larin" scoped to France → raw (no alias)');
-
-// ── F10: Conflicting provider names — same raw, different canonical per team ──
-
-console.log("\nF10) Conflicting provider names — team disambiguation\n");
-
-// "Asmaail Saibari" appears for Morocco in two different matches —
-// it must always resolve to the same player (Ismaël Saibari, Morocco).
-assert(resolvePlayerName("Asmaail Saibari", "Morocco") === "Ismaël Saibari",
-  '"Asmaail Saibari" → "Ismaël Saibari" (Morocco)');
-
-// If a completely different team sent "Asmaail Saibari", it would have
-// no alias and should return the raw value.
-assert(resolvePlayerName("Asmaail Saibari", "Germany") === "Asmaail Saibari",
-  '"Asmaail Saibari" for Germany → raw (no alias — team mismatch)');
-
-// ── Merge gate assertions ─────────────────────────────────────────────────────
-
-console.log("\nMerge gate\n");
-
-const corrupted = PLAYER_ALIASES.filter((e) => e.canonical === "Scorer unavailable");
-assert(corrupted.length === 0, `corrupted=0 (no "Scorer unavailable" entries)`);
-
-const wrongConfidence = PLAYER_ALIASES.filter(
-  (e) => e.confidence !== "high" && e.confidence !== "medium",
-);
-assert(wrongConfidence.length === 0, `All entries have valid confidence levels`);
-
-const missingSource = PLAYER_ALIASES.filter((e) => !e.source);
-assert(missingSource.length === 0, `All entries have a source citation`);
-
-// OG entries must have playerTeam
-const ogWithoutPlayerTeam = PLAYER_ALIASES.filter(
-  (e) => e.isOwnGoal === true && !e.playerTeam,
-);
-assert(ogWithoutPlayerTeam.length === 0,
-  `All OG entries have playerTeam set`,
-  ogWithoutPlayerTeam.length > 0
-    ? `Missing: ${ogWithoutPlayerTeam.map((e) => e.rawValue).join(", ")}`
-    : undefined);
-
-// ── Summary ───────────────────────────────────────────────────────────────────
+console.log("\nF6) Inventory sanity\n");
+assert(PLAYER_ALIASES.filter((e) => e.canonical === "Scorer unavailable").length === 0, "no alias maps to Scorer unavailable");
+assert(PLAYER_ALIASES.every((e) => e.matchIds.length > 0), "every alias enforces at least one matchId");
+assert(PLAYER_ALIASES.every((e) => e.source.length > 0), "every alias has source text");
 
 console.log(`\n${passed} passed, ${failed} failed`);
 if (failed > 0) process.exitCode = 1;

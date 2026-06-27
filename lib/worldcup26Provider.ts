@@ -9,8 +9,6 @@
  * - Scores and standings are NOT taken from this source.
  */
 
-import { resolvePlayerName } from "./worldcup26PlayerAliases";
-
 const ENDPOINT = "https://worldcup26.ir/get/games";
 const TIMEOUT_MS = 8_000;
 
@@ -51,7 +49,7 @@ const SCORER_RE = /^(.+?)\s+(\d+)'?(?:\+(\d+)'?)?(?:\s*\((OG|P|PEN|PENALTY)\))?$
  * separate Latin-1 characters, e.g. ü (0xC3 0xBC) → "Ã¼".
  * Detection: presence of U+00C2–U+00C5 immediately followed by U+0080–U+00BF.
  */
-function fixMojibake(s: string): string {
+export function fixMojibake(s: string): string {
   if (!/[\xC2-\xC5][\x80-\xBF]/.test(s)) return s;
   try {
     const bytes = new Uint8Array(s.length);
@@ -63,20 +61,12 @@ function fixMojibake(s: string): string {
 }
 
 /**
- * Canonicalize a raw player-name string from worldcup26.ir.
- * 1. Repair Mojibake (UTF-8 decoded as Latin-1).
- * 2. Look up in the constrained alias table (Persian transliteration / OG identity corrections).
- *    Preferred lookup is on the Mojibake-fixed form; fallback to raw form.
- *    teamName scopes the lookup so the same corrupted string never resolves
- *    to a different player for an unrelated team.
+ * Repair only byte-level mojibake during raw parsing. Malformed romanized
+ * provider names are resolved later, after the raw provider game has been
+ * mapped to an internal match id and event context.
  */
-function sanitizePlayerName(raw: string, teamName?: string): string {
-  const fixed = fixMojibake(raw);
-  const fromFixed = resolvePlayerName(fixed, teamName);
-  if (fromFixed !== fixed) return fromFixed;
-  const fromRaw = resolvePlayerName(raw, teamName);
-  if (fromRaw !== raw) return fromRaw;
-  return fixed;
+function sanitizePlayerName(raw: string): string {
+  return fixMojibake(raw);
 }
 const OWN_GOAL_RE = /\(OG\)\s*$/i;
 const PENALTY_GOAL_RE = /\((P|PEN|PENALTY)\)\s*$/i;
@@ -126,7 +116,7 @@ function parseScorerString(raw: string, teamName: string): GoalScorerEvent | nul
       stoppageTime,
       minuteLabel: `${minute}${stoppageTime ? `+${stoppageTime}` : ""}'`,
       teamName,
-      playerName: sanitizePlayerName(m[1].trim(), teamName),
+      playerName: sanitizePlayerName(m[1].trim()),
       isOwnGoal,
       isPenalty,
       playerTeamName: isOwnGoal ? undefined : teamName,

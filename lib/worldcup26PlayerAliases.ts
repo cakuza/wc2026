@@ -35,13 +35,17 @@ export type PlayerAliasEntry = {
   canonical: string;
   provider: "worldcup26.ir";
   /** Provider does not supply athlete IDs — always null. */
-  providerAthleteId: null;
+  providerPlayerId?: string | null;
+  providerAthleteId?: string | null;
   /**
    * internalMatchId values where this alias is valid.
    * An empty array means the alias is accepted for any match (single globally
    * unambiguous name) but team-scoping still applies via scoringTeam.
    */
   matchIds: string[];
+  /** Required when a raw value needs event-level disambiguation. */
+  eventMinute?: number;
+  eventStoppageTime?: number | null;
   /** Team credited with the goal (OG = team that benefits). */
   scoringTeam: string;
   /** Actual player's national team when different from scoringTeam (own goal). */
@@ -54,14 +58,31 @@ export type PlayerAliasEntry = {
   reason: string;
 };
 
+type GoalProvider = PlayerAliasEntry["provider"] | "football-data.org" | "espn";
+
+export type PlayerAliasResolutionContext = {
+  provider: GoalProvider;
+  matchId?: string;
+  eventMinute?: number | null;
+  stoppageMinute?: number | null;
+  scoringTeam?: string;
+  playerTeam?: string;
+  rawName: string;
+  providerPlayerId?: string | null;
+  providerAthleteId?: string | null;
+};
+
 export const PLAYER_ALIASES: PlayerAliasEntry[] = [
   // ── Turkey ────────────────────────────────────────────────────────────────
   {
     rawValue: "Baris Alpr Ailmaz",
     canonical: "Barış Alper Yılmaz",
     provider: "worldcup26.ir",
+    providerPlayerId: "worldcup26.ir:turkey:baris-alper-yilmaz",
     providerAthleteId: null,
     matchIds: ["turkey-vs-united-states-jun25"],
+    eventMinute: 31,
+    eventStoppageTime: null,
     scoringTeam: "Turkey",
     source: "task brief + verified correction",
     confidence: "high",
@@ -71,8 +92,11 @@ export const PLAYER_ALIASES: PlayerAliasEntry[] = [
     rawValue: "Kan Aihan",
     canonical: "Kaan Ayhan",
     provider: "worldcup26.ir",
+    providerPlayerId: "worldcup26.ir:turkey:kaan-ayhan",
     providerAthleteId: null,
     matchIds: ["turkey-vs-united-states-jun25"],
+    eventMinute: 90,
+    eventStoppageTime: 8,
     scoringTeam: "Turkey",
     source: "task brief + verified correction",
     confidence: "high",
@@ -567,10 +591,22 @@ export const PLAYER_ALIASES: PlayerAliasEntry[] = [
  * When multiple entries share a rawValue, team-scoped entries take priority.
  */
 const _byRaw = new Map<string, PlayerAliasEntry[]>();
+const _byProviderPlayerId = new Map<string, PlayerAliasEntry[]>();
+const _byProviderAthleteId = new Map<string, PlayerAliasEntry[]>();
 for (const entry of PLAYER_ALIASES) {
   const arr = _byRaw.get(entry.rawValue) ?? [];
   arr.push(entry);
   _byRaw.set(entry.rawValue, arr);
+  if (entry.providerPlayerId) {
+    const byPlayerId = _byProviderPlayerId.get(entry.providerPlayerId) ?? [];
+    byPlayerId.push(entry);
+    _byProviderPlayerId.set(entry.providerPlayerId, byPlayerId);
+  }
+  if (entry.providerAthleteId) {
+    const byAthleteId = _byProviderAthleteId.get(entry.providerAthleteId) ?? [];
+    byAthleteId.push(entry);
+    _byProviderAthleteId.set(entry.providerAthleteId, byAthleteId);
+  }
 }
 
 /**
@@ -580,7 +616,7 @@ for (const entry of PLAYER_ALIASES) {
  * @param teamName  Scoring team display name from the match context.
  * @returns The matched AliasEntry, or undefined if no alias applies.
  */
-export function findPlayerAlias(
+function findPlayerAliasLegacy(
   rawValue: string,
   teamName?: string,
 ): PlayerAliasEntry | undefined {
@@ -601,6 +637,69 @@ export function findPlayerAlias(
  * Resolve a raw scorer name to its canonical form.
  * Returns the canonical string, or the original rawValue if no alias found.
  */
-export function resolvePlayerName(rawValue: string, teamName?: string): string {
-  return findPlayerAlias(rawValue, teamName)?.canonical ?? rawValue;
+function resolvePlayerNameLegacy(rawValue: string, teamName?: string): string {
+  return findPlayerAliasLegacy(rawValue, teamName)?.canonical ?? rawValue;
+}
+
+function contextMatchesEntry(entry: PlayerAliasEntry, context: PlayerAliasResolutionContext): boolean {
+  if (entry.provider !== context.provider) return false;
+  if (context.scoringTeam && entry.scoringTeam !== context.scoringTeam) return false;
+  if (context.playerTeam && entry.playerTeam && entry.playerTeam !== context.playerTeam) return false;
+  if (context.matchId && !entry.matchIds.includes(context.matchId)) return false;
+  if (entry.eventMinute !== undefined && context.eventMinute !== entry.eventMinute) return false;
+  if (
+    entry.eventStoppageTime !== undefined &&
+    (context.stoppageMinute ?? null) !== entry.eventStoppageTime
+  ) {
+    return false;
+  }
+  return true;
+}
+
+function rawContextIsComplete(context: PlayerAliasResolutionContext): boolean {
+  return Boolean(context.matchId && context.scoringTeam);
+}
+
+function providerIdentityMatchesEntry(entry: PlayerAliasEntry, context: PlayerAliasResolutionContext): boolean {
+  if (entry.provider !== context.provider) return false;
+  if (context.scoringTeam && entry.scoringTeam !== context.scoringTeam) return false;
+  if (context.playerTeam && entry.playerTeam && entry.playerTeam !== context.playerTeam) return false;
+  if (context.matchId && !entry.matchIds.includes(context.matchId)) return false;
+  return true;
+}
+
+function findFromProviderId(context: PlayerAliasResolutionContext): PlayerAliasEntry | undefined {
+  if (context.providerAthleteId) {
+    return _byProviderAthleteId
+      .get(context.providerAthleteId)
+      ?.find((entry) => providerIdentityMatchesEntry(entry, context));
+  }
+  if (context.providerPlayerId) {
+    return _byProviderPlayerId
+      .get(context.providerPlayerId)
+      ?.find((entry) => providerIdentityMatchesEntry(entry, context));
+  }
+  return undefined;
+}
+
+export function findPlayerAlias(context: PlayerAliasResolutionContext): PlayerAliasEntry | undefined {
+  const fromProviderId = findFromProviderId(context);
+  if (fromProviderId) return fromProviderId;
+
+  if (!rawContextIsComplete(context)) return undefined;
+
+  const candidates = _byRaw.get(context.rawName);
+  if (!candidates || candidates.length === 0) return undefined;
+
+  const exactEvent = candidates.find((entry) => {
+    if (entry.eventMinute === undefined) return false;
+    return contextMatchesEntry(entry, context);
+  });
+  if (exactEvent) return exactEvent;
+
+  return candidates.find((entry) => contextMatchesEntry(entry, context));
+}
+
+export function resolvePlayerAlias(context: PlayerAliasResolutionContext): string {
+  return findPlayerAlias(context)?.canonical ?? context.rawName;
 }

@@ -175,6 +175,7 @@ export function computeTopScorers(
     if (!data.eventDataAvailable || !data.goals) continue;
     for (const goal of data.goals) {
       if (!goal.playerName || goal.type === "OWN_GOAL") continue;
+      if (/^Scorer (unavailable|pending)$/i.test(goal.playerName)) continue;
       const key = goal.playerName;
       if (!scorerMap.has(key)) {
         scorerMap.set(key, { playerName: goal.playerName, teamName: goal.teamName, goals: 0 });

@@ -13,6 +13,10 @@ import { getTournamentLiveSnapshot } from "@/lib/liveSnapshot";
 import { getLiveRefreshPolicy } from "@/lib/liveRefreshPolicy";
 import { TEAMS, slugFor } from "@/lib/teams";
 import { countryName } from "@/lib/i18n";
+import {
+  hasTrustedTopScorerData,
+  topScorerRows,
+} from "@/lib/topScorersPageData";
 
 const BASE = "https://www.worldcupmatchday.com";
 
@@ -54,10 +58,10 @@ const breadcrumbs = [
 
 export default async function TopScorersPage() {
   const snapshot = await getTournamentLiveSnapshot();
-  const topScorers = snapshot.topScorers;
+  const topScorers = topScorerRows(snapshot.topScorers);
   const refreshPolicy = getLiveRefreshPolicy(Object.values(snapshot.matches));
 
-  const hasData = topScorers.length > 0 && !snapshot.isFallback;
+  const hasData = hasTrustedTopScorerData(snapshot);
   const leader = hasData ? topScorers[0] : null;
 
   const breadcrumbSchema = breadcrumbLd(breadcrumbs, BASE);

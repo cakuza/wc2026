@@ -1,216 +1,103 @@
 {
-  "auditDate": "2026-06-27",
+  "auditDate": "2026-06-28",
   "branch": "fix/scorer-identity-integrity-v1",
-  "totalFinishedMatches": 66,
-  "totalGoalEvents": 196,
-  "rootCauses": [
-    {
-      "id": "RC1",
-      "name": "UTF-8 Mojibake",
-      "description": "Provider returns UTF-8 text but certain intermediaries/PHP serializers double-encode it as Latin-1. Two-byte UTF-8 sequences (C2-C5 + 80-BF) appear as two Latin-1 characters, e.g. ü (U+00FC, UTF-8 C3 BC) → Ã¼.",
-      "fix": "fixMojibake() in lib/worldcup26Provider.ts — re-encodes Latin-1 codepoints as bytes, decodes as UTF-8.",
-      "eventsAffected": 30
-    },
-    {
-      "id": "RC2",
-      "name": "Persian transliteration (worldcup26.ir)",
-      "description": "worldcup26.ir stores player names in Persian script. Informal romanization: short vowels (a,e) dropped; 'و' (waw, representing u/o) → 'v'. Produces consonant-skeleton forms: Gonzalo → Gvnzalv, Holmgren → Hlmgrn.",
-      "fix": "PLAYER_ALIASES in lib/worldcup26PlayerAliases.ts — constrained alias lookup from corrupted form to canonical name, scoped by scoring team.",
-      "eventsAffected": 52
-    },
-    {
-      "id": "RC3",
-      "name": "Own-goal attribution error (provider)",
-      "description": "Provider lists own-goal events without the (OG) marker, and sometimes attributes the event to the wrong player within the affected team. This causes isOwnGoal=false when it must be true, and playerTeamName=wrong.",
-      "fix": "Full match replacement in lib/verifiedMatchEventCorrections.ts for each affected match.",
-      "eventsAffected": 5
-    }
-  ],
+  "headAtInventoryTime": "pending-final-commit",
+  "scope": "Current worldcup26.ir provider payload mapped through final repository code plus verified event corrections.",
   "summary": {
-    "rc1Fixed": 30,
-    "rc2Fixed": 52,
-    "rc2PreviouslyUnavailable": 17,
-    "rc2NowResolved": 17,
-    "rc3OgAttributionFixed": 5,
-    "unaffected": 114,
-    "total": 196,
-    "corruptedFound": 52,
-    "corruptedCorrected": 52,
-    "deliberatelyUnresolved": 0,
-    "ownGoalsNewlyIdentified": 5,
+    "providerGames": 80,
+    "finishedMatches": 66,
+    "nonShootoutGoals": 196,
+    "goalEvents": 196,
+    "resolvedCanonicalIdentities": 196,
+    "deliberatelyUnresolvedIdentities": 0,
+    "ownGoals": 7,
+    "penalties": 7,
+    "corruptedIdentitiesCorrected": 52,
     "teamMembershipViolations": 0,
-    "eventCountMismatches": 0,
-    "crossSurfaceMismatches": 0,
+    "scoreEventMismatches": 0,
+    "duplicateEventMismatches": 0,
     "unsupportedCorrections": 0
   },
   "mergeGates": {
-    "corrupted": 0,
-    "teamViolations": 0,
-    "eventCountMismatches": 0,
+    "corruptedIdentitiesRemaining": 0,
+    "teamMembershipViolations": 0,
+    "scoreEventMismatches": 0,
     "crossSurfaceMismatches": 0,
-    "unsupportedCorrections": 0,
-    "scorerUnavailable": 0
+    "unsupportedCorrections": 0
   },
-  "knownCorruptions": [
-    { "raw": "Baris Alpr Ailmaz",       "canonical": "Barış Alper Yılmaz",       "rc": "RC2", "matches": ["turkey-vs-united-states-jun25"],             "resolved": true },
-    { "raw": "Kan Aihan",               "canonical": "Kaan Ayhan",                "rc": "RC2", "matches": ["turkey-vs-united-states-jun25"],             "resolved": true },
-    { "raw": "Arda GÃ¼ler",            "canonical": "Arda Güler",                "rc": "RC1", "matches": ["turkey-vs-united-states-jun25"],             "resolved": true },
-    { "raw": "Nilsvn Angvlv",           "canonical": "Nilson Angulo",             "rc": "RC2", "matches": ["ecuador-vs-germany-jun25"],                  "resolved": true },
-    { "raw": "Gvnzalv Plata",           "canonical": "Gonzalo Plata",             "rc": "RC2", "matches": ["ecuador-vs-germany-jun25"],                  "resolved": true },
-    { "raw": "Leroy SanÃ©",            "canonical": "Leroy Sané",                "rc": "RC1", "matches": ["ecuador-vs-germany-jun25"],                  "resolved": true },
-    { "raw": "Kvdi Khakpv",             "canonical": "Cody Gakpo",                "rc": "RC2", "matches": ["netherlands-vs-sweden-jun20"],               "resolved": true },
-    { "raw": "Dniz Avndav",             "canonical": "Denis Undav",               "rc": "RC2", "matches": ["germany-vs-ivory-coast-jun20"],              "resolved": true },
-    { "raw": "Franck KessiÃ©",         "canonical": "Franck Kessié",             "rc": "RC1", "matches": ["germany-vs-ivory-coast-jun20"],              "resolved": true },
-    { "raw": "Dnil Mvnvz",              "canonical": "Daniel Muñoz",              "rc": "RC2", "matches": ["uzbekistan-vs-colombia-jun17", "colombia-vs-dr-congo-jun23"], "resolved": true },
-    { "raw": "Lviiz Diaz",              "canonical": "Luis Díaz",                 "rc": "RC2", "matches": ["uzbekistan-vs-colombia-jun17"],              "resolved": true },
-    { "raw": "Abas Bk Fiz Allh Af",    "canonical": "Abbosbek Fayzullayev",      "rc": "RC2", "matches": ["uzbekistan-vs-colombia-jun17"],              "resolved": true, "note": "First Uzbek WC goal. Abbosbek Fayzullayev confirmed by FOX Sports / FIFA match centre." },
-    { "raw": "Khamintvn Kampaz",        "canonical": "Jaminton Campaz",           "rc": "RC2", "matches": ["uzbekistan-vs-colombia-jun17"],              "resolved": true },
-    { "raw": "Jvlian Kviinvnz",         "canonical": "Julián Quiñones",           "rc": "RC2", "matches": ["czechia-vs-mexico-jun24"],                   "resolved": true },
-    { "raw": "Mateo ChÃ¡vez",           "canonical": "Mateo Chávez",              "rc": "RC1", "matches": ["czechia-vs-mexico-jun24"],                   "resolved": true },
-    { "raw": "Ãlvaro Fidalgo",          "canonical": "Álvaro Fidalgo",            "rc": "RC1", "matches": ["czechia-vs-mexico-jun24"],                   "resolved": true },
-    { "raw": "Nvnv Mndz",               "canonical": "Nuno Mendes",               "rc": "RC2", "matches": ["portugal-vs-uzbekistan-jun23"],              "resolved": true },
-    { "raw": "Abdalvhid Namtvf",        "canonical": "Abduvohid Nematov",         "rc": "RC2+RC3", "matches": ["portugal-vs-uzbekistan-jun23"],         "resolved": true, "isOwnGoal": true, "note": "Uzbekistan GK, OG at 60'. RC2 corruption + provider missing OG flag. Corrected in verifiedMatchEventCorrections." },
-    { "raw": "Rafael LeÃ£o",            "canonical": "Rafael Leão",               "rc": "RC1", "matches": ["portugal-vs-uzbekistan-jun23"],              "resolved": true },
-    { "raw": "Aiash Ivida",             "canonical": "Ayase Ueda",                "rc": "RC2", "matches": ["tunisia-vs-japan-jun20"],                    "resolved": true },
-    { "raw": "Junya ItÅ",               "canonical": "Junya Itō",                 "rc": "RC1", "matches": ["tunisia-vs-japan-jun20"],                    "resolved": true, "note": "Also handled by alias map fallback for stripped-C1 variant" },
-    { "raw": "Jvhan Mnzambi",           "canonical": "Johan Manzambi",            "rc": "RC2", "matches": ["switzerland-vs-canada-jun24"],               "resolved": true },
-    { "raw": "Prvmis Divid",            "canonical": "Promise David",             "rc": "RC2", "matches": ["switzerland-vs-canada-jun24"],               "resolved": true },
-    { "raw": "RubÃ©n Vargas",           "canonical": "Rubén Vargas",              "rc": "RC1", "matches": ["switzerland-vs-bosnia-jun18", "switzerland-vs-canada-jun24"], "resolved": true },
-    { "raw": "Markvs Hlmgrn Pdrsn",     "canonical": "Markus Holmgren Pedersen",  "rc": "RC2", "matches": ["norway-vs-senegal-jun22"],                   "resolved": true },
-    { "raw": "Nzir Bnbvali",            "canonical": "Nadhir Benbouali",          "rc": "RC2", "matches": ["jordan-vs-algeria-jun22"],                   "resolved": true },
-    { "raw": "Leo ÃstigÃ¥rd",          "canonical": "Leo Østigård",              "rc": "RC1", "matches": ["iraq-vs-norway-jun16"],                      "resolved": true, "note": "Also handled by alias map fallback" },
-    { "raw": "Asmaail Saibari",         "canonical": "Ismaël Saibari",            "rc": "RC2", "matches": ["scotland-vs-morocco-jun19", "morocco-vs-haiti-jun24"], "resolved": true },
-    { "raw": "Svfian Rhimi",            "canonical": "Soufiane Rahimi",           "rc": "RC2", "matches": ["morocco-vs-haiti-jun24"],                    "resolved": true },
+  "aliasResolutionContract": {
+    "resolver": "resolvePlayerAlias({ provider, matchId, eventMinute, stoppageMinute, scoringTeam, playerTeam, rawName, providerPlayerId, providerAthleteId })",
+    "order": [
+      "provider athlete/player ID",
+      "exact provider + match + event identity",
+      "exact provider + match + scoring team + raw value",
+      "verified team-constrained canonical roster match",
+      "unresolved/raw"
+    ],
+    "failClosedRules": [
+      "wrong provider rejected",
+      "wrong match rejected",
+      "wrong team rejected",
+      "missing match context rejected",
+      "eventMinute/eventStoppageTime enforced where an alias entry declares them",
+      "no global malformed-string replacement"
+    ]
+  },
+  "resolvedScoreEventMismatches": [
     {
-      "raw": "Gessime Yassine",
-      "canonical": "Gessime Yassine",
-      "rc": "NONE",
-      "matches": ["morocco-vs-haiti-jun24"],
-      "resolved": true,
-      "note": "CONFIRMED: 'Gessime Yassine' IS the player's real name. Sky Sports, ABC News, FOX Sports all cite this exact name for Morocco's 89' goal vs Haiti. Previously incorrect 'Scorer unavailable' mapping removed."
-    },
-    { "raw": "VinÃ­cius JÃºnior",       "canonical": "Vinícius Júnior",           "rc": "RC1", "matches": ["brazil-vs-haiti-jun19", "brazil-vs-morocco-jun13", "scotland-vs-brazil-jun24"], "resolved": true },
-    { "raw": "V. JÃºnior",              "canonical": "V. Júnior",                 "rc": "RC1", "matches": ["brazil-vs-morocco-jun13"],                   "resolved": true },
-    { "raw": "Ousmane DembÃ©lÃ©",       "canonical": "Ousmane Dembélé",           "rc": "RC1", "matches": ["france-vs-iraq-jun22", "norway-vs-france-jun26"], "resolved": true },
-    { "raw": "Kylian MbappÃ©",          "canonical": "Kylian Mbappé",             "rc": "RC1", "matches": ["france-vs-iraq-jun22"],                      "resolved": true },
-    { "raw": "K. MbappÃ©",              "canonical": "K. Mbappé",                 "rc": "RC1", "matches": ["france-vs-senegal-jun16", "norway-vs-france-jun26"], "resolved": true },
-    { "raw": "IsmaÃ¯la Sarr",           "canonical": "Ismaïla Sarr",              "rc": "RC1", "matches": ["norway-vs-senegal-jun22", "senegal-vs-iraq-jun26"], "resolved": true },
-    { "raw": "DÃ©sirÃ© DouÃ©",         "canonical": "Désiré Doué",               "rc": "RC1", "matches": ["norway-vs-france-jun26"],                    "resolved": true },
-    { "raw": "Paph Gviih",              "canonical": "Pape Gueye",                "rc": "RC2", "matches": ["senegal-vs-iraq-jun26"],                     "resolved": true },
-    { "raw": "Ailman Andiaih",          "canonical": "Iliman Ndiaye",             "rc": "RC2", "matches": ["senegal-vs-iraq-jun26"],                     "resolved": true },
-    { "raw": "MatÃ­as Galarza",         "canonical": "Matías Galarza",            "rc": "RC1", "matches": ["turkey-vs-paraguay-jun19"],                  "resolved": true },
-    { "raw": "Michal SadÃ­lek",         "canonical": "Michal Sadílek",            "rc": "RC1", "matches": ["czechia-vs-south-africa-jun18"],             "resolved": true },
-    { "raw": "AgustÃ­n Canobbio",       "canonical": "Agustín Canobbio",          "rc": "RC1", "matches": ["uruguay-vs-cape-verde-jun21"],               "resolved": true },
-    { "raw": "Maximiliano AraÃºjo",     "canonical": "Maximiliano Araújo",        "rc": "RC1", "matches": ["uruguay-vs-cape-verde-jun21", "saudi-arabia-vs-uruguay-jun15"], "resolved": true },
-    { "raw": "Hliv Varla",              "canonical": "Hélio Varela",              "rc": "RC2", "matches": ["uruguay-vs-cape-verde-jun21"],               "resolved": true },
-    { "raw": "Ãlex Baena",              "canonical": "Àlex Baena",                "rc": "RC1", "matches": ["uruguay-vs-spain-jun26"],                    "resolved": true, "note": "Also handled by alias map fallback" },
-    { "raw": "V. GyÃ¶keres",            "canonical": "V. Gyökeres",               "rc": "RC1", "matches": ["sweden-vs-tunisia-jun14"],                   "resolved": true },
-    { "raw": "L. KrejÄÃ­",             "canonical": "L. Krejčí",                 "rc": "RC1", "matches": ["south-korea-vs-czechia-jun11"],              "resolved": true, "note": "Also handled by alias map fallback for stripped-C1 variant" },
-    { "raw": "Karim Alaibgvvich",       "canonical": "Kerim Alajbegović",         "rc": "RC2", "matches": ["bosnia-vs-qatar-jun24"],                     "resolved": true },
-    {
-      "raw": "Abvnad",
-      "canonical": "Sultan Al-Brake",
-      "rc": "RC2+RC3",
-      "matches": ["bosnia-vs-qatar-jun24"],
-      "resolved": true,
-      "isOwnGoal": true,
-      "note": "Provider 'Abvnad' = Mahmoud Abunada (Qatar GK) listed as Bosnia goal without OG flag. FIFA/ESPN/Sky Sports credit Sultan Al-Brake (Qatar defender) with 34' OG. FIFA source authoritative. Corrected in verifiedMatchEventCorrections."
-    },
-    { "raw": "Armin Mhmich",            "canonical": "Ermin Mahmić",              "rc": "RC2", "matches": ["bosnia-vs-qatar-jun24"],                     "resolved": true },
-    { "raw": "Nikvlas Ph Ph",           "canonical": "Nicolas Pépé",              "rc": "RC2", "matches": ["curacao-vs-ivory-coast-jun25"],              "resolved": true },
-    {
-      "raw": "Kamrvn Bargs",
-      "canonical": "Cameron Burgess",
-      "rc": "RC2+RC3",
-      "matches": ["united-states-vs-australia-jun19"],
-      "resolved": true,
-      "isOwnGoal": true,
-      "note": "Australia defender, OG at 11' crediting USA. Provider listed as USA player without OG flag. Corrected in verifiedMatchEventCorrections."
-    },
-    { "raw": "Fin Svrman",              "canonical": "Finn Surman",               "rc": "RC2", "matches": ["new-zealand-vs-egypt-jun21"],                "resolved": true },
-    {
-      "raw": "Hassan Mohamed Altmbkti",
-      "canonical": "Hassan Altambakti",
-      "rc": "RC2+RC3",
-      "matches": ["spain-vs-saudi-arabia-jun21"],
-      "resolved": true,
-      "isOwnGoal": true,
-      "note": "Saudi Arabia defender, OG at 49' crediting Spain. Provider listed without OG flag. Corrected in verifiedMatchEventCorrections."
-    },
-    { "raw": "Kalb Iirnki",             "canonical": "Caleb Yirenkyi",            "rc": "RC2", "matches": ["ghana-vs-panama-jun17"],                     "resolved": true },
-    { "raw": "Taplv Maskv",             "canonical": "Thapelo Maseko",            "rc": "RC2", "matches": ["south-africa-vs-south-korea-jun24"],         "resolved": true },
-    { "raw": "Hazm Mstvri",             "canonical": "Hazem Mastouri",            "rc": "RC2", "matches": ["tunisia-vs-netherlands-jun25"],               "resolved": true },
-    { "raw": "Ian Fn Hkh",              "canonical": "Jan van Hecke",             "rc": "RC2", "matches": ["tunisia-vs-netherlands-jun25"],               "resolved": true },
-    {
-      "raw": "Alis Skhiri",
-      "canonical": "Ellyes Skhiri",
-      "rc": "RC2+RC3",
-      "matches": ["tunisia-vs-netherlands-jun25"],
-      "resolved": true,
-      "isOwnGoal": true,
-      "note": "Tunisia player, OG at 3' crediting Netherlands. Provider listed as Netherlands goal without OG flag. Corrected in verifiedMatchEventCorrections."
-    },
-    { "raw": "J. QuiÃ±ones",            "canonical": "J. Quiñones",               "rc": "RC1", "matches": ["mexico-vs-south-africa-jun11"],              "resolved": true },
-    { "raw": "R. JimÃ©nez",            "canonical": "R. Jiménez",                "rc": "RC1", "matches": ["mexico-vs-south-africa-jun11"],              "resolved": true },
-    { "raw": "Kail Larin",              "canonical": "Cyle Larin",                "rc": "RC2", "matches": ["canada-vs-qatar-jun18"],                     "resolved": true }
-  ],
-  "ownGoalCorrections": [
-    {
-      "matchId": "tunisia-vs-netherlands-jun25",
-      "minute": 3,
-      "playerName": "Ellyes Skhiri",
-      "playerTeam": "Tunisia",
-      "creditedTeam": "Netherlands",
-      "providerRaw": "Alis Skhiri",
-      "providerIsOwnGoal": false,
-      "correctedIsOwnGoal": true,
-      "sources": ["Sky Sports match report 2026-06-25", "FOX Sports 'Ellyes Skhiri fires it into his own net'"]
+      "matchId": "czechia-vs-south-africa-jun18",
+      "score": "1-1",
+      "events": [
+        "54' Michal Sadílek — Czechia",
+        "83' Teboho Mokoena (P) — South Africa"
+      ],
+      "missingGoalResolved": "83' Teboho Mokoena penalty",
+      "evidence": "Guardian live report; provider final score 1-1"
     },
     {
-      "matchId": "united-states-vs-australia-jun19",
-      "minute": 11,
-      "playerName": "Cameron Burgess",
-      "playerTeam": "Australia",
-      "creditedTeam": "United States",
-      "providerRaw": "Kamrvn Bargs",
-      "providerIsOwnGoal": false,
-      "correctedIsOwnGoal": true,
-      "sources": ["NBC Sports USA 2-0 Australia", "FIFA match report 2026-06-19", "USSOCCER.com recap"]
+      "matchId": "switzerland-vs-bosnia-jun18",
+      "score": "4-1",
+      "events": [
+        "17' Breel Embolo (P) — Switzerland",
+        "23' Rubén Vargas — Switzerland",
+        "32' Johan Manzambi — Switzerland",
+        "57' Ermin Mahmić — Bosnia & Herzegovina",
+        "90+6' Granit Xhaka (P) — Switzerland"
+      ],
+      "missingGoalResolved": "90+6' Granit Xhaka penalty",
+      "evidence": "Guardian live report; provider final score 4-1"
     },
     {
-      "matchId": "spain-vs-saudi-arabia-jun21",
-      "minute": 49,
-      "playerName": "Hassan Altambakti",
-      "playerTeam": "Saudi Arabia",
-      "creditedTeam": "Spain",
-      "providerRaw": "Hassan Mohamed Altmbkti",
-      "providerIsOwnGoal": false,
-      "correctedIsOwnGoal": true,
-      "sources": ["FIFA Spain 4-0 Saudi Arabia match report", "ESPN game analysis 2026-06-21"]
-    },
-    {
-      "matchId": "bosnia-vs-qatar-jun24",
-      "minute": 34,
-      "playerName": "Sultan Al-Brake",
-      "playerTeam": "Qatar",
-      "creditedTeam": "Bosnia & Herzegovina",
-      "providerRaw": "Abvnad",
-      "providerRawActualPlayer": "Mahmoud Abunada (Qatar GK — different player from same team)",
-      "providerIsOwnGoal": false,
-      "correctedIsOwnGoal": true,
-      "sources": ["FIFA Bosnia 3-1 Qatar match report", "ESPN game analysis", "Sky Sports match report 2026-06-24"]
-    },
-    {
-      "matchId": "portugal-vs-uzbekistan-jun23",
-      "minute": 60,
-      "playerName": "Abduvohid Nematov",
-      "playerTeam": "Uzbekistan",
-      "creditedTeam": "Portugal",
-      "providerRaw": "Abdalvhid Namtvf",
-      "providerIsOwnGoal": false,
-      "correctedIsOwnGoal": true,
-      "sources": ["FIFA Portugal 5-0 Uzbekistan match report", "tapmad.com match live", "ESPN as-it-happened 2026-06-23"]
+      "matchId": "austria-vs-jordan-jun16",
+      "score": "3-1",
+      "events": [
+        "10' Marko Arnautović — Austria",
+        "34' Christoph Baumgartner — Austria",
+        "76' Yazan Al-Arab (OG) — Austria, player team Jordan",
+        "87' Ali Olwan — Jordan"
+      ],
+      "missingGoalResolved": "76' Yazan Al-Arab own goal",
+      "evidence": "Guardian live report; provider final score 3-1"
     }
   ],
-  "flaggedForReview": []
+  "turkeyUnitedStates": [
+    "3' Auston Trusty — United States",
+    "10' Arda Güler — Turkey",
+    "31' Barış Alper Yılmaz — Turkey",
+    "49' Sebastian Berhalter — United States",
+    "90+8' Kaan Ayhan — Turkey"
+  ],
+  "ownGoals": [
+    "bosnia-vs-qatar-jun24: 34' Sultan Al-Brake (Qatar) credited Bosnia & Herzegovina",
+    "united-states-vs-paraguay-jun12: 7' Damian Bobadilla (Paraguay) credited United States",
+    "united-states-vs-australia-jun19: 11' Cameron Burgess (Australia) credited United States",
+    "tunisia-vs-netherlands-jun25: 3' Ellyes Skhiri (Tunisia) credited Netherlands",
+    "spain-vs-saudi-arabia-jun21: 49' Hassan Altambakti (Saudi Arabia) credited Spain",
+    "austria-vs-jordan-jun16: 76' Yazan Al-Arab (Jordan) credited Austria",
+    "portugal-vs-uzbekistan-jun23: 60' Abduvohid Nematov (Uzbekistan) credited Portugal"
+  ],
+  "knownRemainingRisks": [
+    "worldcup26.ir does not provide stable scorer player IDs in the public payload; provider-ID precedence is implemented and covered by deterministic synthetic-ID tests.",
+    "External Preview crawl must be rerun against the final pushed SHA."
+  ]
 }

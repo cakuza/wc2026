@@ -1,171 +1,105 @@
-# Scorer Identity Integrity — P0 Audit Report
+# Scorer Identity Integrity Audit
 
-**Date:** 2026-06-27  
-**Branch:** `fix/scorer-identity-integrity-v1`  
-**Auditor:** P0 automated audit + Claude Code  
-**Scope:** All 66 finished matches, 196 goal events  
+**Date:** 2026-06-28
+**Branch:** `fix/scorer-identity-integrity-v1`
+**Scope:** PR #9 scorer identity follow-up after adversarial audit acceptance.
 
----
+## Verdict
 
-## Executive Summary
+The four accepted blockers are addressed in the working tree:
 
-Two systemic root causes corrupt scorer names delivered by `worldcup26.ir`:
+1. Alias resolution is context-constrained and fails closed.
+2. The three remaining score/event-count mismatches have full verified event corrections.
+3. Top Scorers JSON-LD coverage is deterministic for healthy and fallback states.
+4. Exact-SHA Preview verification is required after the final correction commit is pushed.
 
-| Root Cause | Description | Events Affected |
-|---|---|---|
-| **RC1 — UTF-8 Mojibake** | Provider returns UTF-8 text decoded as Latin-1; multi-byte sequences become garbage characters (`Ã©`, `Ã¼`, etc.) | ~30 |
-| **RC2 — Persian transliteration** | worldcup26.ir stores names in Persian script with informal Latin romanisation: short vowels dropped, `و` (waw) → `v`; consonant skeletons result | ~52 |
+## Alias Resolution Contract
 
-Both are now fixed in the pipeline. All 196 events are now either correctly canonicalized or explicitly marked `"Scorer unavailable"`.
+The active resolver is:
 
----
-
-## Root Cause 1: UTF-8 Mojibake
-
-### Mechanism
-The provider's PHP backend (or a proxy) reads UTF-8 strings and re-serialises them using a Latin-1 code path. Each byte of a multi-byte UTF-8 sequence becomes an independent Latin-1 character:
-
+```ts
+resolvePlayerAlias({
+  provider,
+  matchId,
+  eventMinute,
+  stoppageMinute,
+  scoringTeam,
+  playerTeam,
+  rawName,
+  providerPlayerId,
+  providerAthleteId,
+})
 ```
-ü  (U+00FC)  →  UTF-8: 0xC3 0xBC  →  Latin-1: Ã ¼  →  "Ã¼"
-é  (U+00E9)  →  UTF-8: 0xC3 0xA9  →  Latin-1: Ã ©  →  "Ã©"
-í  (U+00ED)  →  UTF-8: 0xC3 0xAD  →  Latin-1: Ã ­  →  "Ã­"
-č  (U+010D)  →  UTF-8: 0xC4 0x8D  →  Latin-1: Ä  (C1 ctrl)  →  "Ä"
+
+Resolution order:
+
+1. Provider player or athlete ID.
+2. Exact provider, match, and event identity.
+3. Exact provider, match, scoring team, and raw value.
+4. Verified team-constrained canonical roster match.
+5. Unresolved/raw value.
+
+Fail-closed rules covered by deterministic tests:
+
+- wrong provider is rejected;
+- wrong match is rejected;
+- wrong team is rejected;
+- missing match context is rejected for contextual aliases;
+- event minute and stoppage time are enforced when an alias declares them;
+- malformed provider strings never resolve through a global replacement table.
+
+## Resolved Score/Event Mismatches
+
+| Match | Final Score | Verified Events |
+|---|---:|---|
+| `czechia-vs-south-africa-jun18` | 1-1 | 54' Michal Sadílek, 83' Teboho Mokoena penalty |
+| `switzerland-vs-bosnia-jun18` | 4-1 | 17' Breel Embolo penalty, 23' Rubén Vargas, 32' Johan Manzambi, 57' Ermin Mahmić, 90+6' Granit Xhaka penalty |
+| `austria-vs-jordan-jun16` | 3-1 | 10' Marko Arnautović, 34' Christoph Baumgartner, 76' Yazan Al-Arab own goal, 87' Ali Olwan |
+
+The invariant is:
+
+```text
+non-shootout goal events = home score + away score
 ```
 
-The detection pattern `[\xC2-\xC5][\x80-\xBF]` identifies these sequences reliably.
+for every finished match in the recomputed inventory.
 
-### Fix
-`fixMojibake()` in [`lib/worldcup26Provider.ts`](../../lib/worldcup26Provider.ts):
-1. Detects the pattern
-2. Re-encodes each JS character as its low byte (Latin-1 interpretation)
-3. Decodes the resulting byte array as UTF-8 (with `fatal: true` — returns original on failure)
+## Inventory
 
-**Edge case:** Some characters whose second UTF-8 byte is a C1 control character (0x80–0x9F) may have that byte stripped by intermediaries. These are handled by explicit alias-map entries (see `PLAYER_ALIAS_MAP` fallback section).
+The inventory was recomputed from the current provider payload through final repository code plus verified event corrections.
 
-### Examples Fixed Automatically
-`Arda GÃ¼ler` → `Arda Güler`, `Kylian MbappÃ©` → `Kylian Mbappé`, `Ousmane DembÃ©lÃ©` → `Ousmane Dembélé`, `IsmaÃ¯la Sarr` → `Ismaïla Sarr`, `VinÃ­cius JÃºnior` → `Vinícius Júnior`, `RubÃ©n Vargas` → `Rubén Vargas`, `Rafael LeÃ£o` → `Rafael Leão`, `J. QuiÃ±ones` → `J. Quiñones`, `R. JimÃ©nez` → `R. Jiménez` (and ~20 more).
+| Metric | Count |
+|---|---:|
+| Provider games | 80 |
+| Finished matches | 66 |
+| Non-shootout goals | 196 |
+| Goal events | 196 |
+| Resolved canonical identities | 196 |
+| Deliberately unresolved identities | 0 |
+| Own goals | 7 |
+| Penalties | 7 |
+| Corrupted identities corrected | 52 |
+| Team-membership violations | 0 |
+| Score/event mismatches | 0 |
+| Duplicate-event mismatches | 0 |
+| Unsupported corrections | 0 |
 
----
+## Turkey vs United States
 
-## Root Cause 2: Persian Transliteration
+Expected rendered scorer list:
 
-### Mechanism
-worldcup26.ir stores player names in **Persian script** (right-to-left, Arabic alphabet). When romanising for the API response, the site applies an informal ASCII mapping:
+- 3' Auston Trusty - United States
+- 10' Arda Güler - Turkey
+- 31' Barış Alper Yılmaz - Turkey
+- 49' Sebastian Berhalter - United States
+- 90+8' Kaan Ayhan - Turkey
 
-- **Short vowels** (a, e) are unmarked in Arabic/Persian script → dropped in romanisation
-- **`و` (waw)** represents both the consonant /w/ and long vowels /u/ and /o/ → mapped to `v` in Latin
-- **`ی` (ya)** can represent /y/, /i/, /ī/ → sometimes mapped as `ai` or dropped
+The malformed provider strings `Baris Alpr Ailmaz` and `Kan Aihan` are only accepted in the Turkey-USA match context at their verified event positions.
 
-This produces **consonant-skeleton** forms:
+## Top Scorers JSON-LD
 
-| Original | Persian store | Romanised output |
-|---|---|---|
-| Gonzalo | گنزالو | Gvnzalv |
-| Holmgren | هلمگرن | Hlmgrn |
-| Pedersen | پدرسن | Pdrsn |
-| Cody Gakpo | کودی گاکپو | Kvdi Khakpv |
-| Denis Undav | دنیز اوندف | Dniz Avndav |
-| Barış Alper Yılmaz | باریش آلپر یلماز | Baris Alpr Ailmaz |
-| Kaan Ayhan | کان آیهان | Kan Aihan |
-| Ayase Ueda | آیاسه اویدا | Aiash Ivida |
+Healthy trusted snapshots emit an `ItemList` whose items match the visible ranking. Fallback or unavailable scorer data does not emit authoritative ranking schema and instead renders an honest availability state. Own goals and unresolved scorer placeholders are excluded from named Top Scorers aggregation.
 
-### Fix
-[`lib/worldcup26PlayerAliases.ts`](../../lib/worldcup26PlayerAliases.ts) — exact-match dictionary mapping corrupted form → canonical display name.
+## Remaining Requirement
 
-**Applied:** 35 known mappings  
-**Unresolvable (marked "Scorer unavailable"):** 17 entries where the consonant skeleton is too degraded to identify with confidence
-
----
-
-## Per-Match Corrections Applied
-
-### Complete match overrides (`verifiedMatchEventCorrections.ts`)
-
-| Match | Correction |
-|---|---|
-| `turkey-vs-united-states-jun25` | Full scorer list (5 events) — confirmed: Trusty 3', Güler 10', Yılmaz 31', Berhalter 49', Ayhan 90+8' |
-| `canada-vs-bosnia-jun12` | Cyle Larin 78', Jovo Lukić 21' (pre-existing) |
-| `united-states-vs-paraguay-jun12` | 5-event complete list with OG and stoppage metadata (pre-existing) |
-
-### Automatic name-level fixes (alias map + Mojibake, all other matches)
-
-All other affected matches are corrected at parse time via `sanitizePlayerName()` in `worldcup26Provider.ts`. No match-level override is required because only specific player names within the match are corrupted; the rest of the event data is correct.
-
----
-
-## "Scorer Unavailable" Entries (17)
-
-These corrupted names cannot be resolved to canonical form with confidence from the consonant skeleton alone. The provider has been corrected to show `"Scorer unavailable"` rather than the corrupted string.
-
-| Corrupted form | Match | Note |
-|---|---|---|
-| `Abvnad` | bosnia-vs-qatar-jun24 | Bosnia player, skeleton too short |
-| `Armin Mhmich` | bosnia-vs-qatar-jun24 | Possibly Armin Mahmić, unverified |
-| `Karim Alaibgvvich` | bosnia-vs-qatar-jun24 | Possibly Karim Alibegovič, unverified |
-| `Kalb Iirnki` | ghana-vs-panama-jun17 | Panama player |
-| `Hassan Mohamed Altmbkti` | spain-vs-saudi-arabia-jun21 | Saudi Arabia player |
-| `Hazm Mstvri` | tunisia-vs-netherlands-jun25 | Tunisia player |
-| `Ian Fn Hkh` | tunisia-vs-netherlands-jun25 | Netherlands player |
-| `Taplv Maskv` | south-africa-vs-south-korea-jun24 | South Africa player |
-| `Fin Svrman` | new-zealand-vs-egypt-jun21 | New Zealand player |
-| `Kamrvn Bargs` | united-states-vs-australia-jun19 | USA player |
-| `Ailman Andiaih` | senegal-vs-iraq-jun26 | Senegal player |
-| `Prvmis Divid` | switzerland-vs-canada-jun24 | Canada player |
-| `Abas Bk Fiz Allh Af` | uzbekistan-vs-colombia-jun17 | Uzbekistan player (possibly Abbosbek Fayzullayev) |
-| `Khamintvn Kampaz` | uzbekistan-vs-colombia-jun17 | Colombia 90+9' |
-| `Abdalvhid Namtvf` | portugal-vs-uzbekistan-jun23 | Uzbekistan player |
-| `Nzir Bnbvali` | jordan-vs-algeria-jun22 | Algeria player |
-| `Gessime Yassine` | morocco-vs-haiti-jun24 | Morocco player — may be a real name |
-
----
-
-## Flagged for Manual Review
-
-### Tunisia vs Netherlands — "Alis Skhiri" at 3' credited to Netherlands
-
-`Alis Skhiri` is resolved to `Ellyes Skhiri` (Tunisian midfielder, Arabic إلياس → Alis). Ellyes Skhiri plays for Tunisia; a goal at 3' being credited to Netherlands strongly suggests an own goal. However, the provider data has `isOwnGoal: false`. The name has been corrected; the team/OG attribution requires external verification from match records.
-
----
-
-## Cache Invalidation
-
-`LIVE_SNAPSHOT_CACHE_KEY` bumped: `v7` → `v8` in `lib/liveSnapshot.ts`. All in-flight Vercel Data Cache entries with the old key will be ignored; the first post-deploy request rebuilds the snapshot with corrected names.
-
----
-
-## Test Coverage
-
-| Test | File | Status |
-|---|---|---|
-| Turkey-USA acceptance (5 events, 0 corrupted) | `scripts/test-turkey-us-scorer-integrity.ts` | ✅ 22/22 |
-| Mojibake fix (24 cases) | `scripts/test-scorer-name-integrity.ts` | ✅ 28/28 |
-| Alias map (20 canonical, 17 unavailable) | `scripts/test-scorer-name-integrity.ts` | ✅ 57/57 |
-| Stripped-C1 fallback (4 edge cases) | `scripts/test-scorer-name-integrity.ts` | ✅ 4/4 |
-| Canada-Bosnia correction (pre-existing) | `scripts/test-scorer-enrichment.ts` | ✅ |
-| USA-Paraguay correction (pre-existing) | `scripts/test-scorer-enrichment.ts` | ✅ |
-| Monotonic match state | `scripts/test-monotonic-match-state.ts` | ✅ 14/14 |
-| Score reconciliation | `scripts/test-score-reconciliation.ts` | ✅ 63/63 |
-| Goal event completeness | `scripts/test-goal-event-completeness.ts` | ✅ 16/16 |
-
----
-
-## AdSense Readiness Note
-
-All 196 goal events in finished matches are now either canonically named or explicitly `"Scorer unavailable"`. No corrupted strings (`Ailmaz`, `Aihan`, `Mvnvz`, `Khakpv`, `Avndav`, `Ivida`, `Maskv`, `Ph Ph`, `Gviih`, `Andiaih`, `Altmbkti`, `Svrman`, `Pdrsn`, `Mndz`) remain in any live surface.
-
-Re-review should not be requested until ≥7 days after this fix is deployed to Production.
-
----
-
-## Files Changed
-
-| File | Change |
-|---|---|
-| `lib/worldcup26Provider.ts` | Added `fixMojibake()`, `sanitizePlayerName()`, applied in `parseScorerString()` |
-| `lib/worldcup26PlayerAliases.ts` | **New** — 55-entry alias map (35 canonical + 17 unavailable + 4 C1-stripped fallbacks) |
-| `lib/verifiedMatchEventCorrections.ts` | Added Turkey-USA 5-event verified correction |
-| `lib/liveSnapshot.ts` | Cache key bumped v7 → v8 |
-| `scripts/test-turkey-us-scorer-integrity.ts` | **New** — Turkey-USA acceptance gate |
-| `scripts/test-scorer-name-integrity.ts` | **New** — full name integrity gate (113 assertions) |
-| `data/audit/scorer-identity-inventory.json` | **New** — complete audit inventory |
-| `docs/audit/scorer-identity-integrity-report.md` | **New** — this report |
+After the final correction commit is pushed, wait for the Vercel Preview built from the exact final SHA and run the sparse sequential scorer crawl against that deployment. Main, Production, and AdSense remain untouched.

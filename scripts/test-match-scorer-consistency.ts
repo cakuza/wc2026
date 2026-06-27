@@ -1,111 +1,104 @@
-import { getTournamentLiveSnapshot } from "../lib/liveSnapshot";
-import { MATCHES, matchSlug } from "../lib/matches";
-import { countryName } from "../lib/i18n";
+import { buildTournamentLiveSnapshot } from "../lib/liveSnapshot";
+import type { WorldCup26Game } from "../lib/worldcup26Provider";
 
 let passed = 0;
 let failed = 0;
 
-function assert(condition: boolean, msg: string) {
+function assert(condition: boolean, msg: string, detail?: string) {
   if (condition) {
     console.log(`  PASS  ${msg}`);
     passed++;
   } else {
-    console.error(`  FAIL  ${msg}`);
+    console.error(`  FAIL  ${msg}${detail ? ` -- ${detail}` : ""}`);
     failed++;
   }
 }
 
+function game(
+  homeTeamName: string,
+  awayTeamName: string,
+  homeScore: number,
+  awayScore: number,
+): WorldCup26Game {
+  return {
+    providerGameId: `${homeTeamName}-${awayTeamName}`,
+    homeTeamName,
+    awayTeamName,
+    homeScore,
+    awayScore,
+    finished: true,
+    homeScorers: [],
+    awayScorers: [],
+    localDate: "06/18/2026 12:00",
+  };
+}
+
+const fixture: WorldCup26Game[] = [
+  game("Turkey", "United States", 3, 2),
+  game("Czechia", "South Africa", 1, 1),
+  game("Switzerland", "Bosnia and Herzegovina", 4, 1),
+  game("Austria", "Jordan", 3, 1),
+  game("Tunisia", "Netherlands", 1, 3),
+  game("United States", "Australia", 2, 0),
+];
+
+function scorerTotals(snapshot: Awaited<ReturnType<typeof buildTournamentLiveSnapshot>>) {
+  const finished = Object.values(snapshot.matches).filter((m) => m.status === "FINISHED");
+  const scorerEvents = finished.flatMap((m) => m.scorers);
+  const scoreEventMismatches = finished
+    .filter((m) => typeof m.homeScore === "number" && typeof m.awayScore === "number")
+    .filter((m) => m.scorers.length !== (m.homeScore ?? 0) + (m.awayScore ?? 0))
+    .map((m) => `${m.internalId}:${m.homeScore}-${m.awayScore}:${m.scorers.length}`);
+
+  return {
+    finishedMatches: finished.length,
+    nonShootoutGoals: finished.reduce((sum, m) => sum + (m.homeScore ?? 0) + (m.awayScore ?? 0), 0),
+    scorerEvents: scorerEvents.length,
+    ownGoals: scorerEvents.filter((s) => s.isOwnGoal).length,
+    penalties: scorerEvents.filter((s) => s.isPenalty || s.type === "PENALTY_GOAL").length,
+    namedScorers: scorerEvents.filter((s) => s.playerName !== "Scorer unavailable").length,
+    deliberateUnresolved: scorerEvents.filter((s) => s.playerName === "Scorer unavailable").length,
+    scoreEventMismatches,
+  };
+}
+
 async function main() {
-  console.log("=== Match/stats scorer consistency test ===\n");
+  console.log("=== Deterministic match/stats scorer consistency test ===\n");
 
-  const snapshot = await getTournamentLiveSnapshot();
-  if (Object.keys(snapshot.matches).length === 0) {
-    console.log("  ⚠️ Skipping match-scorer consistency tests (provider or Next.js cache unavailable)\n");
-    return;
-  }
-  const matchSlugsWithScorers = Object.values(snapshot.matches).filter((m) => m.scorers.length > 0);
-  console.log(`Snapshot has scorer events for ${matchSlugsWithScorers.length} match(es).\n`);
+  assert(fixture.length > 0, "frozen fixture is available");
 
-  const statsTopScorersMap = new Map<string, { teamName: string | null; goals: number }>();
-  for (const stat of snapshot.topScorers) {
-    statsTopScorersMap.set(stat.playerName, { teamName: stat.teamName, goals: stat.goals });
-  }
+  const snapshot = await buildTournamentLiveSnapshot({
+    liveData: new Map(),
+    worldcupGames: fixture,
+    generatedAt: "2026-06-28T00:00:00.000Z",
+    primaryProviderOk: false,
+    secondaryProviderOk: true,
+  });
 
-  const derivedTopScorers = new Map<string, { teamName: string | null; goals: number }>();
-  for (const match of Object.values(snapshot.matches)) {
-    for (const goal of match.scorers) {
-      if (goal.isOwnGoal) continue;
-      const existing = derivedTopScorers.get(goal.playerName);
-      if (existing) existing.goals++;
-      else derivedTopScorers.set(goal.playerName, { teamName: goal.teamName, goals: 1 });
-    }
-  }
+  const totals = scorerTotals(snapshot);
+  console.log(JSON.stringify(totals, null, 2));
 
-  console.log(`/stats shows ${snapshot.topScorers.length} distinct scorer(s).`);
+  assert(totals.finishedMatches === 6, "finished matches total is deterministic", `got ${totals.finishedMatches}`);
+  assert(totals.nonShootoutGoals === 22, "non-shootout goals total is deterministic", `got ${totals.nonShootoutGoals}`);
+  assert(totals.scorerEvents === totals.nonShootoutGoals, "scorer event count equals score total");
+  assert(totals.scorerEvents > 0, "finished scored matches have scorer events");
+  assert(totals.ownGoals === 3, "own-goal total is deterministic", `got ${totals.ownGoals}`);
+  assert(totals.penalties === 4, "penalty total is deterministic", `got ${totals.penalties}`);
+  assert(totals.namedScorers === 22, "all deterministic fixture scorers are named");
+  assert(totals.deliberateUnresolved === 0, "no deliberate unresolved scorers in deterministic fixture");
+  assert(totals.scoreEventMismatches.length === 0, "score/event mismatches = 0", totals.scoreEventMismatches.join(", "));
 
+  const topScorerGoals = new Map(snapshot.topScorers.map((s) => [s.playerName, s.goals]));
+  assert(!topScorerGoals.has("Ellyes Skhiri"), "Skhiri own goal excluded from Top Scorers");
+  assert(!topScorerGoals.has("Cameron Burgess"), "Burgess own goal excluded from Top Scorers");
+  assert(!topScorerGoals.has("Yazan Al-Arab"), "Yazan Al-Arab own goal excluded from Top Scorers");
+
+  const turkeyUsa = snapshot.matches["turkey-vs-united-states-jun25"]?.scorers.map((s) => `${s.minuteLabel} ${s.playerName}`);
   assert(
-    snapshot.topScorers.length === derivedTopScorers.size,
-    "The number of top scorers in snapshot matches the dynamically derived count from individual matches"
+    JSON.stringify(turkeyUsa) === JSON.stringify(["3' Auston Trusty", "10' Arda Güler", "31' Barış Alper Yılmaz", "49' Sebastian Berhalter", "90+8' Kaan Ayhan"]),
+    "Turkey-USA canonical scorer list is stable",
+    JSON.stringify(turkeyUsa),
   );
-
-  for (const [name, info] of derivedTopScorers) {
-    const statInfo = statsTopScorersMap.get(name);
-    assert(statInfo !== undefined, `Derived scorer ${name} exists in topScorers`);
-    if (statInfo) {
-      assert(statInfo.goals === info.goals, `Derived scorer ${name} goals match (${info.goals})`);
-    }
-  }
-
-  console.log("\nPer-match consistency:");
-  for (const match of MATCHES) {
-    const slug = matchSlug(match);
-    const events = snapshot.matches[slug]?.scorers || [];
-    if (events.length === 0) continue;
-
-    console.log(`\n${slug} (${countryName(match.homeKey, "en")} vs ${countryName(match.awayKey, "en")}):`);
-    for (const event of events) {
-      const minute = event.minuteLabel ?? (event.minute != null ? `${event.minute}'` : "?");
-      console.log(`  ${minute} ${event.playerName}${event.isOwnGoal ? " (OG)" : ""} (${event.teamName})`);
-      if (event.isOwnGoal) {
-        assert(!statsTopScorersMap.has(event.playerName), `${event.playerName} own goal is excluded from /stats top-scorer aggregation`);
-        continue;
-      }
-      assert(statsTopScorersMap.has(event.playerName), `${event.playerName} (from ${slug}) appears in /stats top-scorer aggregation`);
-    }
-  }
-
-  const usaMatch = MATCHES.find(
-    (match) => countryName(match.homeKey, "en") === "United States" && countryName(match.awayKey, "en") === "Paraguay",
-  );
-  if (usaMatch) {
-    const slug = matchSlug(usaMatch);
-    const events = snapshot.matches[slug]?.scorers;
-    if (events && events.length > 0) {
-      assert(events.length === 5, "united-states-vs-paraguay has 5 goal events");
-      assert(events[0]?.playerName === "Damian Bobadilla" && events[0]?.isOwnGoal === true, "USA-Paraguay starts with Bobadilla own goal");
-      assert(events[2]?.playerName === "Folarin Balogun" && events[2]?.minuteLabel === "45+5'", "USA-Paraguay includes Balogun 45+5'");
-      assert(events[4]?.playerName === "Giovanni Reyna" && events[4]?.minuteLabel === "90+8'", "USA-Paraguay includes Reyna 90+8'");
-      assert(statsTopScorersMap.get("Folarin Balogun")?.goals === 2, "Balogun has 2 goals in /stats aggregation");
-      assert(!statsTopScorersMap.has("Damian Bobadilla"), "Bobadilla own goal is not in /stats aggregation");
-    }
-  }
-
-  const korMatch = MATCHES.find(
-    (match) => countryName(match.homeKey, "en") === "South Korea" && countryName(match.awayKey, "en") === "Czechia",
-  );
-  if (korMatch) {
-    const slug = matchSlug(korMatch);
-    const events = snapshot.matches[slug]?.scorers;
-    if (events && events.length > 0) {
-      assert(events.length === 3, `south-korea-vs-czechia has 3 scorer events (got ${events.length})`);
-      assert(
-        events.every((event) => event.teamName === "South Korea" || event.teamName === "Czechia"),
-        "all scorer events use internal team display names (South Korea / Czechia)",
-      );
-    } else {
-      console.log("  No scorer events found for South Korea vs Czechia (provider may not have parsed it yet)");
-    }
-  }
 
   console.log(`\n${passed} passed, ${failed} failed`);
   if (failed > 0) process.exitCode = 1;
