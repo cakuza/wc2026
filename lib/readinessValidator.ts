@@ -92,7 +92,13 @@ export function validateProviderPayload(
   const errors:   string[] = [];
   const warnings: string[] = [];
 
-  const canonicalMatches = MATCHES;
+  // worldcup26.ir is the secondary enrichment provider for group-stage matches.
+  // Knockout matches use "tbd" participant keys until group stage resolves; they
+  // cannot be matched against provider team names and are validated structurally
+  // elsewhere. All provider payload checks here are scoped to the 72 group matches.
+  const canonicalMatches = MATCHES.filter(
+    (m) => !("stage" in m) || m.stage === "group" || m.stage === undefined,
+  );
   const totalCanonical   = canonicalMatches.length; // 72
 
   // ── 1. Build lookup: normalised key → list of games (detect duplicates) ──
