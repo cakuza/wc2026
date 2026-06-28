@@ -295,6 +295,7 @@ const SLUG_MONTHS = ["jan","feb","mar","apr","may","jun","jul","aug","sep","oct"
  *  e.g. Turkey vs Australia 14 Jun  →  "turkey-vs-australia-jun14"
  */
 export function matchSlug(m: Match): string {
+  if ('matchNumber' in m) return `match-${m.matchNumber}`;
   const d = new Date(`${m.date}T00:00:00`);
   return `${keyToSlug(m.homeKey)}-vs-${keyToSlug(m.awayKey)}-${SLUG_MONTHS[d.getMonth()]}${d.getDate()}`;
 }
