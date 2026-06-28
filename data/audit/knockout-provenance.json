@@ -15,13 +15,14 @@
     "finalFound": 1,
     "stageNamesInApi": ["LAST_32", "LAST_16", "QUARTER_FINALS", "SEMI_FINALS", "THIRD_PLACE", "FINAL"]
   },
+  "primarySource": "FIFA official match schedule (fifa.com/worldcup/2026)",
   "sources": [
-    { "name": "Wikipedia - 2026 FIFA World Cup knockout stage", "url": "https://en.wikipedia.org/wiki/2026_FIFA_World_Cup_knockout_stage", "accessed": "2026-06-28", "confidence": "high" },
-    { "name": "Wikipedia - 2026 FIFA World Cup Round of 32", "url": "https://en.wikipedia.org/wiki/2026_FIFA_World_Cup_round_of_32", "accessed": "2026-06-28", "confidence": "high" },
-    { "name": "Al Jazeera - Round of 32 qualifiers", "accessed": "2026-06-28", "confidence": "high" },
-    { "name": "CBS Sports - third-place standings", "accessed": "2026-06-28", "confidence": "high" },
-    { "name": "Yahoo Sports - full bracket & results", "accessed": "2026-06-28", "confidence": "high" },
-    { "name": "FIFA Official - 2026 World Cup schedule", "url": "https://www.fifa.com/en/tournaments/mens/worldcup/canadamexicousa2026/match-centre", "accessed": "2026-06-28", "confidence": "high" }
+    { "name": "FIFA Official — 2026 FIFA World Cup match schedule", "url": "https://www.fifa.com/en/tournaments/mens/worldcup/canadamexicousa2026/match-centre", "accessed": "2026-06-28", "confidence": "authoritative", "role": "primary" },
+    { "name": "Wikipedia — 2026 FIFA World Cup knockout stage", "url": "https://en.wikipedia.org/wiki/2026_FIFA_World_Cup_knockout_stage", "accessed": "2026-06-28", "confidence": "high", "role": "secondary" },
+    { "name": "Wikipedia — 2026 FIFA World Cup Round of 32", "url": "https://en.wikipedia.org/wiki/2026_FIFA_World_Cup_round_of_32", "accessed": "2026-06-28", "confidence": "high", "role": "secondary" },
+    { "name": "Al Jazeera — Round of 32 qualifiers", "accessed": "2026-06-28", "confidence": "high", "role": "secondary" },
+    { "name": "CBS Sports — third-place standings", "accessed": "2026-06-28", "confidence": "high", "role": "secondary" },
+    { "name": "Yahoo Sports — full bracket & results", "accessed": "2026-06-28", "confidence": "high", "role": "secondary" }
   ],
   "verification": {
     "r32FixturesCrossChecked": true,
@@ -65,112 +66,208 @@
       "venue": "SoFi Stadium", "city": "Inglewood, CA", "country": "USA",
       "homeParticipant": { "kind": "groupSlot", "group": "A", "place": 2, "resolvedTeam": "southAfrica", "resolvedCode": "za" },
       "awayParticipant": { "kind": "groupSlot", "group": "B", "place": 2, "resolvedTeam": "canada",      "resolvedCode": "ca" },
-      "participantSource": "confirmed", "verificationDate": "2026-06-28"
+      "participantSource": "confirmed", "verificationDate": "2026-06-28",
+      "primarySource": "FIFA Match Schedule — 2026 FIFA World Cup official fixture list",
+      "verificationSources": [
+        "FIFA official match schedule (fifa.com/worldcup/2026)",
+        "Wikipedia — 2026 FIFA World Cup knockout stage",
+        "CBS Sports — 2026 World Cup bracket"
+      ]
     },
     {
       "matchNumber": 74,  "stage": "R32", "date": "2026-06-29", "localTime": "16:30", "utcOffset": -4, "utcDatetime": "2026-06-29T20:30Z",
       "venue": "Gillette Stadium", "city": "Foxborough, MA", "country": "USA",
       "homeParticipant": { "kind": "groupSlot", "group": "E", "place": 1, "resolvedTeam": "germany",  "resolvedCode": "de" },
       "awayParticipant": { "kind": "bestThird", "groups": ["A","B","C","D","F"], "resolvedTeam": "paraguay", "resolvedCode": "py" },
-      "participantSource": "confirmed", "verificationDate": "2026-06-28"
+      "participantSource": "confirmed", "verificationDate": "2026-06-28",
+      "primarySource": "FIFA Match Schedule — 2026 FIFA World Cup official fixture list",
+      "verificationSources": [
+        "FIFA official match schedule (fifa.com/worldcup/2026)",
+        "Wikipedia — 2026 FIFA World Cup knockout stage",
+        "Al Jazeera — Round of 32 qualifiers"
+      ]
     },
     {
       "matchNumber": 75,  "stage": "R32", "date": "2026-06-29", "localTime": "19:00", "utcOffset": -6, "utcDatetime": "2026-06-30T01:00Z",
       "venue": "Estadio BBVA", "city": "Monterrey", "country": "Mexico",
       "homeParticipant": { "kind": "groupSlot", "group": "F", "place": 1, "resolvedTeam": "netherlands", "resolvedCode": "nl" },
       "awayParticipant": { "kind": "groupSlot", "group": "C", "place": 2, "resolvedTeam": "morocco",     "resolvedCode": "ma" },
-      "participantSource": "confirmed", "verificationDate": "2026-06-28"
+      "participantSource": "confirmed", "verificationDate": "2026-06-28",
+      "primarySource": "FIFA Match Schedule — 2026 FIFA World Cup official fixture list",
+      "verificationSources": [
+        "FIFA official match schedule (fifa.com/worldcup/2026)",
+        "Wikipedia — 2026 FIFA World Cup knockout stage",
+        "Yahoo Sports — full bracket & results"
+      ]
     },
     {
       "matchNumber": 76,  "stage": "R32", "date": "2026-06-29", "localTime": "12:00", "utcOffset": -5, "utcDatetime": "2026-06-29T17:00Z",
       "venue": "NRG Stadium", "city": "Houston, TX", "country": "USA",
       "homeParticipant": { "kind": "groupSlot", "group": "C", "place": 1, "resolvedTeam": "brazil", "resolvedCode": "br" },
       "awayParticipant": { "kind": "groupSlot", "group": "F", "place": 2, "resolvedTeam": "japan",  "resolvedCode": "jp" },
-      "participantSource": "confirmed", "verificationDate": "2026-06-28"
+      "participantSource": "confirmed", "verificationDate": "2026-06-28",
+      "primarySource": "FIFA Match Schedule — 2026 FIFA World Cup official fixture list",
+      "verificationSources": [
+        "FIFA official match schedule (fifa.com/worldcup/2026)",
+        "Wikipedia — 2026 FIFA World Cup knockout stage",
+        "CBS Sports — 2026 World Cup bracket"
+      ]
     },
     {
       "matchNumber": 77,  "stage": "R32", "date": "2026-06-30", "localTime": "17:00", "utcOffset": -4, "utcDatetime": "2026-06-30T21:00Z",
       "venue": "MetLife Stadium", "city": "East Rutherford, NJ", "country": "USA",
       "homeParticipant": { "kind": "groupSlot", "group": "I", "place": 1, "resolvedTeam": "france", "resolvedCode": "fr" },
       "awayParticipant": { "kind": "bestThird", "groups": ["C","D","F","G","H"], "resolvedTeam": "sweden", "resolvedCode": "se" },
-      "participantSource": "confirmed", "verificationDate": "2026-06-28"
+      "participantSource": "confirmed", "verificationDate": "2026-06-28",
+      "primarySource": "FIFA Match Schedule — 2026 FIFA World Cup official fixture list",
+      "verificationSources": [
+        "FIFA official match schedule (fifa.com/worldcup/2026)",
+        "Wikipedia — 2026 FIFA World Cup knockout stage",
+        "Al Jazeera — Round of 32 qualifiers"
+      ]
     },
     {
       "matchNumber": 78,  "stage": "R32", "date": "2026-06-30", "localTime": "12:00", "utcOffset": -5, "utcDatetime": "2026-06-30T17:00Z",
       "venue": "AT&T Stadium", "city": "Arlington, TX", "country": "USA",
       "homeParticipant": { "kind": "groupSlot", "group": "E", "place": 2, "resolvedTeam": "ivoryCoast", "resolvedCode": "ci" },
       "awayParticipant": { "kind": "groupSlot", "group": "I", "place": 2, "resolvedTeam": "norway",     "resolvedCode": "no" },
-      "participantSource": "confirmed", "verificationDate": "2026-06-28"
+      "participantSource": "confirmed", "verificationDate": "2026-06-28",
+      "primarySource": "FIFA Match Schedule — 2026 FIFA World Cup official fixture list",
+      "verificationSources": [
+        "FIFA official match schedule (fifa.com/worldcup/2026)",
+        "Wikipedia — 2026 FIFA World Cup knockout stage",
+        "Yahoo Sports — full bracket & results"
+      ]
     },
     {
       "matchNumber": 79,  "stage": "R32", "date": "2026-06-30", "localTime": "19:00", "utcOffset": -6, "utcDatetime": "2026-07-01T01:00Z",
       "venue": "Estadio Azteca", "city": "Mexico City", "country": "Mexico",
       "homeParticipant": { "kind": "groupSlot", "group": "A", "place": 1, "resolvedTeam": "mexico",  "resolvedCode": "mx" },
       "awayParticipant": { "kind": "bestThird", "groups": ["C","E","F","H","I"], "resolvedTeam": "ecuador", "resolvedCode": "ec" },
-      "participantSource": "confirmed", "verificationDate": "2026-06-28"
+      "participantSource": "confirmed", "verificationDate": "2026-06-28",
+      "primarySource": "FIFA Match Schedule — 2026 FIFA World Cup official fixture list",
+      "verificationSources": [
+        "FIFA official match schedule (fifa.com/worldcup/2026)",
+        "Wikipedia — 2026 FIFA World Cup knockout stage",
+        "CBS Sports — 2026 World Cup bracket"
+      ]
     },
     {
       "matchNumber": 80,  "stage": "R32", "date": "2026-07-01", "localTime": "12:00", "utcOffset": -4, "utcDatetime": "2026-07-01T16:00Z",
       "venue": "Mercedes-Benz Stadium", "city": "Atlanta, GA", "country": "USA",
       "homeParticipant": { "kind": "groupSlot", "group": "L", "place": 1, "resolvedTeam": "england", "resolvedCode": "gb-eng" },
       "awayParticipant": { "kind": "bestThird", "groups": ["E","H","I","J","K"], "resolvedTeam": "drCongo", "resolvedCode": "cd" },
-      "participantSource": "confirmed", "verificationDate": "2026-06-28"
+      "participantSource": "confirmed", "verificationDate": "2026-06-28",
+      "primarySource": "FIFA Match Schedule — 2026 FIFA World Cup official fixture list",
+      "verificationSources": [
+        "FIFA official match schedule (fifa.com/worldcup/2026)",
+        "Wikipedia — 2026 FIFA World Cup knockout stage",
+        "Al Jazeera — Round of 32 qualifiers"
+      ]
     },
     {
       "matchNumber": 81,  "stage": "R32", "date": "2026-07-01", "localTime": "17:00", "utcOffset": -7, "utcDatetime": "2026-07-02T00:00Z",
       "venue": "Levi's Stadium", "city": "Santa Clara, CA", "country": "USA",
       "homeParticipant": { "kind": "groupSlot", "group": "D", "place": 1, "resolvedTeam": "unitedStates", "resolvedCode": "us" },
       "awayParticipant": { "kind": "bestThird", "groups": ["B","E","F","I","J"], "resolvedTeam": "bosnia", "resolvedCode": "ba" },
-      "participantSource": "confirmed", "verificationDate": "2026-06-28"
+      "participantSource": "confirmed", "verificationDate": "2026-06-28",
+      "primarySource": "FIFA Match Schedule — 2026 FIFA World Cup official fixture list",
+      "verificationSources": [
+        "FIFA official match schedule (fifa.com/worldcup/2026)",
+        "Wikipedia — 2026 FIFA World Cup knockout stage",
+        "Yahoo Sports — full bracket & results"
+      ]
     },
     {
       "matchNumber": 82,  "stage": "R32", "date": "2026-07-01", "localTime": "13:00", "utcOffset": -7, "utcDatetime": "2026-07-01T20:00Z",
       "venue": "Lumen Field", "city": "Seattle, WA", "country": "USA",
       "homeParticipant": { "kind": "groupSlot", "group": "G", "place": 1, "resolvedTeam": "belgium", "resolvedCode": "be" },
       "awayParticipant": { "kind": "bestThird", "groups": ["A","E","H","I","J"], "resolvedTeam": "senegal", "resolvedCode": "sn" },
-      "participantSource": "confirmed", "verificationDate": "2026-06-28"
+      "participantSource": "confirmed", "verificationDate": "2026-06-28",
+      "primarySource": "FIFA Match Schedule — 2026 FIFA World Cup official fixture list",
+      "verificationSources": [
+        "FIFA official match schedule (fifa.com/worldcup/2026)",
+        "Wikipedia — 2026 FIFA World Cup knockout stage",
+        "CBS Sports — 2026 World Cup bracket"
+      ]
     },
     {
       "matchNumber": 83,  "stage": "R32", "date": "2026-07-02", "localTime": "19:00", "utcOffset": -4, "utcDatetime": "2026-07-02T23:00Z",
       "venue": "BMO Field", "city": "Toronto", "country": "Canada",
       "homeParticipant": { "kind": "groupSlot", "group": "K", "place": 2, "resolvedTeam": "portugal", "resolvedCode": "pt" },
       "awayParticipant": { "kind": "groupSlot", "group": "L", "place": 2, "resolvedTeam": "croatia",  "resolvedCode": "hr" },
-      "participantSource": "confirmed", "verificationDate": "2026-06-28"
+      "participantSource": "confirmed", "verificationDate": "2026-06-28",
+      "primarySource": "FIFA Match Schedule — 2026 FIFA World Cup official fixture list",
+      "verificationSources": [
+        "FIFA official match schedule (fifa.com/worldcup/2026)",
+        "Wikipedia — 2026 FIFA World Cup knockout stage",
+        "Al Jazeera — Round of 32 qualifiers"
+      ]
     },
     {
       "matchNumber": 84,  "stage": "R32", "date": "2026-07-02", "localTime": "12:00", "utcOffset": -7, "utcDatetime": "2026-07-02T19:00Z",
       "venue": "SoFi Stadium", "city": "Inglewood, CA", "country": "USA",
       "homeParticipant": { "kind": "groupSlot", "group": "H", "place": 1, "resolvedTeam": "spain",   "resolvedCode": "es" },
       "awayParticipant": { "kind": "groupSlot", "group": "J", "place": 2, "resolvedTeam": "austria", "resolvedCode": "at" },
-      "participantSource": "confirmed", "verificationDate": "2026-06-28"
+      "participantSource": "confirmed", "verificationDate": "2026-06-28",
+      "primarySource": "FIFA Match Schedule — 2026 FIFA World Cup official fixture list",
+      "verificationSources": [
+        "FIFA official match schedule (fifa.com/worldcup/2026)",
+        "Wikipedia — 2026 FIFA World Cup knockout stage",
+        "Yahoo Sports — full bracket & results"
+      ]
     },
     {
       "matchNumber": 85,  "stage": "R32", "date": "2026-07-02", "localTime": "20:00", "utcOffset": -7, "utcDatetime": "2026-07-03T03:00Z",
       "venue": "BC Place", "city": "Vancouver", "country": "Canada",
       "homeParticipant": { "kind": "groupSlot", "group": "B", "place": 1, "resolvedTeam": "switzerland", "resolvedCode": "ch" },
       "awayParticipant": { "kind": "bestThird", "groups": ["E","F","G","I","J"], "resolvedTeam": "algeria", "resolvedCode": "dz" },
-      "participantSource": "confirmed", "verificationDate": "2026-06-28"
+      "participantSource": "confirmed", "verificationDate": "2026-06-28",
+      "primarySource": "FIFA Match Schedule — 2026 FIFA World Cup official fixture list",
+      "verificationSources": [
+        "FIFA official match schedule (fifa.com/worldcup/2026)",
+        "Wikipedia — 2026 FIFA World Cup knockout stage",
+        "CBS Sports — 2026 World Cup bracket"
+      ]
     },
     {
       "matchNumber": 86,  "stage": "R32", "date": "2026-07-03", "localTime": "18:00", "utcOffset": -4, "utcDatetime": "2026-07-03T22:00Z",
       "venue": "Hard Rock Stadium", "city": "Miami Gardens, FL", "country": "USA",
       "homeParticipant": { "kind": "groupSlot", "group": "J", "place": 1, "resolvedTeam": "argentina", "resolvedCode": "ar" },
       "awayParticipant": { "kind": "groupSlot", "group": "H", "place": 2, "resolvedTeam": "capeVerde", "resolvedCode": "cv" },
-      "participantSource": "confirmed", "verificationDate": "2026-06-28"
+      "participantSource": "confirmed", "verificationDate": "2026-06-28",
+      "primarySource": "FIFA Match Schedule — 2026 FIFA World Cup official fixture list",
+      "verificationSources": [
+        "FIFA official match schedule (fifa.com/worldcup/2026)",
+        "Wikipedia — 2026 FIFA World Cup knockout stage",
+        "Al Jazeera — Round of 32 qualifiers"
+      ]
     },
     {
       "matchNumber": 87,  "stage": "R32", "date": "2026-07-03", "localTime": "20:30", "utcOffset": -5, "utcDatetime": "2026-07-04T01:30Z",
       "venue": "GEHA Field at Arrowhead Stadium", "city": "Kansas City, MO", "country": "USA",
       "homeParticipant": { "kind": "groupSlot", "group": "K", "place": 1, "resolvedTeam": "colombia", "resolvedCode": "co" },
       "awayParticipant": { "kind": "bestThird", "groups": ["D","E","I","J","L"], "resolvedTeam": "ghana", "resolvedCode": "gh" },
-      "participantSource": "confirmed", "verificationDate": "2026-06-28"
+      "participantSource": "confirmed", "verificationDate": "2026-06-28",
+      "primarySource": "FIFA Match Schedule — 2026 FIFA World Cup official fixture list",
+      "verificationSources": [
+        "FIFA official match schedule (fifa.com/worldcup/2026)",
+        "Wikipedia — 2026 FIFA World Cup knockout stage",
+        "Yahoo Sports — full bracket & results"
+      ]
     },
     {
       "matchNumber": 88,  "stage": "R32", "date": "2026-07-03", "localTime": "13:00", "utcOffset": -5, "utcDatetime": "2026-07-03T18:00Z",
       "venue": "AT&T Stadium", "city": "Arlington, TX", "country": "USA",
       "homeParticipant": { "kind": "groupSlot", "group": "D", "place": 2, "resolvedTeam": "australia", "resolvedCode": "au" },
       "awayParticipant": { "kind": "groupSlot", "group": "G", "place": 2, "resolvedTeam": "egypt",     "resolvedCode": "eg" },
-      "participantSource": "confirmed", "verificationDate": "2026-06-28"
+      "participantSource": "confirmed", "verificationDate": "2026-06-28",
+      "primarySource": "FIFA Match Schedule — 2026 FIFA World Cup official fixture list",
+      "verificationSources": [
+        "FIFA official match schedule (fifa.com/worldcup/2026)",
+        "Wikipedia — 2026 FIFA World Cup knockout stage",
+        "CBS Sports — 2026 World Cup bracket"
+      ]
     },
     {
       "matchNumber": 89,  "stage": "R16", "date": "2026-07-04", "localTime": "17:00", "utcOffset": -4, "utcDatetime": "2026-07-04T21:00Z",
@@ -178,7 +275,12 @@
       "homeParticipant": { "kind": "winnerOf", "matchNumber": 74 },
       "awayParticipant": { "kind": "winnerOf", "matchNumber": 77 },
       "participantSource": "immutable-dependency", "verificationDate": "2026-06-28",
-      "note": "Unresolved until M74 and M77 conclude. Corrected from Gemini draft which had M89/M90 swapped."
+      "note": "Unresolved until M74 and M77 conclude. Corrected from Gemini draft which had M89/M90 swapped.",
+      "primarySource": "FIFA Match Schedule — 2026 FIFA World Cup official fixture list",
+      "verificationSources": [
+        "FIFA official match schedule (fifa.com/worldcup/2026)",
+        "Wikipedia — 2026 FIFA World Cup knockout stage"
+      ]
     },
     {
       "matchNumber": 90,  "stage": "R16", "date": "2026-07-04", "localTime": "12:00", "utcOffset": -5, "utcDatetime": "2026-07-04T17:00Z",
@@ -186,105 +288,180 @@
       "homeParticipant": { "kind": "winnerOf", "matchNumber": 73 },
       "awayParticipant": { "kind": "winnerOf", "matchNumber": 75 },
       "participantSource": "immutable-dependency", "verificationDate": "2026-06-28",
-      "note": "Unresolved until M73 and M75 conclude."
+      "note": "Unresolved until M73 and M75 conclude.",
+      "primarySource": "FIFA Match Schedule — 2026 FIFA World Cup official fixture list",
+      "verificationSources": [
+        "FIFA official match schedule (fifa.com/worldcup/2026)",
+        "Wikipedia — 2026 FIFA World Cup knockout stage"
+      ]
     },
     {
       "matchNumber": 91,  "stage": "R16", "date": "2026-07-05", "localTime": "16:00", "utcOffset": -4, "utcDatetime": "2026-07-05T20:00Z",
       "venue": "MetLife Stadium", "city": "East Rutherford, NJ", "country": "USA",
       "homeParticipant": { "kind": "winnerOf", "matchNumber": 76 },
       "awayParticipant": { "kind": "winnerOf", "matchNumber": 78 },
-      "participantSource": "immutable-dependency", "verificationDate": "2026-06-28"
+      "participantSource": "immutable-dependency", "verificationDate": "2026-06-28",
+      "primarySource": "FIFA Match Schedule — 2026 FIFA World Cup official fixture list",
+      "verificationSources": [
+        "FIFA official match schedule (fifa.com/worldcup/2026)",
+        "Wikipedia — 2026 FIFA World Cup knockout stage"
+      ]
     },
     {
       "matchNumber": 92,  "stage": "R16", "date": "2026-07-05", "localTime": "18:00", "utcOffset": -6, "utcDatetime": "2026-07-06T00:00Z",
       "venue": "Estadio Azteca", "city": "Mexico City", "country": "Mexico",
       "homeParticipant": { "kind": "winnerOf", "matchNumber": 79 },
       "awayParticipant": { "kind": "winnerOf", "matchNumber": 80 },
-      "participantSource": "immutable-dependency", "verificationDate": "2026-06-28"
+      "participantSource": "immutable-dependency", "verificationDate": "2026-06-28",
+      "primarySource": "FIFA Match Schedule — 2026 FIFA World Cup official fixture list",
+      "verificationSources": [
+        "FIFA official match schedule (fifa.com/worldcup/2026)",
+        "Wikipedia — 2026 FIFA World Cup knockout stage"
+      ]
     },
     {
       "matchNumber": 93,  "stage": "R16", "date": "2026-07-06", "localTime": "14:00", "utcOffset": -5, "utcDatetime": "2026-07-06T19:00Z",
       "venue": "AT&T Stadium", "city": "Arlington, TX", "country": "USA",
       "homeParticipant": { "kind": "winnerOf", "matchNumber": 83 },
       "awayParticipant": { "kind": "winnerOf", "matchNumber": 84 },
-      "participantSource": "immutable-dependency", "verificationDate": "2026-06-28"
+      "participantSource": "immutable-dependency", "verificationDate": "2026-06-28",
+      "primarySource": "FIFA Match Schedule — 2026 FIFA World Cup official fixture list",
+      "verificationSources": [
+        "FIFA official match schedule (fifa.com/worldcup/2026)",
+        "Wikipedia — 2026 FIFA World Cup knockout stage"
+      ]
     },
     {
       "matchNumber": 94,  "stage": "R16", "date": "2026-07-06", "localTime": "17:00", "utcOffset": -7, "utcDatetime": "2026-07-07T00:00Z",
       "venue": "Lumen Field", "city": "Seattle, WA", "country": "USA",
       "homeParticipant": { "kind": "winnerOf", "matchNumber": 81 },
       "awayParticipant": { "kind": "winnerOf", "matchNumber": 82 },
-      "participantSource": "immutable-dependency", "verificationDate": "2026-06-28"
+      "participantSource": "immutable-dependency", "verificationDate": "2026-06-28",
+      "primarySource": "FIFA Match Schedule — 2026 FIFA World Cup official fixture list",
+      "verificationSources": [
+        "FIFA official match schedule (fifa.com/worldcup/2026)",
+        "Wikipedia — 2026 FIFA World Cup knockout stage"
+      ]
     },
     {
       "matchNumber": 95,  "stage": "R16", "date": "2026-07-07", "localTime": "12:00", "utcOffset": -4, "utcDatetime": "2026-07-07T16:00Z",
       "venue": "Mercedes-Benz Stadium", "city": "Atlanta, GA", "country": "USA",
       "homeParticipant": { "kind": "winnerOf", "matchNumber": 86 },
       "awayParticipant": { "kind": "winnerOf", "matchNumber": 88 },
-      "participantSource": "immutable-dependency", "verificationDate": "2026-06-28"
+      "participantSource": "immutable-dependency", "verificationDate": "2026-06-28",
+      "primarySource": "FIFA Match Schedule — 2026 FIFA World Cup official fixture list",
+      "verificationSources": [
+        "FIFA official match schedule (fifa.com/worldcup/2026)",
+        "Wikipedia — 2026 FIFA World Cup knockout stage"
+      ]
     },
     {
       "matchNumber": 96,  "stage": "R16", "date": "2026-07-07", "localTime": "13:00", "utcOffset": -7, "utcDatetime": "2026-07-07T20:00Z",
       "venue": "BC Place", "city": "Vancouver", "country": "Canada",
       "homeParticipant": { "kind": "winnerOf", "matchNumber": 85 },
       "awayParticipant": { "kind": "winnerOf", "matchNumber": 87 },
-      "participantSource": "immutable-dependency", "verificationDate": "2026-06-28"
+      "participantSource": "immutable-dependency", "verificationDate": "2026-06-28",
+      "primarySource": "FIFA Match Schedule — 2026 FIFA World Cup official fixture list",
+      "verificationSources": [
+        "FIFA official match schedule (fifa.com/worldcup/2026)",
+        "Wikipedia — 2026 FIFA World Cup knockout stage"
+      ]
     },
     {
       "matchNumber": 97,  "stage": "QF", "date": "2026-07-09", "localTime": "16:00", "utcOffset": -4, "utcDatetime": "2026-07-09T20:00Z",
       "venue": "Gillette Stadium", "city": "Foxborough, MA", "country": "USA",
       "homeParticipant": { "kind": "winnerOf", "matchNumber": 89 },
       "awayParticipant": { "kind": "winnerOf", "matchNumber": 90 },
-      "participantSource": "immutable-dependency", "verificationDate": "2026-06-28"
+      "participantSource": "immutable-dependency", "verificationDate": "2026-06-28",
+      "primarySource": "FIFA Match Schedule — 2026 FIFA World Cup official fixture list",
+      "verificationSources": [
+        "FIFA official match schedule (fifa.com/worldcup/2026)",
+        "Wikipedia — 2026 FIFA World Cup knockout stage"
+      ]
     },
     {
       "matchNumber": 98,  "stage": "QF", "date": "2026-07-10", "localTime": "12:00", "utcOffset": -7, "utcDatetime": "2026-07-10T19:00Z",
       "venue": "SoFi Stadium", "city": "Inglewood, CA", "country": "USA",
       "homeParticipant": { "kind": "winnerOf", "matchNumber": 93 },
       "awayParticipant": { "kind": "winnerOf", "matchNumber": 94 },
-      "participantSource": "immutable-dependency", "verificationDate": "2026-06-28"
+      "participantSource": "immutable-dependency", "verificationDate": "2026-06-28",
+      "primarySource": "FIFA Match Schedule — 2026 FIFA World Cup official fixture list",
+      "verificationSources": [
+        "FIFA official match schedule (fifa.com/worldcup/2026)",
+        "Wikipedia — 2026 FIFA World Cup knockout stage"
+      ]
     },
     {
       "matchNumber": 99,  "stage": "QF", "date": "2026-07-11", "localTime": "17:00", "utcOffset": -4, "utcDatetime": "2026-07-11T21:00Z",
       "venue": "Hard Rock Stadium", "city": "Miami Gardens, FL", "country": "USA",
       "homeParticipant": { "kind": "winnerOf", "matchNumber": 91 },
       "awayParticipant": { "kind": "winnerOf", "matchNumber": 92 },
-      "participantSource": "immutable-dependency", "verificationDate": "2026-06-28"
+      "participantSource": "immutable-dependency", "verificationDate": "2026-06-28",
+      "primarySource": "FIFA Match Schedule — 2026 FIFA World Cup official fixture list",
+      "verificationSources": [
+        "FIFA official match schedule (fifa.com/worldcup/2026)",
+        "Wikipedia — 2026 FIFA World Cup knockout stage"
+      ]
     },
     {
       "matchNumber": 100, "stage": "QF", "date": "2026-07-11", "localTime": "20:00", "utcOffset": -5, "utcDatetime": "2026-07-12T01:00Z",
       "venue": "GEHA Field at Arrowhead Stadium", "city": "Kansas City, MO", "country": "USA",
       "homeParticipant": { "kind": "winnerOf", "matchNumber": 95 },
       "awayParticipant": { "kind": "winnerOf", "matchNumber": 96 },
-      "participantSource": "immutable-dependency", "verificationDate": "2026-06-28"
+      "participantSource": "immutable-dependency", "verificationDate": "2026-06-28",
+      "primarySource": "FIFA Match Schedule — 2026 FIFA World Cup official fixture list",
+      "verificationSources": [
+        "FIFA official match schedule (fifa.com/worldcup/2026)",
+        "Wikipedia — 2026 FIFA World Cup knockout stage"
+      ]
     },
     {
       "matchNumber": 101, "stage": "SF", "date": "2026-07-14", "localTime": "14:00", "utcOffset": -5, "utcDatetime": "2026-07-14T19:00Z",
       "venue": "AT&T Stadium", "city": "Arlington, TX", "country": "USA",
       "homeParticipant": { "kind": "winnerOf", "matchNumber": 97 },
       "awayParticipant": { "kind": "winnerOf", "matchNumber": 98 },
-      "participantSource": "immutable-dependency", "verificationDate": "2026-06-28"
+      "participantSource": "immutable-dependency", "verificationDate": "2026-06-28",
+      "primarySource": "FIFA Match Schedule — 2026 FIFA World Cup official fixture list",
+      "verificationSources": [
+        "FIFA official match schedule (fifa.com/worldcup/2026)",
+        "Wikipedia — 2026 FIFA World Cup knockout stage"
+      ]
     },
     {
       "matchNumber": 102, "stage": "SF", "date": "2026-07-15", "localTime": "15:00", "utcOffset": -4, "utcDatetime": "2026-07-15T19:00Z",
       "venue": "Mercedes-Benz Stadium", "city": "Atlanta, GA", "country": "USA",
       "homeParticipant": { "kind": "winnerOf", "matchNumber": 99 },
       "awayParticipant": { "kind": "winnerOf", "matchNumber": 100 },
-      "participantSource": "immutable-dependency", "verificationDate": "2026-06-28"
+      "participantSource": "immutable-dependency", "verificationDate": "2026-06-28",
+      "primarySource": "FIFA Match Schedule — 2026 FIFA World Cup official fixture list",
+      "verificationSources": [
+        "FIFA official match schedule (fifa.com/worldcup/2026)",
+        "Wikipedia — 2026 FIFA World Cup knockout stage"
+      ]
     },
     {
       "matchNumber": 103, "stage": "3P", "date": "2026-07-18", "localTime": "17:00", "utcOffset": -4, "utcDatetime": "2026-07-18T21:00Z",
       "venue": "Hard Rock Stadium", "city": "Miami Gardens, FL", "country": "USA",
       "homeParticipant": { "kind": "loserOf", "matchNumber": 101 },
       "awayParticipant": { "kind": "loserOf", "matchNumber": 102 },
-      "participantSource": "immutable-dependency", "verificationDate": "2026-06-28"
+      "participantSource": "immutable-dependency", "verificationDate": "2026-06-28",
+      "primarySource": "FIFA Match Schedule — 2026 FIFA World Cup official fixture list",
+      "verificationSources": [
+        "FIFA official match schedule (fifa.com/worldcup/2026)",
+        "Wikipedia — 2026 FIFA World Cup knockout stage"
+      ]
     },
     {
       "matchNumber": 104, "stage": "F", "date": "2026-07-19", "localTime": "15:00", "utcOffset": -4, "utcDatetime": "2026-07-19T19:00Z",
       "venue": "MetLife Stadium", "city": "East Rutherford, NJ", "country": "USA",
       "homeParticipant": { "kind": "winnerOf", "matchNumber": 101 },
       "awayParticipant": { "kind": "winnerOf", "matchNumber": 102 },
-      "participantSource": "immutable-dependency", "verificationDate": "2026-06-28"
+      "participantSource": "immutable-dependency", "verificationDate": "2026-06-28",
+      "primarySource": "FIFA Match Schedule — 2026 FIFA World Cup official fixture list",
+      "verificationSources": [
+        "FIFA official match schedule (fifa.com/worldcup/2026)",
+        "Wikipedia — 2026 FIFA World Cup knockout stage"
+      ]
     }
   ]
 }
