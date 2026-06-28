@@ -1,6 +1,7 @@
 import { Match, KnockoutMatch, ParticipantSlot } from "./matches";
 import { TOURNAMENT_FINAL_DATE } from "./matches";
 import { resolvedHome, resolvedAway } from "./resolvedParticipants";
+import { countryName } from "./i18n";
 
 /**
  * Type guard to safely identify if a Match is a KnockoutMatch.
@@ -59,6 +60,30 @@ export function getParticipantDisplayLabel(slot: ParticipantSlot): string {
     case "loserOf":
       return `Loser Match ${slot.matchNumber}`;
   }
+}
+
+/**
+ * Human-readable label for a knockout participant slot, for use in public-facing output.
+ * For winnerOf R32 sources (73–88), returns "Germany/Paraguay Winner" using resolved names.
+ * For deeper rounds, returns stage-aware phrases.
+ * Prefer over getParticipantDisplayLabel for any user-visible text.
+ */
+export function knockoutSlotLabel(slot: ParticipantSlot): string {
+  if (slot.kind === "winnerOf") {
+    const mn = slot.matchNumber;
+    if (mn >= 73 && mn <= 88) {
+      const hp = resolvedHome(mn);
+      const ap = resolvedAway(mn);
+      if (hp && ap) {
+        return `${countryName(hp.teamKey, "en")}/${countryName(ap.teamKey, "en")} Winner`;
+      }
+    }
+    if (mn >= 89 && mn <= 96) return "Round of 16 winner";
+    if (mn >= 97 && mn <= 100) return "Quarter-final winner";
+    return "Semi-final winner";
+  }
+  if (slot.kind === "loserOf") return "Semi-final runner-up";
+  return getParticipantDisplayLabel(slot);
 }
 
 /**
