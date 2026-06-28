@@ -1,16 +1,30 @@
 /**
- * Gate test: match metadata — no internal codes in public-facing output.
+ * Gate test: match metadata — correct titles, no internal codes, no duplication.
+ *
+ * The root layout uses template "%s | WorldCupMatchDay", so every value returned
+ * by generateMetadata.title becomes "{segment} | WorldCupMatchDay" in production.
  *
  * Tests:
- * 1.  M73 display title = "South Africa vs Canada" (resolved R32)
- * 2.  M89 display title = "Germany/Paraguay Winner vs France/Sweden Winner"
- * 3.  M90 display title = "South Africa/Canada Winner vs Netherlands/Morocco Winner"
- * 4.  M97 (QF) display title = "World Cup 2026 Quarter-final"
- * 5.  M101 (SF) display title = "World Cup 2026 Semi-final"
- * 6.  M103 (3P) display title = "World Cup 2026 Third-place Match"
- * 7.  M104 (F) display title = "World Cup 2026 Final"
- * 8.  No internal codes (Mn, Wn, "Match n", "TBD") in any knockout display title
- * 9.  Canonical R16 slot wiring unchanged (M89, M90)
+ *  1.  M73 title segment = "South Africa vs Canada"
+ *  2.  M89 title segment = "Germany/Paraguay Winner vs France/Sweden Winner"
+ *  3.  M90 title segment = "South Africa/Canada Winner vs Netherlands/Morocco Winner"
+ *  4.  M97 (QF) title segment = "Quarter-final"
+ *  5.  M101 (SF) title segment = "Semi-final"
+ *  6.  M103 (3P) title segment = "Third-place Match"
+ *  7.  M104 (Final) title segment = "World Cup Final"
+ *  8.  No title segment contains "World Cup 2026" (would duplicate via template)
+ *  9.  No title segment contains "WorldCupMatchDay" (template adds it)
+ * 10.  No title segment contains "FIFA"
+ * 11.  No title segment or FAQ ref contains internal codes (Mn, Wn, Match n, TBD)
+ * 12.  No title segment or FAQ ref contains "Winner Match"
+ * 13.  OG title for stage-level rounds includes "FIFA World Cup 2026" exactly once
+ * 14.  OG title for resolved matches includes "FIFA World Cup 2026" exactly once
+ * 15.  FAQ ref for QF = "World Cup 2026 Quarter-final"
+ * 16.  FAQ ref for Final = "World Cup 2026 Final"
+ * 17.  FAQ ref for M73 = "South Africa vs Canada"
+ * 18.  FAQ ref for M89 = "Germany/Paraguay Winner vs France/Sweden Winner"
+ * 19.  All knockout match title segments clean across all 32 knockout matches
+ * 20.  Canonical R16 slot wiring unchanged (M89, M90)
  *
  * Usage:
  *   npx tsx scripts/test-match-metadata.ts
@@ -19,7 +33,12 @@
 import assert from "assert";
 import { countryName } from "../lib/i18n";
 import { matchBySlug, MATCHES } from "../lib/matches";
-import { getResolvedHomeTeam, getResolvedAwayTeam, isKnockoutMatch, knockoutSlotLabel } from "../lib/participant-resolution";
+import {
+  getResolvedHomeTeam,
+  getResolvedAwayTeam,
+  isKnockoutMatch,
+  knockoutSlotLabel,
+} from "../lib/participant-resolution";
 
 let passed = 0;
 let failed = 0;
@@ -50,13 +69,28 @@ function checkEqual<T>(actual: T, expected: T, msg: string): void {
   }
 }
 
-// ── Mirrors the logic in app/matches/[matchId]/page.tsx ─────────────────────
+// ── Mirrors app/matches/[matchId]/page.tsx logic ─────────────────────────────
+// Keep in sync with the page implementation.
 
-const STAGE_LABELS: Record<string, string> = {
+const TITLE_SEGMENTS: Record<string, string> = {
   QF: "Quarter-final",
   SF: "Semi-final",
   "3P": "Third-place Match",
-  F: "Final",
+  F: "World Cup Final",
+};
+
+const OG_STAGE_LABELS: Record<string, string> = {
+  QF: "Quarter-final – FIFA World Cup 2026",
+  SF: "Semi-final – FIFA World Cup 2026",
+  "3P": "Third-place Match – FIFA World Cup 2026",
+  F: "FIFA World Cup 2026 Final",
+};
+
+const FAQ_STAGE_REFS: Record<string, string> = {
+  QF: "World Cup 2026 Quarter-final",
+  SF: "World Cup 2026 Semi-final",
+  "3P": "World Cup 2026 Third-place Match",
+  F: "World Cup 2026 Final",
 };
 
 const STAGE_PLACEHOLDERS = new Set([
@@ -73,161 +107,159 @@ function resolvedTeamName(match: AnyMatch, side: "home" | "away"): string {
   if (!isKnockoutMatch(match)) {
     return countryName(side === "home" ? match.homeKey : match.awayKey, "en");
   }
-  const resolvedKey = side === "home" ? getResolvedHomeTeam(match) : getResolvedAwayTeam(match);
-  if (resolvedKey) return countryName(resolvedKey, "en");
+  const key = side === "home" ? getResolvedHomeTeam(match) : getResolvedAwayTeam(match);
+  if (key) return countryName(key, "en");
   const slot = side === "home" ? match.homeSlot : match.awaySlot;
   return knockoutSlotLabel(slot);
 }
 
-function matchDisplayTitle(match: NonNullable<AnyMatch>): string {
-  const home = resolvedTeamName(match, "home");
-  const stageLabel = isKnockoutMatch(match) ? STAGE_LABELS[match.stage] : undefined;
-  if (stageLabel && STAGE_PLACEHOLDERS.has(home)) {
-    return `World Cup 2026 ${stageLabel}`;
-  }
-  return `${home} vs ${resolvedTeamName(match, "away")}`;
+function isStageLevel(match: NonNullable<AnyMatch>): boolean {
+  return (
+    isKnockoutMatch(match) &&
+    match.stage in TITLE_SEGMENTS &&
+    STAGE_PLACEHOLDERS.has(resolvedTeamName(match, "home"))
+  );
 }
 
-// ── Patterns that must never appear in public-facing output ─────────────────
-const INTERNAL_CODE = /\b[WM]\d+\b|\bMatch\s+\d+|\bTBD\b/i;
-const WINNER_MATCH = /Winner Match \d+/i;
+function matchTitleSegment(match: NonNullable<AnyMatch>): string {
+  if (isStageLevel(match)) return TITLE_SEGMENTS[match.stage as string] ?? resolvedTeamName(match, "home");
+  return `${resolvedTeamName(match, "home")} vs ${resolvedTeamName(match, "away")}`;
+}
+
+function matchOgTitle(match: NonNullable<AnyMatch>): string {
+  if (isStageLevel(match)) {
+    return OG_STAGE_LABELS[match.stage as string] ?? `${TITLE_SEGMENTS[match.stage as string]} – FIFA World Cup 2026`;
+  }
+  return `${resolvedTeamName(match, "home")} vs ${resolvedTeamName(match, "away")} – FIFA World Cup 2026`;
+}
+
+function matchFaqRef(match: NonNullable<AnyMatch>): string {
+  if (isStageLevel(match)) return FAQ_STAGE_REFS[match.stage as string] ?? matchTitleSegment(match);
+  return `${resolvedTeamName(match, "home")} vs ${resolvedTeamName(match, "away")}`;
+}
+
+// ── Patterns that must never appear in title segments ───────────────────────
+const INTERNAL_CODE  = /\b[WM]\d+\b|\bMatch\s+\d+|\bTBD\b/i;
+const WINNER_MATCH   = /Winner Match \d+/i;
+const HAS_FIFA       = /FIFA/;
+const HAS_WC26       = /World Cup 2026/;
+const HAS_BRAND      = /WorldCupMatchDay/;
+const DOUBLE_WC26    = /World Cup 2026.*World Cup 2026/;
+
+function m(slug: string) {
+  const match = matchBySlug(slug);
+  if (!match) throw new Error(`matchBySlug("${slug}") returned undefined`);
+  return match;
+}
 
 console.log("=== Match Metadata Gate ===\n");
 
-// ── 1. M73 — resolved R32: plain country names ───────────────────────────────
+// ── 1–7. Title segments for key matches ─────────────────────────────────────
 
-console.log("1. M73 display title = 'South Africa vs Canada'");
-{
-  const m = matchBySlug("match-73");
-  check(m !== undefined, "M73 found via matchBySlug('match-73')");
-  if (m) {
-    const title = matchDisplayTitle(m);
-    checkEqual(title, "South Africa vs Canada", "M73 display title");
-    check(!INTERNAL_CODE.test(title), "M73 title contains no internal codes");
-  }
+console.log("1. M73 title segment = 'South Africa vs Canada'");
+checkEqual(matchTitleSegment(m("match-73")), "South Africa vs Canada", "M73 title segment");
+
+console.log("\n2. M89 title segment = 'Germany/Paraguay Winner vs France/Sweden Winner'");
+checkEqual(
+  matchTitleSegment(m("match-89")),
+  "Germany/Paraguay Winner vs France/Sweden Winner",
+  "M89 title segment"
+);
+
+console.log("\n3. M90 title segment = 'South Africa/Canada Winner vs Netherlands/Morocco Winner'");
+checkEqual(
+  matchTitleSegment(m("match-90")),
+  "South Africa/Canada Winner vs Netherlands/Morocco Winner",
+  "M90 title segment"
+);
+
+console.log("\n4. M97 (QF) title segment = 'Quarter-final'");
+checkEqual(matchTitleSegment(m("match-97")), "Quarter-final", "M97 title segment");
+
+console.log("\n5. M101 (SF) title segment = 'Semi-final'");
+checkEqual(matchTitleSegment(m("match-101")), "Semi-final", "M101 title segment");
+
+console.log("\n6. M103 (3P) title segment = 'Third-place Match'");
+checkEqual(matchTitleSegment(m("match-103")), "Third-place Match", "M103 title segment");
+
+console.log("\n7. M104 (Final) title segment = 'World Cup Final'");
+checkEqual(matchTitleSegment(m("match-104")), "World Cup Final", "M104 title segment");
+
+// ── 8–10. Title segments must not contain auto-appended content ──────────────
+
+console.log("\n8–10. Title segments: no 'World Cup 2026', no 'WorldCupMatchDay', no 'FIFA'");
+const ALL_KNOCKOUT = MATCHES.filter(isKnockoutMatch);
+for (const match of ALL_KNOCKOUT) {
+  const seg = matchTitleSegment(match);
+  check(!HAS_WC26.test(seg),  `M${match.matchNumber} title segment has no 'World Cup 2026' (template avoids duplication): "${seg}"`);
+  check(!HAS_BRAND.test(seg), `M${match.matchNumber} title segment has no 'WorldCupMatchDay' (template adds it): "${seg}"`);
+  check(!HAS_FIFA.test(seg),  `M${match.matchNumber} title segment has no 'FIFA' (OG carries context): "${seg}"`);
 }
 
-// ── 2. M89 — R16: resolved R32 sources ──────────────────────────────────────
+// ── 11–12. No internal codes anywhere ───────────────────────────────────────
 
-console.log("\n2. M89 display title = 'Germany/Paraguay Winner vs France/Sweden Winner'");
-{
-  const m = matchBySlug("match-89");
-  check(m !== undefined, "M89 found via matchBySlug('match-89')");
-  if (m) {
-    const title = matchDisplayTitle(m);
-    checkEqual(
-      title,
-      "Germany/Paraguay Winner vs France/Sweden Winner",
-      "M89 display title"
-    );
-    check(!INTERNAL_CODE.test(title), "M89 title contains no internal codes");
-    check(!WINNER_MATCH.test(title), "M89 title contains no 'Winner Match N' pattern");
-  }
+console.log("\n11–12. No internal codes or 'Winner Match N' in title segments or FAQ refs");
+for (const match of ALL_KNOCKOUT) {
+  const seg  = matchTitleSegment(match);
+  const faq  = matchFaqRef(match);
+  check(!INTERNAL_CODE.test(seg),  `M${match.matchNumber} title has no internal codes: "${seg}"`);
+  check(!WINNER_MATCH.test(seg),   `M${match.matchNumber} title has no 'Winner Match N': "${seg}"`);
+  check(!INTERNAL_CODE.test(faq),  `M${match.matchNumber} FAQ ref has no internal codes: "${faq}"`);
+  check(!WINNER_MATCH.test(faq),   `M${match.matchNumber} FAQ ref has no 'Winner Match N': "${faq}"`);
 }
 
-// ── 3. M90 — R16: resolved R32 sources ──────────────────────────────────────
+// ── 13–14. OG titles: exactly one "FIFA World Cup 2026", no duplication ──────
 
-console.log("\n3. M90 display title = 'South Africa/Canada Winner vs Netherlands/Morocco Winner'");
-{
-  const m = matchBySlug("match-90");
-  check(m !== undefined, "M90 found via matchBySlug('match-90')");
-  if (m) {
-    const title = matchDisplayTitle(m);
-    checkEqual(
-      title,
-      "South Africa/Canada Winner vs Netherlands/Morocco Winner",
-      "M90 display title"
-    );
-    check(!INTERNAL_CODE.test(title), "M90 title contains no internal codes");
-    check(!WINNER_MATCH.test(title), "M90 title contains no 'Winner Match N' pattern");
-  }
+console.log("\n13–14. OG titles: 'FIFA World Cup 2026' appears exactly once, never doubled");
+for (const match of ALL_KNOCKOUT) {
+  const og = matchOgTitle(match);
+  check(!DOUBLE_WC26.test(og), `M${match.matchNumber} OG title has no doubled 'World Cup 2026': "${og}"`);
+  check(og.includes("FIFA World Cup 2026"), `M${match.matchNumber} OG title includes 'FIFA World Cup 2026': "${og}"`);
 }
 
-// ── 4. M97 — QF: stage-aware title ──────────────────────────────────────────
+// ── 15–18. FAQ refs ──────────────────────────────────────────────────────────
 
-console.log("\n4. M97 (QF) display title = 'World Cup 2026 Quarter-final'");
-{
-  const m = matchBySlug("match-97");
-  check(m !== undefined, "M97 found via matchBySlug('match-97')");
-  if (m) {
-    const title = matchDisplayTitle(m);
-    checkEqual(title, "World Cup 2026 Quarter-final", "M97 display title");
-    check(!INTERNAL_CODE.test(title), "M97 title contains no internal codes");
-  }
+console.log("\n15–18. FAQ refs: stage-aware for deep rounds, team names for R32/R16");
+checkEqual(matchFaqRef(m("match-97")),  "World Cup 2026 Quarter-final", "M97 FAQ ref");
+checkEqual(matchFaqRef(m("match-101")), "World Cup 2026 Semi-final",    "M101 FAQ ref");
+checkEqual(matchFaqRef(m("match-103")), "World Cup 2026 Third-place Match", "M103 FAQ ref");
+checkEqual(matchFaqRef(m("match-104")), "World Cup 2026 Final",         "M104 FAQ ref");
+checkEqual(matchFaqRef(m("match-73")),  "South Africa vs Canada",       "M73 FAQ ref");
+checkEqual(
+  matchFaqRef(m("match-89")),
+  "Germany/Paraguay Winner vs France/Sweden Winner",
+  "M89 FAQ ref"
+);
+
+// ── 19. All 32 knockout match segments clean ─────────────────────────────────
+
+console.log("\n19. All 32 knockout match title segments: clean");
+for (const match of ALL_KNOCKOUT) {
+  const seg = matchTitleSegment(match);
+  check(seg.length > 0, `M${match.matchNumber} title segment non-empty`);
+  check(!INTERNAL_CODE.test(seg),  `M${match.matchNumber} "${seg}" — no internal codes`);
+  check(!WINNER_MATCH.test(seg),   `M${match.matchNumber} "${seg}" — no 'Winner Match N'`);
 }
 
-// ── 5. M101 — SF: stage-aware title ─────────────────────────────────────────
+// ── 20. Canonical R16 wiring unchanged ──────────────────────────────────────
 
-console.log("\n5. M101 (SF) display title = 'World Cup 2026 Semi-final'");
+console.log("\n20. Canonical R16 slot wiring (M89, M90)");
 {
-  const m = matchBySlug("match-101");
-  check(m !== undefined, "M101 found via matchBySlug('match-101')");
-  if (m) {
-    const title = matchDisplayTitle(m);
-    checkEqual(title, "World Cup 2026 Semi-final", "M101 display title");
-    check(!INTERNAL_CODE.test(title), "M101 title contains no internal codes");
-  }
-}
-
-// ── 6. M103 — 3P: stage-aware title ─────────────────────────────────────────
-
-console.log("\n6. M103 (3P) display title = 'World Cup 2026 Third-place Match'");
-{
-  const m = matchBySlug("match-103");
-  check(m !== undefined, "M103 found via matchBySlug('match-103')");
-  if (m) {
-    const title = matchDisplayTitle(m);
-    checkEqual(title, "World Cup 2026 Third-place Match", "M103 display title");
-    check(!INTERNAL_CODE.test(title), "M103 title contains no internal codes");
-  }
-}
-
-// ── 7. M104 — Final: stage-aware title ──────────────────────────────────────
-
-console.log("\n7. M104 (Final) display title = 'World Cup 2026 Final'");
-{
-  const m = matchBySlug("match-104");
-  check(m !== undefined, "M104 found via matchBySlug('match-104')");
-  if (m) {
-    const title = matchDisplayTitle(m);
-    checkEqual(title, "World Cup 2026 Final", "M104 display title");
-    check(!INTERNAL_CODE.test(title), "M104 title contains no internal codes");
-  }
-}
-
-// ── 8. All knockout matches: no internal codes in display title ──────────────
-
-console.log("\n8. All knockout matches: no internal codes in display title");
-const knockoutMatches = MATCHES.filter(isKnockoutMatch);
-for (const m of knockoutMatches) {
-  const title = matchDisplayTitle(m);
-  check(!INTERNAL_CODE.test(title), `M${m.matchNumber} (${m.stage}) title "${title}" has no internal codes`);
-  check(!WINNER_MATCH.test(title), `M${m.matchNumber} (${m.stage}) title has no "Winner Match N" pattern`);
-}
-
-// ── 9. Canonical R16 wiring unchanged ───────────────────────────────────────
-
-console.log("\n9. Canonical R16 slot wiring (M89, M90)");
-{
-  const m89 = matchBySlug("match-89");
-  const m90 = matchBySlug("match-90");
-  check(m89 !== undefined && isKnockoutMatch(m89!), "M89 is a knockout match");
-  check(m90 !== undefined && isKnockoutMatch(m90!), "M90 is a knockout match");
-  if (m89 && isKnockoutMatch(m89)) {
+  const m89 = m("match-89");
+  const m90 = m("match-90");
+  check(isKnockoutMatch(m89), "M89 is knockout");
+  check(isKnockoutMatch(m90), "M90 is knockout");
+  if (isKnockoutMatch(m89)) {
     check(m89.homeSlot.kind === "winnerOf", "M89 homeSlot.kind = winnerOf");
     check(m89.awaySlot.kind === "winnerOf", "M89 awaySlot.kind = winnerOf");
-    if (m89.homeSlot.kind === "winnerOf")
-      checkEqual(m89.homeSlot.matchNumber, 74, "M89 homeSlot.matchNumber = 74");
-    if (m89.awaySlot.kind === "winnerOf")
-      checkEqual(m89.awaySlot.matchNumber, 77, "M89 awaySlot.matchNumber = 77");
+    if (m89.homeSlot.kind === "winnerOf") checkEqual(m89.homeSlot.matchNumber, 74, "M89 homeSlot.matchNumber = 74");
+    if (m89.awaySlot.kind === "winnerOf") checkEqual(m89.awaySlot.matchNumber, 77, "M89 awaySlot.matchNumber = 77");
   }
-  if (m90 && isKnockoutMatch(m90)) {
+  if (isKnockoutMatch(m90)) {
     check(m90.homeSlot.kind === "winnerOf", "M90 homeSlot.kind = winnerOf");
     check(m90.awaySlot.kind === "winnerOf", "M90 awaySlot.kind = winnerOf");
-    if (m90.homeSlot.kind === "winnerOf")
-      checkEqual(m90.homeSlot.matchNumber, 73, "M90 homeSlot.matchNumber = 73");
-    if (m90.awaySlot.kind === "winnerOf")
-      checkEqual(m90.awaySlot.matchNumber, 75, "M90 awaySlot.matchNumber = 75");
+    if (m90.homeSlot.kind === "winnerOf") checkEqual(m90.homeSlot.matchNumber, 73, "M90 homeSlot.matchNumber = 73");
+    if (m90.awaySlot.kind === "winnerOf") checkEqual(m90.awaySlot.matchNumber, 75, "M90 awaySlot.matchNumber = 75");
   }
 }
 

@@ -7,21 +7,54 @@ import { countryName } from "@/lib/i18n";
 import { getGoalEventCompleteness } from "@/lib/goalEventCompleteness";
 import { getTournamentLiveSnapshot } from "@/lib/liveSnapshot";
 import { matchBySlug } from "@/lib/matches";
-import { getResolvedHomeTeam, getResolvedAwayTeam, isKnockoutMatch, knockoutSlotLabel } from "@/lib/participant-resolution";
+import {
+  getResolvedHomeTeam,
+  getResolvedAwayTeam,
+  isKnockoutMatch,
+  knockoutSlotLabel,
+} from "@/lib/participant-resolution";
 
 export const revalidate = 30;
 export const dynamic = "force-dynamic";
 
-// Stage labels for QF/SF/3P/F — used when participants are not yet resolved
-const STAGE_LABELS: Record<string, string> = {
+// ── Stage string tables ──────────────────────────────────────────────────────
+
+// HTML <title> segment — appended by root layout template as "%s | WorldCupMatchDay"
+// Keep short and non-redundant: the template already adds branding.
+const TITLE_SEGMENTS: Record<string, string> = {
   QF: "Quarter-final",
   SF: "Semi-final",
   "3P": "Third-place Match",
-  F: "Final",
+  F:   "World Cup Final",
 };
 
-// Stage-aware placeholders — when a slot resolves to one of these the match
-// should use a match-level title rather than the "X vs Y" pattern.
+// OG/Twitter titles — not auto-templated; include explicit tournament context.
+const OG_STAGE_LABELS: Record<string, string> = {
+  QF: "Quarter-final – FIFA World Cup 2026",
+  SF: "Semi-final – FIFA World Cup 2026",
+  "3P": "Third-place Match – FIFA World Cup 2026",
+  F:   "FIFA World Cup 2026 Final",
+};
+
+// FAQ reference phrases — human-readable with year for Q&A legibility.
+const FAQ_STAGE_REFS: Record<string, string> = {
+  QF: "World Cup 2026 Quarter-final",
+  SF: "World Cup 2026 Semi-final",
+  "3P": "World Cup 2026 Third-place Match",
+  F:   "World Cup 2026 Final",
+};
+
+// Round display names for description text.
+const ROUND_DISPLAY: Record<string, string> = {
+  R32: "Round of 32",
+  R16: "Round of 16",
+  QF:  "Quarter-final",
+  SF:  "Semi-final",
+  "3P": "Third-place Match",
+  F:   "Final",
+};
+
+// Placeholders produced by knockoutSlotLabel for deep unresolved rounds.
 const STAGE_PLACEHOLDERS = new Set([
   "Round of 16 winner",
   "Quarter-final winner",
@@ -29,31 +62,62 @@ const STAGE_PLACEHOLDERS = new Set([
   "Semi-final runner-up",
 ]);
 
-function resolvedTeamName(match: ReturnType<typeof matchBySlug>, side: "home" | "away"): string {
+// ── Participant helpers ──────────────────────────────────────────────────────
+
+type AnyMatch = ReturnType<typeof matchBySlug>;
+
+function resolvedTeamName(match: AnyMatch, side: "home" | "away"): string {
   if (!match) return "TBD";
   if (!isKnockoutMatch(match)) {
     return countryName(side === "home" ? match.homeKey : match.awayKey, "en");
   }
-  const resolvedKey = side === "home" ? getResolvedHomeTeam(match) : getResolvedAwayTeam(match);
-  if (resolvedKey) return countryName(resolvedKey, "en");
+  const key = side === "home" ? getResolvedHomeTeam(match) : getResolvedAwayTeam(match);
+  if (key) return countryName(key, "en");
   const slot = side === "home" ? match.homeSlot : match.awaySlot;
   return knockoutSlotLabel(slot);
 }
 
-/**
- * Returns the best public display title for a match:
- * - Resolved / R16 with known R32 sources: "Germany/Paraguay Winner vs France/Sweden Winner"
- * - QF/SF/3P/F with stage placeholders: "World Cup 2026 Quarter-final"
- * - Group and R32 (resolved): "South Africa vs Canada"
- */
-function matchDisplayTitle(match: NonNullable<ReturnType<typeof matchBySlug>>): string {
-  const home = resolvedTeamName(match, "home");
-  const stageLabel = isKnockoutMatch(match) ? STAGE_LABELS[match.stage] : undefined;
-  if (stageLabel && STAGE_PLACEHOLDERS.has(home)) {
-    return `World Cup 2026 ${stageLabel}`;
-  }
-  return `${home} vs ${resolvedTeamName(match, "away")}`;
+/** Is this a stage-level match where both participants are still generic placeholders? */
+function isStageLevel(match: NonNullable<AnyMatch>): boolean {
+  return (
+    isKnockoutMatch(match) &&
+    match.stage in TITLE_SEGMENTS &&
+    STAGE_PLACEHOLDERS.has(resolvedTeamName(match, "home"))
+  );
 }
+
+/**
+ * Page-specific title segment — goes through root layout template as:
+ *   "%s | WorldCupMatchDay"
+ * Must NOT include "| WorldCupMatchDay" or "FIFA World Cup 2026" to avoid
+ * doubling.  Stage-level matches use the short stage name only; resolved
+ * matches use "Team A vs Team B".
+ */
+function matchTitleSegment(match: NonNullable<AnyMatch>): string {
+  if (isStageLevel(match)) return TITLE_SEGMENTS[match.stage as string] ?? resolvedTeamName(match, "home");
+  return `${resolvedTeamName(match, "home")} vs ${resolvedTeamName(match, "away")}`;
+}
+
+/**
+ * Explicit title for OG/Twitter — NOT templated, so includes full context.
+ */
+function matchOgTitle(match: NonNullable<AnyMatch>): string {
+  if (isStageLevel(match)) {
+    return OG_STAGE_LABELS[match.stage as string] ?? `${TITLE_SEGMENTS[match.stage as string]} – FIFA World Cup 2026`;
+  }
+  return `${resolvedTeamName(match, "home")} vs ${resolvedTeamName(match, "away")} – FIFA World Cup 2026`;
+}
+
+/**
+ * Reference phrase used in FAQ JSON-LD questions and answers.
+ * For deep rounds uses the full "World Cup 2026 Quarter-final" form.
+ */
+function matchFaqRef(match: NonNullable<AnyMatch>): string {
+  if (isStageLevel(match)) return FAQ_STAGE_REFS[match.stage as string] ?? matchTitleSegment(match);
+  return `${resolvedTeamName(match, "home")} vs ${resolvedTeamName(match, "away")}`;
+}
+
+// ── Metadata ─────────────────────────────────────────────────────────────────
 
 export async function generateMetadata({
   params,
@@ -64,25 +128,45 @@ export async function generateMetadata({
   const match = matchBySlug(matchId);
   if (!match) return {};
 
-  const titleDisplay = matchDisplayTitle(match);
-  const BASE = "https://www.worldcupmatchday.com";
-  const groupLabel = match.group ? ` - Group ${match.group}` : "";
-  const stageDesc = isKnockoutMatch(match) && match.stage in STAGE_LABELS
-    ? ` - ${STAGE_LABELS[match.stage]}`
-    : groupLabel;
+  const titleSeg = matchTitleSegment(match);
+  const ogTitle  = matchOgTitle(match);
+  const BASE     = "https://www.worldcupmatchday.com";
+
+  const roundLabel = isKnockoutMatch(match)
+    ? (ROUND_DISPLAY[match.stage] ?? match.stage)
+    : match.group ? `Group ${match.group}` : "";
+
+  const venueStr = match.venue ?? "";
+  const desc = [
+    ogTitle,
+    roundLabel && !isStageLevel(match) ? `${roundLabel} – FIFA World Cup 2026` : "",
+    match.date,
+    venueStr,
+    "WorldCupMatchDay",
+  ]
+    .filter(Boolean)
+    .join(" – ")
+    .replace(/ – FIFA World Cup 2026 – FIFA World Cup 2026/g, " – FIFA World Cup 2026");
 
   return {
-    title: `${titleDisplay} - FIFA World Cup 2026`,
-    description: `${titleDisplay}${stageDesc} - ${match.date}${match.venue ? ` - ${match.venue}` : ""} - WorldCupMatchDay`,
+    title: titleSeg,          // template: "%s | WorldCupMatchDay" appends branding
+    description: desc,
     alternates: { canonical: `${BASE}/matches/${matchId}` },
     openGraph: {
-      title: `${titleDisplay} - FIFA World Cup 2026`,
-      description: `${match.group ? `Group ${match.group}` : (isKnockoutMatch(match) ? (STAGE_LABELS[match.stage] ?? match.stage) : "")} - ${match.date} - WorldCupMatchDay`,
+      title: ogTitle,
+      description: [roundLabel, match.date, venueStr].filter(Boolean).join(" – "),
       url: `${BASE}/matches/${matchId}`,
       type: "website",
     },
+    twitter: {
+      card: "summary_large_image",
+      title: ogTitle,
+      description: [roundLabel, match.date, venueStr].filter(Boolean).join(" – "),
+    },
   };
 }
+
+// ── Page component ────────────────────────────────────────────────────────────
 
 function longDate(iso: string) {
   return new Intl.DateTimeFormat("en-GB", {
@@ -103,24 +187,24 @@ export default async function MatchPage({
 
   const snapshot = await getTournamentLiveSnapshot();
   const snap = snapshot.matches[matchId];
-  const events = null;
   const live = snap?.live ?? null;
   const goalEventCompleteness =
     snap?.goalEventCompleteness ??
-    getGoalEventCompleteness({ homeScore: null, awayScore: null, goals: undefined, eventDataAvailable: false });
+    getGoalEventCompleteness({
+      homeScore: null,
+      awayScore: null,
+      goals: undefined,
+      eventDataAvailable: false,
+    });
 
-  const titleDisplay = matchDisplayTitle(match);
-  const home = resolvedTeamName(match, "home");
-  const away = resolvedTeamName(match, "away");
+  const faqRef  = matchFaqRef(match);
   const dateStr = longDate(match.date);
   const venueStr = match.venue ?? "venue TBC";
-  const timeStr = match.time ? `, kickoff ${match.time} venue local time (${venueStr})` : "";
+  const timeStr = match.time
+    ? `, kickoff ${match.time} venue local time (${venueStr})`
+    : "";
 
-  // FAQ phrasing: use stage-aware subject for deep-round unresolved matches
-  const isStageTitle = titleDisplay.startsWith("World Cup 2026 ");
-  const matchRef = isStageTitle ? titleDisplay : `${home} vs ${away}`;
-
-  const stageLabel = isKnockoutMatch(match) ? STAGE_LABELS[match.stage] : undefined;
+  const stageLabel = isKnockoutMatch(match) ? ROUND_DISPLAY[match.stage] : undefined;
   const groupOrStage = match.group
     ? `Group ${match.group}`
     : stageLabel
@@ -133,15 +217,15 @@ export default async function MatchPage({
     mainEntity: [
       {
         "@type": "Question",
-        name: `When is ${matchRef}?`,
+        name: `When is ${faqRef}?`,
         acceptedAnswer: {
           "@type": "Answer",
-          text: `${matchRef} is on ${dateStr}${timeStr}.`,
+          text: `${faqRef} is on ${dateStr}${timeStr}.`,
         },
       },
       {
         "@type": "Question",
-        name: `Where is ${matchRef} played?`,
+        name: `Where is ${faqRef} played?`,
         acceptedAnswer: {
           "@type": "Answer",
           text: `The match is played at ${venueStr}.`,
@@ -149,10 +233,10 @@ export default async function MatchPage({
       },
       {
         "@type": "Question",
-        name: `What group is ${matchRef} in?`,
+        name: `What stage is ${faqRef}?`,
         acceptedAnswer: {
           "@type": "Answer",
-          text: `${groupOrStage ? `${groupOrStage} - ` : ""}${matchRef} at the 2026 FIFA World Cup.`,
+          text: `${groupOrStage ? `${groupOrStage} – ` : ""}${faqRef} at the 2026 FIFA World Cup.`,
         },
       },
     ],
@@ -172,7 +256,7 @@ export default async function MatchPage({
       ) : null}
       <MatchDetail
         match={match}
-        events={events}
+        events={null}
         live={live}
         status={snap?.status ?? "SCHEDULED"}
         liveDataUnavailable={snap?.liveDataUnavailable ?? false}
