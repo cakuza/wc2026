@@ -10,3 +10,14 @@ recovered-deployment-*
 recovery-backups/
 wc2026/
 wc2026-audit-copy/
+wc26-repo/
+audit-inputs/
+.agents/
+GEMINI.md
+*.log
+pr-body.md
+scripts/adsense-audit.ts
+scripts/soak-test.js
+scripts/soak-test.ps1
+scripts/run-all-tests.ps1
+%TEMP%/
