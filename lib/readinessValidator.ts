@@ -18,6 +18,8 @@
  *    have the expected final score and minimum scorer-event counts.
  * 8. Scorer events for known matches must have valid structure (playerName
  *    present and non-empty; minute is number or null).
+ * 9. Required knockout matches (requiredKnockoutSlugs) must be present in the
+ *    provider payload — looked up by resolved home/away team names.
  */
 
 import { MATCHES, matchSlug } from "./matches";
@@ -76,18 +78,83 @@ export type ReadinessResult = {
   totalCanonical: number;
 };
 
+// ── Provider readiness window helper ─────────────────────────────────────────
+
+/**
+ * Returns the set of knockout match slugs that should currently have provider
+ * coverage, based on a rolling date window.
+ *
+ * A knockout match is in the provider readiness window when:
+ *   1. Its participants are resolved (homeKey !== "tbd" and awayKey !== "tbd"
+ *      in the MATCHES array, OR its matchNumber appears in resolvedMatchNumbers).
+ *   2. Its date falls within (referenceDate - 7 days) to (referenceDate + 2 days).
+ *
+ * @param referenceDate       ISO date string (YYYY-MM-DD) for today's date.
+ * @param resolvedMatchNumbers Set of knockout matchNumbers whose participants
+ *                            are known to be resolved (e.g. from a live snapshot
+ *                            or a RESOLVED_PARTICIPANTS record). Pass an empty
+ *                            Set when no external resolution data is available —
+ *                            the function will still pick up statically resolved
+ *                            slots (homeKey !== "tbd").
+ */
+export function knockoutSlugsInProviderWindow(
+  referenceDate: string,
+  resolvedMatchNumbers: Set<number> = new Set(),
+): Set<string> {
+  const windowStart = dateAddDays(referenceDate, -7);
+  const windowEnd   = dateAddDays(referenceDate, +2);
+
+  const slugs = new Set<string>();
+
+  for (const match of MATCHES) {
+    // Only knockout matches are candidates.
+    if (!("stage" in match) || match.stage === "group" || match.stage === undefined) continue;
+
+    const m = match as Extract<typeof match, { stage: string; matchNumber: number }>;
+
+    // Check participant resolution: either statically resolved in MATCHES data
+    // or explicitly flagged by the caller.
+    const participantsResolved =
+      (m.homeKey !== "tbd" && m.awayKey !== "tbd") ||
+      resolvedMatchNumbers.has(m.matchNumber);
+
+    if (!participantsResolved) continue;
+
+    // Check date window.
+    if (m.date < windowStart || m.date > windowEnd) continue;
+
+    slugs.add(matchSlug(m));
+  }
+
+  return slugs;
+}
+
+/** Add (or subtract) days from an ISO date string (YYYY-MM-DD). */
+function dateAddDays(isoDate: string, days: number): string {
+  const d = new Date(`${isoDate}T00:00:00Z`);
+  d.setUTCDate(d.getUTCDate() + days);
+  return d.toISOString().slice(0, 10);
+}
+
 // ── Validator ─────────────────────────────────────────────────────────────────
 
 /**
  * Validate a raw WorldCup26Game[] payload against the canonical fixture list.
  *
- * @param games              Payload returned by the secondary provider.
- * @param completedSlugs     Set of matchSlug strings for matches that are
- *                           known to be completed (provider must include 100%).
+ * @param games                  Payload returned by the secondary provider.
+ * @param completedSlugs         Set of matchSlug strings for matches that are
+ *                               known to be completed (provider must include 100%).
+ * @param requiredKnockoutSlugs  Optional set of knockout match slugs that MUST
+ *                               be present in the provider payload. These bypass
+ *                               the "tbd" exclusion — the caller is asserting
+ *                               that participants are resolved and provider
+ *                               coverage is required. Lookup is done by resolved
+ *                               home/away team names via countryName().
  */
 export function validateProviderPayload(
   games: WorldCup26Game[],
   completedSlugs: Set<string>,
+  requiredKnockoutSlugs?: Set<string>,
 ): ReadinessResult {
   const errors:   string[] = [];
   const warnings: string[] = [];
@@ -118,7 +185,7 @@ export function validateProviderPayload(
     }
   }
 
-  // ── 3. Map canonical → provider ──────────────────────────────────────────
+  // ── 3. Map canonical group matches → provider ─────────────────────────────
 
   const mapped   = new Set<string>();
   const gameForSlug = new Map<string, WorldCup26Game>();
@@ -146,7 +213,7 @@ export function validateProviderPayload(
     );
   }
 
-  // ── 5. Canonical coverage ─────────────────────────────────────────────────
+  // ── 5. Canonical group-match coverage ────────────────────────────────────
 
   if (unmappedCount > MAX_UNMAPPED_WARNING) {
     errors.push(
@@ -166,7 +233,46 @@ export function validateProviderPayload(
     }
   }
 
-  // ── 7. Malformed scorer arrays + suspicious empty events ─────────────────
+  // ── 7. Required knockout coverage ────────────────────────────────────────
+  //
+  // When the caller supplies requiredKnockoutSlugs, each of those matches MUST
+  // appear in the provider payload. We look them up by their resolved team names
+  // (countryName() on the homeKey/awayKey, which must be non-"tbd" for the
+  // slug to belong in this set).
+
+  if (requiredKnockoutSlugs && requiredKnockoutSlugs.size > 0) {
+    // Build a reverse lookup: slug → match (for all knockout matches in MATCHES).
+    const knockoutMatchBySlug = new Map(
+      MATCHES
+        .filter((m) => "stage" in m && m.stage !== "group" && m.stage !== undefined)
+        .map((m) => [matchSlug(m), m]),
+    );
+
+    for (const slug of requiredKnockoutSlugs) {
+      const match = knockoutMatchBySlug.get(slug);
+      if (!match || match.homeKey === "tbd" || match.awayKey === "tbd") {
+        // Participants not actually resolved in static data — skip with warning.
+        warnings.push(`Knockout slug ${slug} in requiredKnockoutSlugs but participants are not resolved in MATCHES`);
+        continue;
+      }
+
+      const homeDisp  = countryName(match.homeKey, "en");
+      const awayDisp  = countryName(match.awayKey, "en");
+      const lookupKey = `${normalizeForMatching(homeDisp)}|${normalizeForMatching(awayDisp)}`;
+      const candidates = gamesByKey.get(lookupKey);
+
+      if (!candidates || candidates.length === 0) {
+        errors.push(`Required knockout match missing from provider payload: ${slug} (${homeDisp} vs ${awayDisp})`);
+      } else {
+        // Also record in gameForSlug so scorer checks below can use it.
+        if (!gameForSlug.has(slug)) {
+          gameForSlug.set(slug, candidates[0]);
+        }
+      }
+    }
+  }
+
+  // ── 8. Malformed scorer arrays + suspicious empty events ─────────────────
 
   for (const slug of completedSlugs) {
     const game = gameForSlug.get(slug);
@@ -190,7 +296,7 @@ export function validateProviderPayload(
     }
   }
 
-  // ── 8. Known-scorer match validation ─────────────────────────────────────
+  // ── 9. Known-scorer match validation ─────────────────────────────────────
 
   for (const req of KNOWN_SCORER_REQUIREMENTS) {
     const match = canonicalMatches.find(

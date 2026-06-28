@@ -28,8 +28,8 @@ export const ROUND_OF_32_MATCHES: RoundOf32Match[] = [
 ];
 
 export const ROUND_OF_16_MATCHES = [
-  { matchNumber: 89, homeWinnerOf: 73, awayWinnerOf: 75 },
-  { matchNumber: 90, homeWinnerOf: 74, awayWinnerOf: 77 },
+  { matchNumber: 89, homeWinnerOf: 74, awayWinnerOf: 77 },
+  { matchNumber: 90, homeWinnerOf: 73, awayWinnerOf: 75 },
   { matchNumber: 91, homeWinnerOf: 76, awayWinnerOf: 78 },
   { matchNumber: 92, homeWinnerOf: 79, awayWinnerOf: 80 },
   { matchNumber: 93, homeWinnerOf: 83, awayWinnerOf: 84 },

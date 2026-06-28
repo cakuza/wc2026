@@ -1,5 +1,6 @@
 import { Match, KnockoutMatch, ParticipantSlot } from "./matches";
 import { TOURNAMENT_FINAL_DATE } from "./matches";
+import { resolvedHome, resolvedAway } from "./resolvedParticipants";
 
 /**
  * Type guard to safely identify if a Match is a KnockoutMatch.
@@ -15,9 +16,10 @@ export function getResolvedHomeTeam(match: Match): string | null {
   if (!isKnockoutMatch(match)) {
     return match.homeKey;
   }
-  // If we dynamically resolved the slot, we'd do it here. 
-  // For now, if the schema doesn't store dynamic results in code,
-  // we return null for unplayed slots unless kind is 'resolved'.
+  const resolved = resolvedHome(match.matchNumber);
+  if (resolved) {
+    return resolved.teamKey;
+  }
   if (match.homeSlot.kind === "resolved") {
     return match.homeSlot.teamKey;
   }
@@ -30,6 +32,10 @@ export function getResolvedHomeTeam(match: Match): string | null {
 export function getResolvedAwayTeam(match: Match): string | null {
   if (!isKnockoutMatch(match)) {
     return match.awayKey;
+  }
+  const resolved = resolvedAway(match.matchNumber);
+  if (resolved) {
+    return resolved.teamKey;
   }
   if (match.awaySlot.kind === "resolved") {
     return match.awaySlot.teamKey;
@@ -53,4 +59,36 @@ export function getParticipantDisplayLabel(slot: ParticipantSlot): string {
     case "loserOf":
       return `Loser Match ${slot.matchNumber}`;
   }
+}
+
+/**
+ * Returns the flag code (e.g. "nl", "ma", "gb-eng") for the resolved home participant,
+ * or null if unresolved.
+ * For group-stage matches, returns match.homeCode directly.
+ */
+export function getResolvedHomeCode(match: Match): string | null {
+  if (!isKnockoutMatch(match)) {
+    return match.homeCode ?? null;
+  }
+  const resolved = resolvedHome(match.matchNumber);
+  if (resolved) {
+    return resolved.teamCode ?? null;
+  }
+  return null;
+}
+
+/**
+ * Returns the flag code (e.g. "nl", "ma", "gb-eng") for the resolved away participant,
+ * or null if unresolved.
+ * For group-stage matches, returns match.awayCode directly.
+ */
+export function getResolvedAwayCode(match: Match): string | null {
+  if (!isKnockoutMatch(match)) {
+    return match.awayCode ?? null;
+  }
+  const resolved = resolvedAway(match.matchNumber);
+  if (resolved) {
+    return resolved.teamCode ?? null;
+  }
+  return null;
 }

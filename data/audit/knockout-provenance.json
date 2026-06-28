@@ -1,0 +1,65 @@
+{
+  "generatedAt": "2026-06-28",
+  "reviewBranch": "claude/knockout-review-pass",
+  "reviewHeadSHA": "fa355f336c8c78934dbf5b5b13ec7694b64a9a44",
+  "sources": [
+    { "name": "Wikipedia - 2026 FIFA World Cup knockout stage", "url": "https://en.wikipedia.org/wiki/2026_FIFA_World_Cup_knockout_stage", "accessed": "2026-06-28", "confidence": "high" },
+    { "name": "Wikipedia - 2026 FIFA World Cup Round of 32", "url": "https://en.wikipedia.org/wiki/2026_FIFA_World_Cup_round_of_32", "accessed": "2026-06-28", "confidence": "high" },
+    { "name": "Al Jazeera - Round of 32 qualifiers", "accessed": "2026-06-28", "confidence": "high" },
+    { "name": "CBS Sports - third-place standings", "accessed": "2026-06-28", "confidence": "high" },
+    { "name": "Yahoo Sports - full bracket & results", "accessed": "2026-06-28", "confidence": "high" }
+  ],
+  "verification": {
+    "r32FixturesCrossChecked": true,
+    "venuesVerified": true,
+    "timesVerified": true,
+    "slotDependenciesVerified": true,
+    "r16DiscrepancyFound": {
+      "file": "lib/knockoutBracket2026.ts",
+      "description": "Matches 89 and 90 were swapped vs matches.ts canonical. Fixed: M89=W74vsW77, M90=W73vsW75 per matches.ts schedule sourced from official FIFA fixture list.",
+      "resolution": "knockoutBracket2026.ts corrected to match canonical matches.ts"
+    }
+  },
+  "groupStageResults": {
+    "A": { "1st": "mexico", "2nd": "southAfrica", "3rd": "southKorea", "4th": "czechia" },
+    "B": { "1st": "switzerland", "2nd": "canada", "3rd": "bosnia", "4th": "qatar" },
+    "C": { "1st": "brazil", "2nd": "morocco", "3rd": "scotland", "4th": "haiti" },
+    "D": { "1st": "unitedStates", "2nd": "australia", "3rd": "paraguay", "4th": "turkey" },
+    "E": { "1st": "germany", "2nd": "ivoryCoast", "3rd": "ecuador", "4th": "curacao" },
+    "F": { "1st": "netherlands", "2nd": "japan", "3rd": "sweden", "4th": "tunisia" },
+    "G": { "1st": "belgium", "2nd": "egypt", "3rd": "iran", "4th": "newZealand" },
+    "H": { "1st": "spain", "2nd": "capeVerde", "3rd": "uruguay", "4th": "saudiArabia" },
+    "I": { "1st": "france", "2nd": "norway", "3rd": "senegal", "4th": "iraq" },
+    "J": { "1st": "argentina", "2nd": "austria", "3rd": "algeria", "4th": "jordan" },
+    "K": { "1st": "colombia", "2nd": "portugal", "3rd": "drCongo", "4th": "uzbekistan" },
+    "L": { "1st": "england", "2nd": "croatia", "3rd": "ghana", "4th": "panama" }
+  },
+  "bestThirdQualifiers": [
+    { "rank": 1, "teamKey": "sweden",   "group": "F", "pts": 4, "gd": 0,  "gf": 7, "assignedToMatch": 77 },
+    { "rank": 2, "teamKey": "ecuador",  "group": "E", "pts": 4, "gd": 0,  "gf": 2, "assignedToMatch": 79 },
+    { "rank": 3, "teamKey": "bosnia",   "group": "B", "pts": 4, "gd": -1, "gf": 5, "assignedToMatch": 81 },
+    { "rank": 4, "teamKey": "paraguay", "group": "D", "pts": 4, "gd": -2, "gf": 2, "assignedToMatch": 74 },
+    { "rank": 5, "teamKey": "drCongo",  "group": "K", "pts": 4, "gd": 1,  "gf": 4, "assignedToMatch": 80 },
+    { "rank": 6, "teamKey": "ghana",    "group": "L", "pts": 4, "gd": 0,  "gf": 2, "assignedToMatch": 87 },
+    { "rank": 7, "teamKey": "algeria",  "group": "J", "pts": 4, "gd": -3, "gf": 5, "assignedToMatch": 85 },
+    { "rank": 8, "teamKey": "senegal",  "group": "I", "pts": 3, "gd": 2,  "gf": 8, "assignedToMatch": 82 }
+  ],
+  "r32Fixtures": [
+    { "matchNumber": 73,  "home": "southAfrica",  "homeSeed": "A2", "away": "canada",       "awaySeed": "B2",          "source": "confirmed" },
+    { "matchNumber": 74,  "home": "germany",       "homeSeed": "E1", "away": "paraguay",     "awaySeed": "3rd(D)",       "source": "confirmed" },
+    { "matchNumber": 75,  "home": "netherlands",   "homeSeed": "F1", "away": "morocco",      "awaySeed": "C2",          "source": "confirmed" },
+    { "matchNumber": 76,  "home": "brazil",        "homeSeed": "C1", "away": "japan",        "awaySeed": "F2",          "source": "confirmed" },
+    { "matchNumber": 77,  "home": "france",        "homeSeed": "I1", "away": "sweden",       "awaySeed": "3rd(F)",      "source": "confirmed" },
+    { "matchNumber": 78,  "home": "ivoryCoast",    "homeSeed": "E2", "away": "norway",       "awaySeed": "I2",          "source": "confirmed" },
+    { "matchNumber": 79,  "home": "mexico",        "homeSeed": "A1", "away": "ecuador",      "awaySeed": "3rd(E)",      "source": "confirmed" },
+    { "matchNumber": 80,  "home": "england",       "homeSeed": "L1", "away": "drCongo",      "awaySeed": "3rd(K)",      "source": "confirmed" },
+    { "matchNumber": 81,  "home": "unitedStates",  "homeSeed": "D1", "away": "bosnia",       "awaySeed": "3rd(B)",      "source": "confirmed" },
+    { "matchNumber": 82,  "home": "belgium",       "homeSeed": "G1", "away": "senegal",      "awaySeed": "3rd(I)",      "source": "confirmed" },
+    { "matchNumber": 83,  "home": "portugal",      "homeSeed": "K2", "away": "croatia",      "awaySeed": "L2",          "source": "confirmed" },
+    { "matchNumber": 84,  "home": "spain",         "homeSeed": "H1", "away": "austria",      "awaySeed": "J2",          "source": "confirmed" },
+    { "matchNumber": 85,  "home": "switzerland",   "homeSeed": "B1", "away": "algeria",      "awaySeed": "3rd(J)",      "source": "confirmed" },
+    { "matchNumber": 86,  "home": "argentina",     "homeSeed": "J1", "away": "capeVerde",    "awaySeed": "H2",          "source": "confirmed" },
+    { "matchNumber": 87,  "home": "colombia",      "homeSeed": "K1", "away": "ghana",        "awaySeed": "3rd(L)",      "source": "confirmed" },
+    { "matchNumber": 88,  "home": "australia",     "homeSeed": "D2", "away": "egypt",        "awaySeed": "G2",          "source": "confirmed" }
+  ]
+}

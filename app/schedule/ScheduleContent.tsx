@@ -7,7 +7,7 @@ import { TimezonePicker } from "@/components/TimezoneLabel";
 import { useTimezone } from "@/components/TimezoneProvider";
 import { useLang } from "@/components/LanguageProvider";
 import { matchSlug, Match, MATCHES } from "@/lib/matches";
-import { getResolvedHomeTeam, getResolvedAwayTeam, getParticipantDisplayLabel, isKnockoutMatch } from "@/lib/participant-resolution";
+import { getResolvedHomeTeam, getResolvedAwayTeam, getResolvedHomeCode, getResolvedAwayCode, getParticipantDisplayLabel, isKnockoutMatch } from "@/lib/participant-resolution";
 import { groupMatchesByCalendarDate } from "@/lib/todaySelection";
 import type { GoalScorerEvent } from "@/lib/worldcup26Provider";
 import type { ScheduleMatchScore } from "./page";
@@ -161,7 +161,7 @@ export function ScheduleContent({ liveScores, scorerLines }: Props) {
                             </span>
                             {getResolvedHomeTeam(m) && (
                               <Flag
-                                code={m.homeCode}
+                                code={getResolvedHomeCode(m) ?? ""}
                                 alt=""
                                 width={30}
                                 height={22}
@@ -181,7 +181,7 @@ export function ScheduleContent({ liveScores, scorerLines }: Props) {
                           <div className="flex min-w-0 flex-1 items-center gap-2">
                             {getResolvedAwayTeam(m) && (
                               <Flag
-                                code={m.awayCode}
+                                code={getResolvedAwayCode(m) ?? ""}
                                 alt=""
                                 width={30}
                                 height={22}

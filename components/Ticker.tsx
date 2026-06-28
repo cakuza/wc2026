@@ -1,5 +1,5 @@
 "use client";
-import { getResolvedHomeTeam, getResolvedAwayTeam, getParticipantDisplayLabel, isKnockoutMatch } from "@/lib/participant-resolution";
+import { getResolvedHomeTeam, getResolvedAwayTeam, getResolvedHomeCode, getResolvedAwayCode, getParticipantDisplayLabel, isKnockoutMatch } from "@/lib/participant-resolution";
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import dynamic from "next/dynamic";
@@ -32,10 +32,10 @@ function TickerItems({ items }: { items: Match[] }) {
           key={i}
           className="mx-4 flex items-center gap-2 whitespace-nowrap text-sm font-semibold text-white"
         >
-          {getResolvedHomeTeam(m) && <Flag code={m.homeCode} alt="" width={22} height={16} className="rounded-sm" />}
+          {getResolvedHomeTeam(m) && <Flag code={getResolvedHomeCode(m) ?? ""} alt="" width={22} height={16} className="rounded-sm" />}
           <span>{getResolvedHomeTeam(m) ? country(getResolvedHomeTeam(m)!) : (isKnockoutMatch(m) ? getParticipantDisplayLabel(m.homeSlot) : m.homeKey)}</span>
           <span className="opacity-70">{t("vs")}</span>
-          {getResolvedAwayTeam(m) && <Flag code={m.awayCode} alt="" width={22} height={16} className="rounded-sm" />}
+          {getResolvedAwayTeam(m) && <Flag code={getResolvedAwayCode(m) ?? ""} alt="" width={22} height={16} className="rounded-sm" />}
           <span>{getResolvedAwayTeam(m) ? country(getResolvedAwayTeam(m)!) : (isKnockoutMatch(m) ? getParticipantDisplayLabel(m.awaySlot) : m.awayKey)}</span>
           <span className="opacity-70">·</span>
           <span className="opacity-80">{formatDate(getMatchCalendarDateInZone(matchUtcDate(m), timeZone))}</span>

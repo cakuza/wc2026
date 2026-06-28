@@ -1,5 +1,5 @@
 "use client";
-import { getResolvedHomeTeam, getResolvedAwayTeam, getParticipantDisplayLabel, isKnockoutMatch } from "@/lib/participant-resolution";
+import { getResolvedHomeTeam, getResolvedAwayTeam, getResolvedHomeCode, getResolvedAwayCode, getParticipantDisplayLabel, isKnockoutMatch } from "@/lib/participant-resolution";
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
@@ -72,7 +72,7 @@ function MatchRow({
       <div className="flex items-center gap-2">
         <div className="flex min-w-0 flex-1 items-center justify-end gap-2">
           <span className="min-w-0 truncate text-sm font-bold text-white">{getResolvedHomeTeam(m) ? country(getResolvedHomeTeam(m)!) : (isKnockoutMatch(m) ? getParticipantDisplayLabel(m.homeSlot) : m.homeKey)}</span>
-          {getResolvedHomeTeam(m) && <Flag code={m.homeCode} alt="" width={28} height={20} />}
+          {getResolvedHomeTeam(m) && <Flag code={getResolvedHomeCode(m) ?? ""} alt="" width={28} height={20} />}
         </div>
 
         {hasScore ? (
@@ -84,7 +84,7 @@ function MatchRow({
         )}
 
         <div className="flex min-w-0 flex-1 items-center gap-2">
-          {getResolvedAwayTeam(m) && <Flag code={m.awayCode} alt="" width={28} height={20} />}
+          {getResolvedAwayTeam(m) && <Flag code={getResolvedAwayCode(m) ?? ""} alt="" width={28} height={20} />}
           <span className="min-w-0 truncate text-sm font-bold text-white">{getResolvedAwayTeam(m) ? country(getResolvedAwayTeam(m)!) : (isKnockoutMatch(m) ? getParticipantDisplayLabel(m.awaySlot) : m.awayKey)}</span>
         </div>
       </div>

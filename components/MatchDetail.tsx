@@ -1,5 +1,5 @@
 "use client";
-import { getResolvedHomeTeam, getResolvedAwayTeam, getParticipantDisplayLabel, isKnockoutMatch } from "@/lib/participant-resolution";
+import { getResolvedHomeTeam, getResolvedAwayTeam, getParticipantDisplayLabel, isKnockoutMatch, getResolvedHomeCode, getResolvedAwayCode } from "@/lib/participant-resolution";
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
@@ -281,7 +281,8 @@ export function MatchDetail({
   const homeRank = groupStandings?.findIndex((row) => row.teamKey === match.homeKey);
   const awayRank = groupStandings?.findIndex((row) => row.teamKey === match.awayKey);
   const matchTime = matchUtcDate(match).getTime();
-  const nextMatches = [match.homeKey, match.awayKey]
+  const teamKeysForNext = [homeKey, awayKey].filter((k): k is string => k !== null && k !== "tbd");
+  const nextMatches = teamKeysForNext
     .map((teamKey) => {
       const next = MATCHES
         .filter((m) => (m.homeKey === teamKey || m.awayKey === teamKey) && matchUtcDate(m).getTime() > matchTime)
@@ -349,7 +350,7 @@ export function MatchDetail({
             {/* Home team */}
             <Link href={`/teams/${slugFor(match.homeKey)}`} className="group flex flex-1 flex-col items-center gap-3 text-center transition-opacity hover:opacity-80">
               <Flag
-                code={homeKey ? match.homeCode : ""}
+                code={homeKey ? (getResolvedHomeCode(match) ?? match.homeCode) : ""}
                 name={homeName}
                 width={80}
                 height={56}
@@ -382,7 +383,7 @@ export function MatchDetail({
             {/* Away team */}
             <Link href={`/teams/${slugFor(match.awayKey)}`} className="group flex flex-1 flex-col items-center gap-3 text-center transition-opacity hover:opacity-80">
               <Flag
-                code={awayKey ? match.awayCode : ""}
+                code={awayKey ? (getResolvedAwayCode(match) ?? match.awayCode) : ""}
                 name={awayName}
                 width={80}
                 height={56}
@@ -486,7 +487,7 @@ export function MatchDetail({
             <div className="mt-4 grid grid-cols-2 gap-3">
               <div className="rounded-lg bg-navy/60 p-3 text-center">
                 <Flag
-                  code={homeKey ? match.homeCode : ""}
+                  code={homeKey ? (getResolvedHomeCode(match) ?? match.homeCode) : ""}
                   name={homeName}
                   width={40}
                   height={28}
@@ -499,7 +500,7 @@ export function MatchDetail({
               </div>
               <div className="rounded-lg bg-navy/60 p-3 text-center">
                 <Flag
-                  code={awayKey ? match.awayCode : ""}
+                  code={awayKey ? (getResolvedAwayCode(match) ?? match.awayCode) : ""}
                   name={awayName}
                   width={40}
                   height={28}

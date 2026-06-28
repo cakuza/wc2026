@@ -1,4 +1,4 @@
-import { getResolvedHomeTeam, getResolvedAwayTeam, getParticipantDisplayLabel, isKnockoutMatch } from "@/lib/participant-resolution";
+import { getResolvedHomeTeam, getResolvedAwayTeam, getResolvedHomeCode, getResolvedAwayCode, getParticipantDisplayLabel, isKnockoutMatch } from "@/lib/participant-resolution";
 import type { Metadata } from "next";
 import { cookies } from "next/headers";
 import Link from "next/link";
@@ -269,7 +269,7 @@ function MatchRow({
           <div className="flex items-center gap-3">
             <div className="flex min-w-0 flex-1 items-center justify-end gap-2 text-end">
               <span className="truncate font-semibold text-white">{home}</span>
-              <Flag code={m.homeCode} alt="" width={30} height={22} />
+              <Flag code={getResolvedHomeCode(m) ?? m.homeCode} alt="" width={30} height={22} />
             </div>
             {hasScore ? (
               <span className="shrink-0 font-heading text-sm font-extrabold tabular-nums text-white">
@@ -281,7 +281,7 @@ function MatchRow({
               </span>
             )}
             <div className="flex min-w-0 flex-1 items-center gap-2">
-              <Flag code={m.awayCode} alt="" width={30} height={22} />
+              <Flag code={getResolvedAwayCode(m) ?? m.awayCode} alt="" width={30} height={22} />
               <span className="truncate font-semibold text-white">{away}</span>
             </div>
           </div>
