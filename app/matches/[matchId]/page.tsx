@@ -7,9 +7,21 @@ import { countryName } from "@/lib/i18n";
 import { getGoalEventCompleteness } from "@/lib/goalEventCompleteness";
 import { getTournamentLiveSnapshot } from "@/lib/liveSnapshot";
 import { matchBySlug } from "@/lib/matches";
+import { getResolvedHomeTeam, getResolvedAwayTeam, getParticipantDisplayLabel, isKnockoutMatch } from "@/lib/participant-resolution";
 
 export const revalidate = 30;
 export const dynamic = "force-dynamic";
+
+function resolvedTeamName(match: ReturnType<typeof matchBySlug>, side: "home" | "away"): string {
+  if (!match) return "TBD";
+  if (!isKnockoutMatch(match)) {
+    return countryName(side === "home" ? match.homeKey : match.awayKey, "en");
+  }
+  const resolvedKey = side === "home" ? getResolvedHomeTeam(match) : getResolvedAwayTeam(match);
+  if (resolvedKey) return countryName(resolvedKey, "en");
+  const slot = side === "home" ? match.homeSlot : match.awaySlot;
+  return getParticipantDisplayLabel(slot);
+}
 
 export async function generateMetadata({
   params,
@@ -20,17 +32,18 @@ export async function generateMetadata({
   const match = matchBySlug(matchId);
   if (!match) return {};
 
-  const home = countryName(match.homeKey, "en");
-  const away = countryName(match.awayKey, "en");
+  const home = resolvedTeamName(match, "home");
+  const away = resolvedTeamName(match, "away");
   const BASE = "https://www.worldcupmatchday.com";
+  const groupLabel = match.group ? ` - Group ${match.group}` : "";
 
   return {
     title: `${home} vs ${away} - FIFA World Cup 2026`,
-    description: `${home} vs ${away} - Group ${match.group} - ${match.date}${match.venue ? ` - ${match.venue}` : ""} - WorldCupMatchDay`,
+    description: `${home} vs ${away}${groupLabel} - ${match.date}${match.venue ? ` - ${match.venue}` : ""} - WorldCupMatchDay`,
     alternates: { canonical: `${BASE}/matches/${matchId}` },
     openGraph: {
       title: `${home} vs ${away} - FIFA World Cup 2026`,
-      description: `Group ${match.group} - ${match.date} - WorldCupMatchDay`,
+      description: `${match.group ? `Group ${match.group}` : (isKnockoutMatch(match) ? match.stage : "")} - ${match.date} - WorldCupMatchDay`,
       url: `${BASE}/matches/${matchId}`,
       type: "website",
     },
@@ -62,8 +75,8 @@ export default async function MatchPage({
     snap?.goalEventCompleteness ??
     getGoalEventCompleteness({ homeScore: null, awayScore: null, goals: undefined, eventDataAvailable: false });
 
-  const home = countryName(match.homeKey, "en");
-  const away = countryName(match.awayKey, "en");
+  const home = resolvedTeamName(match, "home");
+  const away = resolvedTeamName(match, "away");
   const dateStr = longDate(match.date);
   const venueStr = match.venue ?? "venue TBC";
   const timeStr = match.time ? `, kickoff ${match.time} venue local time (${venueStr})` : "";
