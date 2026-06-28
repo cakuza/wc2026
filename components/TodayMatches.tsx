@@ -1,4 +1,5 @@
 "use client";
+import { getResolvedHomeTeam, getResolvedAwayTeam, getParticipantDisplayLabel, isKnockoutMatch } from "@/lib/participant-resolution";
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
@@ -57,8 +58,8 @@ function MatchRow({
   const { confirmedEvents, scorerDetailsIncomplete } = reconcileGoalEvents({
     homeScore: live?.homeScore ?? null,
     awayScore: live?.awayScore ?? null,
-    homeTeamName: countryName(m.homeKey, "en"),
-    awayTeamName: countryName(m.awayKey, "en"),
+    homeTeamName: getResolvedHomeTeam(m) ? countryName(getResolvedHomeTeam(m)!, "en") : (isKnockoutMatch(m) ? getParticipantDisplayLabel(m.homeSlot) : m.homeKey),
+    awayTeamName: getResolvedAwayTeam(m) ? countryName(getResolvedAwayTeam(m)!, "en") : (isKnockoutMatch(m) ? getParticipantDisplayLabel(m.awaySlot) : m.awayKey),
     events: scorers ?? [],
   });
   const goals = scorerText(confirmedEvents);
@@ -70,8 +71,8 @@ function MatchRow({
     >
       <div className="flex items-center gap-2">
         <div className="flex min-w-0 flex-1 items-center justify-end gap-2">
-          <span className="min-w-0 truncate text-sm font-bold text-white">{country(m.homeKey)}</span>
-          <Flag code={m.homeCode} alt="" width={28} height={20} />
+          <span className="min-w-0 truncate text-sm font-bold text-white">{getResolvedHomeTeam(m) ? country(getResolvedHomeTeam(m)!) : (isKnockoutMatch(m) ? getParticipantDisplayLabel(m.homeSlot) : m.homeKey)}</span>
+          {getResolvedHomeTeam(m) && <Flag code={m.homeCode} alt="" width={28} height={20} />}
         </div>
 
         {hasScore ? (
@@ -83,8 +84,8 @@ function MatchRow({
         )}
 
         <div className="flex min-w-0 flex-1 items-center gap-2">
-          <Flag code={m.awayCode} alt="" width={28} height={20} />
-          <span className="min-w-0 truncate text-sm font-bold text-white">{country(m.awayKey)}</span>
+          {getResolvedAwayTeam(m) && <Flag code={m.awayCode} alt="" width={28} height={20} />}
+          <span className="min-w-0 truncate text-sm font-bold text-white">{getResolvedAwayTeam(m) ? country(getResolvedAwayTeam(m)!) : (isKnockoutMatch(m) ? getParticipantDisplayLabel(m.awaySlot) : m.awayKey)}</span>
         </div>
       </div>
 

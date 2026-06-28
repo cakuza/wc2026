@@ -6,7 +6,8 @@ import { MatchTime } from "@/components/MatchTime";
 import { TimezonePicker } from "@/components/TimezoneLabel";
 import { useTimezone } from "@/components/TimezoneProvider";
 import { useLang } from "@/components/LanguageProvider";
-import { matchSlug, MATCHES } from "@/lib/matches";
+import { matchSlug, Match, MATCHES } from "@/lib/matches";
+import { getResolvedHomeTeam, getResolvedAwayTeam, getParticipantDisplayLabel, isKnockoutMatch } from "@/lib/participant-resolution";
 import { groupMatchesByCalendarDate } from "@/lib/todaySelection";
 import type { GoalScorerEvent } from "@/lib/worldcup26Provider";
 import type { ScheduleMatchScore } from "./page";
@@ -156,15 +157,17 @@ export function ScheduleContent({ liveScores, scorerLines }: Props) {
                         <div className="flex items-center gap-3">
                           <div className="flex min-w-0 flex-1 items-center justify-end gap-2 text-end">
                             <span className="truncate font-semibold text-white">
-                              {country(m.homeKey)}
+                              {getResolvedHomeTeam(m) ? country(getResolvedHomeTeam(m)!) : (isKnockoutMatch(m) ? getParticipantDisplayLabel(m.homeSlot) : m.homeKey)}
                             </span>
-                            <Flag
-                              code={m.homeCode}
-                              alt=""
-                              width={30}
-                              height={22}
-                              className="rounded-sm"
-                            />
+                            {getResolvedHomeTeam(m) && (
+                              <Flag
+                                code={m.homeCode}
+                                alt=""
+                                width={30}
+                                height={22}
+                                className="rounded-sm"
+                              />
+                            )}
                           </div>
 
                           {hasScore && score ? (
@@ -176,15 +179,17 @@ export function ScheduleContent({ liveScores, scorerLines }: Props) {
                           )}
 
                           <div className="flex min-w-0 flex-1 items-center gap-2">
-                            <Flag
-                              code={m.awayCode}
-                              alt=""
-                              width={30}
-                              height={22}
-                              className="rounded-sm"
-                            />
+                            {getResolvedAwayTeam(m) && (
+                              <Flag
+                                code={m.awayCode}
+                                alt=""
+                                width={30}
+                                height={22}
+                                className="rounded-sm"
+                              />
+                            )}
                             <span className="truncate font-semibold text-white">
-                              {country(m.awayKey)}
+                              {getResolvedAwayTeam(m) ? country(getResolvedAwayTeam(m)!) : (isKnockoutMatch(m) ? getParticipantDisplayLabel(m.awaySlot) : m.awayKey)}
                             </span>
                           </div>
                         </div>

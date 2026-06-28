@@ -1,4 +1,5 @@
 "use client";
+import { getResolvedHomeTeam, getResolvedAwayTeam, getParticipantDisplayLabel, isKnockoutMatch } from "@/lib/participant-resolution";
 
 /**
  * TickerDuplicate — the aria-hidden loop copy of the ticker.
@@ -45,11 +46,11 @@ export default function TickerDuplicate({ items, onMount }: Props) {
           key={i}
           className="mx-4 flex items-center gap-2 whitespace-nowrap text-sm font-semibold text-white"
         >
-          <Flag code={m.homeCode} alt="" width={22} height={16} className="rounded-sm" />
-          <span>{country(m.homeKey)}</span>
+          {getResolvedHomeTeam(m) && <Flag code={m.homeCode} alt="" width={22} height={16} className="rounded-sm" />}
+          <span>{getResolvedHomeTeam(m) ? country(getResolvedHomeTeam(m)!) : (isKnockoutMatch(m) ? getParticipantDisplayLabel(m.homeSlot) : m.homeKey)}</span>
           <span className="opacity-70">{t("vs")}</span>
-          <Flag code={m.awayCode} alt="" width={22} height={16} className="rounded-sm" />
-          <span>{country(m.awayKey)}</span>
+          {getResolvedAwayTeam(m) && <Flag code={m.awayCode} alt="" width={22} height={16} className="rounded-sm" />}
+          <span>{getResolvedAwayTeam(m) ? country(getResolvedAwayTeam(m)!) : (isKnockoutMatch(m) ? getParticipantDisplayLabel(m.awaySlot) : m.awayKey)}</span>
           <span className="opacity-70">·</span>
           <span className="opacity-80">{formatDate(getMatchCalendarDateInZone(matchUtcDate(m), timeZone))}</span>
         </span>

@@ -1,4 +1,5 @@
 "use client";
+import { getResolvedHomeTeam, getResolvedAwayTeam, getParticipantDisplayLabel, isKnockoutMatch } from "@/lib/participant-resolution";
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
@@ -271,8 +272,10 @@ export function MatchDetail({
   const status: DisplayStatus = snapshotStatusToDisplay(liveState.status);
 
   const isConfirmedFinished = liveState.status === "FINISHED" && hasScore;
-  const homeName = country(match.homeKey);
-  const awayName = country(match.awayKey);
+  const homeKey = getResolvedHomeTeam(match);
+  const homeName = homeKey ? country(homeKey) : (isKnockoutMatch(match) ? getParticipantDisplayLabel(match.homeSlot) : match.homeKey);
+  const awayKey = getResolvedAwayTeam(match);
+  const awayName = awayKey ? country(awayKey) : (isKnockoutMatch(match) ? getParticipantDisplayLabel(match.awaySlot) : match.awayKey);
   const homeStanding = groupStandings?.find((row) => row.teamKey === match.homeKey);
   const awayStanding = groupStandings?.find((row) => row.teamKey === match.awayKey);
   const homeRank = groupStandings?.findIndex((row) => row.teamKey === match.homeKey);
@@ -346,14 +349,14 @@ export function MatchDetail({
             {/* Home team */}
             <Link href={`/teams/${slugFor(match.homeKey)}`} className="group flex flex-1 flex-col items-center gap-3 text-center transition-opacity hover:opacity-80">
               <Flag
-                code={match.homeCode}
-                name={country(match.homeKey)}
+                code={homeKey ? match.homeCode : ""}
+                name={homeName}
                 width={80}
                 height={56}
                 className="rounded-lg shadow-2xl ring-1 ring-white/15 transition-transform duration-300 group-hover:scale-105"
               />
               <span className="font-heading text-lg font-extrabold uppercase leading-tight text-white transition-colors duration-300 group-hover:text-accent sm:text-xl">
-                {country(match.homeKey)}
+                {homeName}
               </span>
             </Link>
 
@@ -379,14 +382,14 @@ export function MatchDetail({
             {/* Away team */}
             <Link href={`/teams/${slugFor(match.awayKey)}`} className="group flex flex-1 flex-col items-center gap-3 text-center transition-opacity hover:opacity-80">
               <Flag
-                code={match.awayCode}
-                name={country(match.awayKey)}
+                code={awayKey ? match.awayCode : ""}
+                name={awayName}
                 width={80}
                 height={56}
                 className="rounded-lg shadow-2xl ring-1 ring-white/15 transition-transform duration-300 group-hover:scale-105"
               />
               <span className="font-heading text-lg font-extrabold uppercase leading-tight text-white transition-colors duration-300 group-hover:text-accent sm:text-xl">
-                {country(match.awayKey)}
+                {awayName}
               </span>
             </Link>
           </div>
@@ -468,7 +471,7 @@ export function MatchDetail({
               <span className="font-semibold text-white">
                 {t("lbl_group")} {match.group}
               </span>{" "}
-              — {country(match.homeKey)} {t("vs")} {country(match.awayKey)}
+              — {homeName} {t("vs")} {awayName}
             </p>
           </div>
         </div>
@@ -483,27 +486,27 @@ export function MatchDetail({
             <div className="mt-4 grid grid-cols-2 gap-3">
               <div className="rounded-lg bg-navy/60 p-3 text-center">
                 <Flag
-                  code={match.homeCode}
-                  name={country(match.homeKey)}
+                  code={homeKey ? match.homeCode : ""}
+                  name={homeName}
                   width={40}
                   height={28}
                   className="mx-auto rounded-sm"
                 />
                 <p className="mt-2 font-heading text-xs font-extrabold uppercase tracking-wide text-white">
-                  {country(match.homeKey)}
+                  {homeName}
                 </p>
                 <p className="mt-0.5 text-xs text-white/40">{t("lbl_group")} {match.group}</p>
               </div>
               <div className="rounded-lg bg-navy/60 p-3 text-center">
                 <Flag
-                  code={match.awayCode}
-                  name={country(match.awayKey)}
+                  code={awayKey ? match.awayCode : ""}
+                  name={awayName}
                   width={40}
                   height={28}
                   className="mx-auto rounded-sm"
                 />
                 <p className="mt-2 font-heading text-xs font-extrabold uppercase tracking-wide text-white">
-                  {country(match.awayKey)}
+                  {awayName}
                 </p>
                 <p className="mt-0.5 text-xs text-white/40">{t("lbl_group")} {match.group}</p>
               </div>

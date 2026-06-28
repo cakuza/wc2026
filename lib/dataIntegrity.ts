@@ -51,10 +51,10 @@ export function assertWorldCupData(): void {
 
   // Every fixture must reference known teams.
   for (const m of MATCHES) {
-    if (!validKeys.has(m.homeKey)) {
+    if (!validKeys.has(m.homeKey) && m.homeKey !== "tbd") {
       errors.push(`Match ${matchSlug(m)} references unknown home team "${m.homeKey}".`);
     }
-    if (!validKeys.has(m.awayKey)) {
+    if (!validKeys.has(m.awayKey) && m.awayKey !== "tbd") {
       errors.push(`Match ${matchSlug(m)} references unknown away team "${m.awayKey}".`);
     }
   }
@@ -93,3 +93,4 @@ export function assertWorldCupData(): void {
     );
   }
 }
+
