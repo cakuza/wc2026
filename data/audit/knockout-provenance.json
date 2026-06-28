@@ -2,6 +2,19 @@
   "generatedAt": "2026-06-28",
   "reviewBranch": "claude/knockout-review-pass",
   "reviewHeadSHA": "fd5d13cb2c81aa32132496ae2461054d302a9c45",
+  "providerContract": {
+    "source": "football-data.org /v4/competitions/2000/matches",
+    "competitionId": 2000,
+    "probeDate": "2026-06-28",
+    "verificationMethod": "live API probe via authenticated Vercel preview",
+    "r32MatchesFound": 16,
+    "r16MatchesFound": 8,
+    "qfMatchesFound": 4,
+    "sfMatchesFound": 2,
+    "thirdPlaceFound": 1,
+    "finalFound": 1,
+    "stageNamesInApi": ["LAST_32", "LAST_16", "QUARTER_FINALS", "SEMI_FINALS", "THIRD_PLACE", "FINAL"]
+  },
   "sources": [
     { "name": "Wikipedia - 2026 FIFA World Cup knockout stage", "url": "https://en.wikipedia.org/wiki/2026_FIFA_World_Cup_knockout_stage", "accessed": "2026-06-28", "confidence": "high" },
     { "name": "Wikipedia - 2026 FIFA World Cup Round of 32", "url": "https://en.wikipedia.org/wiki/2026_FIFA_World_Cup_round_of_32", "accessed": "2026-06-28", "confidence": "high" },
