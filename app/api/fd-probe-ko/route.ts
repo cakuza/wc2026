@@ -24,16 +24,14 @@ export async function GET(request: NextRequest) {
   const data = await res.json() as { matches?: Record<string, unknown>[] };
   const matches = data.matches ?? [];
 
-  // Return only knockout matches, with no auth credentials in output
+  // Collect all distinct stage names for diagnostics
+  const stageNames = [...new Set(matches.map((m) => String(m.stage ?? "NULL")))].sort();
+
+  // Return all non-group-stage matches (filter out GROUP_STAGE)
   const knockout = matches
     .filter((m) => {
       const stage = String(m.stage ?? "").toUpperCase();
-      return (
-        stage.includes("ROUND") ||
-        stage.includes("QUARTER") ||
-        stage.includes("SEMI") ||
-        stage.includes("FINAL")
-      );
+      return stage !== "GROUP_STAGE" && stage !== "" && stage !== "NULL";
     })
     .map((m) => {
       const score = m.score as Record<string, unknown> | null | undefined;
@@ -63,6 +61,7 @@ export async function GET(request: NextRequest) {
     competitionId: 2000,
     totalMatchCount: matches.length,
     knockoutMatchCount: knockout.length,
+    stageNames,
     knockout,
   });
 }
