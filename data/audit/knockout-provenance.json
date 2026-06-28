@@ -1,19 +1,21 @@
 {
   "generatedAt": "2026-06-28",
   "reviewBranch": "claude/knockout-review-pass",
-  "reviewHeadSHA": "fa355f336c8c78934dbf5b5b13ec7694b64a9a44",
+  "reviewHeadSHA": "fd5d13cb2c81aa32132496ae2461054d302a9c45",
   "sources": [
     { "name": "Wikipedia - 2026 FIFA World Cup knockout stage", "url": "https://en.wikipedia.org/wiki/2026_FIFA_World_Cup_knockout_stage", "accessed": "2026-06-28", "confidence": "high" },
     { "name": "Wikipedia - 2026 FIFA World Cup Round of 32", "url": "https://en.wikipedia.org/wiki/2026_FIFA_World_Cup_round_of_32", "accessed": "2026-06-28", "confidence": "high" },
     { "name": "Al Jazeera - Round of 32 qualifiers", "accessed": "2026-06-28", "confidence": "high" },
     { "name": "CBS Sports - third-place standings", "accessed": "2026-06-28", "confidence": "high" },
-    { "name": "Yahoo Sports - full bracket & results", "accessed": "2026-06-28", "confidence": "high" }
+    { "name": "Yahoo Sports - full bracket & results", "accessed": "2026-06-28", "confidence": "high" },
+    { "name": "FIFA Official - 2026 World Cup schedule", "url": "https://www.fifa.com/en/tournaments/mens/worldcup/canadamexicousa2026/match-centre", "accessed": "2026-06-28", "confidence": "high" }
   ],
   "verification": {
     "r32FixturesCrossChecked": true,
     "venuesVerified": true,
     "timesVerified": true,
     "slotDependenciesVerified": true,
+    "matches89to104ParticipantsStatus": "immutable winner/loser dependency — unresolved until R32 concludes (earliest 2026-07-04)",
     "r16DiscrepancyFound": {
       "file": "lib/knockoutBracket2026.ts",
       "description": "Matches 89 and 90 were swapped vs matches.ts canonical. Fixed: M89=W74vsW77, M90=W73vsW75 per matches.ts schedule sourced from official FIFA fixture list.",
@@ -21,18 +23,18 @@
     }
   },
   "groupStageResults": {
-    "A": { "1st": "mexico", "2nd": "southAfrica", "3rd": "southKorea", "4th": "czechia" },
-    "B": { "1st": "switzerland", "2nd": "canada", "3rd": "bosnia", "4th": "qatar" },
-    "C": { "1st": "brazil", "2nd": "morocco", "3rd": "scotland", "4th": "haiti" },
-    "D": { "1st": "unitedStates", "2nd": "australia", "3rd": "paraguay", "4th": "turkey" },
-    "E": { "1st": "germany", "2nd": "ivoryCoast", "3rd": "ecuador", "4th": "curacao" },
-    "F": { "1st": "netherlands", "2nd": "japan", "3rd": "sweden", "4th": "tunisia" },
-    "G": { "1st": "belgium", "2nd": "egypt", "3rd": "iran", "4th": "newZealand" },
-    "H": { "1st": "spain", "2nd": "capeVerde", "3rd": "uruguay", "4th": "saudiArabia" },
-    "I": { "1st": "france", "2nd": "norway", "3rd": "senegal", "4th": "iraq" },
-    "J": { "1st": "argentina", "2nd": "austria", "3rd": "algeria", "4th": "jordan" },
-    "K": { "1st": "colombia", "2nd": "portugal", "3rd": "drCongo", "4th": "uzbekistan" },
-    "L": { "1st": "england", "2nd": "croatia", "3rd": "ghana", "4th": "panama" }
+    "A": { "1st": "mexico",       "2nd": "southAfrica", "3rd": "southKorea", "4th": "czechia"     },
+    "B": { "1st": "switzerland",  "2nd": "canada",      "3rd": "bosnia",     "4th": "qatar"       },
+    "C": { "1st": "brazil",       "2nd": "morocco",     "3rd": "scotland",   "4th": "haiti"       },
+    "D": { "1st": "unitedStates", "2nd": "australia",   "3rd": "paraguay",   "4th": "turkey"      },
+    "E": { "1st": "germany",      "2nd": "ivoryCoast",  "3rd": "ecuador",    "4th": "curacao"     },
+    "F": { "1st": "netherlands",  "2nd": "japan",       "3rd": "sweden",     "4th": "tunisia"     },
+    "G": { "1st": "belgium",      "2nd": "egypt",       "3rd": "iran",       "4th": "newZealand"  },
+    "H": { "1st": "spain",        "2nd": "capeVerde",   "3rd": "uruguay",    "4th": "saudiArabia" },
+    "I": { "1st": "france",       "2nd": "norway",      "3rd": "senegal",    "4th": "iraq"        },
+    "J": { "1st": "argentina",    "2nd": "austria",     "3rd": "algeria",    "4th": "jordan"      },
+    "K": { "1st": "colombia",     "2nd": "portugal",    "3rd": "drCongo",    "4th": "uzbekistan"  },
+    "L": { "1st": "england",      "2nd": "croatia",     "3rd": "ghana",      "4th": "panama"      }
   },
   "bestThirdQualifiers": [
     { "rank": 1, "teamKey": "sweden",   "group": "F", "pts": 4, "gd": 0,  "gf": 7, "assignedToMatch": 77 },
@@ -44,22 +46,232 @@
     { "rank": 7, "teamKey": "algeria",  "group": "J", "pts": 4, "gd": -3, "gf": 5, "assignedToMatch": 85 },
     { "rank": 8, "teamKey": "senegal",  "group": "I", "pts": 3, "gd": 2,  "gf": 8, "assignedToMatch": 82 }
   ],
-  "r32Fixtures": [
-    { "matchNumber": 73,  "home": "southAfrica",  "homeSeed": "A2", "away": "canada",       "awaySeed": "B2",          "source": "confirmed" },
-    { "matchNumber": 74,  "home": "germany",       "homeSeed": "E1", "away": "paraguay",     "awaySeed": "3rd(D)",       "source": "confirmed" },
-    { "matchNumber": 75,  "home": "netherlands",   "homeSeed": "F1", "away": "morocco",      "awaySeed": "C2",          "source": "confirmed" },
-    { "matchNumber": 76,  "home": "brazil",        "homeSeed": "C1", "away": "japan",        "awaySeed": "F2",          "source": "confirmed" },
-    { "matchNumber": 77,  "home": "france",        "homeSeed": "I1", "away": "sweden",       "awaySeed": "3rd(F)",      "source": "confirmed" },
-    { "matchNumber": 78,  "home": "ivoryCoast",    "homeSeed": "E2", "away": "norway",       "awaySeed": "I2",          "source": "confirmed" },
-    { "matchNumber": 79,  "home": "mexico",        "homeSeed": "A1", "away": "ecuador",      "awaySeed": "3rd(E)",      "source": "confirmed" },
-    { "matchNumber": 80,  "home": "england",       "homeSeed": "L1", "away": "drCongo",      "awaySeed": "3rd(K)",      "source": "confirmed" },
-    { "matchNumber": 81,  "home": "unitedStates",  "homeSeed": "D1", "away": "bosnia",       "awaySeed": "3rd(B)",      "source": "confirmed" },
-    { "matchNumber": 82,  "home": "belgium",       "homeSeed": "G1", "away": "senegal",      "awaySeed": "3rd(I)",      "source": "confirmed" },
-    { "matchNumber": 83,  "home": "portugal",      "homeSeed": "K2", "away": "croatia",      "awaySeed": "L2",          "source": "confirmed" },
-    { "matchNumber": 84,  "home": "spain",         "homeSeed": "H1", "away": "austria",      "awaySeed": "J2",          "source": "confirmed" },
-    { "matchNumber": 85,  "home": "switzerland",   "homeSeed": "B1", "away": "algeria",      "awaySeed": "3rd(J)",      "source": "confirmed" },
-    { "matchNumber": 86,  "home": "argentina",     "homeSeed": "J1", "away": "capeVerde",    "awaySeed": "H2",          "source": "confirmed" },
-    { "matchNumber": 87,  "home": "colombia",      "homeSeed": "K1", "away": "ghana",        "awaySeed": "3rd(L)",      "source": "confirmed" },
-    { "matchNumber": 88,  "home": "australia",     "homeSeed": "D2", "away": "egypt",        "awaySeed": "G2",          "source": "confirmed" }
+  "knockoutMatches": [
+    {
+      "matchNumber": 73,  "stage": "R32", "date": "2026-06-28", "localTime": "12:00", "utcOffset": -7, "utcDatetime": "2026-06-28T19:00Z",
+      "venue": "SoFi Stadium", "city": "Inglewood, CA", "country": "USA",
+      "homeParticipant": { "kind": "groupSlot", "group": "A", "place": 2, "resolvedTeam": "southAfrica", "resolvedCode": "za" },
+      "awayParticipant": { "kind": "groupSlot", "group": "B", "place": 2, "resolvedTeam": "canada",      "resolvedCode": "ca" },
+      "participantSource": "confirmed", "verificationDate": "2026-06-28"
+    },
+    {
+      "matchNumber": 74,  "stage": "R32", "date": "2026-06-29", "localTime": "16:30", "utcOffset": -4, "utcDatetime": "2026-06-29T20:30Z",
+      "venue": "Gillette Stadium", "city": "Foxborough, MA", "country": "USA",
+      "homeParticipant": { "kind": "groupSlot", "group": "E", "place": 1, "resolvedTeam": "germany",  "resolvedCode": "de" },
+      "awayParticipant": { "kind": "bestThird", "groups": ["A","B","C","D","F"], "resolvedTeam": "paraguay", "resolvedCode": "py" },
+      "participantSource": "confirmed", "verificationDate": "2026-06-28"
+    },
+    {
+      "matchNumber": 75,  "stage": "R32", "date": "2026-06-29", "localTime": "19:00", "utcOffset": -6, "utcDatetime": "2026-06-30T01:00Z",
+      "venue": "Estadio BBVA", "city": "Monterrey", "country": "Mexico",
+      "homeParticipant": { "kind": "groupSlot", "group": "F", "place": 1, "resolvedTeam": "netherlands", "resolvedCode": "nl" },
+      "awayParticipant": { "kind": "groupSlot", "group": "C", "place": 2, "resolvedTeam": "morocco",     "resolvedCode": "ma" },
+      "participantSource": "confirmed", "verificationDate": "2026-06-28"
+    },
+    {
+      "matchNumber": 76,  "stage": "R32", "date": "2026-06-29", "localTime": "12:00", "utcOffset": -5, "utcDatetime": "2026-06-29T17:00Z",
+      "venue": "NRG Stadium", "city": "Houston, TX", "country": "USA",
+      "homeParticipant": { "kind": "groupSlot", "group": "C", "place": 1, "resolvedTeam": "brazil", "resolvedCode": "br" },
+      "awayParticipant": { "kind": "groupSlot", "group": "F", "place": 2, "resolvedTeam": "japan",  "resolvedCode": "jp" },
+      "participantSource": "confirmed", "verificationDate": "2026-06-28"
+    },
+    {
+      "matchNumber": 77,  "stage": "R32", "date": "2026-06-30", "localTime": "17:00", "utcOffset": -4, "utcDatetime": "2026-06-30T21:00Z",
+      "venue": "MetLife Stadium", "city": "East Rutherford, NJ", "country": "USA",
+      "homeParticipant": { "kind": "groupSlot", "group": "I", "place": 1, "resolvedTeam": "france", "resolvedCode": "fr" },
+      "awayParticipant": { "kind": "bestThird", "groups": ["C","D","F","G","H"], "resolvedTeam": "sweden", "resolvedCode": "se" },
+      "participantSource": "confirmed", "verificationDate": "2026-06-28"
+    },
+    {
+      "matchNumber": 78,  "stage": "R32", "date": "2026-06-30", "localTime": "12:00", "utcOffset": -5, "utcDatetime": "2026-06-30T17:00Z",
+      "venue": "AT&T Stadium", "city": "Arlington, TX", "country": "USA",
+      "homeParticipant": { "kind": "groupSlot", "group": "E", "place": 2, "resolvedTeam": "ivoryCoast", "resolvedCode": "ci" },
+      "awayParticipant": { "kind": "groupSlot", "group": "I", "place": 2, "resolvedTeam": "norway",     "resolvedCode": "no" },
+      "participantSource": "confirmed", "verificationDate": "2026-06-28"
+    },
+    {
+      "matchNumber": 79,  "stage": "R32", "date": "2026-06-30", "localTime": "19:00", "utcOffset": -6, "utcDatetime": "2026-07-01T01:00Z",
+      "venue": "Estadio Azteca", "city": "Mexico City", "country": "Mexico",
+      "homeParticipant": { "kind": "groupSlot", "group": "A", "place": 1, "resolvedTeam": "mexico",  "resolvedCode": "mx" },
+      "awayParticipant": { "kind": "bestThird", "groups": ["C","E","F","H","I"], "resolvedTeam": "ecuador", "resolvedCode": "ec" },
+      "participantSource": "confirmed", "verificationDate": "2026-06-28"
+    },
+    {
+      "matchNumber": 80,  "stage": "R32", "date": "2026-07-01", "localTime": "12:00", "utcOffset": -4, "utcDatetime": "2026-07-01T16:00Z",
+      "venue": "Mercedes-Benz Stadium", "city": "Atlanta, GA", "country": "USA",
+      "homeParticipant": { "kind": "groupSlot", "group": "L", "place": 1, "resolvedTeam": "england", "resolvedCode": "gb-eng" },
+      "awayParticipant": { "kind": "bestThird", "groups": ["E","H","I","J","K"], "resolvedTeam": "drCongo", "resolvedCode": "cd" },
+      "participantSource": "confirmed", "verificationDate": "2026-06-28"
+    },
+    {
+      "matchNumber": 81,  "stage": "R32", "date": "2026-07-01", "localTime": "17:00", "utcOffset": -7, "utcDatetime": "2026-07-02T00:00Z",
+      "venue": "Levi's Stadium", "city": "Santa Clara, CA", "country": "USA",
+      "homeParticipant": { "kind": "groupSlot", "group": "D", "place": 1, "resolvedTeam": "unitedStates", "resolvedCode": "us" },
+      "awayParticipant": { "kind": "bestThird", "groups": ["B","E","F","I","J"], "resolvedTeam": "bosnia", "resolvedCode": "ba" },
+      "participantSource": "confirmed", "verificationDate": "2026-06-28"
+    },
+    {
+      "matchNumber": 82,  "stage": "R32", "date": "2026-07-01", "localTime": "13:00", "utcOffset": -7, "utcDatetime": "2026-07-01T20:00Z",
+      "venue": "Lumen Field", "city": "Seattle, WA", "country": "USA",
+      "homeParticipant": { "kind": "groupSlot", "group": "G", "place": 1, "resolvedTeam": "belgium", "resolvedCode": "be" },
+      "awayParticipant": { "kind": "bestThird", "groups": ["A","E","H","I","J"], "resolvedTeam": "senegal", "resolvedCode": "sn" },
+      "participantSource": "confirmed", "verificationDate": "2026-06-28"
+    },
+    {
+      "matchNumber": 83,  "stage": "R32", "date": "2026-07-02", "localTime": "19:00", "utcOffset": -4, "utcDatetime": "2026-07-02T23:00Z",
+      "venue": "BMO Field", "city": "Toronto", "country": "Canada",
+      "homeParticipant": { "kind": "groupSlot", "group": "K", "place": 2, "resolvedTeam": "portugal", "resolvedCode": "pt" },
+      "awayParticipant": { "kind": "groupSlot", "group": "L", "place": 2, "resolvedTeam": "croatia",  "resolvedCode": "hr" },
+      "participantSource": "confirmed", "verificationDate": "2026-06-28"
+    },
+    {
+      "matchNumber": 84,  "stage": "R32", "date": "2026-07-02", "localTime": "12:00", "utcOffset": -7, "utcDatetime": "2026-07-02T19:00Z",
+      "venue": "SoFi Stadium", "city": "Inglewood, CA", "country": "USA",
+      "homeParticipant": { "kind": "groupSlot", "group": "H", "place": 1, "resolvedTeam": "spain",   "resolvedCode": "es" },
+      "awayParticipant": { "kind": "groupSlot", "group": "J", "place": 2, "resolvedTeam": "austria", "resolvedCode": "at" },
+      "participantSource": "confirmed", "verificationDate": "2026-06-28"
+    },
+    {
+      "matchNumber": 85,  "stage": "R32", "date": "2026-07-02", "localTime": "20:00", "utcOffset": -7, "utcDatetime": "2026-07-03T03:00Z",
+      "venue": "BC Place", "city": "Vancouver", "country": "Canada",
+      "homeParticipant": { "kind": "groupSlot", "group": "B", "place": 1, "resolvedTeam": "switzerland", "resolvedCode": "ch" },
+      "awayParticipant": { "kind": "bestThird", "groups": ["E","F","G","I","J"], "resolvedTeam": "algeria", "resolvedCode": "dz" },
+      "participantSource": "confirmed", "verificationDate": "2026-06-28"
+    },
+    {
+      "matchNumber": 86,  "stage": "R32", "date": "2026-07-03", "localTime": "18:00", "utcOffset": -4, "utcDatetime": "2026-07-03T22:00Z",
+      "venue": "Hard Rock Stadium", "city": "Miami Gardens, FL", "country": "USA",
+      "homeParticipant": { "kind": "groupSlot", "group": "J", "place": 1, "resolvedTeam": "argentina", "resolvedCode": "ar" },
+      "awayParticipant": { "kind": "groupSlot", "group": "H", "place": 2, "resolvedTeam": "capeVerde", "resolvedCode": "cv" },
+      "participantSource": "confirmed", "verificationDate": "2026-06-28"
+    },
+    {
+      "matchNumber": 87,  "stage": "R32", "date": "2026-07-03", "localTime": "20:30", "utcOffset": -5, "utcDatetime": "2026-07-04T01:30Z",
+      "venue": "GEHA Field at Arrowhead Stadium", "city": "Kansas City, MO", "country": "USA",
+      "homeParticipant": { "kind": "groupSlot", "group": "K", "place": 1, "resolvedTeam": "colombia", "resolvedCode": "co" },
+      "awayParticipant": { "kind": "bestThird", "groups": ["D","E","I","J","L"], "resolvedTeam": "ghana", "resolvedCode": "gh" },
+      "participantSource": "confirmed", "verificationDate": "2026-06-28"
+    },
+    {
+      "matchNumber": 88,  "stage": "R32", "date": "2026-07-03", "localTime": "13:00", "utcOffset": -5, "utcDatetime": "2026-07-03T18:00Z",
+      "venue": "AT&T Stadium", "city": "Arlington, TX", "country": "USA",
+      "homeParticipant": { "kind": "groupSlot", "group": "D", "place": 2, "resolvedTeam": "australia", "resolvedCode": "au" },
+      "awayParticipant": { "kind": "groupSlot", "group": "G", "place": 2, "resolvedTeam": "egypt",     "resolvedCode": "eg" },
+      "participantSource": "confirmed", "verificationDate": "2026-06-28"
+    },
+    {
+      "matchNumber": 89,  "stage": "R16", "date": "2026-07-04", "localTime": "17:00", "utcOffset": -4, "utcDatetime": "2026-07-04T21:00Z",
+      "venue": "Lincoln Financial Field", "city": "Philadelphia, PA", "country": "USA",
+      "homeParticipant": { "kind": "winnerOf", "matchNumber": 74 },
+      "awayParticipant": { "kind": "winnerOf", "matchNumber": 77 },
+      "participantSource": "immutable-dependency", "verificationDate": "2026-06-28",
+      "note": "Unresolved until M74 and M77 conclude. Corrected from Gemini draft which had M89/M90 swapped."
+    },
+    {
+      "matchNumber": 90,  "stage": "R16", "date": "2026-07-04", "localTime": "12:00", "utcOffset": -5, "utcDatetime": "2026-07-04T17:00Z",
+      "venue": "NRG Stadium", "city": "Houston, TX", "country": "USA",
+      "homeParticipant": { "kind": "winnerOf", "matchNumber": 73 },
+      "awayParticipant": { "kind": "winnerOf", "matchNumber": 75 },
+      "participantSource": "immutable-dependency", "verificationDate": "2026-06-28",
+      "note": "Unresolved until M73 and M75 conclude."
+    },
+    {
+      "matchNumber": 91,  "stage": "R16", "date": "2026-07-05", "localTime": "16:00", "utcOffset": -4, "utcDatetime": "2026-07-05T20:00Z",
+      "venue": "MetLife Stadium", "city": "East Rutherford, NJ", "country": "USA",
+      "homeParticipant": { "kind": "winnerOf", "matchNumber": 76 },
+      "awayParticipant": { "kind": "winnerOf", "matchNumber": 78 },
+      "participantSource": "immutable-dependency", "verificationDate": "2026-06-28"
+    },
+    {
+      "matchNumber": 92,  "stage": "R16", "date": "2026-07-05", "localTime": "18:00", "utcOffset": -6, "utcDatetime": "2026-07-06T00:00Z",
+      "venue": "Estadio Azteca", "city": "Mexico City", "country": "Mexico",
+      "homeParticipant": { "kind": "winnerOf", "matchNumber": 79 },
+      "awayParticipant": { "kind": "winnerOf", "matchNumber": 80 },
+      "participantSource": "immutable-dependency", "verificationDate": "2026-06-28"
+    },
+    {
+      "matchNumber": 93,  "stage": "R16", "date": "2026-07-06", "localTime": "14:00", "utcOffset": -5, "utcDatetime": "2026-07-06T19:00Z",
+      "venue": "AT&T Stadium", "city": "Arlington, TX", "country": "USA",
+      "homeParticipant": { "kind": "winnerOf", "matchNumber": 83 },
+      "awayParticipant": { "kind": "winnerOf", "matchNumber": 84 },
+      "participantSource": "immutable-dependency", "verificationDate": "2026-06-28"
+    },
+    {
+      "matchNumber": 94,  "stage": "R16", "date": "2026-07-06", "localTime": "17:00", "utcOffset": -7, "utcDatetime": "2026-07-07T00:00Z",
+      "venue": "Lumen Field", "city": "Seattle, WA", "country": "USA",
+      "homeParticipant": { "kind": "winnerOf", "matchNumber": 81 },
+      "awayParticipant": { "kind": "winnerOf", "matchNumber": 82 },
+      "participantSource": "immutable-dependency", "verificationDate": "2026-06-28"
+    },
+    {
+      "matchNumber": 95,  "stage": "R16", "date": "2026-07-07", "localTime": "12:00", "utcOffset": -4, "utcDatetime": "2026-07-07T16:00Z",
+      "venue": "Mercedes-Benz Stadium", "city": "Atlanta, GA", "country": "USA",
+      "homeParticipant": { "kind": "winnerOf", "matchNumber": 86 },
+      "awayParticipant": { "kind": "winnerOf", "matchNumber": 88 },
+      "participantSource": "immutable-dependency", "verificationDate": "2026-06-28"
+    },
+    {
+      "matchNumber": 96,  "stage": "R16", "date": "2026-07-07", "localTime": "13:00", "utcOffset": -7, "utcDatetime": "2026-07-07T20:00Z",
+      "venue": "BC Place", "city": "Vancouver", "country": "Canada",
+      "homeParticipant": { "kind": "winnerOf", "matchNumber": 85 },
+      "awayParticipant": { "kind": "winnerOf", "matchNumber": 87 },
+      "participantSource": "immutable-dependency", "verificationDate": "2026-06-28"
+    },
+    {
+      "matchNumber": 97,  "stage": "QF", "date": "2026-07-09", "localTime": "16:00", "utcOffset": -4, "utcDatetime": "2026-07-09T20:00Z",
+      "venue": "Gillette Stadium", "city": "Foxborough, MA", "country": "USA",
+      "homeParticipant": { "kind": "winnerOf", "matchNumber": 89 },
+      "awayParticipant": { "kind": "winnerOf", "matchNumber": 90 },
+      "participantSource": "immutable-dependency", "verificationDate": "2026-06-28"
+    },
+    {
+      "matchNumber": 98,  "stage": "QF", "date": "2026-07-10", "localTime": "12:00", "utcOffset": -7, "utcDatetime": "2026-07-10T19:00Z",
+      "venue": "SoFi Stadium", "city": "Inglewood, CA", "country": "USA",
+      "homeParticipant": { "kind": "winnerOf", "matchNumber": 93 },
+      "awayParticipant": { "kind": "winnerOf", "matchNumber": 94 },
+      "participantSource": "immutable-dependency", "verificationDate": "2026-06-28"
+    },
+    {
+      "matchNumber": 99,  "stage": "QF", "date": "2026-07-11", "localTime": "17:00", "utcOffset": -4, "utcDatetime": "2026-07-11T21:00Z",
+      "venue": "Hard Rock Stadium", "city": "Miami Gardens, FL", "country": "USA",
+      "homeParticipant": { "kind": "winnerOf", "matchNumber": 91 },
+      "awayParticipant": { "kind": "winnerOf", "matchNumber": 92 },
+      "participantSource": "immutable-dependency", "verificationDate": "2026-06-28"
+    },
+    {
+      "matchNumber": 100, "stage": "QF", "date": "2026-07-11", "localTime": "20:00", "utcOffset": -5, "utcDatetime": "2026-07-12T01:00Z",
+      "venue": "GEHA Field at Arrowhead Stadium", "city": "Kansas City, MO", "country": "USA",
+      "homeParticipant": { "kind": "winnerOf", "matchNumber": 95 },
+      "awayParticipant": { "kind": "winnerOf", "matchNumber": 96 },
+      "participantSource": "immutable-dependency", "verificationDate": "2026-06-28"
+    },
+    {
+      "matchNumber": 101, "stage": "SF", "date": "2026-07-14", "localTime": "14:00", "utcOffset": -5, "utcDatetime": "2026-07-14T19:00Z",
+      "venue": "AT&T Stadium", "city": "Arlington, TX", "country": "USA",
+      "homeParticipant": { "kind": "winnerOf", "matchNumber": 97 },
+      "awayParticipant": { "kind": "winnerOf", "matchNumber": 98 },
+      "participantSource": "immutable-dependency", "verificationDate": "2026-06-28"
+    },
+    {
+      "matchNumber": 102, "stage": "SF", "date": "2026-07-15", "localTime": "15:00", "utcOffset": -4, "utcDatetime": "2026-07-15T19:00Z",
+      "venue": "Mercedes-Benz Stadium", "city": "Atlanta, GA", "country": "USA",
+      "homeParticipant": { "kind": "winnerOf", "matchNumber": 99 },
+      "awayParticipant": { "kind": "winnerOf", "matchNumber": 100 },
+      "participantSource": "immutable-dependency", "verificationDate": "2026-06-28"
+    },
+    {
+      "matchNumber": 103, "stage": "3P", "date": "2026-07-18", "localTime": "17:00", "utcOffset": -4, "utcDatetime": "2026-07-18T21:00Z",
+      "venue": "Hard Rock Stadium", "city": "Miami Gardens, FL", "country": "USA",
+      "homeParticipant": { "kind": "loserOf", "matchNumber": 101 },
+      "awayParticipant": { "kind": "loserOf", "matchNumber": 102 },
+      "participantSource": "immutable-dependency", "verificationDate": "2026-06-28"
+    },
+    {
+      "matchNumber": 104, "stage": "F", "date": "2026-07-19", "localTime": "15:00", "utcOffset": -4, "utcDatetime": "2026-07-19T19:00Z",
+      "venue": "MetLife Stadium", "city": "East Rutherford, NJ", "country": "USA",
+      "homeParticipant": { "kind": "winnerOf", "matchNumber": 101 },
+      "awayParticipant": { "kind": "winnerOf", "matchNumber": 102 },
+      "participantSource": "immutable-dependency", "verificationDate": "2026-06-28"
+    }
   ]
 }
