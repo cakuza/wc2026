@@ -8,7 +8,7 @@ const BASE_URL = "https://www.worldcupmatchday.com";
 export const metadata: Metadata = {
   title: "World Cup 2026 Schedule in Your Local Time",
   description:
-    "World Cup 2026 group-stage schedule converted to local time zones — Turkey, UK, US Eastern, India, Japan, Brazil and Australia — with kickoff times, teams, groups and venues.",
+    "World Cup 2026 full schedule in your local time zone — all 104 fixtures including group stage and knockout matches from the Round of 32 to the Final on 19 July.",
   alternates: { canonical: `${BASE_URL}/world-cup-schedule-local-time` },
   openGraph: {
     title: "World Cup 2026 Schedule in Your Local Time",
@@ -31,9 +31,9 @@ export default function LocalTimeHubPage() {
         World Cup 2026 Schedule in Your Local Time
       </h1>
       <p className="mb-6 max-w-3xl text-sm text-white/55">
-        See the full World Cup 2026 group-stage schedule converted to your time zone. Pick a region
-        below for every listed fixture with kickoff times, teams, groups and venues. Knockout
-        matchups are added once the group stage is complete.
+        See the complete World Cup 2026 schedule converted to your time zone — all 104 fixtures
+        including group stage and knockout matches from the Round of 32 to the Final on 19 July.
+        Pick a region below for kickoff times, teams and venues.
       </p>
 
       {/* Quick facts */}
@@ -41,7 +41,7 @@ export default function LocalTimeHubPage() {
         {[
           { k: "Teams", v: "48" },
           { k: "Groups", v: "12" },
-          { k: "Group-stage fixtures", v: String(fixtureCount) },
+          { k: "Total fixtures", v: String(fixtureCount) },
           { k: "Time zones", v: String(TIMEZONES.length) },
         ].map((f) => (
           <div key={f.k} className="rounded-xl border border-white/10 bg-navyCard px-4 py-3">
