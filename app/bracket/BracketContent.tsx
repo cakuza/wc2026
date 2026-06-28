@@ -1,6 +1,7 @@
 "use client";
 
 import { useLang } from "@/components/LanguageProvider";
+import { Flag } from "@/components/Flag";
 import { FINAL_MATCH, QUARTER_FINAL_MATCHES, ROUND_OF_16_MATCHES, ROUND_OF_32_MATCHES, SEMI_FINAL_MATCHES, slotLabel } from "@/lib/knockoutBracket2026";
 import { countryName, type Lang } from "@/lib/i18n";
 import { MATCHES } from "@/lib/matches";
@@ -10,11 +11,11 @@ import { resolvedHome, resolvedAway, RESOLVED_PARTICIPANTS } from "@/lib/resolve
 // Knockout bracket: R32 (16 matches) → R16 (8) → QF (4) → SF (2) → Final (1)
 
 // --- Layout constants ---
-const CARD_H = 58;   // card height in px
-const CARD_W = 150;  // card width in px
+const CARD_H = 62;   // card height in px
+const CARD_W = 160;  // card width in px
 const CON_W  = 36;   // connector column width (px) — split 18px each side of vertical line
 const R32_GAP = 8;   // gap between consecutive R32 cards (px)
-const BASE_SLOT = CARD_H + R32_GAP; // 66 px per R32 slot
+const BASE_SLOT = CARD_H + R32_GAP; // 70 px per R32 slot
 
 // slotH(r) = vertical space allocated per match in round r
 function slotH(r: number) { return BASE_SLOT * Math.pow(2, r); }
@@ -65,10 +66,26 @@ function slotWinnerLabel(
 }
 
 // --- Bracket slot data ---
-type Slot = { label: string };
+// flagCode: flagcdn 2-letter code, present only for resolved participants
+type Slot = { label: string; flagCode?: string };
 type BMatch = { id: string; dateLabel?: string; home: Slot; away: Slot };
 
 // --- Sub-components ---
+
+function ParticipantRow({ slot, isFinal }: { slot: Slot; isFinal: boolean }) {
+  const cls = `font-heading font-bold uppercase ${isFinal ? "text-white/60" : "text-white/40"}`;
+  if (slot.flagCode) {
+    return (
+      <div className="flex items-center gap-1.5 overflow-hidden">
+        <Flag code={slot.flagCode} alt="" width={14} height={10} className="shrink-0 rounded-[2px]" />
+        <span className={`truncate text-[11px] leading-none ${cls}`}>{slot.label}</span>
+      </div>
+    );
+  }
+  return (
+    <div className={`overflow-hidden text-[8px] leading-snug ${cls}`}>{slot.label}</div>
+  );
+}
 
 function MatchCard({ m, isFinal = false }: { m: BMatch; isFinal?: boolean }) {
   return (
@@ -80,14 +97,10 @@ function MatchCard({ m, isFinal = false }: { m: BMatch; isFinal?: boolean }) {
       }`}
       style={{ width: CARD_W, height: CARD_H }}
     >
-      <div className="flex h-full flex-col justify-center px-3">
-        <div className={`truncate font-heading text-[11px] font-bold uppercase leading-none ${isFinal ? "text-white/60" : "text-white/35"}`}>
-          {m.home.label}
-        </div>
-        <div className="my-1.5 h-px bg-white/10" />
-        <div className={`truncate font-heading text-[11px] font-bold uppercase leading-none ${isFinal ? "text-white/60" : "text-white/35"}`}>
-          {m.away.label}
-        </div>
+      <div className="flex h-full flex-col justify-center gap-1.5 px-3">
+        <ParticipantRow slot={m.home} isFinal={isFinal} />
+        <div className="h-px bg-white/10" />
+        <ParticipantRow slot={m.away} isFinal={isFinal} />
       </div>
     </div>
   );
@@ -113,8 +126,14 @@ export function BracketContent() {
       return {
         id: `M${match.matchNumber}`,
         dateLabel: matchDateStr(match.matchNumber),
-        home: { label: resolved ? countryName(resolved.home.teamKey, lang) : slotLabel(match.home) },
-        away: { label: resolved ? countryName(resolved.away.teamKey, lang) : slotLabel(match.away) },
+        home: {
+          label: resolved ? countryName(resolved.home.teamKey, lang) : slotLabel(match.home),
+          flagCode: resolved ? resolved.home.teamCode : undefined,
+        },
+        away: {
+          label: resolved ? countryName(resolved.away.teamKey, lang) : slotLabel(match.away),
+          flagCode: resolved ? resolved.away.teamCode : undefined,
+        },
       };
     }),
     ROUND_OF_16_MATCHES.map((match) => ({

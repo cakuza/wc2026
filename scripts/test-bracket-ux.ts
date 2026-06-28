@@ -30,7 +30,7 @@ import {
   SEMI_FINAL_MATCHES,
 } from "../lib/knockoutBracket2026";
 import { DESKTOP_LINKS, PRIMARY_LINKS, SECONDARY_LINKS } from "../lib/navLinks";
-import { resolvedHome, resolvedAway } from "../lib/resolvedParticipants";
+import { resolvedHome, resolvedAway, RESOLVED_PARTICIPANTS } from "../lib/resolvedParticipants";
 
 let passed = 0;
 let failed = 0;
@@ -212,6 +212,81 @@ check(
   !DESKTOP_LINKS.some(l => l.href === "/world-cup-third-place-qualification"),
   '/world-cup-third-place-qualification is NOT in DESKTOP_LINKS'
 );
+
+// ── 14. Resolved R32 flag codes are present and not "tbd" or empty ───────────
+
+console.log("\n14. Resolved R32 participants have valid flag codes");
+const EXPECTED_FLAG_CODES: Record<number, { home: string; away: string }> = {
+  73: { home: "za",     away: "ca"     },
+  74: { home: "de",     away: "py"     },
+  75: { home: "nl",     away: "ma"     },
+  76: { home: "br",     away: "jp"     },
+  77: { home: "fr",     away: "se"     },
+  78: { home: "ci",     away: "no"     },
+  79: { home: "mx",     away: "ec"     },
+  80: { home: "gb-eng", away: "cd"     },
+  81: { home: "us",     away: "ba"     },
+  82: { home: "be",     away: "sn"     },
+  83: { home: "pt",     away: "hr"     },
+  84: { home: "es",     away: "at"     },
+  85: { home: "ch",     away: "dz"     },
+  86: { home: "ar",     away: "cv"     },
+  87: { home: "co",     away: "gh"     },
+  88: { home: "au",     away: "eg"     },
+};
+for (const [num, exp] of Object.entries(EXPECTED_FLAG_CODES)) {
+  const mn = Number(num);
+  const hp = resolvedHome(mn);
+  const ap = resolvedAway(mn);
+  check(!!hp && !!hp.teamCode && hp.teamCode !== "tbd" && hp.teamCode !== "",
+    `M${mn} home flag code non-empty/non-tbd`);
+  check(!!ap && !!ap.teamCode && ap.teamCode !== "tbd" && ap.teamCode !== "",
+    `M${mn} away flag code non-empty/non-tbd`);
+  if (hp) checkEqual(hp.teamCode, exp.home, `M${mn} home flag code = "${exp.home}"`);
+  if (ap) checkEqual(ap.teamCode, exp.away, `M${mn} away flag code = "${exp.away}"`);
+}
+
+// ── 15. Special flag codes are correct (England, DR Congo, Cape Verde) ───────
+
+console.log("\n15. Special-case flag codes");
+{
+  const eng = resolvedHome(80);
+  checkEqual(eng?.teamCode, "gb-eng", 'England uses "gb-eng" (not "gb")');
+  const drCongo = resolvedAway(80);
+  checkEqual(drCongo?.teamCode, "cd", 'DR Congo uses "cd"');
+  const capeVerde = resolvedAway(86);
+  checkEqual(capeVerde?.teamCode, "cv", 'Cape Verde uses "cv"');
+  const ivoryCoast = resolvedHome(78);
+  checkEqual(ivoryCoast?.teamCode, "ci", 'Ivory Coast uses "ci"');
+  const southAfrica = resolvedHome(73);
+  checkEqual(southAfrica?.teamCode, "za", 'South Africa uses "za"');
+}
+
+// ── 16. teamKey and teamCode agree (no cross-team mismatch) ──────────────────
+
+console.log("\n16. teamKey / teamCode / name consistency");
+const KEY_CODE_MAP: Record<string, string> = {
+  southAfrica: "za", canada: "ca", germany: "de", paraguay: "py",
+  netherlands: "nl", morocco: "ma", brazil: "br", japan: "jp",
+  france: "fr", sweden: "se", ivoryCoast: "ci", norway: "no",
+  mexico: "mx", ecuador: "ec", england: "gb-eng", drCongo: "cd",
+  unitedStates: "us", bosnia: "ba", belgium: "be", senegal: "sn",
+  portugal: "pt", croatia: "hr", spain: "es", austria: "at",
+  switzerland: "ch", algeria: "dz", argentina: "ar", capeVerde: "cv",
+  colombia: "co", ghana: "gh", australia: "au", egypt: "eg",
+};
+for (const [matchNum, participants] of Object.entries(RESOLVED_PARTICIPANTS)) {
+  const homeExpected = KEY_CODE_MAP[participants.home.teamKey];
+  const awayExpected = KEY_CODE_MAP[participants.away.teamKey];
+  if (homeExpected !== undefined) {
+    checkEqual(participants.home.teamCode, homeExpected,
+      `M${matchNum} home: teamCode "${participants.home.teamCode}" matches teamKey "${participants.home.teamKey}"`);
+  }
+  if (awayExpected !== undefined) {
+    checkEqual(participants.away.teamCode, awayExpected,
+      `M${matchNum} away: teamCode "${participants.away.teamCode}" matches teamKey "${participants.away.teamKey}"`);
+  }
+}
 
 // ── Summary ──────────────────────────────────────────────────────────────────
 
