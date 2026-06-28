@@ -1,3 +1,4 @@
+import { getResolvedHomeTeam, getResolvedAwayTeam, getResolvedHomeCode, getResolvedAwayCode, getParticipantDisplayLabel, isKnockoutMatch } from "@/lib/participant-resolution";
 import type { Metadata } from "next";
 import { cookies } from "next/headers";
 import Link from "next/link";
@@ -183,7 +184,7 @@ function TodaySummary({
                 return (
                   <p key={matchSlug(match)}>
                     <Link href={`/matches/${matchSlug(match)}`} className="font-semibold text-white hover:text-accent">
-                      {countryName(match.homeKey, "en")} {scoreText(live!)} {countryName(match.awayKey, "en")}
+                      {(getResolvedHomeTeam(match) ? countryName(getResolvedHomeTeam(match)!, "en") : (isKnockoutMatch(match) ? getParticipantDisplayLabel(match.homeSlot) : match.homeKey))} {scoreText(live!)} {(getResolvedAwayTeam(match) ? countryName(getResolvedAwayTeam(match)!, "en") : (isKnockoutMatch(match) ? getParticipantDisplayLabel(match.awaySlot) : match.awayKey))}
                     </Link>
                     {goals ? <span className="text-white/45"> — Goals: {goals}</span> : null}
                   </p>
@@ -202,14 +203,14 @@ function TodaySummary({
               {inProgress.map(({ match, live }) => (
                 <p key={matchSlug(match)}>
                   <Link href={`/matches/${matchSlug(match)}`} className="font-semibold text-white hover:text-accent">
-                    {countryName(match.homeKey, "en")} {scoreText(live!)} {countryName(match.awayKey, "en")} — LIVE
+                    {(getResolvedHomeTeam(match) ? countryName(getResolvedHomeTeam(match)!, "en") : (isKnockoutMatch(match) ? getParticipantDisplayLabel(match.homeSlot) : match.homeKey))} {scoreText(live!)} {(getResolvedAwayTeam(match) ? countryName(getResolvedAwayTeam(match)!, "en") : (isKnockoutMatch(match) ? getParticipantDisplayLabel(match.awaySlot) : match.awayKey))} — LIVE
                   </Link>
                 </p>
               ))}
               {syncing.map(({ match }) => (
                 <p key={matchSlug(match)}>
                   <Link href={`/matches/${matchSlug(match)}`} className="font-semibold text-white hover:text-accent">
-                    {countryName(match.homeKey, "en")} vs {countryName(match.awayKey, "en")} — score syncing
+                    {(getResolvedHomeTeam(match) ? countryName(getResolvedHomeTeam(match)!, "en") : (isKnockoutMatch(match) ? getParticipantDisplayLabel(match.homeSlot) : match.homeKey))} vs {(getResolvedAwayTeam(match) ? countryName(getResolvedAwayTeam(match)!, "en") : (isKnockoutMatch(match) ? getParticipantDisplayLabel(match.awaySlot) : match.awayKey))} — score syncing
                   </Link>
                 </p>
               ))}
@@ -224,7 +225,7 @@ function TodaySummary({
             </p>
             <p className="mt-1">
               <Link href={`/matches/${matchSlug(next)}`} className="font-semibold text-white hover:text-accent">
-                {countryName(next.homeKey, "en")} vs {countryName(next.awayKey, "en")}
+                {(getResolvedHomeTeam(next) ? countryName(getResolvedHomeTeam(next)!, "en") : (isKnockoutMatch(next) ? getParticipantDisplayLabel(next.homeSlot) : next.homeKey))} vs {(getResolvedAwayTeam(next) ? countryName(getResolvedAwayTeam(next)!, "en") : (isKnockoutMatch(next) ? getParticipantDisplayLabel(next.awaySlot) : next.awayKey))}
               </Link>{" "}
               — <MatchTime match={next} withZone className="font-semibold text-white/80" />
             </p>
@@ -247,8 +248,10 @@ function MatchRow({
   scorerEvents?: GoalScorerEvent[];
   liveDataUnavailable?: boolean;
 }) {
-  const home = countryName(m.homeKey, "en");
-  const away = countryName(m.awayKey, "en");
+  const homeKey = getResolvedHomeTeam(m);
+  const home = homeKey ? countryName(homeKey, "en") : (isKnockoutMatch(m) ? getParticipantDisplayLabel(m.homeSlot) : m.homeKey);
+  const awayKey = getResolvedAwayTeam(m);
+  const away = awayKey ? countryName(awayKey, "en") : (isKnockoutMatch(m) ? getParticipantDisplayLabel(m.awaySlot) : m.awayKey);
   // In the cold-start fallback a started match has an unknown result — never
   // show it as Scheduled or invent a score.
   const hasScore = !liveDataUnavailable && live && live.homeScore !== null && live.awayScore !== null;
@@ -266,7 +269,7 @@ function MatchRow({
           <div className="flex items-center gap-3">
             <div className="flex min-w-0 flex-1 items-center justify-end gap-2 text-end">
               <span className="truncate font-semibold text-white">{home}</span>
-              <Flag code={m.homeCode} alt="" width={30} height={22} />
+              <Flag code={getResolvedHomeCode(m) ?? m.homeCode} alt="" width={30} height={22} />
             </div>
             {hasScore ? (
               <span className="shrink-0 font-heading text-sm font-extrabold tabular-nums text-white">
@@ -278,7 +281,7 @@ function MatchRow({
               </span>
             )}
             <div className="flex min-w-0 flex-1 items-center gap-2">
-              <Flag code={m.awayCode} alt="" width={30} height={22} />
+              <Flag code={getResolvedAwayCode(m) ?? m.awayCode} alt="" width={30} height={22} />
               <span className="truncate font-semibold text-white">{away}</span>
             </div>
           </div>

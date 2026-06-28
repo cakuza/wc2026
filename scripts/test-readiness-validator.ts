@@ -60,9 +60,14 @@ const KNOWN_SCORES: Record<string, { h: number; a: number }> = {
   "southKorea|czechia":     { h: 2, a: 1 },
 };
 
-/** Build all 72 canonical games as healthy finished-with-scorers entries. */
+/** Build all 72 group-stage games as healthy finished-with-scorers entries.
+ *  Knockout matches are excluded: they have "tbd" participants and cannot be
+ *  matched against real team names in the provider payload. */
 function buildFullHealthyPayload(): WorldCup26Game[] {
-  return MATCHES.map((m) => {
+  const groupMatches = MATCHES.filter(
+    (m) => !("stage" in m) || m.stage === "group" || m.stage === undefined,
+  );
+  return groupMatches.map((m) => {
     const homeDisp = countryName(m.homeKey, "en");
     const awayDisp = countryName(m.awayKey, "en");
     const knownKey = `${m.homeKey}|${m.awayKey}`;

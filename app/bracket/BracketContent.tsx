@@ -2,6 +2,8 @@
 
 import { useLang } from "@/components/LanguageProvider";
 import { ROUND_OF_16_MATCHES, ROUND_OF_32_MATCHES, slotLabel } from "@/lib/knockoutBracket2026";
+import { countryName } from "@/lib/i18n";
+import { RESOLVED_PARTICIPANTS } from "@/lib/resolvedParticipants";
 
 // WC 2026: 48 teams → 32 knockout teams (top 2 from each of 12 groups + 8 best 3rd-placed)
 // Knockout bracket: R32 (16 matches) → R16 (8) → QF (4) → SF (2) → Final (1)
@@ -77,11 +79,14 @@ export function BracketContent() {
   const tbd     = t("bracket_tbd");
 
   const R32: BMatch[] = [
-    ...ROUND_OF_32_MATCHES.map((match) => ({
-      id: `M${match.matchNumber}`,
-      home: { label: slotLabel(match.home) },
-      away: { label: slotLabel(match.away) },
-    })),
+    ...ROUND_OF_32_MATCHES.map((match) => {
+      const resolved = RESOLVED_PARTICIPANTS[match.matchNumber];
+      return {
+        id: `M${match.matchNumber}`,
+        home: { label: resolved ? countryName(resolved.home.teamKey, lang) : slotLabel(match.home) },
+        away: { label: resolved ? countryName(resolved.away.teamKey, lang) : slotLabel(match.away) },
+      };
+    }),
   ];
 
   const tbdMatch = (id: string): BMatch => ({ id, home: { label: tbd }, away: { label: tbd } });
