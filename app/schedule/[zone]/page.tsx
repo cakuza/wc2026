@@ -70,7 +70,7 @@ export default async function TimezoneSchedulePage({
     },
     {
       q: "Are knockout matches included?",
-      a: "Not yet — this page lists the group-stage fixtures. Knockout matchups are confirmed once the group stage finishes and will be added then.",
+      a: "Yes — this page now shows all 104 tournament fixtures, including the 32 knockout matches from the Round of 32 through to the Final on 19 July.",
     },
     {
       q: "Where can I see today's matches?",
