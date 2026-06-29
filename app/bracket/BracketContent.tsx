@@ -1,19 +1,21 @@
 "use client";
 
 import { useLang } from "@/components/LanguageProvider";
-import { ROUND_OF_16_MATCHES, ROUND_OF_32_MATCHES, slotLabel } from "@/lib/knockoutBracket2026";
-import { countryName } from "@/lib/i18n";
-import { RESOLVED_PARTICIPANTS } from "@/lib/resolvedParticipants";
+import { Flag } from "@/components/Flag";
+import { FINAL_MATCH, QUARTER_FINAL_MATCHES, ROUND_OF_16_MATCHES, ROUND_OF_32_MATCHES, SEMI_FINAL_MATCHES, slotLabel } from "@/lib/knockoutBracket2026";
+import { countryName, type Lang } from "@/lib/i18n";
+import { MATCHES } from "@/lib/matches";
+import { resolvedHome, resolvedAway, RESOLVED_PARTICIPANTS } from "@/lib/resolvedParticipants";
 
 // WC 2026: 48 teams → 32 knockout teams (top 2 from each of 12 groups + 8 best 3rd-placed)
 // Knockout bracket: R32 (16 matches) → R16 (8) → QF (4) → SF (2) → Final (1)
 
 // --- Layout constants ---
-const CARD_H = 58;   // card height in px
-const CARD_W = 150;  // card width in px
+const CARD_H = 62;   // card height in px
+const CARD_W = 160;  // card width in px
 const CON_W  = 36;   // connector column width (px) — split 18px each side of vertical line
 const R32_GAP = 8;   // gap between consecutive R32 cards (px)
-const BASE_SLOT = CARD_H + R32_GAP; // 66 px per R32 slot
+const BASE_SLOT = CARD_H + R32_GAP; // 70 px per R32 slot
 
 // slotH(r) = vertical space allocated per match in round r
 function slotH(r: number) { return BASE_SLOT * Math.pow(2, r); }
@@ -33,11 +35,57 @@ const CANVAS_W = NUM_ROUNDS * CARD_W + (NUM_ROUNDS - 1) * CON_W; // total canvas
 // Horizontal left edge of each round column
 function roundX(r: number) { return r * (CARD_W + CON_W); }
 
+// --- Helpers ---
+
+function matchDateStr(matchNumber: number): string | undefined {
+  const m = MATCHES.find((x): x is Extract<typeof x, { matchNumber: number }> =>
+    "matchNumber" in x && x.matchNumber === matchNumber
+  );
+  if (!m) return undefined;
+  const d = new Date(`${m.date}T00:00:00`);
+  const day = d.getDate();
+  const month = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"][d.getMonth()];
+  return `${day} ${month}`;
+}
+
+function slotWinnerLabel(
+  sourceMatchNum: number,
+  t: (key: string) => string,
+  lang: Lang
+): string {
+  if (sourceMatchNum >= 73 && sourceMatchNum <= 88) {
+    const hp = resolvedHome(sourceMatchNum);
+    const ap = resolvedAway(sourceMatchNum);
+    if (hp && ap) {
+      return `${t("bracket_winner_of")} ${countryName(hp.teamKey, lang)} vs ${countryName(ap.teamKey, lang)}`;
+    }
+  }
+  if (sourceMatchNum >= 89 && sourceMatchNum <= 96) return t("bracket_r16_winner");
+  if (sourceMatchNum >= 97 && sourceMatchNum <= 100) return t("bracket_qf_winner");
+  return t("bracket_sf_winner");
+}
+
 // --- Bracket slot data ---
-type Slot = { label: string };
-type BMatch = { id: string; home: Slot; away: Slot };
+// flagCode: flagcdn 2-letter code, present only for resolved participants
+type Slot = { label: string; flagCode?: string };
+type BMatch = { id: string; dateLabel?: string; home: Slot; away: Slot };
 
 // --- Sub-components ---
+
+function ParticipantRow({ slot, isFinal }: { slot: Slot; isFinal: boolean }) {
+  const cls = `font-heading font-bold uppercase ${isFinal ? "text-white/60" : "text-white/40"}`;
+  if (slot.flagCode) {
+    return (
+      <div className="flex items-center gap-1.5 overflow-hidden">
+        <Flag code={slot.flagCode} alt="" width={14} height={10} className="shrink-0 rounded-[2px]" />
+        <span className={`truncate text-[11px] leading-none ${cls}`}>{slot.label}</span>
+      </div>
+    );
+  }
+  return (
+    <div className={`overflow-hidden text-[8px] leading-snug ${cls}`}>{slot.label}</div>
+  );
+}
 
 function MatchCard({ m, isFinal = false }: { m: BMatch; isFinal?: boolean }) {
   return (
@@ -49,14 +97,10 @@ function MatchCard({ m, isFinal = false }: { m: BMatch; isFinal?: boolean }) {
       }`}
       style={{ width: CARD_W, height: CARD_H }}
     >
-      <div className="flex h-full flex-col justify-center px-3">
-        <div className={`truncate font-heading text-[11px] font-bold uppercase leading-none ${isFinal ? "text-white/60" : "text-white/35"}`}>
-          {m.home.label}
-        </div>
-        <div className="my-1.5 h-px bg-white/10" />
-        <div className={`truncate font-heading text-[11px] font-bold uppercase leading-none ${isFinal ? "text-white/60" : "text-white/35"}`}>
-          {m.away.label}
-        </div>
+      <div className="flex h-full flex-col justify-center gap-1.5 px-3">
+        <ParticipantRow slot={m.home} isFinal={isFinal} />
+        <div className="h-px bg-white/10" />
+        <ParticipantRow slot={m.away} isFinal={isFinal} />
       </div>
     </div>
   );
@@ -76,31 +120,46 @@ const FINAL_DATE: Record<string, string> = {
 export function BracketContent() {
   const { t, lang } = useLang();
 
-  const tbd     = t("bracket_tbd");
-
-  const R32: BMatch[] = [
-    ...ROUND_OF_32_MATCHES.map((match) => {
+  const ROUND_MATCHES: BMatch[][] = [
+    ROUND_OF_32_MATCHES.map((match) => {
       const resolved = RESOLVED_PARTICIPANTS[match.matchNumber];
       return {
         id: `M${match.matchNumber}`,
-        home: { label: resolved ? countryName(resolved.home.teamKey, lang) : slotLabel(match.home) },
-        away: { label: resolved ? countryName(resolved.away.teamKey, lang) : slotLabel(match.away) },
+        dateLabel: matchDateStr(match.matchNumber),
+        home: {
+          label: resolved ? countryName(resolved.home.teamKey, lang) : slotLabel(match.home),
+          flagCode: resolved ? resolved.home.teamCode : undefined,
+        },
+        away: {
+          label: resolved ? countryName(resolved.away.teamKey, lang) : slotLabel(match.away),
+          flagCode: resolved ? resolved.away.teamCode : undefined,
+        },
       };
     }),
-  ];
-
-  const tbdMatch = (id: string): BMatch => ({ id, home: { label: tbd }, away: { label: tbd } });
-
-  const ROUND_MATCHES: BMatch[][] = [
-    R32,
     ROUND_OF_16_MATCHES.map((match) => ({
       id: `M${match.matchNumber}`,
-      home: { label: `W${match.homeWinnerOf}` },
-      away: { label: `W${match.awayWinnerOf}` },
+      dateLabel: matchDateStr(match.matchNumber),
+      home: { label: slotWinnerLabel(match.homeWinnerOf, t, lang) },
+      away: { label: slotWinnerLabel(match.awayWinnerOf, t, lang) },
     })),
-    Array.from({ length: 4 }, (_, i) => tbdMatch(`qf-${i}`)),
-    Array.from({ length: 2 }, (_, i) => tbdMatch(`sf-${i}`)),
-    [tbdMatch("final")],
+    QUARTER_FINAL_MATCHES.map((match) => ({
+      id: `M${match.matchNumber}`,
+      dateLabel: matchDateStr(match.matchNumber),
+      home: { label: slotWinnerLabel(match.homeWinnerOf, t, lang) },
+      away: { label: slotWinnerLabel(match.awayWinnerOf, t, lang) },
+    })),
+    SEMI_FINAL_MATCHES.map((match) => ({
+      id: `M${match.matchNumber}`,
+      dateLabel: matchDateStr(match.matchNumber),
+      home: { label: slotWinnerLabel(match.homeWinnerOf, t, lang) },
+      away: { label: slotWinnerLabel(match.awayWinnerOf, t, lang) },
+    })),
+    [{
+      id: `M${FINAL_MATCH.matchNumber}`,
+      dateLabel: matchDateStr(FINAL_MATCH.matchNumber),
+      home: { label: slotWinnerLabel(FINAL_MATCH.homeWinnerOf, t, lang) },
+      away: { label: slotWinnerLabel(FINAL_MATCH.awayWinnerOf, t, lang) },
+    }],
   ];
 
   const ROUND_LABELS = [
@@ -156,9 +215,9 @@ export function BracketContent() {
                     className="absolute"
                     style={{ left: rx, top: ft + mi * sh }}
                   >
-                    {ri < 2 && (
+                    {m.dateLabel && (
                       <div className="mb-1 font-heading text-[9px] font-bold uppercase tracking-widest text-white/25">
-                        {m.id}
+                        {m.dateLabel}
                       </div>
                     )}
                     <MatchCard m={m} isFinal={isFinal} />
@@ -206,12 +265,9 @@ export function BracketContent() {
         </div>
       </div>
 
-      {/* Legend — block-level items so text extractors see clear separation */}
+      {/* Legend */}
       <div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-2 text-[11px] text-white/55">
-        <div><span className="font-bold text-white">1A</span> · {t("bracket_legend_1st")}</div>
-        <div><span className="font-bold text-white">2B</span> · {t("bracket_legend_2nd")}</div>
         <div><span className="font-bold text-white">{t("bracket_3rd")}</span> · {t("bracket_legend_best3rd")}</div>
-        <div><span className="font-bold text-white">{t("bracket_tbd")}</span> · {t("bracket_legend_tbd_desc")}</div>
       </div>
 
       {/* Final info */}

@@ -38,6 +38,22 @@ export const ROUND_OF_16_MATCHES = [
   { matchNumber: 96, homeWinnerOf: 85, awayWinnerOf: 87 },
 ];
 
+export const QUARTER_FINAL_MATCHES = [
+  { matchNumber: 97,  homeWinnerOf: 89, awayWinnerOf: 90 },
+  { matchNumber: 98,  homeWinnerOf: 93, awayWinnerOf: 94 },
+  { matchNumber: 99,  homeWinnerOf: 91, awayWinnerOf: 92 },
+  { matchNumber: 100, homeWinnerOf: 95, awayWinnerOf: 96 },
+];
+
+export const SEMI_FINAL_MATCHES = [
+  { matchNumber: 101, homeWinnerOf: 97,  awayWinnerOf: 98  },
+  { matchNumber: 102, homeWinnerOf: 99,  awayWinnerOf: 100 },
+];
+
+export const THIRD_PLACE_MATCH = { matchNumber: 103, homeLoserOf: 101, awayLoserOf: 102 };
+
+export const FINAL_MATCH = { matchNumber: 104, homeWinnerOf: 101, awayWinnerOf: 102 };
+
 export function slotLabel(slot: BracketSlot): string {
   if (slot.kind === "third") return `3rd ${slot.groups.join("/")}`;
   return `${slot.place}${slot.group}`;
