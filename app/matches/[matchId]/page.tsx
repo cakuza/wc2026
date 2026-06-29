@@ -137,16 +137,17 @@ export async function generateMetadata({
     : match.group ? `Group ${match.group}` : "";
 
   const venueStr = match.venue ?? "";
+  // ogTitle already contains "FIFA World Cup 2026"; roundLabel is appended plain
+  // to avoid repeating the tournament name in the description.
   const desc = [
     ogTitle,
-    roundLabel && !isStageLevel(match) ? `${roundLabel} – FIFA World Cup 2026` : "",
+    roundLabel && !isStageLevel(match) ? roundLabel : "",
     match.date,
     venueStr,
     "WorldCupMatchDay",
   ]
     .filter(Boolean)
-    .join(" – ")
-    .replace(/ – FIFA World Cup 2026 – FIFA World Cup 2026/g, " – FIFA World Cup 2026");
+    .join(" – ");
 
   return {
     title: titleSeg,          // template: "%s | WorldCupMatchDay" appends branding

@@ -241,9 +241,34 @@ for (const match of ALL_KNOCKOUT) {
   check(!WINNER_MATCH.test(seg),   `M${match.matchNumber} "${seg}" — no 'Winner Match N'`);
 }
 
-// ── 20. Canonical R16 wiring unchanged ──────────────────────────────────────
+// ── 20. Description: no duplicated tournament name ───────────────────────────
 
-console.log("\n20. Canonical R16 slot wiring (M89, M90)");
+// Mirror the description construction from generateMetadata so we can test it.
+const ROUND_DISPLAY: Record<string, string> = {
+  R32: "Round of 32", R16: "Round of 16",
+  QF: "Quarter-final", SF: "Semi-final", "3P": "Third-place Match", F: "Final",
+};
+
+function buildDesc(match: NonNullable<AnyMatch>): string {
+  const og = matchOgTitle(match);
+  const roundLabel = isKnockoutMatch(match)
+    ? (ROUND_DISPLAY[match.stage as string] ?? match.stage)
+    : (match as { group?: string }).group ? `Group ${(match as { group?: string }).group}` : "";
+  return [og, roundLabel && !isStageLevel(match) ? roundLabel : "", match.date, match.venue ?? "", "WorldCupMatchDay"]
+    .filter(Boolean)
+    .join(" – ");
+}
+
+console.log("\n20. Description: 'World Cup 2026' appears at most once per match");
+for (const match of ALL_KNOCKOUT) {
+  const desc = buildDesc(match);
+  const count = (desc.match(/World Cup 2026/g) ?? []).length;
+  check(count <= 1, `M${match.matchNumber} description has ≤1 "World Cup 2026" (got ${count}): "${desc.slice(0, 80)}..."`);
+}
+
+// ── 21. Canonical R16 wiring unchanged ──────────────────────────────────────
+
+console.log("\n21. Canonical R16 slot wiring (M89, M90)");
 {
   const m89 = m("match-89");
   const m90 = m("match-90");
