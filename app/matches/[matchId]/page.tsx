@@ -7,7 +7,8 @@ import { countryName } from "@/lib/i18n";
 import { getGoalEventCompleteness } from "@/lib/goalEventCompleteness";
 import { getTournamentLiveSnapshot } from "@/lib/liveSnapshot";
 import { matchBySlug } from "@/lib/matches";
-import { getResolvedHomeTeam, getResolvedAwayTeam, getParticipantDisplayLabel, isKnockoutMatch } from "@/lib/participant-resolution";
+import { getResolvedHomeTeam, getResolvedAwayTeam, getParticipantDisplayLabel, isKnockoutMatch, matchStageLabel } from "@/lib/participant-resolution";
+import { buildKnockoutResolution } from "@/lib/knockoutResolution";
 
 export const revalidate = 30;
 export const dynamic = "force-dynamic";
@@ -68,6 +69,7 @@ export default async function MatchPage({
   if (!match) notFound();
 
   const snapshot = await getTournamentLiveSnapshot();
+  const resolvedParticipants = buildKnockoutResolution(snapshot.matches);
   const snap = snapshot.matches[matchId];
   const events = null;
   const live = snap?.live ?? null;
@@ -103,10 +105,10 @@ export default async function MatchPage({
       },
       {
         "@type": "Question",
-        name: `What group is ${home} vs ${away} in?`,
+        name: match.group ? `What group is ${home} vs ${away} in?` : `What stage is ${home} vs ${away}?`,
         acceptedAnswer: {
           "@type": "Answer",
-          text: `Group ${match.group ?? "TBC"} - ${home} vs ${away} at the 2026 FIFA World Cup.`,
+          text: `${match.group ? `Group ${match.group}` : matchStageLabel(match)} - ${home} vs ${away} at the 2026 FIFA World Cup.`,
         },
       },
     ],
@@ -140,6 +142,7 @@ export default async function MatchPage({
         secondaryProviderOk={snapshot.secondaryProviderOk}
         groupStandings={match.group ? snapshot.standingsByGroup[match.group] : undefined}
         thirdPlaceRows={snapshot.thirdPlaceRanking}
+        resolvedParticipants={resolvedParticipants}
       />
     </>
   );

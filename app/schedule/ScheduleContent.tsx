@@ -7,7 +7,7 @@ import { TimezonePicker } from "@/components/TimezoneLabel";
 import { useTimezone } from "@/components/TimezoneProvider";
 import { useLang } from "@/components/LanguageProvider";
 import { matchSlug, Match, MATCHES } from "@/lib/matches";
-import { getResolvedHomeTeam, getResolvedAwayTeam, getResolvedHomeCode, getResolvedAwayCode, getParticipantDisplayLabel, isKnockoutMatch } from "@/lib/participant-resolution";
+import { getResolvedHomeTeam, getResolvedAwayTeam, getResolvedHomeCode, getResolvedAwayCode, getParticipantDisplayLabel, isKnockoutMatch, type ResolvedParticipantLookup } from "@/lib/participant-resolution";
 import { groupMatchesByCalendarDate } from "@/lib/todaySelection";
 import type { GoalScorerEvent } from "@/lib/worldcup26Provider";
 import type { ScheduleMatchScore } from "./page";
@@ -15,6 +15,7 @@ import type { ScheduleMatchScore } from "./page";
 interface Props {
   liveScores?: Record<number, ScheduleMatchScore>;
   scorerLines?: Record<string, GoalScorerEvent[]>;
+  resolvedParticipants?: ResolvedParticipantLookup;
 }
 
 /** Small status pill — sits where the kickoff time used to be, never louder than the score. */
@@ -73,7 +74,7 @@ function ScorerText({ events }: { events: GoalScorerEvent[] }) {
   return <>{parts.join(" · ")}</>;
 }
 
-export function ScheduleContent({ liveScores, scorerLines }: Props) {
+export function ScheduleContent({ liveScores, scorerLines, resolvedParticipants }: Props) {
   const { t, country, formatDate, locale } = useLang();
   const { timeZone } = useTimezone();
   const days = groupMatchesByCalendarDate(MATCHES, timeZone);
@@ -157,11 +158,11 @@ export function ScheduleContent({ liveScores, scorerLines }: Props) {
                         <div className="flex items-center gap-3">
                           <div className="flex min-w-0 flex-1 items-center justify-end gap-2 text-end">
                             <span className="truncate font-semibold text-white">
-                              {getResolvedHomeTeam(m) ? country(getResolvedHomeTeam(m)!) : (isKnockoutMatch(m) ? getParticipantDisplayLabel(m.homeSlot) : m.homeKey)}
+                              {getResolvedHomeTeam(m, resolvedParticipants) ? country(getResolvedHomeTeam(m, resolvedParticipants)!) : (isKnockoutMatch(m) ? getParticipantDisplayLabel(m.homeSlot) : m.homeKey)}
                             </span>
-                            {getResolvedHomeTeam(m) && (
+                            {getResolvedHomeTeam(m, resolvedParticipants) && (
                               <Flag
-                                code={getResolvedHomeCode(m) ?? ""}
+                                code={getResolvedHomeCode(m, resolvedParticipants) ?? ""}
                                 alt=""
                                 width={30}
                                 height={22}
@@ -179,9 +180,9 @@ export function ScheduleContent({ liveScores, scorerLines }: Props) {
                           )}
 
                           <div className="flex min-w-0 flex-1 items-center gap-2">
-                            {getResolvedAwayTeam(m) && (
+                            {getResolvedAwayTeam(m, resolvedParticipants) && (
                               <Flag
-                                code={getResolvedAwayCode(m) ?? ""}
+                                code={getResolvedAwayCode(m, resolvedParticipants) ?? ""}
                                 alt=""
                                 width={30}
                                 height={22}
@@ -189,7 +190,7 @@ export function ScheduleContent({ liveScores, scorerLines }: Props) {
                               />
                             )}
                             <span className="truncate font-semibold text-white">
-                              {getResolvedAwayTeam(m) ? country(getResolvedAwayTeam(m)!) : (isKnockoutMatch(m) ? getParticipantDisplayLabel(m.awaySlot) : m.awayKey)}
+                              {getResolvedAwayTeam(m, resolvedParticipants) ? country(getResolvedAwayTeam(m, resolvedParticipants)!) : (isKnockoutMatch(m) ? getParticipantDisplayLabel(m.awaySlot) : m.awayKey)}
                             </span>
                           </div>
                         </div>

@@ -4,6 +4,8 @@
 import { providerFetch } from "./providerFetch";
 import { getGoalEventCompleteness, type GoalEventCompleteness } from "./goalEventCompleteness";
 import { parseFootballDataGoals } from "./footballDataEventNormalizer";
+import { parseFootballDataScore, type PeriodScore } from "./footballDataScore";
+import type { KnockoutStage } from "./matches";
 
 const BASE = "https://api.football-data.org/v4";
 
@@ -42,6 +44,12 @@ export type LiveMatchData = {
   homeScore: number | null;
   awayScore: number | null;
   winner: "HOME_TEAM" | "AWAY_TEAM" | "DRAW" | null;
+  stage?: KnockoutStage | "group" | null;
+  rawStage?: string | null;
+  scoreDuration?: string | null;
+  regularTimeScore?: PeriodScore | null;
+  extraTimeScore?: PeriodScore | null;
+  penaltyShootoutScore?: PeriodScore | null;
   utcDate?: string;
   lastSyncedAt: string;
   rawStatus?: string;
@@ -51,8 +59,6 @@ export type LiveMatchData = {
   bookings?: LiveMatchEvent[];
   substitutions?: LiveMatchEvent[];
 };
-
-const KNOWN_WINNERS = ["HOME_TEAM", "AWAY_TEAM", "DRAW"];
 
 function mapCardType(t: unknown): LiveMatchEvent["type"] {
   switch (t) {
@@ -133,16 +139,8 @@ export async function fetchLiveMatchData(
       ? (rawStatus as LiveMatchStatus)
       : "UNKNOWN";
 
-    const score = (data.score as Record<string, unknown>) ?? {};
-    const fullTime = (score.fullTime as Record<string, unknown>) ?? {};
-    const homeScore = typeof fullTime.home === "number" ? fullTime.home : null;
-    const awayScore = typeof fullTime.away === "number" ? fullTime.away : null;
-
-    const rawWinner = typeof score.winner === "string" ? score.winner : null;
-    const winner =
-      rawWinner && KNOWN_WINNERS.includes(rawWinner)
-        ? (rawWinner as "HOME_TEAM" | "AWAY_TEAM" | "DRAW")
-        : null;
+    const parsedScore = parseFootballDataScore(data);
+    const { homeScore, awayScore, winner } = parsedScore;
 
     const goals = parseFootballDataGoals(data, providerMatchId);
     const rawBookings = Array.isArray(data.bookings) ? (data.bookings as unknown[]) : null;
@@ -162,6 +160,12 @@ export async function fetchLiveMatchData(
       homeScore,
       awayScore,
       winner,
+      stage: parsedScore.stage,
+      rawStage: parsedScore.rawStage,
+      scoreDuration: parsedScore.duration,
+      regularTimeScore: parsedScore.regularTimeScore,
+      extraTimeScore: parsedScore.extraTimeScore,
+      penaltyShootoutScore: parsedScore.penaltyShootoutScore,
       utcDate: typeof data.utcDate === "string" ? data.utcDate : undefined,
       lastSyncedAt: new Date().toISOString(),
       rawStatus,

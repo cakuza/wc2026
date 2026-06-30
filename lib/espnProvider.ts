@@ -1,5 +1,6 @@
 import { countryName } from "./i18n";
 import { MATCHES, matchSlug, matchUtcDate, type Match } from "./matches";
+import { getResolvedAwayTeam, getResolvedHomeTeam } from "./participant-resolution";
 
 // ESPN's undocumented public soccer JSON API. No key, no auth. Public scoreboard
 // (event discovery) and summary (goal events) resources only. This module is pure:
@@ -370,7 +371,8 @@ export function dedupeAndSortGoalEvents(events: EspnGoalEvent[]): EspnGoalEvent[
 }
 
 function canonicalAliases(match: Match, side: "home" | "away"): Set<string> {
-  const key = side === "home" ? match.homeKey : match.awayKey;
+  const key = side === "home" ? getResolvedHomeTeam(match) : getResolvedAwayTeam(match);
+  if (!key) return new Set();
   return new Set(espnAliasesForTeamKey(key).map(normalizeEspnTeamName));
 }
 

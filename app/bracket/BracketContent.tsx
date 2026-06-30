@@ -4,6 +4,7 @@ import { useLang } from "@/components/LanguageProvider";
 import { ROUND_OF_16_MATCHES, ROUND_OF_32_MATCHES, slotLabel } from "@/lib/knockoutBracket2026";
 import { countryName } from "@/lib/i18n";
 import { RESOLVED_PARTICIPANTS } from "@/lib/resolvedParticipants";
+import type { ResolvedParticipantLookup } from "@/lib/participant-resolution";
 
 // WC 2026: 48 teams → 32 knockout teams (top 2 from each of 12 groups + 8 best 3rd-placed)
 // Knockout bracket: R32 (16 matches) → R16 (8) → QF (4) → SF (2) → Final (1)
@@ -73,18 +74,22 @@ const FINAL_DATE: Record<string, string> = {
   ja: "2026年7月19日",
 };
 
-export function BracketContent() {
+function labelForResolved(side: { teamKey: string } | undefined, fallback: string, lang: Parameters<typeof countryName>[1]): string {
+  return side ? countryName(side.teamKey, lang) : fallback;
+}
+
+export function BracketContent({ resolvedParticipants }: { resolvedParticipants?: ResolvedParticipantLookup }) {
   const { t, lang } = useLang();
 
   const tbd     = t("bracket_tbd");
 
   const R32: BMatch[] = [
     ...ROUND_OF_32_MATCHES.map((match) => {
-      const resolved = RESOLVED_PARTICIPANTS[match.matchNumber];
+      const resolved = resolvedParticipants?.[match.matchNumber] ?? RESOLVED_PARTICIPANTS[match.matchNumber];
       return {
         id: `M${match.matchNumber}`,
-        home: { label: resolved ? countryName(resolved.home.teamKey, lang) : slotLabel(match.home) },
-        away: { label: resolved ? countryName(resolved.away.teamKey, lang) : slotLabel(match.away) },
+        home: { label: labelForResolved(resolved?.home, slotLabel(match.home), lang) },
+        away: { label: labelForResolved(resolved?.away, slotLabel(match.away), lang) },
       };
     }),
   ];
@@ -95,8 +100,8 @@ export function BracketContent() {
     R32,
     ROUND_OF_16_MATCHES.map((match) => ({
       id: `M${match.matchNumber}`,
-      home: { label: `W${match.homeWinnerOf}` },
-      away: { label: `W${match.awayWinnerOf}` },
+      home: { label: labelForResolved(resolvedParticipants?.[match.matchNumber]?.home, `W${match.homeWinnerOf}`, lang) },
+      away: { label: labelForResolved(resolvedParticipants?.[match.matchNumber]?.away, `W${match.awayWinnerOf}`, lang) },
     })),
     Array.from({ length: 4 }, (_, i) => tbdMatch(`qf-${i}`)),
     Array.from({ length: 2 }, (_, i) => tbdMatch(`sf-${i}`)),

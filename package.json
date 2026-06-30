@@ -23,6 +23,7 @@
     "test:kickoffapi:adapter": "tsx scripts/test-kickoffapi-adapter.ts",
     "test:kickoffapi:cache": "tsx scripts/test-kickoffapi-cache.ts",
     "test:readiness-validator": "tsx scripts/test-readiness-validator.ts",
+    "test:p0-knockout-integrity": "tsx scripts/test-p0-knockout-data-integrity.ts",
     "test:runtime:cold-cache": "tsx scripts/test-cold-cache-runtime.ts",
     "check:readiness": "tsx scripts/check-secondary-provider-readiness.ts"
   },
