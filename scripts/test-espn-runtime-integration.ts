@@ -19,8 +19,13 @@ process.env.SCORER_ENRICHMENT_ENABLED = "true";
 
 const FIX_DIR = path.resolve(process.cwd(), "scripts/fixtures/espn");
 const SCOREBOARD = JSON.parse(fs.readFileSync(path.join(FIX_DIR, "scoreboard.json"), "utf8"));
+const INCIDENT_FIX_DIR = path.resolve(process.cwd(), "scripts/fixtures/incident-p0");
+const INCIDENT_SCOREBOARD = JSON.parse(fs.readFileSync(path.join(INCIDENT_FIX_DIR, "espn-scoreboard-20260629-20260630.json"), "utf8"));
 function loadSummary(eventId: string): unknown {
   return JSON.parse(fs.readFileSync(path.join(FIX_DIR, `summary-${eventId}.json`), "utf8"));
+}
+function loadIncidentSummary(eventId: string): unknown {
+  return JSON.parse(fs.readFileSync(path.join(INCIDENT_FIX_DIR, `espn-summary-${eventId}.json`), "utf8"));
 }
 
 // Real ESPN event ids + team ids from the captured scoreboard.
@@ -31,6 +36,8 @@ const EV = {
   gerCur: "760422",
   qatSui: "760420",
   scheduled: "760441", // Mexico v South Korea, state "pre"
+  match74: "760489",
+  match75: "760488",
 };
 const TEAM = { mexico: "203", southAfrica: "467" };
 
@@ -107,6 +114,35 @@ function buildMatch(
       hasAllGoalEvents: baselineScorers.length >= expected,
     } as any,
     sourceUpdatedAt: "2026-06-15T22:00:00Z",
+    providerUpdatedAt: null,
+    live: null,
+  };
+}
+
+function buildMatchByNumber(
+  matchNumber: number,
+  homeScore: number,
+  awayScore: number,
+  status: SerializableSnapshotMatch["status"],
+  baselineScorers: GoalScorerEvent[] = [],
+): SerializableSnapshotMatch {
+  const m = MATCHES.find((x) => "matchNumber" in x && x.matchNumber === matchNumber);
+  if (!m) throw new Error(`canonical match not found: ${matchNumber}`);
+  const expected = homeScore + awayScore;
+  return {
+    match: m,
+    internalId: matchSlug(m),
+    providerMatchId: m.providerIds?.footballData ?? null,
+    status,
+    homeScore,
+    awayScore,
+    scorers: baselineScorers,
+    goalEventCompleteness: {
+      missingGoalEventCount: Math.max(0, expected - baselineScorers.length),
+      expectedGoalEventCount: expected,
+      hasAllGoalEvents: baselineScorers.length >= expected,
+    } as any,
+    sourceUpdatedAt: "2026-06-30T04:00:00Z",
     providerUpdatedAt: null,
     live: null,
   };
@@ -334,8 +370,40 @@ async function run() {
     assert.deepStrictEqual(m.scorers.map((s) => s.playerName), ["Rich One", "Rich Two"]);
   });
 
-  // Already-complete finished match is skipped (no wasted request).
-  await test("Complete finished match skipped (no summary request)", async () => {
+  await test("Incident Match 74: worldcup26 complete baseline cannot suppress ESPN scorer repair", async () => {
+    scoreboardPayload = INCIDENT_SCOREBOARD;
+    summaryOverride.set(EV.match74, { mode: "ok", payload: loadIncidentSummary(EV.match74) });
+    const baseline: GoalScorerEvent[] = [
+      { type: "GOAL", minute: 42, minuteLabel: "42'", teamName: "Paraguay", playerName: "Khvliv Ansisv", isOwnGoal: false, isPenalty: false, provider: "worldcup26.ir", confidence: "high" },
+      { type: "GOAL", minute: 54, minuteLabel: "54'", teamName: "Germany", playerName: "Kai Havertz", isOwnGoal: false, isPenalty: false, provider: "worldcup26.ir", confidence: "high" },
+    ];
+    const m = buildMatchByNumber(74, 1, 1, "FINISHED", baseline);
+    await enrichSnapshotScorers(snapshotOf(m), true, "2026-06-30T04:00:00Z", new Map());
+    assert.ok(requestedSummaries.has(EV.match74), "ESPN summary must be requested for worldcup26-only complete baseline");
+    assert.deepStrictEqual(m.scorers.map((s) => s.playerName), ["Julio Enciso", "Kai Havertz"]);
+    assert.ok(!m.scorers.some((s) => s.playerName === "Khvliv Ansisv"), "corrupted worldcup26 name must not remain");
+    assert.ok(m.scorers.every((s) => s.provider === "espn"), "repaired scorers carry ESPN provenance");
+    assert.strictEqual(m.goalEventCompleteness.missingGoalEventCount, 0);
+  });
+
+  await test("Incident Match 75: worldcup26 complete baseline cannot suppress ESPN scorer repair", async () => {
+    scoreboardPayload = INCIDENT_SCOREBOARD;
+    summaryOverride.set(EV.match75, { mode: "ok", payload: loadIncidentSummary(EV.match75) });
+    const baseline: GoalScorerEvent[] = [
+      { type: "GOAL", minute: 72, minuteLabel: "72'", teamName: "Netherlands", playerName: "Kvdi Khakpv", isOwnGoal: false, isPenalty: false, provider: "worldcup26.ir", confidence: "high" },
+      { type: "GOAL", minute: 90, stoppageTime: 1, minuteLabel: "90+1'", teamName: "Morocco", playerName: "Issa Diop", isOwnGoal: false, isPenalty: false, provider: "worldcup26.ir", confidence: "high" },
+    ];
+    const m = buildMatchByNumber(75, 1, 1, "FINISHED", baseline);
+    await enrichSnapshotScorers(snapshotOf(m), true, "2026-06-30T04:00:00Z", new Map());
+    assert.ok(requestedSummaries.has(EV.match75), "ESPN summary must be requested for worldcup26-only complete baseline");
+    assert.deepStrictEqual(m.scorers.map((s) => s.playerName), ["Cody Gakpo", "Issa Diop"]);
+    assert.ok(!m.scorers.some((s) => s.playerName === "Kvdi Khakpv"), "corrupted worldcup26 name must not remain");
+    assert.ok(m.scorers.every((s) => s.provider === "espn"), "repaired scorers carry ESPN provenance");
+    assert.strictEqual(m.goalEventCompleteness.missingGoalEventCount, 0);
+  });
+
+  // Already-complete preferred finished match is skipped (no wasted request).
+  await test("Complete preferred finished match skipped (no summary request)", async () => {
     const baseline: GoalScorerEvent[] = [
       { type: "GOAL", minute: 9, minuteLabel: "9'", teamName: "Mexico", playerName: "A", isOwnGoal: false, isPenalty: false, provider: "football-data.org", confidence: "high" },
       { type: "GOAL", minute: 67, minuteLabel: "67'", teamName: "Mexico", playerName: "B", isOwnGoal: false, isPenalty: false, provider: "football-data.org", confidence: "high" },

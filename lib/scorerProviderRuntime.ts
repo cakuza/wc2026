@@ -80,6 +80,20 @@ function baselineIsComplete(match: SerializableSnapshotMatch): boolean {
   return !hasLowConfidence && !hasUnresolvedOwnGoals;
 }
 
+function expectedGoalCount(match: SerializableSnapshotMatch): number {
+  return (match.homeScore ?? 0) + (match.awayScore ?? 0);
+}
+
+function isPreferredScorerProvider(provider: GoalScorerEvent["provider"]): boolean {
+  return provider === "espn" || provider === "football-data.org";
+}
+
+function preferredBaselineIsComplete(match: SerializableSnapshotMatch): boolean {
+  if (!baselineIsComplete(match)) return false;
+  if (expectedGoalCount(match) === 0) return true;
+  return match.scorers.every((scorer) => isPreferredScorerProvider(scorer.provider));
+}
+
 /**
  * Enrich the snapshot's scorer events from the secondary provider, in place.
  *
@@ -132,7 +146,7 @@ export async function enrichSnapshotScorers(
   for (const internalId of Object.keys(matches)) {
     const matchData = matches[internalId];
     if (matchData.status === "SCHEDULED") continue;
-    if (matchData.status === "FINISHED" && baselineIsComplete(matchData)) continue;
+    if (matchData.status === "FINISHED" && preferredBaselineIsComplete(matchData)) continue;
 
     const mapping = mappingByCanonical.get(internalId);
     if (!mapping) continue;

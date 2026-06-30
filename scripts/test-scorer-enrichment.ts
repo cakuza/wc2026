@@ -243,6 +243,42 @@ async function runSharedMapTests() {
         assert(!teamNames.has("Czech Republic"), `${slug} events do NOT use raw provider name "Czech Republic"`);
       }
     }
+
+    const incidentLiveData = new Map(liveData);
+    incidentLiveData.set(537415, { provider: "football-data.org", providerMatchId: 537415, status: "FINISHED", homeScore: 1, awayScore: 1, winner: "AWAY_TEAM", lastSyncedAt: new Date().toISOString(), eventDataAvailable: false });
+    incidentLiveData.set(537418, { provider: "football-data.org", providerMatchId: 537418, status: "FINISHED", homeScore: 1, awayScore: 1, winner: "AWAY_TEAM", lastSyncedAt: new Date().toISOString(), eventDataAvailable: false });
+
+    const incidentSnapshot = await buildTournamentLiveSnapshot({
+      liveData: incidentLiveData,
+      worldcupGames: [
+        { providerGameId: "537415", homeTeamName: "Germany", awayTeamName: "Paraguay", homeScore: 1, awayScore: 1, finished: true, localDate: "2026-06-29", homeScorers: [{ playerName: "Kai Havertz", minute: 54, teamName: "Germany", type: "GOAL", isPenalty: false, isOwnGoal: false, provider: "worldcup26.ir", confidence: "high" }], awayScorers: [{ playerName: "Khvliv Ansisv", minute: 42, teamName: "Paraguay", type: "GOAL", isPenalty: false, isOwnGoal: false, provider: "worldcup26.ir", confidence: "high" }] },
+        { providerGameId: "537418", homeTeamName: "Netherlands", awayTeamName: "Morocco", homeScore: 1, awayScore: 1, finished: true, localDate: "2026-06-30", homeScorers: [{ playerName: "Kvdi Khakpv", minute: 72, teamName: "Netherlands", type: "GOAL", isPenalty: false, isOwnGoal: false, provider: "worldcup26.ir", confidence: "high" }], awayScorers: [{ playerName: "Issa Diop", minute: 90, stoppageTime: 1, minuteLabel: "90+1'", teamName: "Morocco", type: "GOAL", isPenalty: false, isOwnGoal: false, provider: "worldcup26.ir", confidence: "high" }] },
+      ],
+      generatedAt: new Date().toISOString(),
+      primaryProviderOk: true,
+      secondaryProviderOk: true,
+      primaryProviderFetchedAt: new Date().toISOString(),
+      secondaryProviderFetchedAt: new Date().toISOString(),
+      skipEnrichment: true,
+    });
+
+    const match74 = MATCHES.find((m) => "matchNumber" in m && m.matchNumber === 74);
+    const match75 = MATCHES.find((m) => "matchNumber" in m && m.matchNumber === 75);
+    if (match74) {
+      const matchData = incidentSnapshot.matches[matchSlug(match74)];
+      const events = matchData?.scorers ?? [];
+      assert(!events.some((event: any) => event.playerName === "Khvliv Ansisv"), "match-74 raw corrupted worldcup26 name is quarantined");
+      assert(events.some((event: any) => event.playerName === "Scorer unavailable" && event.confidence === "low"), "match-74 unresolved worldcup26 scorer is low-confidence unavailable");
+      assert(events.some((event: any) => event.playerName === "Kai Havertz"), "match-74 exact roster scorer remains visible");
+      assert(matchData?.goalEventCompleteness.missingGoalEventCount === 1, "match-74 unresolved worldcup26 scorer keeps completeness partial");
+    }
+    if (match75) {
+      const matchData = incidentSnapshot.matches[matchSlug(match75)];
+      const events = matchData?.scorers ?? [];
+      assert(!events.some((event: any) => event.playerName === "Kvdi Khakpv"), "match-75 raw corrupted worldcup26 name is quarantined");
+      assert(events.some((event: any) => event.playerName === "Scorer unavailable" && event.confidence === "low"), "match-75 unresolved worldcup26 scorer is low-confidence unavailable");
+      assert(matchData?.goalEventCompleteness.missingGoalEventCount === 1, "match-75 unresolved worldcup26 scorer keeps completeness partial");
+    }
   } catch (err: any) {
     console.log("  ⚠️ Skipping shared map tests (provider or Next.js cache unavailable): " + err.message);
   }

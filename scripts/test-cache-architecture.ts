@@ -87,7 +87,7 @@ async function runTests() {
         away_team_name_en: "South Africa",
         home_score: 2,
         away_score: 0,
-        home_scorers: `{"Player A 10'"}`,
+        home_scorers: `{"Julián Quiñones 10'"}`,
         away_scorers: `{}`,
         finished: true,
       },
@@ -97,7 +97,7 @@ async function runTests() {
     assert.strictEqual(snap.primaryProviderOk, true);
     assert.strictEqual(snap.secondaryProviderOk, true);
     assert.ok(Object.keys(snap.matches).length > 0);
-    assert.strictEqual(snap.matches[internalId].scorers[0].playerName, "Player A");
+    assert.strictEqual(snap.matches[internalId].scorers[0].playerName, "Julián Quiñones");
     assert.strictEqual(fetchCount, 1, "Secondary provider fetched exactly once (bulk dedup)");
   });
 
@@ -107,7 +107,7 @@ async function runTests() {
     const snap = await getTournamentLiveSnapshot();
     assert.strictEqual(snap.primaryProviderOk, true);
     assert.strictEqual(snap.secondaryProviderOk, true, "Has stale memory data so secondaryOk=true");
-    assert.strictEqual(snap.matches[internalId].scorers[0].playerName, "Player A");
+    assert.strictEqual(snap.matches[internalId].scorers[0].playerName, "Julián Quiñones");
   });
 
   // ── Test 3: Recovery after failure ───────────────────────────────────────
@@ -120,7 +120,7 @@ async function runTests() {
         away_team_name_en: "South Africa",
         home_score: 2,
         away_score: 0,
-        home_scorers: `{"Player A 10'","Player B 20'"}`,
+        home_scorers: `{"Julián Quiñones 10'","Raúl Jiménez 20'"}`,
         away_scorers: `{}`,
         finished: true,
       },
@@ -130,7 +130,7 @@ async function runTests() {
     const snap = await getTournamentLiveSnapshot();
     assert.strictEqual(snap.secondaryProviderOk, true);
     assert.strictEqual(snap.matches[internalId].scorers.length, 2);
-    assert.strictEqual(snap.matches[internalId].scorers[1].playerName, "Player B");
+    assert.strictEqual(snap.matches[internalId].scorers[1].playerName, "Raúl Jiménez");
   });
 
   // ── Test 4: Malformed/suspiciously empty payload is rejected ─────────────
@@ -152,8 +152,8 @@ async function runTests() {
     adapter.store.delete("worldcup-bulk-secondary-v8");
     const snap = await getTournamentLiveSnapshot();
     const matchData = snap.matches[internalId];
-    // validateSecondaryGames filters the suspicious game; monotonicMerge preserves Player B
-    assert.strictEqual(matchData.scorers[1].playerName, "Player B", "Stale memory preserved over suspicious empty payload");
+    // validateSecondaryGames filters the suspicious game; monotonicMerge preserves Raúl Jiménez
+    assert.strictEqual(matchData.scorers[1].playerName, "Raúl Jiménez", "Stale memory preserved over suspicious empty payload");
   });
 
   // ── Test 5: Cold cache plus secondary failure returns honest incomplete ───
@@ -182,7 +182,7 @@ async function runTests() {
         away_team_name_en: "South Africa",
         home_score: 3,
         away_score: 0,
-        home_scorers: `{"Player A 10'","Player B 20'"}`,
+        home_scorers: `{"Julián Quiñones 10'","Raúl Jiménez 20'"}`,
         away_scorers: `{}`,
         finished: true,
       },
@@ -200,7 +200,7 @@ async function runTests() {
     assert.strictEqual(snap.primaryProviderOk, true);
     assert.strictEqual(snap.secondaryProviderOk, true, "Memory data still present");
     assert.strictEqual(snap.liveDataByProviderId[providerId]?.homeScore, 3);
-    assert.strictEqual(snap.matches[internalId].scorers[0].playerName, "Player A");
+    assert.strictEqual(snap.matches[internalId].scorers[0].playerName, "Julián Quiñones");
   });
 
   // ── Test 7: Recovery after repeated failure ────────────────────────────────
@@ -216,7 +216,7 @@ async function runTests() {
         away_team_name_en: "South Africa",
         home_score: 3,
         away_score: 0,
-        home_scorers: `{"Player A 10'","Player B 85'"}`,
+        home_scorers: `{"Julián Quiñones 10'","Raúl Jiménez 85'"}`,
         away_scorers: `{}`,
         finished: true,
       },
@@ -225,7 +225,7 @@ async function runTests() {
     const snap = await getTournamentLiveSnapshot();
     assert.strictEqual(snap.secondaryProviderOk, true);
     assert.strictEqual(snap.matches[internalId].scorers.length, 2);
-    assert.strictEqual(snap.matches[internalId].scorers[1].playerName, "Player B");
+    assert.strictEqual(snap.matches[internalId].scorers[1].playerName, "Raúl Jiménez");
   });
 
   // ── Test 8: Partial payload preserves unaffected matches ─────────────────
@@ -234,7 +234,7 @@ async function runTests() {
     const targetMatch2 = MATCHES[4]; // 5th match (different from Mexico)
     const internalId2 = matchSlug(targetMatch2);
     primaryMockMap = new Map([
-      [providerId, { id: providerId, status: "FINISHED", score: { fullTime: { home: 2, away: 1 } } }],
+      [providerId, { id: providerId, status: "FINISHED", score: { fullTime: { home: 2, away: 0 } } }],
     ]);
     // First call: establish both matches with valid scorer data
     mockPayload = [
@@ -242,9 +242,9 @@ async function runTests() {
         home_team_name_en: "Mexico",
         away_team_name_en: "South Africa",
         home_score: 2,
-        away_score: 1,
-        home_scorers: `{"Player A 10'"}`,
-        away_scorers: `{"Player X 50'"}`,
+        away_score: 0,
+        home_scorers: `{"Julián Quiñones 10'","Raúl Jiménez 50'"}`,
+        away_scorers: `{}`,
         finished: true,
       },
     ];
@@ -257,15 +257,15 @@ async function runTests() {
         home_team_name_en: "Mexico",
         away_team_name_en: "South Africa",
         home_score: 2,
-        away_score: 1,
+        away_score: 0,
         home_scorers: `{}`,
         away_scorers: `{}`,
         finished: true,
       },
     ];
     const snap = await getTournamentLiveSnapshot();
-    // Mexico game was suspicious → filtered → memory retains Player A
-    assert.strictEqual(snap.matches[internalId].scorers[0].playerName, "Player A", "Stale Mexico scorers preserved");
+    // Mexico game was suspicious → filtered → memory retains Julián Quiñones
+    assert.strictEqual(snap.matches[internalId].scorers[0].playerName, "Julián Quiñones", "Stale Mexico scorers preserved");
   });
 
   // ── Test 9: Stats and Match Detail consume retained scorer data ───────────
@@ -280,7 +280,7 @@ async function runTests() {
         away_team_name_en: "South Africa",
         home_score: 2,
         away_score: 0,
-        home_scorers: `{"Player A 10'","Player B 55'"}`,
+        home_scorers: `{"Julián Quiñones 10'","Raúl Jiménez 55'"}`,
         away_scorers: `{}`,
         finished: true,
       },
@@ -303,8 +303,8 @@ async function runTests() {
     });
 
     assert.strictEqual(confirmedEvents.length, 2);
-    assert.strictEqual(confirmedEvents[0].playerName, "Player A");
-    assert.strictEqual(confirmedEvents[1].playerName, "Player B");
+    assert.strictEqual(confirmedEvents[0].playerName, "Julián Quiñones");
+    assert.strictEqual(confirmedEvents[1].playerName, "Raúl Jiménez");
   });
 
   console.log(`\n${passed} passed, ${failed} failed`);
