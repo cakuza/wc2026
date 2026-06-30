@@ -67,17 +67,17 @@ async function main() {
   assert(canonicalStatus({ footballData: live("IN_PLAY", 0, 0) }) === "LIVE", "SCHEDULED -> LIVE allowed");
   assert(canonicalStatus({ footballData: live("FINISHED", 1, 1) }) === "FINISHED", "LIVE -> FINISHED allowed");
   assert(
-    canonicalStatus({ footballData: live("IN_PLAY", 1, 1), worldcupGame: worldcupGame(true) }) === "FINISHED",
-    "either trusted provider reporting FINISHED makes canonical status FINISHED",
+    canonicalStatus({ footballData: live("IN_PLAY", 1, 1), worldcupGame: worldcupGame(true) }) === "LIVE",
+    "secondary scorer provider cannot mark a primary-live match FINISHED",
   );
 
   const finalSnapshot = await buildTournamentLiveSnapshot({
-    liveData: new Map([[CANADA_PROVIDER_ID, live("IN_PLAY", 1, 1)]]),
+    liveData: new Map([[CANADA_PROVIDER_ID, live("FINISHED", 1, 1)]]),
     worldcupGames: [worldcupGame(true)],
     generatedAt: "2026-06-12T21:00:00.000Z",
   });
   const finalMatch = finalSnapshot.matches[CANADA_MATCH_ID];
-  assert(finalMatch.status === "FINISHED", "FINISHED -> LIVE rejected by canonical worldcup status");
+  assert(finalMatch.status === "FINISHED", "primary FINISHED remains canonical when scorer enrichment is present");
   assert(finalMatch.live?.status === "FINISHED", "canonical live data is FINISHED");
   assert(finalMatch.homeScore === 1 && finalMatch.awayScore === 1, "final score remains 1-1");
   assert(finalMatch.scorers.length === 2, "duplicate scorers are removed by player, minute and team");

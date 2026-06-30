@@ -6,6 +6,7 @@ import { FINAL_MATCH, QUARTER_FINAL_MATCHES, ROUND_OF_16_MATCHES, ROUND_OF_32_MA
 import { countryName, type Lang } from "@/lib/i18n";
 import { MATCHES } from "@/lib/matches";
 import { resolvedHome, resolvedAway, RESOLVED_PARTICIPANTS } from "@/lib/resolvedParticipants";
+import type { ResolvedParticipantLookup } from "@/lib/participant-resolution";
 
 // WC 2026: 48 teams → 32 knockout teams (top 2 from each of 12 groups + 8 best 3rd-placed)
 // Knockout bracket: R32 (16 matches) → R16 (8) → QF (4) → SF (2) → Final (1)
@@ -117,49 +118,35 @@ const FINAL_DATE: Record<string, string> = {
   ja: "2026年7月19日",
 };
 
-export function BracketContent() {
+function labelForResolved(side: { teamKey: string } | undefined, fallback: string, lang: Parameters<typeof countryName>[1]): string {
+  return side ? countryName(side.teamKey, lang) : fallback;
+}
+
+export function BracketContent({ resolvedParticipants }: { resolvedParticipants?: ResolvedParticipantLookup }) {
   const { t, lang } = useLang();
 
+  const mapMatch = (match: any, isR32: boolean) => {
+    const resolved = resolvedParticipants?.[match.matchNumber] ?? RESOLVED_PARTICIPANTS[match.matchNumber];
+    return {
+      id: `M${match.matchNumber}`,
+      dateLabel: matchDateStr(match.matchNumber),
+      home: {
+        label: resolved?.home ? countryName(resolved.home.teamKey, lang) : (isR32 ? slotLabel(match.home) : slotWinnerLabel(match.homeWinnerOf, t, lang)),
+        flagCode: resolved?.home?.teamCode ?? undefined,
+      },
+      away: {
+        label: resolved?.away ? countryName(resolved.away.teamKey, lang) : (isR32 ? slotLabel(match.away) : slotWinnerLabel(match.awayWinnerOf, t, lang)),
+        flagCode: resolved?.away?.teamCode ?? undefined,
+      },
+    };
+  };
+
   const ROUND_MATCHES: BMatch[][] = [
-    ROUND_OF_32_MATCHES.map((match) => {
-      const resolved = RESOLVED_PARTICIPANTS[match.matchNumber];
-      return {
-        id: `M${match.matchNumber}`,
-        dateLabel: matchDateStr(match.matchNumber),
-        home: {
-          label: resolved ? countryName(resolved.home.teamKey, lang) : slotLabel(match.home),
-          flagCode: resolved ? resolved.home.teamCode : undefined,
-        },
-        away: {
-          label: resolved ? countryName(resolved.away.teamKey, lang) : slotLabel(match.away),
-          flagCode: resolved ? resolved.away.teamCode : undefined,
-        },
-      };
-    }),
-    ROUND_OF_16_MATCHES.map((match) => ({
-      id: `M${match.matchNumber}`,
-      dateLabel: matchDateStr(match.matchNumber),
-      home: { label: slotWinnerLabel(match.homeWinnerOf, t, lang) },
-      away: { label: slotWinnerLabel(match.awayWinnerOf, t, lang) },
-    })),
-    QUARTER_FINAL_MATCHES.map((match) => ({
-      id: `M${match.matchNumber}`,
-      dateLabel: matchDateStr(match.matchNumber),
-      home: { label: slotWinnerLabel(match.homeWinnerOf, t, lang) },
-      away: { label: slotWinnerLabel(match.awayWinnerOf, t, lang) },
-    })),
-    SEMI_FINAL_MATCHES.map((match) => ({
-      id: `M${match.matchNumber}`,
-      dateLabel: matchDateStr(match.matchNumber),
-      home: { label: slotWinnerLabel(match.homeWinnerOf, t, lang) },
-      away: { label: slotWinnerLabel(match.awayWinnerOf, t, lang) },
-    })),
-    [{
-      id: `M${FINAL_MATCH.matchNumber}`,
-      dateLabel: matchDateStr(FINAL_MATCH.matchNumber),
-      home: { label: slotWinnerLabel(FINAL_MATCH.homeWinnerOf, t, lang) },
-      away: { label: slotWinnerLabel(FINAL_MATCH.awayWinnerOf, t, lang) },
-    }],
+    ROUND_OF_32_MATCHES.map((m) => mapMatch(m, true)),
+    ROUND_OF_16_MATCHES.map((m) => mapMatch(m, false)),
+    QUARTER_FINAL_MATCHES.map((m) => mapMatch(m, false)),
+    SEMI_FINAL_MATCHES.map((m) => mapMatch(m, false)),
+    [mapMatch(FINAL_MATCH, false)],
   ];
 
   const ROUND_LABELS = [

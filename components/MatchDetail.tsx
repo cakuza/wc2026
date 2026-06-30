@@ -1,5 +1,5 @@
 "use client";
-import { getResolvedHomeTeam, getResolvedAwayTeam, isKnockoutMatch, knockoutSlotLabel, getResolvedHomeCode, getResolvedAwayCode } from "@/lib/participant-resolution";
+import { getResolvedHomeTeam, getResolvedAwayTeam, getParticipantDisplayLabel, isKnockoutMatch, knockoutSlotLabel, getResolvedHomeCode, getResolvedAwayCode, matchStageLabel, type ResolvedParticipantLookup } from "@/lib/participant-resolution";
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
@@ -37,6 +37,7 @@ interface Props {
   secondaryProviderOk: boolean;
   groupStandings?: StandingRow[];
   thirdPlaceRows?: ThirdPlaceRow[];
+  resolvedParticipants?: ResolvedParticipantLookup;
 }
 
 type DisplayStatus = "upcoming" | "live" | "halftime" | "finished" | "syncing";
@@ -158,6 +159,7 @@ export function MatchDetail({
   secondaryProviderOk: initialSecondaryProviderOk,
   groupStandings,
   thirdPlaceRows,
+  resolvedParticipants,
 }: Props) {
   const { t, country, formatDate } = useLang();
   void events;
@@ -173,6 +175,7 @@ export function MatchDetail({
     primaryProviderOk: initialPrimaryProviderOk,
     secondaryProviderFetchedAt: initialSecondaryProviderFetchedAt,
     secondaryProviderOk: initialSecondaryProviderOk,
+    penaltyShootoutScore: live?.penaltyShootoutScore ?? null,
   });
 
   const internalId = matchSlug(match);
@@ -228,6 +231,7 @@ export function MatchDetail({
                 awayScore,
                 scorers,
                 goalEventCompleteness,
+                penaltyShootoutScore: update.penaltyShootoutScore ?? prev.penaltyShootoutScore,
                 // Cleared as soon as a validated snapshot arrives (false).
                 liveDataUnavailable: update.liveDataUnavailable ?? false,
                 primaryProviderFetchedAt: data.primaryProviderFetchedAt,
@@ -270,11 +274,13 @@ export function MatchDetail({
   const awayScore = liveState.awayScore;
   const hasScore = homeScore !== null && awayScore !== null;
   const status: DisplayStatus = snapshotStatusToDisplay(liveState.status);
+  const stageLabel = matchStageLabel(match);
+  const isGroupStage = !isKnockoutMatch(match);
 
   const isConfirmedFinished = liveState.status === "FINISHED" && hasScore;
-  const homeKey = getResolvedHomeTeam(match);
+  const homeKey = getResolvedHomeTeam(match, resolvedParticipants);
   const homeName = homeKey ? country(homeKey) : (isKnockoutMatch(match) ? knockoutSlotLabel(match.homeSlot) : match.homeKey);
-  const awayKey = getResolvedAwayTeam(match);
+  const awayKey = getResolvedAwayTeam(match, resolvedParticipants);
   const awayName = awayKey ? country(awayKey) : (isKnockoutMatch(match) ? knockoutSlotLabel(match.awaySlot) : match.awayKey);
   const homeStanding = groupStandings?.find((row) => row.teamKey === match.homeKey);
   const awayStanding = groupStandings?.find((row) => row.teamKey === match.awayKey);
@@ -291,8 +297,21 @@ export function MatchDetail({
     })
     .filter(Boolean) as { teamKey: string; match: Match }[];
   const groupThirdPlace = thirdPlaceRows?.find((row) => row.group === match.group);
+  const shootout = liveState.penaltyShootoutScore;
+  const hasShootout = shootout?.home !== null && shootout?.home !== undefined && shootout?.away !== null && shootout?.away !== undefined;
+  const shootoutWinnerName =
+    live?.winner === "HOME_TEAM" ? homeName :
+    live?.winner === "AWAY_TEAM" ? awayName :
+    hasShootout && shootout!.home! > shootout!.away! ? homeName :
+    hasShootout && shootout!.away! > shootout!.home! ? awayName :
+    null;
+  const shootoutText = hasShootout
+    ? `${shootoutWinnerName ?? "Winner"} advanced ${shootout!.home}-${shootout!.away} on penalties`
+    : null;
   const winnerText =
-    hasScore && homeScore! > awayScore!
+    shootoutText && hasScore
+      ? `${homeName} and ${awayName} drew ${homeScore}-${awayScore}; ${shootoutText}`
+      : hasScore && homeScore! > awayScore!
       ? `${homeName} beat ${awayName} ${homeScore}–${awayScore}`
       : hasScore && awayScore! > homeScore!
         ? `${awayName} beat ${homeName} ${awayScore}–${homeScore}`
@@ -309,8 +328,8 @@ export function MatchDetail({
   const { confirmedEvents: confirmedGoals } = reconcileGoalEvents({
     homeScore,
     awayScore,
-    homeTeamName: countryName(match.homeKey, "en"),
-    awayTeamName: countryName(match.awayKey, "en"),
+    homeTeamName: homeKey ? countryName(homeKey, "en") : homeName,
+    awayTeamName: awayKey ? countryName(awayKey, "en") : awayName,
     events: liveState.scorers,
   });
   const scorers = buildScorerSentence(confirmedGoals.map(toLiveGoalEvent), homeName, awayName, goalCompleteness);
@@ -341,16 +360,16 @@ export function MatchDetail({
           {/* Group + matchday badge */}
           <div className="mb-6 flex justify-center">
             <span className="rounded-full bg-accent/20 px-3 py-1 font-heading text-xs font-extrabold uppercase tracking-widest text-accent">
-              {t("lbl_group")} {match.group}
+              {stageLabel}
             </span>
           </div>
 
           {/* Teams row */}
           <div className="flex items-center justify-between gap-4">
             {/* Home team */}
-            <Link href={`/teams/${slugFor(match.homeKey)}`} className="group flex flex-1 flex-col items-center gap-3 text-center transition-opacity hover:opacity-80">
+            <Link href={`/teams/${slugFor(homeKey ?? match.homeKey)}`} className="group flex flex-1 flex-col items-center gap-3 text-center transition-opacity hover:opacity-80">
               <Flag
-                code={homeKey ? (getResolvedHomeCode(match) ?? match.homeCode) : ""}
+                code={homeKey ? (getResolvedHomeCode(match, resolvedParticipants) ?? match.homeCode) : ""}
                 name={homeName}
                 width={80}
                 height={56}
@@ -364,6 +383,7 @@ export function MatchDetail({
             {/* Score / VS */}
             <div className="flex shrink-0 flex-col items-center gap-2">
               {hasScore ? (
+                <>
                 <div className="flex items-center gap-3">
                   <span className="font-heading text-5xl font-black tabular-nums text-white sm:text-6xl">
                     {homeScore}
@@ -373,6 +393,12 @@ export function MatchDetail({
                     {awayScore}
                   </span>
                 </div>
+                {hasShootout && (
+                  <span className="font-heading text-[10px] font-bold uppercase tracking-widest text-white/45">
+                    Pens {shootout!.home}-{shootout!.away}
+                  </span>
+                )}
+                </>
               ) : (
                 <span className="font-heading text-base font-extrabold uppercase tracking-widest text-white/30">
                   {t("vs")}
@@ -381,9 +407,9 @@ export function MatchDetail({
             </div>
 
             {/* Away team */}
-            <Link href={`/teams/${slugFor(match.awayKey)}`} className="group flex flex-1 flex-col items-center gap-3 text-center transition-opacity hover:opacity-80">
+            <Link href={`/teams/${slugFor(awayKey ?? match.awayKey)}`} className="group flex flex-1 flex-col items-center gap-3 text-center transition-opacity hover:opacity-80">
               <Flag
-                code={awayKey ? (getResolvedAwayCode(match) ?? match.awayCode) : ""}
+                code={awayKey ? (getResolvedAwayCode(match, resolvedParticipants) ?? match.awayCode) : ""}
                 name={awayName}
                 width={80}
                 height={56}
@@ -466,11 +492,11 @@ export function MatchDetail({
           )}
           <div className="rounded-lg border border-white/8 bg-navyCard/60 px-4 py-3">
             <p className="font-heading text-[11px] font-extrabold uppercase tracking-wide text-white/40">
-              {t("match_qa_group")}
+              {isGroupStage ? t("match_qa_group") : "Stage"}
             </p>
             <p className="mt-1 text-sm text-white/80">
               <span className="font-semibold text-white">
-                {t("lbl_group")} {match.group}
+                {stageLabel}
               </span>{" "}
               — {homeName} {t("vs")} {awayName}
             </p>
@@ -487,7 +513,7 @@ export function MatchDetail({
             <div className="mt-4 grid grid-cols-2 gap-3">
               <div className="rounded-lg bg-navy/60 p-3 text-center">
                 <Flag
-                  code={homeKey ? (getResolvedHomeCode(match) ?? match.homeCode) : ""}
+                  code={homeKey ? (getResolvedHomeCode(match, resolvedParticipants) ?? match.homeCode) : ""}
                   name={homeName}
                   width={40}
                   height={28}
@@ -496,11 +522,11 @@ export function MatchDetail({
                 <p className="mt-2 font-heading text-xs font-extrabold uppercase tracking-wide text-white">
                   {homeName}
                 </p>
-                <p className="mt-0.5 text-xs text-white/40">{t("lbl_group")} {match.group}</p>
+                <p className="mt-0.5 text-xs text-white/40">{stageLabel}</p>
               </div>
               <div className="rounded-lg bg-navy/60 p-3 text-center">
                 <Flag
-                  code={awayKey ? (getResolvedAwayCode(match) ?? match.awayCode) : ""}
+                  code={awayKey ? (getResolvedAwayCode(match, resolvedParticipants) ?? match.awayCode) : ""}
                   name={awayName}
                   width={40}
                   height={28}
@@ -509,7 +535,7 @@ export function MatchDetail({
                 <p className="mt-2 font-heading text-xs font-extrabold uppercase tracking-wide text-white">
                   {awayName}
                 </p>
-                <p className="mt-0.5 text-xs text-white/40">{t("lbl_group")} {match.group}</p>
+                <p className="mt-0.5 text-xs text-white/40">{stageLabel}</p>
               </div>
             </div>
           </EventSection>
@@ -593,11 +619,11 @@ export function MatchDetail({
         <section className="mt-6 space-y-4">
           <EventSection title="Result summary" icon="⚽">
             <p className="text-sm leading-relaxed text-white/70">
-              {winnerText} in Group {match.group}.{scorers ? ` ${scorers}` : ""}
+              {winnerText} in the {stageLabel}.{scorers ? ` ${scorers}` : ""}
             </p>
           </EventSection>
 
-          {(homeStanding || awayStanding) && (
+          {isGroupStage && (homeStanding || awayStanding) && (
             <EventSection title="What this result means" icon="📊">
               <div className="space-y-2 text-sm leading-relaxed text-white/70">
                 {homeStanding && (
@@ -643,10 +669,14 @@ export function MatchDetail({
 
           <div className="flex flex-wrap gap-3 text-sm">
             {[
-              { href: "/groups", label: `View Group ${match.group} standings` },
+              ...(isGroupStage ? [
+                { href: "/groups", label: `View Group ${match.group} standings` },
+                { href: "/world-cup-third-place-qualification", label: "See third-place ranking" },
+              ] : [
+                { href: "/bracket", label: "View knockout bracket" },
+              ]),
               { href: "/today", label: "See today's matches" },
               { href: "/stats", label: "See tournament stats" },
-              { href: "/world-cup-third-place-qualification", label: "See third-place ranking" },
             ].map((l) => (
               <Link
                 key={l.href}

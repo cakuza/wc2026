@@ -11,6 +11,7 @@ import type { LiveMatchData, LiveMatchEvent, LiveMatchStatus } from "./liveMatch
 import { providerFetch } from "./providerFetch";
 import { getGoalEventCompleteness } from "./goalEventCompleteness";
 import { parseFootballDataGoals } from "./footballDataEventNormalizer";
+import { parseFootballDataScore } from "./footballDataScore";
 
 const BASE = "https://api.football-data.org/v4";
 const COMPETITION_ID = 2000; // FIFA World Cup
@@ -18,8 +19,6 @@ const COMPETITION_ID = 2000; // FIFA World Cup
 const KNOWN_STATUSES: readonly string[] = [
   "SCHEDULED", "TIMED", "IN_PLAY", "PAUSED", "FINISHED", "POSTPONED", "CANCELLED",
 ];
-const KNOWN_WINNERS = ["HOME_TEAM", "AWAY_TEAM", "DRAW"];
-
 function safeStr(v: unknown): string | null {
   return typeof v === "string" && (v as string).length > 0 ? (v as string) : null;
 }
@@ -87,16 +86,8 @@ function parseApiResponse(data: Record<string, unknown>): Map<number, LiveMatchD
       ? (rawStatus as LiveMatchStatus)
       : "UNKNOWN";
 
-    const score = (entry.score as Record<string, unknown>) ?? {};
-    const fullTime = (score.fullTime as Record<string, unknown>) ?? {};
-    const homeScore = typeof fullTime.home === "number" ? fullTime.home : null;
-    const awayScore = typeof fullTime.away === "number" ? fullTime.away : null;
-
-    const rawWinner = typeof score.winner === "string" ? score.winner : null;
-    const winner =
-      rawWinner && KNOWN_WINNERS.includes(rawWinner)
-        ? (rawWinner as "HOME_TEAM" | "AWAY_TEAM" | "DRAW")
-        : null;
+    const parsedScore = parseFootballDataScore(entry);
+    const { homeScore, awayScore, winner } = parsedScore;
 
     const goals = parseFootballDataGoals(entry, id);
     const rawBookings = Array.isArray(entry.bookings) ? (entry.bookings as unknown[]) : null;
@@ -116,6 +107,12 @@ function parseApiResponse(data: Record<string, unknown>): Map<number, LiveMatchD
       homeScore,
       awayScore,
       winner,
+      stage: parsedScore.stage,
+      rawStage: parsedScore.rawStage,
+      scoreDuration: parsedScore.duration,
+      regularTimeScore: parsedScore.regularTimeScore,
+      extraTimeScore: parsedScore.extraTimeScore,
+      penaltyShootoutScore: parsedScore.penaltyShootoutScore,
       utcDate: typeof entry.utcDate === "string" ? entry.utcDate : undefined,
       lastSyncedAt: now,
       rawStatus,

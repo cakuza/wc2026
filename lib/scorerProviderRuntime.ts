@@ -19,6 +19,7 @@ import {
 import type { SerializableSnapshotMatch } from "./liveSnapshot";
 import type { GoalScorerEvent } from "./worldcup26Provider";
 import type { LiveMatchData } from "./liveMatchData";
+import { getResolvedAwayTeam, getResolvedHomeTeam } from "./participant-resolution";
 
 // Provider-neutral scorer enrichment runtime. football-data.org remains the sole
 // authority for match identity, status, score, teams, and kickoff; this runtime may
@@ -26,9 +27,8 @@ import type { LiveMatchData } from "./liveMatchData";
 // it fails closed on any provider error, schema drift, or ambiguity. The active
 // secondary event provider is ESPN's public soccer JSON API (no key, no auth).
 
-// Scoreboard status ("pre/in/post") drives the score/status failover. A stale
-// "in" prevents the failover from kicking in, so keep the TTL short enough
-// that a match finishing on ESPN is visible within ~2 snapshot cycles.
+// Scoreboard status ("pre/in/post") only decides whether event summaries are
+// worth reading. Score/status authority remains football-data.org.
 const SCOREBOARD_TTL_SECONDS = 90;
 
 // Accurate provider label for enriched scorers. ESPN is the real source; it is
@@ -85,14 +85,6 @@ function baselineIsComplete(match: SerializableSnapshotMatch): boolean {
  *
  * Primary rule: football-data.org remains the sole authority for score, status,
  * teams, and kickoff. ESPN enrichment replaces only the scorer list.
- *
- * Score/status failover exception: when ESPN's scoreboard shows "post" (finished)
- * but the primary provider is stuck reporting a match as LIVE/HALFTIME/SYNCING,
- * AND ESPN's event-derived score does not regress either side's primary score,
- * AND the ledger accepts all events as internally consistent at that score,
- * THEN the canonical status and score are advanced to FINISHED with ESPN's
- * event-derived values. `canonicalLiveData` is also updated so that group
- * standings reflect the result without requiring a subsequent primary refresh.
  */
 export async function enrichSnapshotScorers(
   matches: Record<string, SerializableSnapshotMatch>,
@@ -101,6 +93,7 @@ export async function enrichSnapshotScorers(
   canonicalLiveData: Map<number, LiveMatchData>,
 ): Promise<void> {
   if (!isScorerEnrichmentEnabled()) return;
+  void canonicalLiveData;
 
   const dateRange = tournamentDateRange();
   if (!dateRange) return;
@@ -175,10 +168,14 @@ export async function enrichSnapshotScorers(
 
     const parsedEvents = parseEspnGoalEvents(summaryRes.data, { providerFixtureId });
 
+    const canonicalHomeTeamId = getResolvedHomeTeam(match.match);
+    const canonicalAwayTeamId = getResolvedAwayTeam(match.match);
+    if (!canonicalHomeTeamId || !canonicalAwayTeamId) continue;
+
     const context: MergeCanonicalContext = {
       canonicalMatchId: match.internalId,
-      canonicalHomeTeamId: match.match.homeKey,
-      canonicalAwayTeamId: match.match.awayKey,
+      canonicalHomeTeamId,
+      canonicalAwayTeamId,
       canonicalHomeScore: match.homeScore ?? 0,
       canonicalAwayScore: match.awayScore ?? 0,
       canonicalStatus: toLedgerStatus(match.status),
@@ -196,30 +193,6 @@ export async function enrichSnapshotScorers(
       if (adapted.attemptEvent) inputs.push(adapted.attemptEvent);
     }
 
-    // ESPN-derived scores: count accepted events by credited canonical side.
-    // Own goals are credited to the BENEFICIARY side (e.g. an OG by the away
-    // team is credited to home), matching how canonical scores are tabulated.
-    const espnHomeGoals = inputs.filter((ev) => ev.creditedCanonicalSide === "home").length;
-    const espnAwayGoals = inputs.filter((ev) => ev.creditedCanonicalSide === "away").length;
-
-    // Score/status failover: when ESPN's scoreboard says the match is over
-    // ("post") but the primary provider is stuck in a live state, attempt to
-    // advance the canonical state. The three invariants that must hold:
-    //   1. ESPN's scoreboard status is "post" (definitively finished).
-    //   2. ESPN scores do not regress below the primary score on either side.
-    //   3. The ledger accepts all events as consistent at the ESPN-derived score.
-    const primaryIsStale =
-      fixture.status === "post" &&
-      (match.status === "LIVE" || match.status === "HALFTIME" || match.status === "SYNCING");
-    const noRegression =
-      espnHomeGoals >= (match.homeScore ?? 0) &&
-      espnAwayGoals >= (match.awayScore ?? 0);
-    const failover = primaryIsStale && noRegression;
-
-    const effectiveContext: MergeCanonicalContext = failover
-      ? { ...context, canonicalHomeScore: espnHomeGoals, canonicalAwayScore: espnAwayGoals, canonicalStatus: "FINISHED" }
-      : context;
-
     const attempt: MergeProviderAttempt = {
       state: "complete_snapshot",
       events: inputs,
@@ -229,7 +202,7 @@ export async function enrichSnapshotScorers(
       providerAwayTeamId: fixture.awayProviderTeamId,
     };
 
-    const ledgerOutput = mergeProviderAttempt([], attempt, effectiveContext);
+    const ledgerOutput = mergeProviderAttempt([], attempt, context);
     if (ledgerOutput.completeness.state === "conflicted") {
       // Events are inconsistent with the effective canonical state — preserve baseline.
       continue;
@@ -242,8 +215,8 @@ export async function enrichSnapshotScorers(
     // existing baseline. A richer baseline is never degraded.
     if (activeEvents.length < baselineAcceptedCount) continue;
 
-    const homeDisplay = countryName(match.match.homeKey, "en");
-    const awayDisplay = countryName(match.match.awayKey, "en");
+    const homeDisplay = countryName(canonicalHomeTeamId, "en");
+    const awayDisplay = countryName(canonicalAwayTeamId, "en");
 
     const mappedScorers: GoalScorerEvent[] = activeEvents.map((event) => ({
       type: event.isPenalty ? "PENALTY_GOAL" : "GOAL",
@@ -262,59 +235,8 @@ export async function enrichSnapshotScorers(
     }));
 
     match.scorers = mappedScorers;
-
-    // When the failover advanced the match, propagate the corrected state so
-    // every downstream consumer (API response, match detail, group standings)
-    // sees FINISHED at the ESPN-derived score without waiting for the primary
-    // provider to catch up.
-    if (failover) {
-      const prevStatus = match.status;
-      const prevHome = match.homeScore ?? 0;
-      const prevAway = match.awayScore ?? 0;
-
-      match.status = "FINISHED";
-      match.homeScore = espnHomeGoals;
-      match.awayScore = espnAwayGoals;
-      match.goalEventCompleteness = {
-        ...match.goalEventCompleteness,
-        isGoalEventDataComplete: true,
-        missingGoalEventCount: 0,
-      };
-
-      if (match.live) {
-        const winner =
-          espnHomeGoals > espnAwayGoals ? "HOME_TEAM" as const :
-          espnAwayGoals > espnHomeGoals ? "AWAY_TEAM" as const :
-          "DRAW" as const;
-        match.live = { ...match.live, status: "FINISHED", homeScore: espnHomeGoals, awayScore: espnAwayGoals, winner };
-      }
-
-      if (match.providerMatchId !== null) {
-        const existing = canonicalLiveData.get(match.providerMatchId);
-        if (existing) {
-          const winner =
-            espnHomeGoals > espnAwayGoals ? "HOME_TEAM" as const :
-            espnAwayGoals > espnHomeGoals ? "AWAY_TEAM" as const :
-            "DRAW" as const;
-          canonicalLiveData.set(match.providerMatchId, {
-            ...existing,
-            status: "FINISHED",
-            homeScore: espnHomeGoals,
-            awayScore: espnAwayGoals,
-            winner,
-          });
-        }
-      }
-
-      console.info(
-        `[scorerProviderRuntime] score-status failover: ${match.internalId} ` +
-        `${prevStatus} ${prevHome}-${prevAway} → FINISHED ${espnHomeGoals}-${espnAwayGoals} ` +
-        `(ESPN "post", ${activeEvents.length} events accepted)`
-      );
-    } else {
-      const expectedGoals = (match.homeScore ?? 0) + (match.awayScore ?? 0);
-      match.goalEventCompleteness.missingGoalEventCount = Math.max(0, expectedGoals - activeEvents.length);
-    }
+    const expectedGoals = (match.homeScore ?? 0) + (match.awayScore ?? 0);
+    match.goalEventCompleteness.missingGoalEventCount = Math.max(0, expectedGoals - activeEvents.length);
   }
 }
 

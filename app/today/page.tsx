@@ -1,4 +1,4 @@
-import { getResolvedHomeTeam, getResolvedAwayTeam, getResolvedHomeCode, getResolvedAwayCode, getParticipantDisplayLabel, isKnockoutMatch } from "@/lib/participant-resolution";
+import { getResolvedHomeTeam, getResolvedAwayTeam, getResolvedHomeCode, getResolvedAwayCode, getParticipantDisplayLabel, isKnockoutMatch, type ResolvedParticipantLookup } from "@/lib/participant-resolution";
 import type { Metadata } from "next";
 import { cookies } from "next/headers";
 import Link from "next/link";
@@ -16,6 +16,7 @@ import type { LiveMatchData } from "@/lib/liveMatchData";
 import type { GoalScorerEvent } from "@/lib/worldcup26Provider";
 import { getTournamentLiveSnapshot } from "@/lib/liveSnapshot";
 import { getLiveRefreshPolicy } from "@/lib/liveRefreshPolicy";
+import { buildKnockoutResolution } from "@/lib/knockoutResolution";
 import {
   getMatchesForDateInZone,
   localHourInTimeZone,
@@ -118,6 +119,13 @@ function shortScorerName(playerName: string) {
   if (playerName.includes(".")) return playerName;
   const parts = playerName.trim().split(/\s+/);
   return parts[parts.length - 1] ?? playerName;
+}
+
+function teamLabel(match: Match, side: "home" | "away", resolvedParticipants?: ResolvedParticipantLookup): string {
+  const key = side === "home" ? getResolvedHomeTeam(match, resolvedParticipants) : getResolvedAwayTeam(match, resolvedParticipants);
+  if (key) return countryName(key, "en");
+  if (!isKnockoutMatch(match)) return side === "home" ? match.homeKey : match.awayKey;
+  return getParticipantDisplayLabel(side === "home" ? match.homeSlot : match.awaySlot);
 }
 
 function TodaySummary({
@@ -242,16 +250,16 @@ function MatchRow({
   live,
   scorerEvents,
   liveDataUnavailable,
+  resolvedParticipants,
 }: {
   m: Match;
   live: LiveMatchData | undefined;
   scorerEvents?: GoalScorerEvent[];
   liveDataUnavailable?: boolean;
+  resolvedParticipants?: ResolvedParticipantLookup;
 }) {
-  const homeKey = getResolvedHomeTeam(m);
-  const home = homeKey ? countryName(homeKey, "en") : (isKnockoutMatch(m) ? getParticipantDisplayLabel(m.homeSlot) : m.homeKey);
-  const awayKey = getResolvedAwayTeam(m);
-  const away = awayKey ? countryName(awayKey, "en") : (isKnockoutMatch(m) ? getParticipantDisplayLabel(m.awaySlot) : m.awayKey);
+  const home = teamLabel(m, "home", resolvedParticipants);
+  const away = teamLabel(m, "away", resolvedParticipants);
   // In the cold-start fallback a started match has an unknown result — never
   // show it as Scheduled or invent a score.
   const hasScore = !liveDataUnavailable && live && live.homeScore !== null && live.awayScore !== null;
@@ -269,7 +277,7 @@ function MatchRow({
           <div className="flex items-center gap-3">
             <div className="flex min-w-0 flex-1 items-center justify-end gap-2 text-end">
               <span className="truncate font-semibold text-white">{home}</span>
-              <Flag code={getResolvedHomeCode(m) ?? m.homeCode} alt="" width={30} height={22} />
+              <Flag code={getResolvedHomeCode(m, resolvedParticipants) ?? m.homeCode} alt="" width={30} height={22} />
             </div>
             {hasScore ? (
               <span className="shrink-0 font-heading text-sm font-extrabold tabular-nums text-white">
@@ -281,7 +289,7 @@ function MatchRow({
               </span>
             )}
             <div className="flex min-w-0 flex-1 items-center gap-2">
-              <Flag code={getResolvedAwayCode(m) ?? m.awayCode} alt="" width={30} height={22} />
+              <Flag code={getResolvedAwayCode(m, resolvedParticipants) ?? m.awayCode} alt="" width={30} height={22} />
               <span className="truncate font-semibold text-white">{away}</span>
             </div>
           </div>
@@ -366,6 +374,7 @@ export default async function TodayPage({
 
   // One bulk fetch for all today's matches — no per-match API calls.
   const snapshot = await getTournamentLiveSnapshot();
+  const resolvedParticipants = buildKnockoutResolution(snapshot.matches);
   const isFallbackSnapshot = snapshot.isFallback === true;
   const liveData = snapshot.liveDataByProviderId;
   const scorerLines: Record<string, GoalScorerEvent[]> = {};
@@ -476,6 +485,7 @@ export default async function TodayPage({
                     live={m.providerIds?.footballData ? liveData[String(m.providerIds.footballData)] : undefined}
                     scorerEvents={scorerLines[matchSlug(m)]}
                     liveDataUnavailable={snapshot.matches[matchSlug(m)]?.liveDataUnavailable}
+                    resolvedParticipants={resolvedParticipants}
                   />
                 ))}
               </div>

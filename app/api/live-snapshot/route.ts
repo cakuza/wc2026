@@ -35,6 +35,7 @@ export async function GET() {
           liveDataUnavailable: m.liveDataUnavailable ?? false,
           homeScore: m.homeScore,
           awayScore: m.awayScore,
+          penaltyShootoutScore: m.live?.penaltyShootoutScore ?? null,
           scorers: m.scorers,
           goalEventCompleteness: m.goalEventCompleteness,
         },

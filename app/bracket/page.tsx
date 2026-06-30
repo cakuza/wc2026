@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { BracketContent } from "./BracketContent";
+import { getTournamentLiveSnapshot } from "@/lib/liveSnapshot";
+import { buildKnockoutResolution } from "@/lib/knockoutResolution";
 
 const BASE_URL = "https://www.worldcupmatchday.com";
 
@@ -17,6 +19,7 @@ export const metadata: Metadata = {
   },
 };
 
-export default function BracketPage() {
-  return <BracketContent />;
+export default async function BracketPage() {
+  const snapshot = await getTournamentLiveSnapshot();
+  return <BracketContent resolvedParticipants={buildKnockoutResolution(snapshot.matches)} />;
 }

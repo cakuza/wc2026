@@ -8,6 +8,7 @@ import { getTournamentLiveSnapshot } from "@/lib/liveSnapshot";
 import { MATCHES, matchSlug } from "@/lib/matches";
 import type { LiveMatchStatus } from "@/lib/liveMatchData";
 import type { GoalScorerEvent } from "@/lib/worldcup26Provider";
+import { buildKnockoutResolution } from "@/lib/knockoutResolution";
 
 export const revalidate = 30;
 export const dynamic = "force-dynamic";
@@ -66,7 +67,7 @@ export default async function SchedulePage() {
           <LiveDataUnavailableNotice show />
         </div>
       ) : null}
-      <ScheduleContent liveScores={liveScores} scorerLines={scorerLines} />
+      <ScheduleContent liveScores={liveScores} scorerLines={scorerLines} resolvedParticipants={buildKnockoutResolution(snapshot.matches)} />
     </>
   );
 }

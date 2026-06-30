@@ -48,7 +48,7 @@ const liveData: ReadonlyMap<number, LiveMatchData> = new Map([
     {
       provider: "football-data.org",
       providerMatchId: CANADA_PROVIDER_ID,
-      status: "IN_PLAY",
+      status: "FINISHED",
       homeScore: 1,
       awayScore: 1,
       winner: null,

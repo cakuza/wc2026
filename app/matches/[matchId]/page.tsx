@@ -7,12 +7,8 @@ import { countryName } from "@/lib/i18n";
 import { getGoalEventCompleteness } from "@/lib/goalEventCompleteness";
 import { getTournamentLiveSnapshot } from "@/lib/liveSnapshot";
 import { matchBySlug } from "@/lib/matches";
-import {
-  getResolvedHomeTeam,
-  getResolvedAwayTeam,
-  isKnockoutMatch,
-  knockoutSlotLabel,
-} from "@/lib/participant-resolution";
+import { getResolvedHomeTeam, getResolvedAwayTeam, getParticipantDisplayLabel, isKnockoutMatch, knockoutSlotLabel, matchStageLabel } from "@/lib/participant-resolution";
+import { buildKnockoutResolution } from "@/lib/knockoutResolution";
 
 export const revalidate = 30;
 export const dynamic = "force-dynamic";
@@ -187,6 +183,7 @@ export default async function MatchPage({
   if (!match) notFound();
 
   const snapshot = await getTournamentLiveSnapshot();
+  const resolvedParticipants = buildKnockoutResolution(snapshot.matches);
   const snap = snapshot.matches[matchId];
   const live = snap?.live ?? null;
   const goalEventCompleteness =
@@ -271,6 +268,7 @@ export default async function MatchPage({
         secondaryProviderOk={snapshot.secondaryProviderOk}
         groupStandings={match.group ? snapshot.standingsByGroup[match.group] : undefined}
         thirdPlaceRows={snapshot.thirdPlaceRanking}
+        resolvedParticipants={resolvedParticipants}
       />
     </>
   );

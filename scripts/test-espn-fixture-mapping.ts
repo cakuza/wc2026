@@ -36,12 +36,13 @@ function fixtureFor(homeKey: string, awayKey: string, opts: { homeName?: string;
   };
 }
 
-test("maps full real-name fixtures to canonical with zero errors on team identity", () => {
-  const fixtures = MATCHES.map((m) => fixtureFor(m.homeKey, m.awayKey, { id: `e-${matchSlug(m)}` }));
-  const result = mapEspnFixturesToCanonicalMatches({ providerFixtures: fixtures });
+test("maps all fully keyed group fixtures to canonical with zero errors on team identity", () => {
+  const canonicalMatches = MATCHES.filter((m) => m.homeKey !== "tbd" && m.awayKey !== "tbd");
+  const fixtures = canonicalMatches.map((m) => fixtureFor(m.homeKey, m.awayKey, { id: `e-${matchSlug(m)}` }));
+  const result = mapEspnFixturesToCanonicalMatches({ providerFixtures: fixtures, canonicalMatches });
   assert.strictEqual(result.summary.unmappedCount, 0, `unmapped: ${result.summary.unmappedCount}`);
   assert.strictEqual(result.summary.ambiguousCount, 0);
-  assert.strictEqual(result.mappings.length, MATCHES.length);
+  assert.strictEqual(result.mappings.length, canonicalMatches.length);
 });
 
 test("alias: ESPN spellings map (Türkiye, Congo DR, Bosnia-Herzegovina, Czech Republic)", () => {

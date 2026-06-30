@@ -1,6 +1,7 @@
 import { after } from "next/server";
 import { unstable_cache } from "./cacheAdapter";
 import { fetchAllLiveData } from "./fetchAllLiveData";
+import { getLiveRefreshPolicy } from "./liveRefreshPolicy";
 import { computeGroupStandings, type StandingRow } from "./groupStandings";
 import { MATCHES, matchSlug, matchUtcDate, type Match } from "./matches";
 import { computeThirdPlaceRanking, type ThirdPlaceRow } from "./thirdPlaceRanking";
@@ -22,8 +23,9 @@ import {
 import { resolvePlayerAlias } from "./worldcup26PlayerAliases";
 import { applyVerifiedGoalCorrections } from "./verifiedMatchEventCorrections";
 import { countryName } from "./i18n";
+import { getResolvedAwayTeam, getResolvedHomeTeam } from "./participant-resolution";
 
-export const LIVE_SNAPSHOT_CACHE_KEY = "worldcup-tournament-live-snapshot-v8";
+export const LIVE_SNAPSHOT_CACHE_KEY = "worldcup-tournament-live-snapshot-v9";
 export const LIVE_SNAPSHOT_REVALIDATE_SECONDS = 25;
 // Provider Data-Cache revalidate (seconds). Lazily driven by the snapshot
 // rebuild, so idle periods (snapshot cadence ~90s) refetch providers only at
@@ -148,13 +150,13 @@ function toLiveMatchStatus(status: SnapshotMatchStatus, fallback: LiveMatchStatu
 
 export function canonicalStatus({
   footballData,
-  worldcupGame,
+  worldcupGame: _worldcupGame,
 }: {
   footballData?: LiveMatchData;
   worldcupGame?: WorldCup26Game | null;
 }): SnapshotMatchStatus {
   const footballStatus = toSnapshotStatus(footballData);
-  if (footballStatus === "FINISHED" || worldcupGame?.finished) return "FINISHED";
+  if (footballStatus === "FINISHED") return "FINISHED";
   if (footballStatus === "LIVE" || footballStatus === "HALFTIME" || footballStatus === "SYNCING") {
     return footballStatus;
   }
@@ -237,8 +239,11 @@ function worldcupGamesByInternalId(games: WorldCup26Game[] | null): Map<string, 
   if (!games) return result;
 
   for (const match of MATCHES) {
-    const homeDisplay = countryName(match.homeKey, "en");
-    const awayDisplay = countryName(match.awayKey, "en");
+    const homeTeam = getResolvedHomeTeam(match);
+    const awayTeam = getResolvedAwayTeam(match);
+    if (!homeTeam || !awayTeam) continue;
+    const homeDisplay = countryName(homeTeam, "en");
+    const awayDisplay = countryName(awayTeam, "en");
     const homeKey = normalizeTeamName(homeDisplay);
     const awayKey = normalizeTeamName(awayDisplay);
 
@@ -257,8 +262,11 @@ function worldcupGamesByInternalId(games: WorldCup26Game[] | null): Map<string, 
 function scorersFromWorldcupGame(match: Match, game: WorldCup26Game | undefined): GoalScorerEvent[] {
   if (!game) return [];
   const internalId = matchSlug(match);
-  const homeDisplay = countryName(match.homeKey, "en");
-  const awayDisplay = countryName(match.awayKey, "en");
+  const homeTeam = getResolvedHomeTeam(match);
+  const awayTeam = getResolvedAwayTeam(match);
+  if (!homeTeam || !awayTeam) return [];
+  const homeDisplay = countryName(homeTeam, "en");
+  const awayDisplay = countryName(awayTeam, "en");
   return applyVerifiedGoalCorrections(internalId, dedupeScorers([
     ...game.homeScorers.map((event) => canonicalizeWorldcupScorer(event, internalId, homeDisplay)),
     ...game.awayScorers.map((event) => canonicalizeWorldcupScorer(event, internalId, awayDisplay)),
@@ -302,14 +310,8 @@ function withCanonicalMatchState({
   if (!providerId) return null;
 
   const status = canonicalStatus({ footballData: live, worldcupGame });
-  const homeScore =
-    status === "FINISHED" && worldcupGame?.homeScore !== null && worldcupGame?.homeScore !== undefined
-      ? worldcupGame.homeScore
-      : live?.homeScore ?? null;
-  const awayScore =
-    status === "FINISHED" && worldcupGame?.awayScore !== null && worldcupGame?.awayScore !== undefined
-      ? worldcupGame.awayScore
-      : live?.awayScore ?? null;
+  const homeScore = live?.homeScore ?? null;
+  const awayScore = live?.awayScore ?? null;
 
   if (!live && homeScore === null && awayScore === null && status === "SCHEDULED" && scorers.length === 0) {
     return null;
@@ -331,6 +333,12 @@ function withCanonicalMatchState({
     homeScore,
     awayScore,
     winner: live?.winner ?? winnerFromScore(homeScore, awayScore),
+    stage: live?.stage,
+    rawStage: live?.rawStage,
+    scoreDuration: live?.scoreDuration,
+    regularTimeScore: live?.regularTimeScore,
+    extraTimeScore: live?.extraTimeScore,
+    penaltyShootoutScore: live?.penaltyShootoutScore,
     utcDate: live?.utcDate,
     lastSyncedAt: live?.lastSyncedAt ?? generatedAt,
     rawStatus: live?.rawStatus,
@@ -464,11 +472,10 @@ export async function buildTournamentLiveSnapshot({
   }
 
   // Secondary scorer enrichment via the provider-neutral runtime (active provider:
-  // ESPN public JSON). When ESPN's scoreboard shows "post" but football-data.org
-  // is stuck LIVE, the runtime may also advance the match status and score
-  // (score/status failover) and update canonicalLiveData so standings below
-  // reflect the corrected result. Fail-closed: only the exact string "true" enables
-  // enrichment; any other value leaves the module unimported and the baseline unchanged.
+  // ESPN public JSON). Enrichment may replace scorer details only; football-data.org
+  // remains authoritative for score/status. Fail-closed: only the exact string
+  // "true" enables enrichment; any other value leaves the module unimported and
+  // the baseline unchanged.
   if (!skipEnrichment && process.env.SCORER_ENRICHMENT_ENABLED === "true") {
     const { enrichSnapshotScorers } = await import("./scorerProviderRuntime");
     await enrichSnapshotScorers(matches, primaryProviderOk, generatedAt, canonicalLiveData);
@@ -674,7 +681,7 @@ export function resetLiveSnapshotMemoryForTests() {
 // so one canonical snapshot is shared across all viewers and is not invalidated
 // merely by a deploy.
 // ───────────────────────────────────────────────────────────────────────────
-export const SNAPSHOT_SCHEMA_VERSION = "v2";
+export const SNAPSHOT_SCHEMA_VERSION = "v3";
 
 // Stage-aware revalidation. A live match needs a fresh score quickly; while every
 // match is scheduled or finished the snapshot can be cached far longer. The stage
@@ -684,7 +691,7 @@ export const LIVE_SNAPSHOT_CACHE_REVALIDATE_SECONDS = 10;
 export const IDLE_SNAPSHOT_CACHE_REVALIDATE_SECONDS = 90;
 // A fixture is "live-ish" from kickoff until this long after (covers HT, stoppage
 // and extra time), used only to pick the revalidation cadence.
-const LIVE_WINDOW_MS = 2.75 * 60 * 60 * 1000;
+const LIVE_WINDOW_MS = 4 * 60 * 60 * 1000;
 
 // Declared, enforced maximum application-added staleness for a LIVE score beyond
 // provider availability:
@@ -696,6 +703,12 @@ export const MAX_LIVE_APP_STALENESS_SECONDS = 35;
 
 /** Whether any fixture is currently within its live window (schedule + clock only). */
 export function hasLiveWindow(now: Date = new Date(), matches: readonly Match[] = MATCHES): boolean {
+  if (lastKnownGoodSnapshot) {
+    const candidates = Object.values(lastKnownGoodSnapshot.matches);
+    const policy = getLiveRefreshPolicy(candidates, now);
+    return policy.reason === "live" || policy.reason === "near-match";
+  }
+
   const t = now.getTime();
   return matches.some((m) => {
     const k = matchUtcDate(m).getTime();
