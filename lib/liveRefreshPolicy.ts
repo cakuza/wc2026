@@ -24,6 +24,7 @@ const LIVE_INTERVAL_MS = 13_000;
 const NEAR_MATCH_INTERVAL_MS = 60_000;
 const NEAR_MATCH_WINDOW_MS = 2 * 60 * 60 * 1000;
 const POST_FINAL_ENRICHMENT_WINDOW_MS = 6 * 60 * 60 * 1000;
+const MAX_CANONICAL_RECONCILIATION_WINDOW_MS = 48 * 60 * 60 * 1000;
 
 function isCanonicalComplete(item: RefreshCandidate, resolvedParticipants: any): boolean {
   if (item.status !== "FINISHED") return false;
@@ -72,7 +73,17 @@ export function getLiveRefreshPolicy(
 
     // 2. Finished, but canonical data is incomplete:
     if (!isCanonicalComplete(item, resolvedParticipants)) {
-      return true;
+      const referenceTime = matchUtcDate(item.match).getTime();
+      const ageMs = nowMs - referenceTime;
+      const isWithinLimit = ageMs <= MAX_CANONICAL_RECONCILIATION_WINDOW_MS;
+      if (!isWithinLimit) {
+        const matchId = "matchNumber" in item.match ? item.match.matchNumber : `${item.match.homeKey}-vs-${item.match.awayKey}`;
+        console.warn(
+          `[liveRefreshPolicy] Match ${matchId} finished but incomplete ` +
+          `exceeding max reconciliation safety window (48h). Stopping refreshes.`
+        );
+      }
+      return isWithinLimit;
     }
 
     // 3. Finished and canonical data is complete, but scorer details are incomplete:
