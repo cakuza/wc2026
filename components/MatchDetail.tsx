@@ -1,5 +1,5 @@
 "use client";
-import { getResolvedHomeTeam, getResolvedAwayTeam, getParticipantDisplayLabel, isKnockoutMatch, getResolvedHomeCode, getResolvedAwayCode, matchStageLabel, type ResolvedParticipantLookup } from "@/lib/participant-resolution";
+import { getResolvedHomeTeam, getResolvedAwayTeam, getParticipantDisplayLabel, isKnockoutMatch, knockoutSlotLabel, getResolvedHomeCode, getResolvedAwayCode, matchStageLabel, type ResolvedParticipantLookup } from "@/lib/participant-resolution";
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
@@ -279,9 +279,9 @@ export function MatchDetail({
 
   const isConfirmedFinished = liveState.status === "FINISHED" && hasScore;
   const homeKey = getResolvedHomeTeam(match, resolvedParticipants);
-  const homeName = homeKey ? country(homeKey) : (isKnockoutMatch(match) ? getParticipantDisplayLabel(match.homeSlot) : match.homeKey);
+  const homeName = homeKey ? country(homeKey) : (isKnockoutMatch(match) ? knockoutSlotLabel(match.homeSlot) : match.homeKey);
   const awayKey = getResolvedAwayTeam(match, resolvedParticipants);
-  const awayName = awayKey ? country(awayKey) : (isKnockoutMatch(match) ? getParticipantDisplayLabel(match.awaySlot) : match.awayKey);
+  const awayName = awayKey ? country(awayKey) : (isKnockoutMatch(match) ? knockoutSlotLabel(match.awaySlot) : match.awayKey);
   const homeStanding = groupStandings?.find((row) => row.teamKey === match.homeKey);
   const awayStanding = groupStandings?.find((row) => row.teamKey === match.awayKey);
   const homeRank = groupStandings?.findIndex((row) => row.teamKey === match.homeKey);

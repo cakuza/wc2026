@@ -10,34 +10,33 @@ export type NavLink = {
   label?: string;
 };
 
-// Desktop nav order preserved exactly from the pre-existing design.
+// Desktop nav order: knockout bracket promoted alongside today/schedule.
 export const DESKTOP_LINKS: NavLink[] = [
   { href: "/today", key: "nav_today" },
   { href: "/schedule", key: "nav_schedule" },
-  { href: "/groups", key: "nav_groups" },
-  { href: "/stats", key: "nav_stats" },
-  { href: "/world-cup-third-place-qualification", key: "nav_thirdPlace" },
   { href: "/bracket", key: "nav_bracket" },
   { href: "/teams", key: "nav_teams" },
+  { href: "/stats", key: "nav_stats" },
+  { href: "/groups", key: "nav_groups" },
   { href: "/matchday-hub", key: "nav_matchdayHub", label: "Hub" },
 ];
 
 // Mobile primary destinations — always visible, never behind the hamburger.
-// "Standings" is the canonical /groups standings page.
+// Bracket replaces Groups (Groups moves to secondary drawer).
 export const PRIMARY_LINKS: NavLink[] = [
   { href: "/today", key: "nav_today" },
   { href: "/schedule", key: "nav_schedule" },
-  { href: "/groups", key: "nav_standings" },
+  { href: "/bracket", key: "nav_bracket" },
   { href: "/teams", key: "nav_teams" },
 ];
 
 // Hamburger drawer = secondary destinations only. Must not duplicate any
 // PRIMARY_LINKS href (enforced by tests).
 export const SECONDARY_LINKS: NavLink[] = [
+  { href: "/groups", key: "nav_standings" },
   { href: "/stats", key: "nav_stats" },
   { href: "/world-cup-schedule-local-time", key: "nav_localTime" },
   { href: "/world-cup-third-place-qualification", key: "nav_thirdPlace" },
-  { href: "/bracket", key: "nav_bracket" },
   { href: "/matchday-hub", key: "nav_matchdayHub" },
   { href: "/quiz", key: "nav_quiz" },
   { href: "/about", key: "nav_about" },

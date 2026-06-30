@@ -46,6 +46,20 @@ function PrimaryIcon({ href }: { href: string }) {
           <path d="M12 3l8 3v5c0 4.5-3 8-8 10-5-2-8-5.5-8-10V6z" />
         </svg>
       );
+    case "/bracket":
+      return (
+        <svg {...common} xmlns="http://www.w3.org/2000/svg">
+          <rect x="2" y="3" width="6" height="4" rx="1" />
+          <rect x="2" y="10" width="6" height="4" rx="1" />
+          <rect x="2" y="17" width="6" height="4" rx="1" />
+          <rect x="16" y="6" width="6" height="4" rx="1" />
+          <rect x="16" y="14" width="6" height="4" rx="1" />
+          <path d="M8 5h2v12H8" />
+          <path d="M10 11h4" />
+          <path d="M14 8h2" />
+          <path d="M14 16h2" />
+        </svg>
+      );
     default:
       return null;
   }
