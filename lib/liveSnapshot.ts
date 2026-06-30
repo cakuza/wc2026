@@ -1,6 +1,7 @@
 import { after } from "next/server";
 import { unstable_cache } from "./cacheAdapter";
 import { fetchAllLiveData } from "./fetchAllLiveData";
+import { getLiveRefreshPolicy } from "./liveRefreshPolicy";
 import { computeGroupStandings, type StandingRow } from "./groupStandings";
 import { MATCHES, matchSlug, matchUtcDate, type Match } from "./matches";
 import { computeThirdPlaceRanking, type ThirdPlaceRow } from "./thirdPlaceRanking";
@@ -702,6 +703,12 @@ export const MAX_LIVE_APP_STALENESS_SECONDS = 35;
 
 /** Whether any fixture is currently within its live window (schedule + clock only). */
 export function hasLiveWindow(now: Date = new Date(), matches: readonly Match[] = MATCHES): boolean {
+  if (lastKnownGoodSnapshot) {
+    const candidates = Object.values(lastKnownGoodSnapshot.matches);
+    const policy = getLiveRefreshPolicy(candidates, now);
+    return policy.reason === "live" || policy.reason === "near-match";
+  }
+
   const t = now.getTime();
   return matches.some((m) => {
     const k = matchUtcDate(m).getTime();

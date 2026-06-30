@@ -1,12 +1,18 @@
 import { matchUtcDate, type Match } from "./matches";
 import type { SnapshotMatchStatus } from "./liveSnapshot";
 import type { GoalEventCompleteness } from "./goalEventCompleteness";
+import type { LiveMatchData } from "./liveMatchData";
+import { buildKnockoutResolution } from "./knockoutResolution";
+import { isKnockoutMatch } from "./participant-resolution";
 
 export type RefreshCandidate = {
   match: Match;
   status: SnapshotMatchStatus;
   providerUpdatedAt?: string | null;
   goalEventCompleteness?: GoalEventCompleteness;
+  live?: LiveMatchData | null;
+  homeScore?: number | null;
+  awayScore?: number | null;
 };
 
 export type LiveRefreshPolicy = {
@@ -19,6 +25,27 @@ const NEAR_MATCH_INTERVAL_MS = 60_000;
 const NEAR_MATCH_WINDOW_MS = 2 * 60 * 60 * 1000;
 const POST_FINAL_ENRICHMENT_WINDOW_MS = 6 * 60 * 60 * 1000;
 
+function isCanonicalComplete(item: RefreshCandidate, resolvedParticipants: any): boolean {
+  if (item.status !== "FINISHED") return false;
+  if (item.homeScore === null || item.homeScore === undefined || item.awayScore === null || item.awayScore === undefined) return false;
+  if (!item.live) return false;
+  if (!item.live.winner) return false;
+  if (!item.live.scoreDuration) return false;
+
+  if (item.live.scoreDuration === "PENALTY_SHOOTOUT") {
+    const p = item.live.penaltyShootoutScore;
+    if (!p || p.home === null || p.home === undefined || p.away === null || p.away === undefined) return false;
+  }
+
+  // Knockout match bracket propagation check
+  if (isKnockoutMatch(item.match)) {
+    const resolved = resolvedParticipants[item.match.matchNumber];
+    if (!resolved || !resolved.home?.teamKey || !resolved.away?.teamKey) return false;
+  }
+
+  return true;
+}
+
 export function getLiveRefreshPolicy(
   candidates: RefreshCandidate[],
   now: Date = new Date(),
@@ -27,18 +54,36 @@ export function getLiveRefreshPolicy(
     return { intervalMs: LIVE_INTERVAL_MS, reason: "live" };
   }
 
+  // Construct matches record for buildKnockoutResolution
+  const matchesRecord: Record<string, any> = {};
+  candidates.forEach((c, idx) => {
+    matchesRecord[idx] = c;
+  });
+  const resolvedParticipants = buildKnockoutResolution(matchesRecord);
+
   const nowMs = now.getTime();
   const nearMatch = candidates.some((item) => {
-    const kickoff = matchUtcDate(item.match).getTime();
-    if (Math.abs(kickoff - nowMs) <= NEAR_MATCH_WINDOW_MS) return true;
+    // 1. Not finished:
+    if (item.status !== "FINISHED") {
+      const kickoff = matchUtcDate(item.match).getTime();
+      // Eligible if kickoff is within 2 hours in the future, or kickoff is in the past
+      return nowMs >= kickoff - NEAR_MATCH_WINDOW_MS;
+    }
 
-    if (item.status !== "FINISHED" || !item.providerUpdatedAt) return false;
-    const updated = new Date(item.providerUpdatedAt).getTime();
-    if (!Number.isFinite(updated)) return false;
-    const windowMs = item.goalEventCompleteness?.isGoalEventDataComplete === false
-      ? POST_FINAL_ENRICHMENT_WINDOW_MS
-      : NEAR_MATCH_WINDOW_MS;
-    return Math.abs(nowMs - updated) <= windowMs;
+    // 2. Finished, but canonical data is incomplete:
+    if (!isCanonicalComplete(item, resolvedParticipants)) {
+      return true;
+    }
+
+    // 3. Finished and canonical data is complete, but scorer details are incomplete:
+    if (item.goalEventCompleteness?.isGoalEventDataComplete === false) {
+      const referenceTime = item.providerUpdatedAt ? new Date(item.providerUpdatedAt).getTime() : matchUtcDate(item.match).getTime();
+      if (Number.isFinite(referenceTime)) {
+        return Math.abs(nowMs - referenceTime) <= POST_FINAL_ENRICHMENT_WINDOW_MS;
+      }
+    }
+
+    return false;
   });
 
   if (nearMatch) return { intervalMs: NEAR_MATCH_INTERVAL_MS, reason: "near-match" };
