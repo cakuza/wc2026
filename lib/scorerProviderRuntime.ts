@@ -235,62 +235,8 @@ export async function enrichSnapshotScorers(
     }));
 
     match.scorers = mappedScorers;
-    const espnHomeGoals = 0;
-    const espnAwayGoals = 0;
-    const failover = false;
-
-    // When the failover advanced the match, propagate the corrected state so
-    // every downstream consumer (API response, match detail, group standings)
-    // sees FINISHED at the ESPN-derived score without waiting for the primary
-    // provider to catch up.
-    if (failover) {
-      const prevStatus = match.status;
-      const prevHome = match.homeScore ?? 0;
-      const prevAway = match.awayScore ?? 0;
-
-      match.status = "FINISHED";
-      match.homeScore = espnHomeGoals;
-      match.awayScore = espnAwayGoals;
-      match.goalEventCompleteness = {
-        ...match.goalEventCompleteness,
-        isGoalEventDataComplete: true,
-        missingGoalEventCount: 0,
-      };
-
-      if (match.live) {
-        const winner =
-          espnHomeGoals > espnAwayGoals ? "HOME_TEAM" as const :
-          espnAwayGoals > espnHomeGoals ? "AWAY_TEAM" as const :
-          "DRAW" as const;
-        match.live = { ...match.live, status: "FINISHED", homeScore: espnHomeGoals, awayScore: espnAwayGoals, winner };
-      }
-
-      if (match.providerMatchId !== null) {
-        const existing = canonicalLiveData.get(match.providerMatchId);
-        if (existing) {
-          const winner =
-            espnHomeGoals > espnAwayGoals ? "HOME_TEAM" as const :
-            espnAwayGoals > espnHomeGoals ? "AWAY_TEAM" as const :
-            "DRAW" as const;
-          canonicalLiveData.set(match.providerMatchId, {
-            ...existing,
-            status: "FINISHED",
-            homeScore: espnHomeGoals,
-            awayScore: espnAwayGoals,
-            winner,
-          });
-        }
-      }
-
-      console.info(
-        `[scorerProviderRuntime] score-status failover: ${match.internalId} ` +
-        `${prevStatus} ${prevHome}-${prevAway} → FINISHED ${espnHomeGoals}-${espnAwayGoals} ` +
-        `(ESPN "post", ${activeEvents.length} events accepted)`
-      );
-    } else {
-      const expectedGoals = (match.homeScore ?? 0) + (match.awayScore ?? 0);
-      match.goalEventCompleteness.missingGoalEventCount = Math.max(0, expectedGoals - activeEvents.length);
-    }
+    const expectedGoals = (match.homeScore ?? 0) + (match.awayScore ?? 0);
+    match.goalEventCompleteness.missingGoalEventCount = Math.max(0, expectedGoals - activeEvents.length);
   }
 }
 
