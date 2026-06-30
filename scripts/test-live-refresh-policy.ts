@@ -1,6 +1,7 @@
 import { getLiveRefreshPolicy } from "../lib/liveRefreshPolicy";
 import { MATCHES, matchUtcDate } from "../lib/matches";
 import { buildKnockoutResolution } from "../lib/knockoutResolution";
+import type { LiveMatchData } from "../lib/liveMatchData";
 
 let passed = 0;
 let failed = 0;
@@ -20,6 +21,21 @@ const now = new Date("2026-06-11T18:30:00.000Z");
 
 console.log("=== Live refresh policy test ===\n");
 
+function liveData(overrides: Partial<LiveMatchData> = {}): LiveMatchData {
+  return {
+    provider: "football-data.org",
+    providerMatchId: 1,
+    status: "FINISHED",
+    homeScore: 2,
+    awayScore: 0,
+    winner: "HOME_TEAM",
+    scoreDuration: "REGULAR",
+    lastSyncedAt: "2026-06-11T18:05:00.000Z",
+    eventDataAvailable: true,
+    ...overrides,
+  };
+}
+
 const live = getLiveRefreshPolicy([{ match, status: "LIVE" }], now);
 assert(live.reason === "live", "LIVE uses live refresh policy");
 assert(live.intervalMs !== null && live.intervalMs >= 10_000 && live.intervalMs <= 20_000, "LIVE interval is 10-20 seconds (tightened for live freshness budget)");
@@ -30,6 +46,18 @@ assert(halftime.intervalMs !== null && halftime.intervalMs >= 10_000 && halftime
 
 const syncing = getLiveRefreshPolicy([{ match, status: "SYNCING" }], now);
 assert(syncing.reason === "live", "SYNCING uses live refresh policy");
+
+const extraTimeLive = getLiveRefreshPolicy(
+  [{ match, status: "LIVE", live: liveData({ status: "IN_PLAY", scoreDuration: "EXTRA_TIME" }) }],
+  new Date(matchUtcDate(match).getTime() + 5 * 60 * 60 * 1000),
+);
+assert(extraTimeLive.reason === "live", "extra-time match remains aggressively refresh-eligible after four hours");
+
+const shootoutLive = getLiveRefreshPolicy(
+  [{ match, status: "LIVE", live: liveData({ status: "IN_PLAY", scoreDuration: "PENALTY_SHOOTOUT" }) }],
+  new Date(matchUtcDate(match).getTime() + 5 * 60 * 60 * 1000),
+);
+assert(shootoutLive.reason === "live", "penalty-shootout match remains aggressively refresh-eligible after four hours");
 
 const recentFinished = getLiveRefreshPolicy(
   [{ match, status: "FINISHED", providerUpdatedAt: "2026-06-11T18:05:00.000Z" }],
@@ -45,9 +73,9 @@ assert(farFuture.intervalMs === null, "far-future interval is null");
 // 1. Not in terminal state but past kickoff remains refresh-eligible
 const pastScheduled = getLiveRefreshPolicy(
   [{ match: MATCHES[0], status: "SCHEDULED" }],
-  new Date(matchUtcDate(MATCHES[0]).getTime() + 4 * 60 * 60 * 1000) // 4 hours after kickoff
+  new Date(matchUtcDate(MATCHES[0]).getTime() + 5 * 60 * 60 * 1000) // 5 hours after kickoff
 );
-assert(pastScheduled.reason === "near-match", "SCHEDULED match past kickoff remains refresh-eligible");
+assert(pastScheduled.reason === "near-match", "non-terminal match past the old four-hour boundary remains refresh-eligible");
 
 // 2. Finished but incomplete score remains refresh-eligible
 const incompleteScore = getLiveRefreshPolicy(
@@ -73,7 +101,7 @@ const incompleteShootout = getLiveRefreshPolicy(
       winner: "HOME_TEAM",
       scoreDuration: "PENALTY_SHOOTOUT",
       penaltyShootoutScore: null,
-      lastSyncedAt: new Date().toISOString(),
+      lastSyncedAt: "2026-06-30T06:10:00.000Z",
       eventDataAvailable: true,
     }
   }],
@@ -98,7 +126,7 @@ if (knockoutMatch) {
         awayScore: 1,
         winner: "HOME_TEAM",
         scoreDuration: "REGULAR",
-        lastSyncedAt: new Date().toISOString(),
+        lastSyncedAt: "2026-07-04T22:00:00.000Z",
         eventDataAvailable: true,
       }
     }],
@@ -160,13 +188,53 @@ const completeMatch = getLiveRefreshPolicy(
       awayScore: 0,
       winner: "HOME_TEAM",
       scoreDuration: "REGULAR",
-      lastSyncedAt: new Date().toISOString(),
+      lastSyncedAt: "2026-06-11T18:05:00.000Z",
       eventDataAvailable: true,
     }
   }],
   new Date(matchUtcDate(MATCHES[0]).getTime() + 10 * 60 * 60 * 1000)
 );
 assert(completeMatch.reason === "idle", "a terminal complete match returns to normal cache behavior");
+
+const completeButScorersIncomplete = getLiveRefreshPolicy(
+  [{
+    match: MATCHES[0],
+    status: "FINISHED",
+    homeScore: 2,
+    awayScore: 0,
+    providerUpdatedAt: "2026-06-11T18:05:00.000Z",
+    goalEventCompleteness: {
+      isGoalEventDataComplete: false,
+      missingGoalEventCount: 1,
+      expectedGoalCount: 2,
+      normalizedGoalEventCount: 1,
+      completenessReason: "missing-goal-events",
+    },
+    live: liveData(),
+  }],
+  new Date("2026-06-11T20:00:00.000Z"),
+);
+assert(completeButScorersIncomplete.reason === "near-match", "scorer reconciliation continues separately after canonical completion");
+
+const staleScorerGap = getLiveRefreshPolicy(
+  [{
+    match: MATCHES[0],
+    status: "FINISHED",
+    homeScore: 2,
+    awayScore: 0,
+    providerUpdatedAt: "2026-06-11T18:05:00.000Z",
+    goalEventCompleteness: {
+      isGoalEventDataComplete: false,
+      missingGoalEventCount: 1,
+      expectedGoalCount: 2,
+      normalizedGoalEventCount: 1,
+      completenessReason: "missing-goal-events",
+    },
+    live: liveData(),
+  }],
+  new Date("2026-06-12T02:30:00.000Z"),
+);
+assert(staleScorerGap.reason === "idle", "old scorer-only gaps do not hammer providers indefinitely");
 
 // 10. Bracket propagation can complete after an upstream match finalizes
 const m74Raw = MATCHES.find(m => "matchNumber" in m && m.matchNumber === 74)!;
@@ -228,6 +296,28 @@ const resolvedBracket = buildKnockoutResolution({
   }
 });
 assert(resolvedBracket[89]?.home?.teamKey === "paraguay", "bracket propagation can complete after an upstream match finalizes");
+
+const completedAndPropagated = getLiveRefreshPolicy(
+  [{
+    match: m74Raw,
+    status: "FINISHED",
+    homeScore: 1,
+    awayScore: 1,
+    live: liveData({
+      providerMatchId: 537415,
+      homeScore: 1,
+      awayScore: 1,
+      winner: "AWAY_TEAM",
+      scoreDuration: "PENALTY_SHOOTOUT",
+      penaltyShootoutScore: { home: 3, away: 4 },
+    }),
+  }, {
+    match: m89Raw,
+    status: "SCHEDULED",
+  }],
+  new Date(matchUtcDate(m74Raw).getTime() + 5 * 60 * 60 * 1000),
+);
+assert(completedAndPropagated.reason === "idle", "completed upstream can leave aggressive refresh once downstream bracket advancement is resolved");
 
 // 11. Terminal incomplete match past 48h safety window stops refreshing
 const oldIncomplete = getLiveRefreshPolicy(

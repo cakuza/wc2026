@@ -1,4 +1,4 @@
-import { matchUtcDate, type Match } from "./matches";
+import { MATCHES, matchUtcDate, type KnockoutMatch, type Match } from "./matches";
 import type { SnapshotMatchStatus } from "./liveSnapshot";
 import type { GoalEventCompleteness } from "./goalEventCompleteness";
 import type { LiveMatchData } from "./liveMatchData";
@@ -26,7 +26,27 @@ const NEAR_MATCH_WINDOW_MS = 2 * 60 * 60 * 1000;
 const POST_FINAL_ENRICHMENT_WINDOW_MS = 6 * 60 * 60 * 1000;
 const MAX_CANONICAL_RECONCILIATION_WINDOW_MS = 48 * 60 * 60 * 1000;
 
-function isCanonicalComplete(item: RefreshCandidate, resolvedParticipants: any): boolean {
+function dependentSlotsFor(match: KnockoutMatch): Array<{ matchNumber: number; side: "home" | "away" }> {
+  const slots: Array<{ matchNumber: number; side: "home" | "away" }> = [];
+  for (const candidate of MATCHES) {
+    if (!isKnockoutMatch(candidate)) continue;
+    if (
+      (candidate.homeSlot.kind === "winnerOf" || candidate.homeSlot.kind === "loserOf") &&
+      candidate.homeSlot.matchNumber === match.matchNumber
+    ) {
+      slots.push({ matchNumber: candidate.matchNumber, side: "home" });
+    }
+    if (
+      (candidate.awaySlot.kind === "winnerOf" || candidate.awaySlot.kind === "loserOf") &&
+      candidate.awaySlot.matchNumber === match.matchNumber
+    ) {
+      slots.push({ matchNumber: candidate.matchNumber, side: "away" });
+    }
+  }
+  return slots;
+}
+
+function isCanonicalComplete(item: RefreshCandidate, resolvedParticipants: ReturnType<typeof buildKnockoutResolution>): boolean {
   if (item.status !== "FINISHED") return false;
   if (item.homeScore === null || item.homeScore === undefined || item.awayScore === null || item.awayScore === undefined) return false;
   if (!item.live) return false;
@@ -38,10 +58,13 @@ function isCanonicalComplete(item: RefreshCandidate, resolvedParticipants: any):
     if (!p || p.home === null || p.home === undefined || p.away === null || p.away === undefined) return false;
   }
 
-  // Knockout match bracket propagation check
   if (isKnockoutMatch(item.match)) {
     const resolved = resolvedParticipants[item.match.matchNumber];
     if (!resolved || !resolved.home?.teamKey || !resolved.away?.teamKey) return false;
+
+    for (const slot of dependentSlotsFor(item.match)) {
+      if (!resolvedParticipants[slot.matchNumber]?.[slot.side]?.teamKey) return false;
+    }
   }
 
   return true;
@@ -55,7 +78,6 @@ export function getLiveRefreshPolicy(
     return { intervalMs: LIVE_INTERVAL_MS, reason: "live" };
   }
 
-  // Construct matches record for buildKnockoutResolution
   const matchesRecord: Record<string, any> = {};
   candidates.forEach((c, idx) => {
     matchesRecord[idx] = c;
