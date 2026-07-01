@@ -12,6 +12,10 @@ export function isScoringEvent(event: LiveMatchEvent): boolean {
   return event.type === "GOAL" || event.type === "PENALTY_GOAL" || event.type === "OWN_GOAL";
 }
 
+function hasResolvedScorerIdentity(event: LiveMatchEvent): boolean {
+  return Boolean(event.playerName && !/^Scorer (unavailable|pending)$/i.test(event.playerName));
+}
+
 export function getGoalEventCompleteness({
   homeScore,
   awayScore,
@@ -26,7 +30,7 @@ export function getGoalEventCompleteness({
   if (homeScore === null || awayScore === null) {
     return {
       expectedGoalCount: 0,
-      normalizedGoalEventCount: goals?.filter(isScoringEvent).length ?? 0,
+      normalizedGoalEventCount: goals?.filter((event) => isScoringEvent(event) && hasResolvedScorerIdentity(event)).length ?? 0,
       missingGoalEventCount: 0,
       isGoalEventDataComplete: false,
       completenessReason: "score-unavailable",
@@ -34,7 +38,7 @@ export function getGoalEventCompleteness({
   }
 
   const expectedGoalCount = Math.max(0, homeScore + awayScore);
-  const normalizedGoalEventCount = goals?.filter(isScoringEvent).length ?? 0;
+  const normalizedGoalEventCount = goals?.filter((event) => isScoringEvent(event) && hasResolvedScorerIdentity(event)).length ?? 0;
   const missingGoalEventCount = Math.max(0, expectedGoalCount - normalizedGoalEventCount);
 
   if (!eventDataAvailable && expectedGoalCount > 0) {

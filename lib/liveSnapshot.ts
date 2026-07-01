@@ -20,10 +20,11 @@ import {
   type GoalScorerEvent,
   type WorldCup26Game,
 } from "./worldcup26Provider";
-import { resolvePlayerAlias } from "./worldcup26PlayerAliases";
+import { findPlayerAlias } from "./worldcup26PlayerAliases";
 import { applyVerifiedGoalCorrections } from "./verifiedMatchEventCorrections";
 import { countryName } from "./i18n";
 import { getResolvedAwayTeam, getResolvedHomeTeam } from "./participant-resolution";
+import { squadFor } from "./squads";
 
 export const LIVE_SNAPSHOT_CACHE_KEY = "worldcup-tournament-live-snapshot-v9";
 export const LIVE_SNAPSHOT_REVALIDATE_SECONDS = 25;
@@ -176,6 +177,36 @@ export function toLiveGoalEvent(event: GoalScorerEvent): LiveMatchEvent {
   };
 }
 
+function syncLiveGoalLedgers(
+  matches: Record<string, SerializableSnapshotMatch>,
+  canonicalLiveData: Map<number, LiveMatchData>,
+  scorerEventsByMatch: Map<string, GoalScorerEvent[]>,
+): void {
+  scorerEventsByMatch.clear();
+  for (const [internalId, matchData] of Object.entries(matches)) {
+    if (matchData.scorers.length > 0) scorerEventsByMatch.set(internalId, matchData.scorers);
+    if (!matchData.live || matchData.scorers.length === 0) continue;
+
+    const goals = matchData.scorers.map(toLiveGoalEvent);
+    const goalEventCompleteness = getGoalEventCompleteness({
+      homeScore: matchData.homeScore,
+      awayScore: matchData.awayScore,
+      goals,
+      eventDataAvailable: true,
+    });
+    matchData.live = {
+      ...matchData.live,
+      goals,
+      goalEventCompleteness,
+      eventDataAvailable: true,
+    };
+    matchData.goalEventCompleteness = goalEventCompleteness;
+    if (matchData.providerMatchId !== null) {
+      canonicalLiveData.set(matchData.providerMatchId, matchData.live);
+    }
+  }
+}
+
 function liveGoalCompoundKey(event: LiveMatchEvent): string {
   return [
     "compound",
@@ -268,28 +299,59 @@ function scorersFromWorldcupGame(match: Match, game: WorldCup26Game | undefined)
   const homeDisplay = countryName(homeTeam, "en");
   const awayDisplay = countryName(awayTeam, "en");
   return applyVerifiedGoalCorrections(internalId, dedupeScorers([
-    ...game.homeScorers.map((event) => canonicalizeWorldcupScorer(event, internalId, homeDisplay)),
-    ...game.awayScorers.map((event) => canonicalizeWorldcupScorer(event, internalId, awayDisplay)),
+    ...game.homeScorers.map((event) => canonicalizeWorldcupScorer(event, internalId, homeDisplay, homeTeam)),
+    ...game.awayScorers.map((event) => canonicalizeWorldcupScorer(event, internalId, awayDisplay, awayTeam)),
   ]));
+}
+
+function normalizePlayerLookupName(name: string): string {
+  return name
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]/g, "");
+}
+
+function teamRosterAcceptsRawName(teamKey: string, rawName: string): boolean {
+  const squad = squadFor(teamKey);
+  if (!squad) return false;
+
+  const raw = normalizePlayerLookupName(rawName);
+  if (!raw) return false;
+  if (squad.some((player) => normalizePlayerLookupName(player.name) === raw)) return true;
+
+  const matches = squad.filter((player) => {
+    const parts = player.name.trim().split(/\s+/);
+    if (parts.length < 2) return false;
+    const initialAlias = `${parts[0][0]} ${parts[parts.length - 1]}`;
+    return normalizePlayerLookupName(initialAlias) === raw;
+  });
+  return matches.length === 1;
 }
 
 function canonicalizeWorldcupScorer(
   event: GoalScorerEvent,
   internalId: string,
   scoringTeam: string,
+  scoringTeamKey: string,
 ): GoalScorerEvent {
+  const alias = findPlayerAlias({
+    provider: "worldcup26.ir",
+    matchId: internalId,
+    eventMinute: event.minute,
+    stoppageMinute: event.stoppageTime ?? null,
+    scoringTeam,
+    playerTeam: event.playerTeamName,
+    rawName: event.playerName,
+  });
+  const rawNameIsRosterExact = teamRosterAcceptsRawName(scoringTeamKey, event.playerName);
+  const playerName = alias?.canonical ?? (rawNameIsRosterExact ? event.playerName : "Scorer unavailable");
+
   return {
     ...event,
     teamName: scoringTeam,
-    playerName: resolvePlayerAlias({
-      provider: "worldcup26.ir",
-      matchId: internalId,
-      eventMinute: event.minute,
-      stoppageMinute: event.stoppageTime ?? null,
-      scoringTeam,
-      playerTeam: event.playerTeamName,
-      rawName: event.playerName,
-    }),
+    playerName,
+    confidence: playerName === "Scorer unavailable" ? "low" : event.confidence,
   };
 }
 
@@ -446,7 +508,7 @@ export async function buildTournamentLiveSnapshot({
       isOwnGoal: event.isOwnGoal,
       isPenalty: event.type === "PENALTY_GOAL",
       provider: event.providerEventId ? "football-data.org" : "worldcup26.ir",
-      confidence: event.playerName ? "high" : "low",
+      confidence: event.playerName && !/^Scorer (unavailable|pending)$/i.test(event.playerName) ? "high" : "low",
     }));
     if (canonicalScorers.length > 0) scorerEventsByMatch.set(internalId, canonicalScorers);
 
@@ -480,6 +542,7 @@ export async function buildTournamentLiveSnapshot({
     const { enrichSnapshotScorers } = await import("./scorerProviderRuntime");
     await enrichSnapshotScorers(matches, primaryProviderOk, generatedAt, canonicalLiveData);
   }
+  syncLiveGoalLedgers(matches, canonicalLiveData, scorerEventsByMatch);
 
   // Standings computed AFTER enrichment so ESPN-advanced finishes count in group tables.
   const standingsByGroup = computeGroupStandings(canonicalLiveData);

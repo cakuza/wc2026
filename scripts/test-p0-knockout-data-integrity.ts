@@ -1,3 +1,4 @@
+import "./mock-server-only";
 import { readFileSync } from "fs";
 import { join } from "path";
 import { parseFootballDataScore } from "../lib/footballDataScore";
@@ -6,6 +7,7 @@ import { buildTournamentLiveSnapshot, hasLiveWindow } from "../lib/liveSnapshot"
 import { MATCHES, matchSlug, type KnockoutMatch } from "../lib/matches";
 import { buildKnockoutResolution } from "../lib/knockoutResolution";
 import { mapEspnFixturesToCanonicalMatches, parseEspnGoalEvents, parseEspnScoreboard } from "../lib/espnProvider";
+import { MemoryCacheAdapter, setCacheAdapter } from "../lib/cacheAdapter";
 
 let passed = 0;
 let failed = 0;
@@ -87,6 +89,7 @@ assert(espn74Goals.events.length === 2, "ESPN summary 760489 yields two non-shoo
 assert(espn75Goals.events.length === 2, "ESPN summary 760488 yields two non-shootout goal events");
 
 async function main() {
+  setCacheAdapter(new MemoryCacheAdapter());
   const snapshot = await buildTournamentLiveSnapshot({
     liveData: new Map([
       [537415, liveFromFootballData(fd74)],
@@ -109,6 +112,42 @@ async function main() {
   assert(resolved[89]?.home?.teamKey === "paraguay", "Bracket resolves Match 89 home as Paraguay, winner of Match 74");
   assert(resolved[90]?.away?.teamKey === "morocco", "Bracket resolves Match 90 away as Morocco, winner of Match 75");
   assert(hasLiveWindow(new Date("2026-06-30T00:00:00Z"), [matchByNumber(74)]), "Live cache window covers late extra-time/shootout provider reconciliation");
+
+  const originalFetch = globalThis.fetch;
+  process.env.SCORER_ENRICHMENT_ENABLED = "true";
+  globalThis.fetch = async (input: RequestInfo | URL) => {
+    const url = input.toString();
+    if (url.includes("/scoreboard")) return new Response(JSON.stringify(fixture("espn-scoreboard-20260629-20260630.json")), { status: 200 });
+    if (url.includes("event=760489")) return new Response(JSON.stringify(fixture("espn-summary-760489.json")), { status: 200 });
+    if (url.includes("event=760488")) return new Response(JSON.stringify(fixture("espn-summary-760488.json")), { status: 200 });
+    return originalFetch(input as any);
+  };
+  const enriched = await buildTournamentLiveSnapshot({
+    liveData: new Map([
+      [537415, liveFromFootballData(fd74)],
+      [537418, liveFromFootballData(fd75)],
+    ]),
+    worldcupGames: [
+      { providerGameId: "537415", homeTeamName: "Germany", awayTeamName: "Paraguay", homeScore: 1, awayScore: 1, finished: true, localDate: "2026-06-29", homeScorers: [{ playerName: "Kai Havertz", minute: 54, teamName: "Germany", type: "GOAL", isPenalty: false, isOwnGoal: false, provider: "worldcup26.ir", confidence: "high" }], awayScorers: [{ playerName: "Khvliv Ansisv", minute: 42, teamName: "Paraguay", type: "GOAL", isPenalty: false, isOwnGoal: false, provider: "worldcup26.ir", confidence: "high" }] } as any,
+      { providerGameId: "537418", homeTeamName: "Netherlands", awayTeamName: "Morocco", homeScore: 1, awayScore: 1, finished: true, localDate: "2026-06-30", homeScorers: [{ playerName: "Kvdi Khakpv", minute: 72, teamName: "Netherlands", type: "GOAL", isPenalty: false, isOwnGoal: false, provider: "worldcup26.ir", confidence: "high" }], awayScorers: [{ playerName: "Issa Diop", minute: 90, stoppageTime: 1, minuteLabel: "90+1'", teamName: "Morocco", type: "GOAL", isPenalty: false, isOwnGoal: false, provider: "worldcup26.ir", confidence: "high" }] } as any,
+    ],
+    generatedAt: "2026-06-30T06:11:00.000Z",
+    primaryProviderOk: true,
+    secondaryProviderOk: true,
+  }).finally(() => {
+    globalThis.fetch = originalFetch;
+  });
+  const enriched74 = enriched.matches[matchSlug(matchByNumber(74))];
+  const enriched75 = enriched.matches[matchSlug(matchByNumber(75))];
+  assert(enriched74.status === "FINISHED" && enriched74.homeScore === 1 && enriched74.awayScore === 1, "Enriched Match 74 preserves canonical status and 1-1 score");
+  assert(enriched75.status === "FINISHED" && enriched75.homeScore === 1 && enriched75.awayScore === 1, "Enriched Match 75 preserves canonical status and 1-1 score");
+  assert(enriched74.live?.scoreDuration === "PENALTY_SHOOTOUT" && enriched74.live.penaltyShootoutScore?.away === 4 && enriched74.live.winner === "AWAY_TEAM", "Enriched Match 74 preserves shootout winner metadata");
+  assert(enriched75.live?.scoreDuration === "PENALTY_SHOOTOUT" && enriched75.live.penaltyShootoutScore?.away === 3 && enriched75.live.winner === "AWAY_TEAM", "Enriched Match 75 preserves shootout winner metadata");
+  assert(enriched74.scorers.map((s) => s.playerName).join("|") === "Julio Enciso|Kai Havertz", "Enriched Match 74 uses ESPN scorers and removes Khvliv Ansisv");
+  assert(enriched75.scorers.map((s) => s.playerName).join("|") === "Cody Gakpo|Issa Diop", "Enriched Match 75 uses ESPN scorers and removes Kvdi Khakpv");
+  assert(enriched74.live?.goals?.map((s) => s.playerName).join("|") === "Julio Enciso|Kai Havertz", "Enriched Match 74 live goals use the same ESPN scorer ledger");
+  assert(enriched75.live?.goals?.map((s) => s.playerName).join("|") === "Cody Gakpo|Issa Diop", "Enriched Match 75 live goals use the same ESPN scorer ledger");
+  assert(enriched74.scorers.every((s) => s.provider === "espn") && enriched75.scorers.every((s) => s.provider === "espn"), "Enriched knockout scorers carry ESPN provenance");
 
   console.log(`${passed} passed / ${failed} failed`);
   if (failed > 0) process.exitCode = 1;

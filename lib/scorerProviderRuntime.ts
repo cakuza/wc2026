@@ -1,6 +1,6 @@
 import "server-only";
 
-import { MATCHES } from "./matches";
+import { MATCHES, matchUtcDate } from "./matches";
 import { countryName } from "./i18n";
 import { EspnClient } from "./espnClient";
 import { EspnEventCacheManager, summaryTtlForStatus } from "./espnEventCache";
@@ -80,6 +80,20 @@ function baselineIsComplete(match: SerializableSnapshotMatch): boolean {
   return !hasLowConfidence && !hasUnresolvedOwnGoals;
 }
 
+function expectedGoalCount(match: SerializableSnapshotMatch): number {
+  return (match.homeScore ?? 0) + (match.awayScore ?? 0);
+}
+
+function isPreferredScorerProvider(provider: GoalScorerEvent["provider"]): boolean {
+  return provider === "espn" || provider === "football-data.org";
+}
+
+function preferredBaselineIsComplete(match: SerializableSnapshotMatch): boolean {
+  if (!baselineIsComplete(match)) return false;
+  if (expectedGoalCount(match) === 0) return true;
+  return match.scorers.every((scorer) => isPreferredScorerProvider(scorer.provider));
+}
+
 /**
  * Enrich the snapshot's scorer events from the secondary provider, in place.
  *
@@ -120,19 +134,24 @@ export async function enrichSnapshotScorers(
   );
 
   // Candidate selection: never request scheduled matches; skip already-complete
-  // finished matches; prioritize live, then most-recent finished.
+  // preferred finished matches; prioritize live, then incomplete recent fixtures.
+  // `sourceUpdatedAt` is often the snapshot fetch time for many matches at once,
+  // so use canonical kickoff time to keep cold-cache repair deterministic under
+  // the per-operation ESPN summary budget.
   type Candidate = {
     match: SerializableSnapshotMatch;
     providerFixtureId: string;
     fixture: EspnFixture;
-    sortKey: number;
+    lifecycleRank: number;
+    repairRank: number;
+    kickoffMs: number;
   };
   const candidates: Candidate[] = [];
 
   for (const internalId of Object.keys(matches)) {
     const matchData = matches[internalId];
     if (matchData.status === "SCHEDULED") continue;
-    if (matchData.status === "FINISHED" && baselineIsComplete(matchData)) continue;
+    if (matchData.status === "FINISHED" && preferredBaselineIsComplete(matchData)) continue;
 
     const mapping = mappingByCanonical.get(internalId);
     if (!mapping) continue;
@@ -142,16 +161,23 @@ export async function enrichSnapshotScorers(
     if (fixture.status === "pre") continue;
 
     const live = matchData.status === "LIVE" || matchData.status === "HALFTIME" || matchData.status === "SYNCING";
-    const timeVal = matchData.sourceUpdatedAt ? new Date(matchData.sourceUpdatedAt).getTime() : 0;
     candidates.push({
       match: matchData,
       providerFixtureId: mapping.providerFixtureId,
       fixture,
-      sortKey: (live ? 1 : 2) * 1e13 - timeVal,
+      lifecycleRank: live ? 0 : 1,
+      repairRank: baselineIsComplete(matchData) ? 1 : 0,
+      kickoffMs: matchUtcDate(matchData.match).getTime(),
     });
   }
 
-  candidates.sort((a, b) => a.sortKey - b.sortKey);
+  candidates.sort(
+    (a, b) =>
+      a.lifecycleRank - b.lifecycleRank ||
+      a.repairRank - b.repairRank ||
+      b.kickoffMs - a.kickoffMs ||
+      a.providerFixtureId.localeCompare(b.providerFixtureId),
+  );
 
   for (const candidate of candidates) {
     const { match, providerFixtureId, fixture } = candidate;
