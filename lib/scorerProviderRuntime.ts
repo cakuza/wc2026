@@ -1,6 +1,6 @@
 import "server-only";
 
-import { MATCHES } from "./matches";
+import { MATCHES, matchUtcDate } from "./matches";
 import { countryName } from "./i18n";
 import { EspnClient } from "./espnClient";
 import { EspnEventCacheManager, summaryTtlForStatus } from "./espnEventCache";
@@ -134,12 +134,17 @@ export async function enrichSnapshotScorers(
   );
 
   // Candidate selection: never request scheduled matches; skip already-complete
-  // finished matches; prioritize live, then most-recent finished.
+  // preferred finished matches; prioritize live, then incomplete recent fixtures.
+  // `sourceUpdatedAt` is often the snapshot fetch time for many matches at once,
+  // so use canonical kickoff time to keep cold-cache repair deterministic under
+  // the per-operation ESPN summary budget.
   type Candidate = {
     match: SerializableSnapshotMatch;
     providerFixtureId: string;
     fixture: EspnFixture;
-    sortKey: number;
+    lifecycleRank: number;
+    repairRank: number;
+    kickoffMs: number;
   };
   const candidates: Candidate[] = [];
 
@@ -156,16 +161,23 @@ export async function enrichSnapshotScorers(
     if (fixture.status === "pre") continue;
 
     const live = matchData.status === "LIVE" || matchData.status === "HALFTIME" || matchData.status === "SYNCING";
-    const timeVal = matchData.sourceUpdatedAt ? new Date(matchData.sourceUpdatedAt).getTime() : 0;
     candidates.push({
       match: matchData,
       providerFixtureId: mapping.providerFixtureId,
       fixture,
-      sortKey: (live ? 1 : 2) * 1e13 - timeVal,
+      lifecycleRank: live ? 0 : 1,
+      repairRank: baselineIsComplete(matchData) ? 1 : 0,
+      kickoffMs: matchUtcDate(matchData.match).getTime(),
     });
   }
 
-  candidates.sort((a, b) => a.sortKey - b.sortKey);
+  candidates.sort(
+    (a, b) =>
+      a.lifecycleRank - b.lifecycleRank ||
+      a.repairRank - b.repairRank ||
+      b.kickoffMs - a.kickoffMs ||
+      a.providerFixtureId.localeCompare(b.providerFixtureId),
+  );
 
   for (const candidate of candidates) {
     const { match, providerFixtureId, fixture } = candidate;

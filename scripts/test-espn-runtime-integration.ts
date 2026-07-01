@@ -3,7 +3,8 @@ import assert from "node:assert";
 import fs from "node:fs";
 import path from "node:path";
 import { setCacheAdapter, MemoryCacheAdapter } from "../lib/cacheAdapter";
-import { MATCHES, matchSlug } from "../lib/matches";
+import { countryName } from "../lib/i18n";
+import { MATCHES, matchSlug, matchUtcDate } from "../lib/matches";
 import { enrichSnapshotScorers, isScorerEnrichmentEnabled } from "../lib/scorerProviderRuntime";
 import type { SerializableSnapshotMatch } from "../lib/liveSnapshot";
 import type { GoalScorerEvent } from "../lib/worldcup26Provider";
@@ -167,6 +168,30 @@ function syntheticSummary(
       team: { id: p.teamId, displayName: p.teamName },
       participants: [{ athlete: { id: `pl-${p.id}`, displayName: p.scorer } }],
     })),
+  };
+}
+
+function syntheticScoreboardEvent(match: (typeof MATCHES)[number], id: string): unknown {
+  return {
+    id,
+    date: matchUtcDate(match).toISOString(),
+    status: { type: { state: "post", name: "STATUS_FULL_TIME" } },
+    competitions: [
+      {
+        competitors: [
+          {
+            homeAway: "home",
+            score: "1",
+            team: { id: `home-${id}`, displayName: countryName(match.homeKey, "en") },
+          },
+          {
+            homeAway: "away",
+            score: "0",
+            team: { id: `away-${id}`, displayName: countryName(match.awayKey, "en") },
+          },
+        ],
+      },
+    ],
   };
 }
 
@@ -400,6 +425,56 @@ async function run() {
     assert.ok(!m.scorers.some((s) => s.playerName === "Kvdi Khakpv"), "corrupted worldcup26 name must not remain");
     assert.ok(m.scorers.every((s) => s.provider === "espn"), "repaired scorers carry ESPN provenance");
     assert.strictEqual(m.goalEventCompleteness.missingGoalEventCount, 0);
+  });
+
+  await test("Cold ESPN budget prioritizes recent incomplete incident matches before older repairs", async () => {
+    const olderMatches = MATCHES
+      .filter((match) => !("matchNumber" in match))
+      .slice(0, 12)
+      .map((match, index) => {
+        const id = `budget-old-${index}`;
+        summaryOverride.set(id, { mode: "ok", payload: { keyEvents: [] } });
+        const snapshotMatch = buildMatch(match.homeKey, match.awayKey, 1, 0, "FINISHED");
+        snapshotMatch.sourceUpdatedAt = "2026-07-01T00:00:00Z";
+        return { snapshotMatch, scoreboardEvent: syntheticScoreboardEvent(match, id) };
+      });
+
+    const incidentEvents = (INCIDENT_SCOREBOARD as { events: any[] }).events.filter((event) =>
+      event.id === EV.match74 || event.id === EV.match75,
+    );
+    scoreboardPayload = {
+      ...(INCIDENT_SCOREBOARD as Record<string, unknown>),
+      events: [...olderMatches.map((entry) => entry.scoreboardEvent), ...incidentEvents],
+    };
+    summaryOverride.set(EV.match74, { mode: "ok", payload: loadIncidentSummary(EV.match74) });
+    summaryOverride.set(EV.match75, { mode: "ok", payload: loadIncidentSummary(EV.match75) });
+
+    const m74 = buildMatchByNumber(74, 1, 1, "FINISHED", [
+      { type: "GOAL", minute: 42, minuteLabel: "42'", teamName: "Paraguay", playerName: "Scorer unavailable", isOwnGoal: false, isPenalty: false, provider: "worldcup26.ir", confidence: "low" },
+      { type: "GOAL", minute: 54, minuteLabel: "54'", teamName: "Germany", playerName: "Kai Havertz", isOwnGoal: false, isPenalty: false, provider: "worldcup26.ir", confidence: "high" },
+    ]);
+    const m75 = buildMatchByNumber(75, 1, 1, "FINISHED", [
+      { type: "GOAL", minute: 72, minuteLabel: "72'", teamName: "Netherlands", playerName: "Scorer unavailable", isOwnGoal: false, isPenalty: false, provider: "worldcup26.ir", confidence: "low" },
+      { type: "GOAL", minute: 90, stoppageTime: 1, minuteLabel: "90+1'", teamName: "Morocco", playerName: "Issa Diop", isOwnGoal: false, isPenalty: false, provider: "worldcup26.ir", confidence: "high" },
+    ]);
+    m74.sourceUpdatedAt = "2026-07-01T00:00:00Z";
+    m75.sourceUpdatedAt = "2026-07-01T00:00:00Z";
+
+    await enrichSnapshotScorers(
+      snapshotOf(...olderMatches.map((entry) => entry.snapshotMatch), m74, m75),
+      true,
+      "2026-07-01T00:00:00Z",
+      new Map(),
+    );
+
+    const orderedRequests = [...requestedSummaries];
+    assert.deepStrictEqual(orderedRequests.slice(0, 2), [EV.match75, EV.match74]);
+    assert.ok(requestedSummaries.has(EV.match74), "Match 74 summary must fit inside the cold-cache budget");
+    assert.ok(requestedSummaries.has(EV.match75), "Match 75 summary must fit inside the cold-cache budget");
+    assert.deepStrictEqual(m74.scorers.map((s) => s.playerName), ["Julio Enciso", "Kai Havertz"]);
+    assert.deepStrictEqual(m75.scorers.map((s) => s.playerName), ["Cody Gakpo", "Issa Diop"]);
+    assert.ok(m74.scorers.every((s) => s.provider === "espn"));
+    assert.ok(m75.scorers.every((s) => s.provider === "espn"));
   });
 
   // Already-complete preferred finished match is skipped (no wasted request).
