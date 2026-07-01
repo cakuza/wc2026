@@ -177,6 +177,36 @@ export function toLiveGoalEvent(event: GoalScorerEvent): LiveMatchEvent {
   };
 }
 
+function syncLiveGoalLedgers(
+  matches: Record<string, SerializableSnapshotMatch>,
+  canonicalLiveData: Map<number, LiveMatchData>,
+  scorerEventsByMatch: Map<string, GoalScorerEvent[]>,
+): void {
+  scorerEventsByMatch.clear();
+  for (const [internalId, matchData] of Object.entries(matches)) {
+    if (matchData.scorers.length > 0) scorerEventsByMatch.set(internalId, matchData.scorers);
+    if (!matchData.live || matchData.scorers.length === 0) continue;
+
+    const goals = matchData.scorers.map(toLiveGoalEvent);
+    const goalEventCompleteness = getGoalEventCompleteness({
+      homeScore: matchData.homeScore,
+      awayScore: matchData.awayScore,
+      goals,
+      eventDataAvailable: true,
+    });
+    matchData.live = {
+      ...matchData.live,
+      goals,
+      goalEventCompleteness,
+      eventDataAvailable: true,
+    };
+    matchData.goalEventCompleteness = goalEventCompleteness;
+    if (matchData.providerMatchId !== null) {
+      canonicalLiveData.set(matchData.providerMatchId, matchData.live);
+    }
+  }
+}
+
 function liveGoalCompoundKey(event: LiveMatchEvent): string {
   return [
     "compound",
@@ -512,6 +542,7 @@ export async function buildTournamentLiveSnapshot({
     const { enrichSnapshotScorers } = await import("./scorerProviderRuntime");
     await enrichSnapshotScorers(matches, primaryProviderOk, generatedAt, canonicalLiveData);
   }
+  syncLiveGoalLedgers(matches, canonicalLiveData, scorerEventsByMatch);
 
   // Standings computed AFTER enrichment so ESPN-advanced finishes count in group tables.
   const standingsByGroup = computeGroupStandings(canonicalLiveData);

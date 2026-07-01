@@ -145,6 +145,8 @@ async function main() {
   assert(enriched75.live?.scoreDuration === "PENALTY_SHOOTOUT" && enriched75.live.penaltyShootoutScore?.away === 3 && enriched75.live.winner === "AWAY_TEAM", "Enriched Match 75 preserves shootout winner metadata");
   assert(enriched74.scorers.map((s) => s.playerName).join("|") === "Julio Enciso|Kai Havertz", "Enriched Match 74 uses ESPN scorers and removes Khvliv Ansisv");
   assert(enriched75.scorers.map((s) => s.playerName).join("|") === "Cody Gakpo|Issa Diop", "Enriched Match 75 uses ESPN scorers and removes Kvdi Khakpv");
+  assert(enriched74.live?.goals?.map((s) => s.playerName).join("|") === "Julio Enciso|Kai Havertz", "Enriched Match 74 live goals use the same ESPN scorer ledger");
+  assert(enriched75.live?.goals?.map((s) => s.playerName).join("|") === "Cody Gakpo|Issa Diop", "Enriched Match 75 live goals use the same ESPN scorer ledger");
   assert(enriched74.scorers.every((s) => s.provider === "espn") && enriched75.scorers.every((s) => s.provider === "espn"), "Enriched knockout scorers carry ESPN provenance");
 
   console.log(`${passed} passed / ${failed} failed`);
