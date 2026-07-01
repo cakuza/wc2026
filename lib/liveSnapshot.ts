@@ -896,31 +896,6 @@ async function recordValidatedSnapshot(candidate: TournamentLiveSnapshot): Promi
   }
 }
 
-async function refreshScorerLayerOnValidatedSnapshot(
-  snapshot: TournamentLiveSnapshot,
-  generatedAt: string,
-): Promise<TournamentLiveSnapshot> {
-  const repaired = JSON.parse(JSON.stringify(snapshot)) as TournamentLiveSnapshot;
-  const canonicalLiveData = new Map<number, LiveMatchData>(
-    Object.entries(repaired.liveDataByProviderId).map(([id, data]) => [Number(id), data]),
-  );
-
-  if (process.env.SCORER_ENRICHMENT_ENABLED === "true") {
-    const { enrichSnapshotScorers } = await import("./scorerProviderRuntime");
-    await enrichSnapshotScorers(repaired.matches, repaired.primaryProviderOk, generatedAt, canonicalLiveData);
-  }
-
-  const scorerEventsByMatch = new Map<string, GoalScorerEvent[]>();
-  for (const [id, match] of Object.entries(repaired.matches)) {
-    if (match.scorers.length > 0) scorerEventsByMatch.set(id, match.scorers);
-  }
-  repaired.tournamentStats = computeTournamentStats(canonicalLiveData, repaired.matches);
-  repaired.topScorers = topScorersFromSnapshot(scorerEventsByMatch, canonicalLiveData, repaired.matches);
-  repaired.snapshotId = makeSnapshotId(repaired.generatedAt, repaired.matches);
-  lastKnownGoodSnapshot = repaired;
-  return repaired;
-}
-
 // Build a fresh candidate and commit it to the durable cache ONLY if it passes
 // the acceptance gate against BOTH the durable cross-instance baseline and this
 // instance's in-memory last-known-good. This is the function the unstable_cache
@@ -935,15 +910,12 @@ async function buildValidatedSnapshotForCache(): Promise<TournamentLiveSnapshot>
 
   // 3. Validate intrinsic health + no-regression vs the durable baseline …
   if (!isCacheableValidatedSnapshot(candidate, durablePrevious)) {
-    if (durablePrevious) {
-      return refreshScorerLayerOnValidatedSnapshot(durablePrevious, candidate.generatedAt);
-    }
     throw new DegradedSnapshotError();
   }
   // … and vs the in-memory last-known-good (closes any sub-revalidate window
   //    where the durable baseline lags a within-instance advance).
   if (lastKnownGoodSnapshot && !isCacheableValidatedSnapshot(candidate, lastKnownGoodSnapshot)) {
-    return refreshScorerLayerOnValidatedSnapshot(lastKnownGoodSnapshot, candidate.generatedAt);
+    throw new DegradedSnapshotError();
   }
 
   // 4. Accept: promote to the durable baseline + in-memory reference, then commit.
