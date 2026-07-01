@@ -17,7 +17,9 @@ import { MemoryCacheAdapter, setCacheAdapter } from "../lib/cacheAdapter";
 import {
   getTournamentLiveSnapshot,
   isCacheableValidatedSnapshot,
+  LIVE_SNAPSHOT_CACHE_KEY,
   resetLiveSnapshotMemoryForTests,
+  SNAPSHOT_SCHEMA_VERSION,
   type TournamentLiveSnapshot,
 } from "../lib/liveSnapshot";
 import { MATCHES, matchSlug } from "../lib/matches";
@@ -113,6 +115,11 @@ function mm(status: string, homeScore: number | null, awayScore: number | null, 
 
 async function main() {
   console.log("=== Degraded-snapshot cache-poisoning tests ===\n");
+
+  await test("0. scorer-only hotfix keeps canonical snapshot cache namespace stable", async () => {
+    assert.strictEqual(SNAPSHOT_SCHEMA_VERSION, "v3", "canonical durable baseline key remains compatible with production");
+    assert.strictEqual(LIVE_SNAPSHOT_CACHE_KEY, "worldcup-tournament-live-snapshot-v9", "snapshot id namespace remains compatible with production");
+  });
 
   // 1 — empty cache + both providers fail → truthful fallback, NO validated write.
   await test("1. cold cache + both providers fail → isFallback, no validated-cache write, elapsed match not SCHEDULED", async () => {

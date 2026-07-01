@@ -26,7 +26,7 @@ import { countryName } from "./i18n";
 import { getResolvedAwayTeam, getResolvedHomeTeam } from "./participant-resolution";
 import { squadFor } from "./squads";
 
-export const LIVE_SNAPSHOT_CACHE_KEY = "worldcup-tournament-live-snapshot-v10";
+export const LIVE_SNAPSHOT_CACHE_KEY = "worldcup-tournament-live-snapshot-v9";
 export const LIVE_SNAPSHOT_REVALIDATE_SECONDS = 25;
 // Provider Data-Cache revalidate (seconds). Lazily driven by the snapshot
 // rebuild, so idle periods (snapshot cadence ~90s) refetch providers only at
@@ -713,7 +713,7 @@ export function resetLiveSnapshotMemoryForTests() {
 // so one canonical snapshot is shared across all viewers and is not invalidated
 // merely by a deploy.
 // ───────────────────────────────────────────────────────────────────────────
-export const SNAPSHOT_SCHEMA_VERSION = "v4";
+export const SNAPSHOT_SCHEMA_VERSION = "v3";
 
 // Stage-aware revalidation. A live match needs a fresh score quickly; while every
 // match is scheduled or finished the snapshot can be cached far longer. The stage
@@ -896,6 +896,31 @@ async function recordValidatedSnapshot(candidate: TournamentLiveSnapshot): Promi
   }
 }
 
+async function refreshScorerLayerOnValidatedSnapshot(
+  snapshot: TournamentLiveSnapshot,
+  generatedAt: string,
+): Promise<TournamentLiveSnapshot> {
+  const repaired = JSON.parse(JSON.stringify(snapshot)) as TournamentLiveSnapshot;
+  const canonicalLiveData = new Map<number, LiveMatchData>(
+    Object.entries(repaired.liveDataByProviderId).map(([id, data]) => [Number(id), data]),
+  );
+
+  if (process.env.SCORER_ENRICHMENT_ENABLED === "true") {
+    const { enrichSnapshotScorers } = await import("./scorerProviderRuntime");
+    await enrichSnapshotScorers(repaired.matches, repaired.primaryProviderOk, generatedAt, canonicalLiveData);
+  }
+
+  const scorerEventsByMatch = new Map<string, GoalScorerEvent[]>();
+  for (const [id, match] of Object.entries(repaired.matches)) {
+    if (match.scorers.length > 0) scorerEventsByMatch.set(id, match.scorers);
+  }
+  repaired.tournamentStats = computeTournamentStats(canonicalLiveData, repaired.matches);
+  repaired.topScorers = topScorersFromSnapshot(scorerEventsByMatch, canonicalLiveData, repaired.matches);
+  repaired.snapshotId = makeSnapshotId(repaired.generatedAt, repaired.matches);
+  lastKnownGoodSnapshot = repaired;
+  return repaired;
+}
+
 // Build a fresh candidate and commit it to the durable cache ONLY if it passes
 // the acceptance gate against BOTH the durable cross-instance baseline and this
 // instance's in-memory last-known-good. This is the function the unstable_cache
@@ -910,12 +935,15 @@ async function buildValidatedSnapshotForCache(): Promise<TournamentLiveSnapshot>
 
   // 3. Validate intrinsic health + no-regression vs the durable baseline …
   if (!isCacheableValidatedSnapshot(candidate, durablePrevious)) {
+    if (durablePrevious) {
+      return refreshScorerLayerOnValidatedSnapshot(durablePrevious, candidate.generatedAt);
+    }
     throw new DegradedSnapshotError();
   }
   // … and vs the in-memory last-known-good (closes any sub-revalidate window
   //    where the durable baseline lags a within-instance advance).
   if (lastKnownGoodSnapshot && !isCacheableValidatedSnapshot(candidate, lastKnownGoodSnapshot)) {
-    throw new DegradedSnapshotError();
+    return refreshScorerLayerOnValidatedSnapshot(lastKnownGoodSnapshot, candidate.generatedAt);
   }
 
   // 4. Accept: promote to the durable baseline + in-memory reference, then commit.
