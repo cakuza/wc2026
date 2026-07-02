@@ -108,6 +108,7 @@ export function TimezoneSchedule({
                 <Link
                   key={`${g.key}-${num}`}
                   href={`/matches/${matchSlug(m)}`}
+                  prefetch={false}
                   className="flex items-center gap-3 rounded-lg border border-white/10 bg-navyCard px-3 py-3 transition hover:border-white/20 hover:bg-white/5 sm:px-4"
                 >
                   <span className="w-6 shrink-0 text-center font-heading text-xs font-bold tabular-nums text-white/50">

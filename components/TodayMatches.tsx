@@ -67,6 +67,7 @@ function MatchRow({
   return (
     <Link
       href={`/matches/${matchSlug(m)}`}
+      prefetch={false}
       className="block rounded-lg border border-white/10 bg-navy px-3 py-2.5 transition hover:border-white/20"
     >
       <div className="flex items-center gap-2">

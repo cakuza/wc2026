@@ -103,6 +103,7 @@ export function TimezoneSchedulePageContent({
             <Link
               key={o.slug}
               href={`/schedule/${o.slug}`}
+              prefetch={false}
               className="rounded-lg border border-white/10 bg-navyCard px-3 py-1.5 text-xs font-semibold text-white/60 transition hover:border-white/25 hover:text-white"
             >
               {t(`tz_${o.slug}`)}
