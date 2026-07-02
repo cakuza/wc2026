@@ -151,6 +151,7 @@ export function ScheduleContent({ liveScores, scorerLines, resolvedParticipants 
                   <Link
                     key={i}
                     href={`/matches/${matchSlug(m)}`}
+                    prefetch={false}
                     className="block rounded-lg border border-white/10 bg-navyCard px-4 py-3 transition hover:border-white/20 hover:bg-white/5"
                   >
                     <div className="flex flex-col gap-2 sm:flex-row sm:items-start">

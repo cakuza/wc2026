@@ -13,6 +13,7 @@ export function TeamCard({ team }: { team: Team }) {
   return (
     <Link
       href={`/teams/${slugFor(team.key)}`}
+      prefetch={false}
       className="group flex flex-col rounded-xl border border-white/10 bg-navyCard p-4 transition hover:border-accent/60 hover:shadow-xl"
     >
       {/* Top row: large flag + group badge */}
