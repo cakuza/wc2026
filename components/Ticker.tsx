@@ -1,5 +1,5 @@
 "use client";
-import { getResolvedHomeTeam, getResolvedAwayTeam, getResolvedHomeCode, getResolvedAwayCode, getParticipantDisplayLabel, isKnockoutMatch } from "@/lib/participant-resolution";
+import { getResolvedHomeTeam, getResolvedAwayTeam, getResolvedHomeCode, getResolvedAwayCode, getParticipantDisplayLabel, isKnockoutMatch, type ResolvedParticipantLookup } from "@/lib/participant-resolution";
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import dynamic from "next/dynamic";
@@ -22,7 +22,7 @@ const TickerDuplicate = dynamic(
   { ssr: false }
 );
 
-function TickerItems({ items }: { items: Match[] }) {
+function TickerItems({ items, resolvedParticipants }: { items: Match[]; resolvedParticipants?: ResolvedParticipantLookup }) {
   const { t, country, formatDate } = useLang();
   const { timeZone } = useTimezone();
   return (
@@ -32,11 +32,11 @@ function TickerItems({ items }: { items: Match[] }) {
           key={i}
           className="mx-4 flex items-center gap-2 whitespace-nowrap text-sm font-semibold text-white"
         >
-          {getResolvedHomeTeam(m) && <Flag code={getResolvedHomeCode(m) ?? ""} alt="" width={22} height={16} className="rounded-sm" />}
-          <span>{getResolvedHomeTeam(m) ? country(getResolvedHomeTeam(m)!) : (isKnockoutMatch(m) ? getParticipantDisplayLabel(m.homeSlot) : m.homeKey)}</span>
+          {getResolvedHomeTeam(m, resolvedParticipants) && <Flag code={getResolvedHomeCode(m, resolvedParticipants) ?? ""} alt="" width={22} height={16} className="rounded-sm" />}
+          <span>{getResolvedHomeTeam(m, resolvedParticipants) ? country(getResolvedHomeTeam(m, resolvedParticipants)!) : (isKnockoutMatch(m) ? getParticipantDisplayLabel(m.homeSlot) : m.homeKey)}</span>
           <span className="opacity-70">{t("vs")}</span>
-          {getResolvedAwayTeam(m) && <Flag code={getResolvedAwayCode(m) ?? ""} alt="" width={22} height={16} className="rounded-sm" />}
-          <span>{getResolvedAwayTeam(m) ? country(getResolvedAwayTeam(m)!) : (isKnockoutMatch(m) ? getParticipantDisplayLabel(m.awaySlot) : m.awayKey)}</span>
+          {getResolvedAwayTeam(m, resolvedParticipants) && <Flag code={getResolvedAwayCode(m, resolvedParticipants) ?? ""} alt="" width={22} height={16} className="rounded-sm" />}
+          <span>{getResolvedAwayTeam(m, resolvedParticipants) ? country(getResolvedAwayTeam(m, resolvedParticipants)!) : (isKnockoutMatch(m) ? getParticipantDisplayLabel(m.awaySlot) : m.awayKey)}</span>
           <span className="opacity-70">·</span>
           <span className="opacity-80">{formatDate(getMatchCalendarDateInZone(matchUtcDate(m), timeZone))}</span>
         </span>
@@ -45,7 +45,7 @@ function TickerItems({ items }: { items: Match[] }) {
   );
 }
 
-export function Ticker({ items }: { items: Match[] }) {
+export function Ticker({ items, resolvedParticipants }: { items: Match[]; resolvedParticipants?: ResolvedParticipantLookup }) {
   const { t, country, formatDate } = useLang();
   const trackRef = useRef<HTMLDivElement>(null);
   const posRef = useRef(0);
@@ -103,7 +103,7 @@ export function Ticker({ items }: { items: Match[] }) {
           <div ref={trackRef} className="flex w-max items-center py-2">
             {/* Real copy — visible to screen readers and Googlebot */}
             <div className="flex items-center">
-              <TickerItems items={items} />
+              <TickerItems items={items} resolvedParticipants={resolvedParticipants} />
             </div>
 
             {/*
@@ -111,7 +111,7 @@ export function Ticker({ items }: { items: Match[] }) {
              * Loaded with { ssr: false } — NEVER in SSR HTML.
              * aria-hidden + data-nosnippet set inside TickerDuplicate itself.
              */}
-            <TickerDuplicate items={items} onMount={handleDupeMount} />
+            <TickerDuplicate items={items} resolvedParticipants={resolvedParticipants} onMount={handleDupeMount} />
           </div>
         </div>
       </div>
