@@ -6,7 +6,9 @@
  */
 
 import assert from "assert";
-import { MATCHES } from "../lib/matches";
+import fs from "fs";
+import path from "path";
+import { MATCHES, matchSlug } from "../lib/matches";
 import {
   isKnockoutMatch,
   getResolvedHomeTeam,
@@ -16,6 +18,10 @@ import {
 } from "../lib/participant-resolution";
 import { buildKnockoutResolution } from "../lib/knockoutResolution";
 import { reconcileGoalEvents } from "../lib/scoreReconciliation";
+import {
+  applyVerifiedGoalCorrections,
+  getVerifiedGoalCorrectionNote,
+} from "../lib/verifiedMatchEventCorrections";
 import type { SerializableSnapshotMatch } from "../lib/liveSnapshot";
 import type { GoalScorerEvent } from "../lib/worldcup26Provider";
 
@@ -38,6 +44,7 @@ const match74 = MATCHES.find(m => isKnockoutMatch(m) && m.matchNumber === 74)!;
 const match75 = MATCHES.find(m => isKnockoutMatch(m) && m.matchNumber === 75)!;
 const match77 = MATCHES.find(m => isKnockoutMatch(m) && m.matchNumber === 77)!;
 const match73 = MATCHES.find(m => isKnockoutMatch(m) && m.matchNumber === 73)!;
+const match81 = MATCHES.find(m => isKnockoutMatch(m) && m.matchNumber === 81)!;
 const match89 = MATCHES.find(m => isKnockoutMatch(m) && m.matchNumber === 89)!;
 const match90 = MATCHES.find(m => isKnockoutMatch(m) && m.matchNumber === 90)!;
 
@@ -45,6 +52,7 @@ assert(match74 && isKnockoutMatch(match74), "match 74 must be in MATCHES as knoc
 assert(match75 && isKnockoutMatch(match75), "match 75 must be in MATCHES as knockout");
 assert(match77 && isKnockoutMatch(match77), "match 77 must be in MATCHES as knockout");
 assert(match73 && isKnockoutMatch(match73), "match 73 must be in MATCHES as knockout");
+assert(match81 && isKnockoutMatch(match81), "match 81 must be in MATCHES as knockout");
 assert(match89 && isKnockoutMatch(match89), "match 89 must be in MATCHES as knockout");
 assert(match90 && isKnockoutMatch(match90), "match 90 must be in MATCHES as knockout");
 
@@ -300,11 +308,11 @@ check(
   "11. high-confidence ESPN scorer passes reconciliation"
 );
 
-// Test 12: Homepage uses final match.scorers — verified by data-flow: the canonical
-// scorers array (built from ESPN + worldcup26.ir reconciliation and stored in
-// snapshot.matches[id].scorers) is what Hero.tsx maps via toTodayLiveSnapshot().
-// We assert the canonical array for match-81 contains "Scorer unavailable" at 45'
-// (not a stale live.goals fabrication) and Malik Tillman at 82'.
+// Test 12: reconciliation pipeline behaviour when NO correction is applied —
+// verifies that a "Scorer unavailable" event passes through unchanged rather
+// than being silently dropped or fabricated. (The actual match-81 canonical
+// state now has Balogun at 45' via the verified correction; that is tested
+// in section 18–27 below.)
 const canonicalScorers81: GoalScorerEvent[] = [
   {
     type: "GOAL",
@@ -428,6 +436,189 @@ const result17 = reconcileGoalEvents({
 check(
   result17.confirmedEvents[0]?.isOwnGoal === true,
   "17. isOwnGoal flag unchanged by reconciliation"
+);
+
+// ── 18–27. Verified scorer corrections ──────────────────────────────────────
+
+console.log("\n── 18-27. Verified scorer corrections ──\n");
+
+const corrected81 = applyVerifiedGoalCorrections("match-81", []);
+
+check(
+  corrected81.length === 2,
+  "18. applyVerifiedGoalCorrections('match-81', []) returns exactly 2 events"
+);
+
+check(
+  corrected81[0]?.playerName === "Folarin Balogun" && corrected81[0]?.minute === 45,
+  "19. first corrected event is Folarin Balogun at 45'"
+);
+
+check(
+  corrected81[0]?.provider === "official_federation_verified",
+  "20. Balogun provider is 'official_federation_verified'"
+);
+
+check(
+  corrected81[0]?.confidence === "high",
+  "21. Balogun confidence is 'high'"
+);
+
+check(
+  corrected81[1]?.playerName === "Malik Tillman" && corrected81[1]?.minute === 82,
+  "22. second corrected event is Malik Tillman at 82'"
+);
+
+check(
+  corrected81[1]?.provider === "worldcup26.ir",
+  "23. Tillman provider is 'worldcup26.ir'"
+);
+
+const dummyProviderEvents: GoalScorerEvent[] = [{
+  type: "GOAL", minute: 10, minuteLabel: "10'", teamName: "Foo",
+  playerName: "Bar Baz", provider: "worldcup26.ir", confidence: "high",
+}];
+const noCorrection = applyVerifiedGoalCorrections("no-such-match-xxxx", dummyProviderEvents);
+check(
+  noCorrection === dummyProviderEvents,
+  "24. unknown match ID returns provider events array unchanged (same reference)"
+);
+
+const staleProviderEvents: GoalScorerEvent[] = [{
+  type: "GOAL", minute: 45, minuteLabel: "45'", teamName: "United States",
+  playerName: "Scorer unavailable", provider: "worldcup26.ir", confidence: "low",
+}];
+const replaced81 = applyVerifiedGoalCorrections("match-81", staleProviderEvents);
+check(
+  !replaced81.some(e => e.playerName === "Scorer unavailable"),
+  "25. correction fully replaces provider events — 'Scorer unavailable' absent after correction"
+);
+
+check(
+  getVerifiedGoalCorrectionNote("match-81") !== null,
+  "26. match-81 has a non-null correction note"
+);
+
+check(
+  corrected81.every(e => !e.isOwnGoal),
+  "27. neither match-81 correction event is an own goal"
+);
+
+// ── 28–35. Homepage projection — match-81 participant and data-flow ──────────
+
+console.log("\n── 28-35. Homepage projection (match-81) ──\n");
+
+check(
+  isKnockoutMatch(match81) && match81.matchNumber === 81,
+  "28. match-81 is a knockout match with matchNumber 81"
+);
+
+check(
+  match81.homeKey === "tbd",
+  "29. match-81 homeKey is 'tbd' — participant unresolved at static level"
+);
+
+check(
+  getResolvedHomeTeam(match81) === "unitedStates",
+  "30. getResolvedHomeTeam(match81) (no snapshot arg) resolves to 'unitedStates' via RESOLVED_PARTICIPANTS"
+);
+
+check(
+  getResolvedAwayTeam(match81) === "bosnia",
+  "31. getResolvedAwayTeam(match81) (no snapshot arg) resolves to 'bosnia' via RESOLVED_PARTICIPANTS"
+);
+
+check(
+  matchSlug(match81) === "match-81",
+  "32. matchSlug(match81) is 'match-81' (knockout uses match number)"
+);
+
+check(
+  match81.providerIds?.footballData === 537421,
+  "33. match-81 providerIds.footballData is 537421"
+);
+
+check(
+  String(match81.providerIds?.footballData) === "537421",
+  "34. liveDataByProviderId key format: String(537421) === '537421'"
+);
+
+// A SCHEDULED match must not be surfaced as FINISHED in any today projection.
+// Verify match-81's date is 2026-07-01 (the R32 date), proving it is in scope
+// for Today display on that date, and that its internal structure is correct.
+check(
+  match81.date === "2026-07-01",
+  "35. match-81 date is '2026-07-01' — correct R32 fixture date for Today projection"
+);
+
+// ── 36–38. Ticker regression guard ──────────────────────────────────────────
+
+console.log("\n── 36-38. Ticker regression ──\n");
+
+// These regression checks guard the specific team-key values that Ticker.tsx
+// renders for QF semifinal fixtures. A refactor or data edit that changes
+// "paraguay" → something else would flip these checks before breaking users.
+
+check(
+  getResolvedHomeTeam(match89, resolved) === "paraguay",
+  "36. M89 home is 'paraguay' (Ticker/TickerDuplicate regression guard)"
+);
+
+check(
+  getResolvedAwayTeam(match90, resolved) === "morocco",
+  "37. M90 away is 'morocco' (Ticker/TickerDuplicate regression guard)"
+);
+
+// Determinism: a second invocation of buildKnockoutResolution must yield
+// the same team-key for M89 home — confirms no mutation between calls.
+const resolvedSecond = buildKnockoutResolution(snapshotWithR32Results);
+check(
+  getResolvedHomeTeam(match89, resolvedSecond) === "paraguay",
+  "38. M89 home key stable across buildKnockoutResolution calls (no state mutation)"
+);
+
+// ── 39–40. Edge-request regression — prefetch={false} static check ───────────
+
+console.log("\n── 39-40. Edge-request regression ──\n");
+
+// Six components carry deliberate prefetch={false} attributes to prevent
+// prefetch fan-out on high-impression surfaces. These must not be silently
+// removed by future edits. The known six are:
+//   TodayMatches.tsx, TeamCard.tsx, StandingsTable.tsx,
+//   TimezoneSchedule.tsx, TimezoneSchedulePageContent.tsx,
+//   app/schedule/ScheduleContent.tsx
+// Test 39 spot-checks the Today card (most user-visible surface).
+// Test 40 verifies the aggregate count has not dropped below 6.
+
+const repoRoot = path.resolve(__dirname, "..");
+
+const todaySrc = fs.readFileSync(path.join(repoRoot, "components", "TodayMatches.tsx"), "utf8");
+
+check(
+  todaySrc.includes("prefetch={false}"),
+  "39. TodayMatches.tsx contains prefetch={false} (Today card match links must not prefetch)"
+);
+
+const filesToCheck = [
+  ["components", "TodayMatches.tsx"],
+  ["components", "TeamCard.tsx"],
+  ["components", "StandingsTable.tsx"],
+  ["components", "TimezoneSchedule.tsx"],
+  ["components", "TimezoneSchedulePageContent.tsx"],
+  ["app", "schedule", "ScheduleContent.tsx"],
+];
+const prefetchFalseCount = filesToCheck.filter(parts => {
+  try {
+    const src = fs.readFileSync(path.join(repoRoot, ...parts), "utf8");
+    return src.includes("prefetch={false}");
+  } catch {
+    return false;
+  }
+}).length;
+
+check(
+  prefetchFalseCount >= 6,
+  `40. all 6 known prefetch={false} sites are intact (found ${prefetchFalseCount}/6)`
 );
 
 // ── Summary ──────────────────────────────────────────────────────────────────
