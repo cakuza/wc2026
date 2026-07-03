@@ -52,6 +52,7 @@ export function TeamsByConfederationPreview() {
                   <Link
                     key={tm.key}
                     href={`/teams/${slugFor(tm.key)}`}
+                    prefetch={false}
                     className="flex items-center gap-2 rounded-lg border border-white/10 bg-navyCard px-3 py-1.5 text-sm transition hover:border-white/25 hover:bg-white/5"
                   >
                     <Flag code={tm.code} alt="" width={22} height={16} />
@@ -95,6 +96,7 @@ export function TeamsByConfederation() {
                 <Link
                   key={tm.key}
                   href={`/teams/${slugFor(tm.key)}`}
+                  prefetch={false}
                   className="flex items-center gap-3 rounded-lg border border-white/10 bg-navyCard px-4 py-2.5 transition hover:border-white/20 hover:bg-white/5"
                 >
                   <Flag code={tm.code} alt="" width={28} height={20} />
