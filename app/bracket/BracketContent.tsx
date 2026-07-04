@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { useLang } from "@/components/LanguageProvider";
 import { Flag } from "@/components/Flag";
 import { FINAL_MATCH, QUARTER_FINAL_MATCHES, ROUND_OF_16_MATCHES, ROUND_OF_32_MATCHES, SEMI_FINAL_MATCHES, slotLabel } from "@/lib/knockoutBracket2026";
@@ -7,6 +8,8 @@ import { countryName, type Lang } from "@/lib/i18n";
 import { MATCHES, type Match } from "@/lib/matches";
 import { resolvedHome, resolvedAway, RESOLVED_PARTICIPANTS } from "@/lib/resolvedParticipants";
 import { getParticipantDisplay, type ResolvedParticipantLookup } from "@/lib/participant-resolution";
+import { mergeResolvedParticipantsFromApiMatches } from "@/lib/resolvedParticipantsFromApi";
+import { fetchClientLiveSnapshot } from "@/lib/clientLiveSnapshot";
 
 // WC 2026: 48 teams → 32 knockout teams (top 2 from each of 12 groups + 8 best 3rd-placed)
 // Knockout bracket: R32 (16 matches) → R16 (8) → QF (4) → SF (2) → Final (1)
@@ -122,10 +125,19 @@ function labelForResolved(side: { teamKey: string } | undefined, fallback: strin
   return side ? countryName(side.teamKey, lang) : fallback;
 }
 
-export function BracketContent({ resolvedParticipants }: { resolvedParticipants?: ResolvedParticipantLookup }) {
-  const { t, lang } = useLang();
-
-  const mapMatch = (match: any, isR32: boolean) => {
+export function buildBracketMatchModel({
+  match,
+  isR32,
+  resolvedParticipants,
+  t,
+  lang,
+}: {
+  match: any;
+  isR32: boolean;
+  resolvedParticipants?: ResolvedParticipantLookup;
+  t: (key: string) => string;
+  lang: Lang;
+}): BMatch {
     const scheduleMatch = MATCHES.find((x): x is Match & { matchNumber: number } =>
       "matchNumber" in x && x.matchNumber === match.matchNumber
     );
@@ -144,7 +156,28 @@ export function BracketContent({ resolvedParticipants }: { resolvedParticipants?
         flagCode: awayDisplay?.teamCode ?? resolved?.away?.teamCode ?? undefined,
       },
     };
-  };
+}
+
+export function BracketContent({ resolvedParticipants }: { resolvedParticipants?: ResolvedParticipantLookup }) {
+  const { t, lang } = useLang();
+  const [liveResolvedParticipants, setLiveResolvedParticipants] = useState(resolvedParticipants);
+
+  useEffect(() => {
+    let cancelled = false;
+    async function refreshResolvedParticipants() {
+      const data = await fetchClientLiveSnapshot();
+      if (!cancelled && data?.matches) {
+        setLiveResolvedParticipants((prev) => mergeResolvedParticipantsFromApiMatches(prev, data.matches));
+      }
+    }
+    refreshResolvedParticipants();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const mapMatch = (match: any, isR32: boolean) =>
+    buildBracketMatchModel({ match, isR32, resolvedParticipants: liveResolvedParticipants, t, lang });
 
   const ROUND_MATCHES: BMatch[][] = [
     ROUND_OF_32_MATCHES.map((m) => mapMatch(m, true)),

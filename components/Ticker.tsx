@@ -7,7 +7,10 @@ import { useLang } from "@/components/LanguageProvider";
 import { useTimezone } from "@/components/TimezoneProvider";
 import { matchUtcDate, type Match } from "@/lib/matches";
 import { getMatchCalendarDateInZone } from "@/lib/todaySelection";
-import { getParticipantDisplay, type ResolvedParticipantLookup } from "@/lib/participant-resolution";
+import type { ResolvedParticipantLookup } from "@/lib/participant-resolution";
+import { mergeResolvedParticipantsFromApiMatches } from "@/lib/resolvedParticipantsFromApi";
+import { getTickerDisplay } from "@/lib/tickerDisplay";
+import { fetchClientLiveSnapshot } from "@/lib/clientLiveSnapshot";
 
 const PIXELS_PER_SECOND = 80;
 
@@ -29,8 +32,7 @@ function TickerItems({
   return (
     <>
       {items.map((m, i) => {
-        const home = getParticipantDisplay(m, "home", resolvedParticipants, lang);
-        const away = getParticipantDisplay(m, "away", resolvedParticipants, lang);
+        const { home, away } = getTickerDisplay(m, resolvedParticipants, lang);
         return (
           <span
             key={i}
@@ -58,12 +60,27 @@ export function Ticker({
   resolvedParticipants?: ResolvedParticipantLookup;
 }) {
   const { t, formatDate } = useLang();
+  const [liveResolvedParticipants, setLiveResolvedParticipants] = useState(resolvedParticipants);
   const trackRef = useRef<HTMLDivElement>(null);
   const posRef = useRef(0);
   const rafRef = useRef<number>(0);
   const lastRef = useRef<number | null>(null);
   const [dupeReady, setDupeReady] = useState(false);
   const handleDupeMount = useCallback(() => setDupeReady(true), []);
+
+  useEffect(() => {
+    let cancelled = false;
+    async function refreshResolvedParticipants() {
+      const data = await fetchClientLiveSnapshot();
+      if (!cancelled && data?.matches) {
+        setLiveResolvedParticipants((prev) => mergeResolvedParticipantsFromApiMatches(prev, data.matches));
+      }
+    }
+    refreshResolvedParticipants();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   useEffect(() => {
     if (!dupeReady) return;
@@ -104,9 +121,9 @@ export function Ticker({
         <div className="relative flex-1 overflow-hidden">
           <div ref={trackRef} className="flex w-max items-center py-2">
             <div className="flex items-center">
-              <TickerItems items={items} resolvedParticipants={resolvedParticipants} />
+              <TickerItems items={items} resolvedParticipants={liveResolvedParticipants} />
             </div>
-            <TickerDuplicate items={items} resolvedParticipants={resolvedParticipants} onMount={handleDupeMount} />
+            <TickerDuplicate items={items} resolvedParticipants={liveResolvedParticipants} onMount={handleDupeMount} />
           </div>
         </div>
       </div>

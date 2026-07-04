@@ -7,7 +7,8 @@ import { Flag } from "@/components/Flag";
 import { useLang } from "@/components/LanguageProvider";
 import { useTimezone } from "@/components/TimezoneProvider";
 import { getMatchCalendarDateInZone } from "@/lib/todaySelection";
-import { getParticipantDisplay, type ResolvedParticipantLookup } from "@/lib/participant-resolution";
+import type { ResolvedParticipantLookup } from "@/lib/participant-resolution";
+import { getTickerDisplay } from "@/lib/tickerDisplay";
 
 interface Props {
   items: Match[];
@@ -31,8 +32,7 @@ export default function TickerDuplicate({ items, resolvedParticipants, onMount }
       data-nosnippet=""
     >
       {items.map((m, i) => {
-        const home = getParticipantDisplay(m, "home", resolvedParticipants, lang);
-        const away = getParticipantDisplay(m, "away", resolvedParticipants, lang);
+        const { home, away } = getTickerDisplay(m, resolvedParticipants, lang);
         return (
           <span
             key={i}

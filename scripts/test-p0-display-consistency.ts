@@ -1,9 +1,15 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { MATCHES, matchSlug, type KnockoutMatch } from "../lib/matches";
+import { ROUND_OF_16_MATCHES, QUARTER_FINAL_MATCHES } from "../lib/knockoutBracket2026";
 import { buildKnockoutResolution } from "../lib/knockoutResolution";
 import { getParticipantDisplay } from "../lib/participant-resolution";
 import { getScoreFreshnessLabel } from "../lib/freshness";
+import { mergeResolvedParticipantsFromApiMatches } from "../lib/resolvedParticipantsFromApi";
+import { getTickerDisplay } from "../lib/tickerDisplay";
+import { buildBracketMatchModel } from "../app/bracket/BracketContent";
+import { applyTodaySnapshotUpdate, type TodayLiveSnapshot } from "../components/TodayMatches";
+import { getTodayPageLabels } from "../components/TodayPageLiveSection";
 import type { SerializableSnapshotMatch } from "../lib/liveSnapshot";
 
 function knockout(matchNumber: number): KnockoutMatch {
@@ -74,6 +80,78 @@ assert.equal(label(90, "away"), "Morocco", "Canada vs Morocco never falls back t
 assert.equal(getParticipantDisplay(knockout(90), "home", resolution).teamCode, "ca", "resolved home flag code propagates");
 assert.equal(getParticipantDisplay(knockout(90), "away", resolution).teamCode, "ma", "resolved away flag code propagates");
 
+const apiResolved = mergeResolvedParticipantsFromApiMatches({}, {
+  "match-89": {
+    resolvedHomeParticipant: { teamKey: "paraguay", teamCode: "py" },
+    resolvedAwayParticipant: { teamKey: "france", teamCode: "fr" },
+  },
+  "match-90": {
+    resolvedHomeParticipant: { teamKey: "canada", teamCode: "ca" },
+    resolvedAwayParticipant: { teamKey: "morocco", teamCode: "ma" },
+  },
+  "match-96": {
+    resolvedHomeParticipant: { teamKey: "switzerland", teamCode: "ch" },
+    resolvedAwayParticipant: { teamKey: "colombia", teamCode: "co" },
+  },
+});
+
+const t = (key: string) => ({
+  bracket_winner_of: "Winner of",
+  bracket_r16_winner: "Round of 16 winner",
+  bracket_qf_winner: "Quarter-final winner",
+  bracket_sf_winner: "Semi-final winner",
+}[key] ?? key);
+
+const bracket89 = buildBracketMatchModel({ match: ROUND_OF_16_MATCHES[0], isR32: false, resolvedParticipants: apiResolved, t, lang: "en" });
+assert.equal(`${bracket89.home.label} vs ${bracket89.away.label}`, "Paraguay vs France", "bracket model resolves Paraguay vs France path");
+
+const bracket90 = buildBracketMatchModel({ match: ROUND_OF_16_MATCHES[1], isR32: false, resolvedParticipants: apiResolved, t, lang: "en" });
+assert.equal(`${bracket90.home.label} vs ${bracket90.away.label}`, "Canada vs Morocco", "bracket model resolves Canada vs Morocco path");
+
+const bracket96 = buildBracketMatchModel({ match: ROUND_OF_16_MATCHES[7], isR32: false, resolvedParticipants: apiResolved, t, lang: "en" });
+assert.equal(`${bracket96.home.label} vs ${bracket96.away.label}`, "Switzerland vs Colombia", "bracket model resolves Switzerland vs Colombia path");
+
+const bracket97Unresolved = buildBracketMatchModel({ match: QUARTER_FINAL_MATCHES[0], isR32: false, resolvedParticipants: apiResolved, t, lang: "en" });
+assert.equal(`${bracket97Unresolved.home.label} vs ${bracket97Unresolved.away.label}`, "Round of 16 winner vs Round of 16 winner", "future unresolved QF placeholders remain honest");
+
+const previousTodaySnapshot: TodayLiveSnapshot = {
+  snapshotId: "stale",
+  generatedAt: "2026-07-04T00:00:00.000Z",
+  liveDataByProviderId: {},
+  scorersByMatchId: {},
+  resolvedParticipants: {},
+  primaryProviderFetchedAt: null,
+  primaryProviderOk: false,
+};
+const updatedTodaySnapshot = applyTodaySnapshotUpdate(previousTodaySnapshot, {
+  snapshotId: "fresh",
+  generatedAt: "2026-07-04T12:00:00.000Z",
+  updatedAt: "2026-07-04T12:00:00.000Z",
+  primaryProviderFetchedAt: "2026-07-04T12:00:00.000Z",
+  primaryProviderOk: true,
+  matches: {
+    [matchSlug(knockout(90))]: {
+      status: "LIVE",
+      homeScore: 0,
+      awayScore: 0,
+      winner: null,
+      scorers: [],
+      resolvedHomeParticipant: { teamKey: "canada", teamCode: "ca" },
+      resolvedAwayParticipant: { teamKey: "morocco", teamCode: "ma" },
+    },
+  },
+}, [knockout(90)]);
+assert.equal(label(90, "home", updatedTodaySnapshot.resolvedParticipants), "Canada", "homepage Today projection resolves Canada");
+assert.equal(label(90, "away", updatedTodaySnapshot.resolvedParticipants), "Morocco", "homepage Today projection resolves Morocco");
+assert.equal(updatedTodaySnapshot.liveDataByProviderId[String(knockout(90).providerIds?.footballData)]?.status, "IN_PLAY", "Today projection inserts missing live entry from API update");
+assert.deepEqual(getTodayPageLabels(knockout(90), updatedTodaySnapshot), { home: "Canada", away: "Morocco" }, "/today summary projection resolves Canada vs Morocco");
+assert.deepEqual(getTodayPageLabels(knockout(90), updatedTodaySnapshot), { home: label(90, "home", updatedTodaySnapshot.resolvedParticipants), away: label(90, "away", updatedTodaySnapshot.resolvedParticipants) }, "/today summary and card projection agree");
+
+const tickerPrimary = getTickerDisplay(knockout(90), apiResolved, "en");
+const tickerDuplicate = getTickerDisplay(knockout(90), apiResolved, "en");
+assert.equal(`${tickerPrimary.home.label} vs ${tickerPrimary.away.label}`, "Canada vs Morocco", "primary ticker projection resolves Canada vs Morocco");
+assert.deepEqual(tickerDuplicate, tickerPrimary, "ticker duplicate projection matches primary ticker projection");
+
 const healthyFreshness = getScoreFreshnessLabel({
   primaryProviderFetchedAt: "2026-07-04T12:00:00.000Z",
   primaryProviderOk: true,
@@ -105,4 +183,4 @@ assert.match(layout, /@vercel\/analytics\/next/, "Vercel Analytics remains mount
 const today = readFileSync("app/today/page.tsx", "utf8");
 assert.match(today, /<LiveDataAutoRefresh intervalMs=\{refreshPolicy\.intervalMs\}/, "router/polling policy remains delegated to refreshPolicy");
 
-console.log("P0 display consistency tests passed (18 assertions).");
+console.log("P0 display consistency tests passed (33 assertions).");

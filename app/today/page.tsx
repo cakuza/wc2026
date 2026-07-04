@@ -10,9 +10,11 @@ import { LiveSnapshotDebug } from "@/components/LiveSnapshotDebug";
 import { FreshnessLabel } from "@/components/FreshnessLabel";
 import { MatchdayDateNav } from "@/components/MatchdayDateNav";
 import { LiveDataUnavailableNotice } from "@/components/LiveDataUnavailableNotice";
+import { TodayPageLiveSection } from "@/components/TodayPageLiveSection";
 import { matchSlug, matchUtcDate, type Match } from "@/lib/matches";
 import type { LiveMatchData } from "@/lib/liveMatchData";
 import type { GoalScorerEvent } from "@/lib/worldcup26Provider";
+import type { TodayLiveSnapshot } from "@/components/TodayMatches";
 import { getTournamentLiveSnapshot } from "@/lib/liveSnapshot";
 import { getLiveRefreshPolicy } from "@/lib/liveRefreshPolicy";
 import { buildKnockoutResolution } from "@/lib/knockoutResolution";
@@ -381,6 +383,19 @@ export default async function TodayPage({
   for (const [id, entry] of Object.entries(snapshot.matches)) {
     if (entry.scorers.length > 0) scorerLines[id] = entry.scorers;
   }
+  const todayLiveSnapshot: TodayLiveSnapshot = {
+    snapshotId: snapshot.snapshotId,
+    generatedAt: snapshot.generatedAt,
+    liveDataByProviderId: liveData,
+    scorersByMatchId: scorerLines,
+    resolvedParticipants,
+    primaryProviderFetchedAt: snapshot.primaryProviderFetchedAt,
+    primaryProviderOk: snapshot.primaryProviderOk,
+  };
+  const liveDataUnavailableByMatchId = Object.fromEntries(
+    Object.entries(snapshot.matches).map(([id, entry]) => [id, Boolean(entry.liveDataUnavailable)]),
+  );
+  const longDateLabels = Object.fromEntries(days.map(({ date }) => [date, longDate(date)]));
   const refreshPolicy = getLiveRefreshPolicy(
     summaryMatches.map((match) => {
       const snap = snapshot.matches[matchSlug(match)];
@@ -447,15 +462,6 @@ export default async function TodayPage({
           </Link>
         )}
 
-        {isToday && hasSelectedMatches && (
-          <TodaySummary
-            matches={summaryMatches}
-            liveData={liveData}
-            scorerLines={scorerLines}
-            resolvedParticipants={resolvedParticipants}
-          />
-        )}
-
         {showUpcomingFallback && (
           <div className="mb-6 rounded-xl border border-white/10 bg-navyCard px-4 py-4 text-sm text-white/60">
             <p className="font-semibold text-white/80">No World Cup matches are scheduled today.</p>
@@ -476,6 +482,17 @@ export default async function TodayPage({
           </div>
         )}
 
+        <TodayPageLiveSection
+          days={days}
+          summaryMatches={summaryMatches}
+          isToday={isToday}
+          showUpcomingFallback={showUpcomingFallback}
+          initialSnapshot={todayLiveSnapshot}
+          initialLiveDataUnavailableByMatchId={liveDataUnavailableByMatchId}
+          longDate={longDateLabels}
+        />
+
+        {false && (
         <div className="space-y-8">
           {days.map(({ date, matches }) => (
             <section key={date}>
@@ -497,6 +514,7 @@ export default async function TodayPage({
             </section>
           ))}
         </div>
+        )}
 
         {/* Quick links */}
         <div className="mt-8 flex flex-wrap gap-3 text-sm">
