@@ -1,5 +1,5 @@
 "use client";
-import { getResolvedHomeTeam, getResolvedAwayTeam, getResolvedHomeCode, getResolvedAwayCode, getParticipantDisplayLabel, isKnockoutMatch } from "@/lib/participant-resolution";
+import { getParticipantDisplay, type ResolvedParticipantLookup } from "@/lib/participant-resolution";
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
@@ -13,7 +13,6 @@ import { matchSlug, matchUtcDate, type DisplayMatchday, type Match } from "@/lib
 import { getDisplayMatchdayForTimeZone } from "@/lib/todaySelection";
 import type { LiveMatchData } from "@/lib/liveMatchData";
 import type { GoalScorerEvent } from "@/lib/worldcup26Provider";
-import { countryName } from "@/lib/i18n";
 import { reconcileGoalEvents } from "@/lib/scoreReconciliation";
 
 export type TodayLiveSnapshot = {
@@ -21,6 +20,7 @@ export type TodayLiveSnapshot = {
   generatedAt: string;
   liveDataByProviderId: Record<string, LiveMatchData>;
   scorersByMatchId: Record<string, GoalScorerEvent[]>;
+  resolvedParticipants: ResolvedParticipantLookup;
   primaryProviderFetchedAt: string | null;
   primaryProviderOk: boolean;
 };
@@ -46,20 +46,24 @@ function MatchRow({
   m,
   live,
   scorers,
+  resolvedParticipants,
 }: {
   m: Match;
   live: LiveMatchData | undefined;
   scorers?: GoalScorerEvent[];
+  resolvedParticipants?: ResolvedParticipantLookup;
 }) {
-  const { t, country } = useLang();
+  const { t, lang } = useLang();
+  const home = getParticipantDisplay(m, "home", resolvedParticipants, lang);
+  const away = getParticipantDisplay(m, "away", resolvedParticipants, lang);
   const hasScore = live && live.homeScore !== null && live.awayScore !== null;
   const isLive = live?.status === "IN_PLAY" || live?.status === "PAUSED";
   const isFinished = live?.status === "FINISHED";
   const { confirmedEvents, scorerDetailsIncomplete } = reconcileGoalEvents({
     homeScore: live?.homeScore ?? null,
     awayScore: live?.awayScore ?? null,
-    homeTeamName: getResolvedHomeTeam(m) ? countryName(getResolvedHomeTeam(m)!, "en") : (isKnockoutMatch(m) ? getParticipantDisplayLabel(m.homeSlot) : m.homeKey),
-    awayTeamName: getResolvedAwayTeam(m) ? countryName(getResolvedAwayTeam(m)!, "en") : (isKnockoutMatch(m) ? getParticipantDisplayLabel(m.awaySlot) : m.awayKey),
+    homeTeamName: home.label,
+    awayTeamName: away.label,
     events: scorers ?? [],
   });
   const goals = scorerText(confirmedEvents);
@@ -72,8 +76,8 @@ function MatchRow({
     >
       <div className="flex items-center gap-2">
         <div className="flex min-w-0 flex-1 items-center justify-end gap-2">
-          <span className="min-w-0 truncate text-sm font-bold text-white">{getResolvedHomeTeam(m) ? country(getResolvedHomeTeam(m)!) : (isKnockoutMatch(m) ? getParticipantDisplayLabel(m.homeSlot) : m.homeKey)}</span>
-          {getResolvedHomeTeam(m) && <Flag code={getResolvedHomeCode(m) ?? ""} alt="" width={28} height={20} />}
+          <span className="min-w-0 truncate text-sm font-bold text-white">{home.label}</span>
+          {home.teamCode && <Flag code={home.teamCode} alt="" width={28} height={20} />}
         </div>
 
         {hasScore ? (
@@ -85,8 +89,8 @@ function MatchRow({
         )}
 
         <div className="flex min-w-0 flex-1 items-center gap-2">
-          {getResolvedAwayTeam(m) && <Flag code={getResolvedAwayCode(m) ?? ""} alt="" width={28} height={20} />}
-          <span className="min-w-0 truncate text-sm font-bold text-white">{getResolvedAwayTeam(m) ? country(getResolvedAwayTeam(m)!) : (isKnockoutMatch(m) ? getParticipantDisplayLabel(m.awaySlot) : m.awayKey)}</span>
+          {away.teamCode && <Flag code={away.teamCode} alt="" width={28} height={20} />}
+          <span className="min-w-0 truncate text-sm font-bold text-white">{away.label}</span>
         </div>
       </div>
 
@@ -209,22 +213,43 @@ export function TodayMatches({
         if (res.ok) {
           const data = await res.json();
           if (!cancelled) {
-            setSnapshot((prev) => ({
-              snapshotId: data.snapshotId,
-              generatedAt: data.generatedAt,
-              primaryProviderFetchedAt: data.primaryProviderFetchedAt,
-              primaryProviderOk: data.primaryProviderOk,
-              liveDataByProviderId: Object.fromEntries(
-                Object.entries(prev.liveDataByProviderId).map(([pid, live]) => {
-                  const m = allMatches.find((match) => String(match.providerIds?.footballData) === pid);
-                  const update = m ? data.matches[matchSlug(m)] : undefined;
-                  return [pid, update ? { ...live, status: update.status, homeScore: update.homeScore, awayScore: update.awayScore } : live];
-                }),
-              ),
-              scorersByMatchId: Object.fromEntries(
-                Object.entries(data.matches as Record<string, { scorers: GoalScorerEvent[] }>).map(([id, m]) => [id, m.scorers]),
-              ),
-            }));
+            setSnapshot((prev) => {
+              const resolvedParticipants: Record<number, { home?: { teamKey: string; teamCode: string }; away?: { teamKey: string; teamCode: string } }> = {
+                ...prev.resolvedParticipants,
+              };
+              for (const match of allMatches) {
+                if (!("matchNumber" in match)) continue;
+                const update = data.matches[matchSlug(match)];
+                if (!update) continue;
+                const home = update.resolvedHomeParticipant;
+                const away = update.resolvedAwayParticipant;
+                if (home || away) {
+                  resolvedParticipants[match.matchNumber] = {
+                    ...resolvedParticipants[match.matchNumber],
+                    ...(home ? { home: { teamKey: home.teamKey, teamCode: home.teamCode } } : {}),
+                    ...(away ? { away: { teamKey: away.teamKey, teamCode: away.teamCode } } : {}),
+                  };
+                }
+              }
+
+              return {
+                snapshotId: data.snapshotId,
+                generatedAt: data.generatedAt,
+                resolvedParticipants,
+                primaryProviderFetchedAt: data.primaryProviderFetchedAt,
+                primaryProviderOk: data.primaryProviderOk,
+                liveDataByProviderId: Object.fromEntries(
+                  Object.entries(prev.liveDataByProviderId).map(([pid, live]) => {
+                    const m = allMatches.find((match) => String(match.providerIds?.footballData) === pid);
+                    const update = m ? data.matches[matchSlug(m)] : undefined;
+                    return [pid, update ? { ...live, status: update.status, homeScore: update.homeScore, awayScore: update.awayScore } : live];
+                  }),
+                ),
+                scorersByMatchId: Object.fromEntries(
+                  Object.entries(data.matches as Record<string, { scorers: GoalScorerEvent[] }>).map(([id, m]) => [id, m.scorers]),
+                ),
+              };
+            });
           }
         }
       } catch {
@@ -266,6 +291,7 @@ export function TodayMatches({
         m={m}
         live={m.providerIds?.footballData ? snapshot.liveDataByProviderId[String(m.providerIds.footballData)] : undefined}
         scorers={snapshot.scorersByMatchId[matchSlug(m)]}
+        resolvedParticipants={snapshot.resolvedParticipants}
       />
     ));
 

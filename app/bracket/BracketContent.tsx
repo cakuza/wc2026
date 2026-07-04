@@ -4,9 +4,9 @@ import { useLang } from "@/components/LanguageProvider";
 import { Flag } from "@/components/Flag";
 import { FINAL_MATCH, QUARTER_FINAL_MATCHES, ROUND_OF_16_MATCHES, ROUND_OF_32_MATCHES, SEMI_FINAL_MATCHES, slotLabel } from "@/lib/knockoutBracket2026";
 import { countryName, type Lang } from "@/lib/i18n";
-import { MATCHES } from "@/lib/matches";
+import { MATCHES, type Match } from "@/lib/matches";
 import { resolvedHome, resolvedAway, RESOLVED_PARTICIPANTS } from "@/lib/resolvedParticipants";
-import type { ResolvedParticipantLookup } from "@/lib/participant-resolution";
+import { getParticipantDisplay, type ResolvedParticipantLookup } from "@/lib/participant-resolution";
 
 // WC 2026: 48 teams → 32 knockout teams (top 2 from each of 12 groups + 8 best 3rd-placed)
 // Knockout bracket: R32 (16 matches) → R16 (8) → QF (4) → SF (2) → Final (1)
@@ -126,17 +126,22 @@ export function BracketContent({ resolvedParticipants }: { resolvedParticipants?
   const { t, lang } = useLang();
 
   const mapMatch = (match: any, isR32: boolean) => {
+    const scheduleMatch = MATCHES.find((x): x is Match & { matchNumber: number } =>
+      "matchNumber" in x && x.matchNumber === match.matchNumber
+    );
+    const homeDisplay = scheduleMatch ? getParticipantDisplay(scheduleMatch, "home", resolvedParticipants, lang) : null;
+    const awayDisplay = scheduleMatch ? getParticipantDisplay(scheduleMatch, "away", resolvedParticipants, lang) : null;
     const resolved = resolvedParticipants?.[match.matchNumber] ?? RESOLVED_PARTICIPANTS[match.matchNumber];
     return {
       id: `M${match.matchNumber}`,
       dateLabel: matchDateStr(match.matchNumber),
       home: {
-        label: resolved?.home ? countryName(resolved.home.teamKey, lang) : (isR32 ? slotLabel(match.home) : slotWinnerLabel(match.homeWinnerOf, t, lang)),
-        flagCode: resolved?.home?.teamCode ?? undefined,
+        label: homeDisplay?.isResolved ? homeDisplay.label : (isR32 ? slotLabel(match.home) : slotWinnerLabel(match.homeWinnerOf, t, lang)),
+        flagCode: homeDisplay?.teamCode ?? resolved?.home?.teamCode ?? undefined,
       },
       away: {
-        label: resolved?.away ? countryName(resolved.away.teamKey, lang) : (isR32 ? slotLabel(match.away) : slotWinnerLabel(match.awayWinnerOf, t, lang)),
-        flagCode: resolved?.away?.teamCode ?? undefined,
+        label: awayDisplay?.isResolved ? awayDisplay.label : (isR32 ? slotLabel(match.away) : slotWinnerLabel(match.awayWinnerOf, t, lang)),
+        flagCode: awayDisplay?.teamCode ?? resolved?.away?.teamCode ?? undefined,
       },
     };
   };

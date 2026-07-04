@@ -1,12 +1,21 @@
 import { Match, KnockoutMatch, ParticipantSlot } from "./matches";
 import { TOURNAMENT_FINAL_DATE } from "./matches";
 import { resolvedHome, resolvedAway, type ResolvedSide } from "./resolvedParticipants";
-import { countryName } from "./i18n";
+import { countryName, type Lang } from "./i18n";
 
 export type ResolvedParticipantLookup = Readonly<Record<number, {
   home?: ResolvedSide;
   away?: ResolvedSide;
 }>>;
+
+export type ParticipantSide = "home" | "away";
+
+export type ParticipantDisplay = {
+  label: string;
+  teamKey: string | null;
+  teamCode: string | null;
+  isResolved: boolean;
+};
 
 /**
  * Type guard to safely identify if a Match is a KnockoutMatch.
@@ -19,42 +28,14 @@ export function isKnockoutMatch(match: Match): match is KnockoutMatch {
  * Gets the resolved team key for the home participant, or null if unresolved.
  */
 export function getResolvedHomeTeam(match: Match, resolvedParticipants?: ResolvedParticipantLookup): string | null {
-  if (!isKnockoutMatch(match)) {
-    return match.homeKey;
-  }
-  const dynamic = resolvedParticipants?.[match.matchNumber]?.home;
-  if (dynamic) {
-    return dynamic.teamKey;
-  }
-  const resolved = resolvedHome(match.matchNumber);
-  if (resolved) {
-    return resolved.teamKey;
-  }
-  if (match.homeSlot.kind === "resolved") {
-    return match.homeSlot.teamKey;
-  }
-  return null;
+  return getResolvedSide(match, "home", resolvedParticipants)?.teamKey ?? null;
 }
 
 /**
  * Gets the resolved team key for the away participant, or null if unresolved.
  */
 export function getResolvedAwayTeam(match: Match, resolvedParticipants?: ResolvedParticipantLookup): string | null {
-  if (!isKnockoutMatch(match)) {
-    return match.awayKey;
-  }
-  const dynamic = resolvedParticipants?.[match.matchNumber]?.away;
-  if (dynamic) {
-    return dynamic.teamKey;
-  }
-  const resolved = resolvedAway(match.matchNumber);
-  if (resolved) {
-    return resolved.teamKey;
-  }
-  if (match.awaySlot.kind === "resolved") {
-    return match.awaySlot.teamKey;
-  }
-  return null;
+  return getResolvedSide(match, "away", resolvedParticipants)?.teamKey ?? null;
 }
 
 /**
@@ -73,6 +54,60 @@ export function getParticipantDisplayLabel(slot: ParticipantSlot): string {
     case "loserOf":
       return `Loser Match ${slot.matchNumber}`;
   }
+}
+
+function getResolvedSide(match: Match, side: ParticipantSide, resolvedParticipants?: ResolvedParticipantLookup): ResolvedSide | null {
+  if (!isKnockoutMatch(match)) {
+    const teamKey = side === "home" ? match.homeKey : match.awayKey;
+    const teamCode = side === "home" ? match.homeCode : match.awayCode;
+    return teamKey && teamKey !== "tbd" ? { teamKey, teamCode } : null;
+  }
+
+  const dynamic = resolvedParticipants?.[match.matchNumber]?.[side];
+  if (dynamic) return dynamic;
+
+  const seeded = side === "home" ? resolvedHome(match.matchNumber) : resolvedAway(match.matchNumber);
+  if (seeded) return seeded;
+
+  const slot = side === "home" ? match.homeSlot : match.awaySlot;
+  if (slot.kind === "resolved") return { teamKey: slot.teamKey, teamCode: slot.teamCode };
+
+  return null;
+}
+
+export function getParticipantDisplay(
+  match: Match,
+  side: ParticipantSide,
+  resolvedParticipants?: ResolvedParticipantLookup,
+  lang: Lang = "en",
+): ParticipantDisplay {
+  const resolved = getResolvedSide(match, side, resolvedParticipants);
+  if (resolved) {
+    return {
+      label: countryName(resolved.teamKey, lang),
+      teamKey: resolved.teamKey,
+      teamCode: resolved.teamCode,
+      isResolved: true,
+    };
+  }
+
+  if (!isKnockoutMatch(match)) {
+    const teamKey = side === "home" ? match.homeKey : match.awayKey;
+    const teamCode = side === "home" ? match.homeCode : match.awayCode;
+    return {
+      label: teamKey || "TBD",
+      teamKey: teamKey && teamKey !== "tbd" ? teamKey : null,
+      teamCode: teamCode && teamCode !== "tbd" ? teamCode : null,
+      isResolved: Boolean(teamKey && teamKey !== "tbd"),
+    };
+  }
+
+  return {
+    label: getParticipantDisplayLabel(side === "home" ? match.homeSlot : match.awaySlot),
+    teamKey: null,
+    teamCode: null,
+    isResolved: false,
+  };
 }
 
 /**
@@ -105,18 +140,7 @@ export function knockoutSlotLabel(slot: ParticipantSlot): string {
  * For group-stage matches, returns match.homeCode directly.
  */
 export function getResolvedHomeCode(match: Match, resolvedParticipants?: ResolvedParticipantLookup): string | null {
-  if (!isKnockoutMatch(match)) {
-    return match.homeCode ?? null;
-  }
-  const dynamic = resolvedParticipants?.[match.matchNumber]?.home;
-  if (dynamic) {
-    return dynamic.teamCode ?? null;
-  }
-  const resolved = resolvedHome(match.matchNumber);
-  if (resolved) {
-    return resolved.teamCode ?? null;
-  }
-  return null;
+  return getResolvedSide(match, "home", resolvedParticipants)?.teamCode ?? null;
 }
 
 /**
@@ -125,18 +149,7 @@ export function getResolvedHomeCode(match: Match, resolvedParticipants?: Resolve
  * For group-stage matches, returns match.awayCode directly.
  */
 export function getResolvedAwayCode(match: Match, resolvedParticipants?: ResolvedParticipantLookup): string | null {
-  if (!isKnockoutMatch(match)) {
-    return match.awayCode ?? null;
-  }
-  const dynamic = resolvedParticipants?.[match.matchNumber]?.away;
-  if (dynamic) {
-    return dynamic.teamCode ?? null;
-  }
-  const resolved = resolvedAway(match.matchNumber);
-  if (resolved) {
-    return resolved.teamCode ?? null;
-  }
-  return null;
+  return getResolvedSide(match, "away", resolvedParticipants)?.teamCode ?? null;
 }
 
 export function matchStageLabel(match: Match): string {
