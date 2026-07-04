@@ -570,6 +570,36 @@ const VERIFIED_GOAL_CORRECTIONS: Record<string, VerifiedGoalCorrection> = {
       },
     ],
   },
+
+  "match-81": {
+    note: "Verified: 45' Folarin Balogun (USA) — official U.S. Soccer match recap + Reuters. Worldcup26.ir returned an unresolved low-confidence transliteration for the 45' scorer; ESPN supplied no identity. 82' Malik Tillman confirmed by worldcup26.ir high-confidence.",
+    events: [
+      {
+        type: "GOAL",
+        minute: 45,
+        minuteLabel: "45'",
+        teamName: "United States",
+        playerTeamName: "United States",
+        playerName: "Folarin Balogun",
+        isOwnGoal: false,
+        isPenalty: false,
+        provider: "official_federation_verified",
+        confidence: "high",
+      },
+      {
+        type: "GOAL",
+        minute: 82,
+        minuteLabel: "82'",
+        teamName: "United States",
+        playerTeamName: "United States",
+        playerName: "Malik Tillman",
+        isOwnGoal: false,
+        isPenalty: false,
+        provider: "worldcup26.ir",
+        confidence: "high",
+      },
+    ],
+  },
 };
 
 function scorerKey(event: GoalScorerEvent): string {

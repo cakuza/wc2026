@@ -85,7 +85,7 @@ function expectedGoalCount(match: SerializableSnapshotMatch): number {
 }
 
 function isPreferredScorerProvider(provider: GoalScorerEvent["provider"]): boolean {
-  return provider === "espn" || provider === "football-data.org";
+  return provider === "espn" || provider === "football-data.org" || provider === "official_federation_verified";
 }
 
 function preferredBaselineIsComplete(match: SerializableSnapshotMatch): boolean {
