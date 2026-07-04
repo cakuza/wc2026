@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Script from "next/script";
+import { Analytics } from "@vercel/analytics/next";
 import { Barlow, Barlow_Condensed } from "next/font/google";
 import { LanguageProvider } from "@/components/LanguageProvider";
 import { TimezoneProvider } from "@/components/TimezoneProvider";
@@ -111,6 +112,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <Footer />
           </TimezoneProvider>
         </LanguageProvider>
+        <Analytics />
       </body>
     </html>
   );
