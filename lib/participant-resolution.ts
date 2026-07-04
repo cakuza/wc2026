@@ -41,7 +41,7 @@ export function getResolvedAwayTeam(match: Match, resolvedParticipants?: Resolve
 /**
  * Returns a display label for a slot if the team is unresolved.
  */
-export function getParticipantDisplayLabel(slot: ParticipantSlot): string {
+export function getParticipantDisplayLabel(slot: ParticipantSlot, lang: Lang = "en"): string {
   switch (slot.kind) {
     case "resolved":
       return slot.teamKey; // Up to caller to translate to human name
@@ -49,10 +49,28 @@ export function getParticipantDisplayLabel(slot: ParticipantSlot): string {
       return `${slot.place === 1 ? "Winner" : "Runner-up"} Group ${slot.group}`;
     case "bestThird":
       return `3rd Group ${slot.groups.join("/")}`;
-    case "winnerOf":
+    case "winnerOf": {
+      const mn = slot.matchNumber;
+      if (mn >= 73 && mn <= 88) {
+        const hp = resolvedHome(mn);
+        const ap = resolvedAway(mn);
+        if (hp && ap) {
+          return `${countryName(hp.teamKey, lang)}/${countryName(ap.teamKey, lang)} Winner`;
+        }
+      }
       return `Winner Match ${slot.matchNumber}`;
-    case "loserOf":
+    }
+    case "loserOf": {
+      const mn = slot.matchNumber;
+      if (mn >= 73 && mn <= 88) {
+        const hp = resolvedHome(mn);
+        const ap = resolvedAway(mn);
+        if (hp && ap) {
+          return `${countryName(hp.teamKey, lang)}/${countryName(ap.teamKey, lang)} Loser`;
+        }
+      }
       return `Loser Match ${slot.matchNumber}`;
+    }
   }
 }
 
@@ -103,7 +121,7 @@ export function getParticipantDisplay(
   }
 
   return {
-    label: getParticipantDisplayLabel(side === "home" ? match.homeSlot : match.awaySlot),
+    label: getParticipantDisplayLabel(side === "home" ? match.homeSlot : match.awaySlot, lang),
     teamKey: null,
     teamCode: null,
     isResolved: false,
@@ -116,14 +134,14 @@ export function getParticipantDisplay(
  * For deeper rounds, returns stage-aware phrases.
  * Prefer over getParticipantDisplayLabel for any user-visible text.
  */
-export function knockoutSlotLabel(slot: ParticipantSlot): string {
+export function knockoutSlotLabel(slot: ParticipantSlot, lang: Lang = "en"): string {
   if (slot.kind === "winnerOf") {
     const mn = slot.matchNumber;
     if (mn >= 73 && mn <= 88) {
       const hp = resolvedHome(mn);
       const ap = resolvedAway(mn);
       if (hp && ap) {
-        return `${countryName(hp.teamKey, "en")}/${countryName(ap.teamKey, "en")} Winner`;
+        return `${countryName(hp.teamKey, lang)}/${countryName(ap.teamKey, lang)} Winner`;
       }
     }
     if (mn >= 89 && mn <= 96) return "Round of 16 winner";
@@ -131,7 +149,7 @@ export function knockoutSlotLabel(slot: ParticipantSlot): string {
     return "Semi-final winner";
   }
   if (slot.kind === "loserOf") return "Semi-final runner-up";
-  return getParticipantDisplayLabel(slot);
+  return getParticipantDisplayLabel(slot, lang);
 }
 
 /**

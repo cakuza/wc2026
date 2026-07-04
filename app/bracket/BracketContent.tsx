@@ -7,12 +7,9 @@ import { FINAL_MATCH, QUARTER_FINAL_MATCHES, ROUND_OF_16_MATCHES, ROUND_OF_32_MA
 import { countryName, type Lang } from "@/lib/i18n";
 import { MATCHES, type Match } from "@/lib/matches";
 import { resolvedHome, resolvedAway, RESOLVED_PARTICIPANTS } from "@/lib/resolvedParticipants";
-import { getParticipantDisplay, type ResolvedParticipantLookup } from "@/lib/participant-resolution";
+import { getParticipantDisplay, knockoutSlotLabel, isKnockoutMatch, type ResolvedParticipantLookup } from "@/lib/participant-resolution";
 import { mergeResolvedParticipantsFromApiMatches } from "@/lib/resolvedParticipantsFromApi";
 import { fetchClientLiveSnapshot } from "@/lib/clientLiveSnapshot";
-
-// WC 2026: 48 teams → 32 knockout teams (top 2 from each of 12 groups + 8 best 3rd-placed)
-// Knockout bracket: R32 (16 matches) → R16 (8) → QF (4) → SF (2) → Final (1)
 
 // --- Layout constants ---
 const CARD_H = 62;   // card height in px
@@ -148,11 +145,11 @@ export function buildBracketMatchModel({
       id: `M${match.matchNumber}`,
       dateLabel: matchDateStr(match.matchNumber),
       home: {
-        label: homeDisplay?.isResolved ? homeDisplay.label : (isR32 ? slotLabel(match.home) : slotWinnerLabel(match.homeWinnerOf, t, lang)),
+        label: homeDisplay?.isResolved ? homeDisplay.label : (isR32 ? slotLabel(match.home) : (scheduleMatch && isKnockoutMatch(scheduleMatch) ? knockoutSlotLabel(scheduleMatch.homeSlot, lang) : "TBD")),
         flagCode: homeDisplay?.teamCode ?? resolved?.home?.teamCode ?? undefined,
       },
       away: {
-        label: awayDisplay?.isResolved ? awayDisplay.label : (isR32 ? slotLabel(match.away) : slotWinnerLabel(match.awayWinnerOf, t, lang)),
+        label: awayDisplay?.isResolved ? awayDisplay.label : (isR32 ? slotLabel(match.away) : (scheduleMatch && isKnockoutMatch(scheduleMatch) ? knockoutSlotLabel(scheduleMatch.awaySlot, lang) : "TBD")),
         flagCode: awayDisplay?.teamCode ?? resolved?.away?.teamCode ?? undefined,
       },
     };

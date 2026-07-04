@@ -69,7 +69,7 @@ assert.equal(label(90, "away"), "Morocco", "downstream fixture away winner propa
 assert.equal(label(96, "home"), "Switzerland", "finished source winner propagates to downstream home");
 assert.equal(label(96, "away"), "Colombia", "finished source winner propagates to downstream away");
 assert.equal(label(95, "home"), "Argentina", "one resolved side displays the team");
-assert.equal(label(95, "away"), "Winner Match 88", "one unresolved side preserves the source placeholder");
+assert.equal(label(95, "away"), "Australia/Egypt Winner", "one unresolved side preserves the source placeholder");
 
 const emptyResolution = buildKnockoutResolution({});
 assert.equal(label(97, "home", emptyResolution), "Winner Match 89", "unresolved future home placeholder remains visible");
