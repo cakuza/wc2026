@@ -17,9 +17,9 @@ export type ResolvedSide = {
 };
 
 export type ResolvedMatchParticipants = {
-  home: ResolvedSide;
-  away: ResolvedSide;
-  /** ISO date the participant was confirmed (group phase completion date). */
+  home?: ResolvedSide;
+  away?: ResolvedSide;
+  /** ISO date the participant was confirmed. */
   resolvedAt: string;
   /** Confidence level. */
   confidence: "confirmed";
@@ -53,6 +53,9 @@ export const RESOLVED_PARTICIPANTS: Readonly<Record<number, ResolvedMatchPartici
   89: { home: { teamKey: "paraguay", teamCode: "py" }, away: { teamKey: "france", teamCode: "fr" }, resolvedAt: "2026-07-04", confidence: "confirmed" },
   90: { home: { teamKey: "canada", teamCode: "ca" }, away: { teamKey: "morocco", teamCode: "ma" }, resolvedAt: "2026-07-04", confidence: "confirmed" },
   91: { home: { teamKey: "brazil", teamCode: "br" }, away: { teamKey: "norway", teamCode: "no" }, resolvedAt: "2026-07-05", confidence: "confirmed" },
+  95: { away: { teamKey: "egypt", teamCode: "eg" }, resolvedAt: "2026-07-04", confidence: "confirmed" },
+  96: { home: { teamKey: "switzerland", teamCode: "ch" }, away: { teamKey: "colombia", teamCode: "co" }, resolvedAt: "2026-07-04", confidence: "confirmed" },
+  97: { home: { teamKey: "france", teamCode: "fr" }, away: { teamKey: "morocco", teamCode: "ma" }, resolvedAt: "2026-07-04", confidence: "confirmed" },
   // M92-Final: unresolved until their source matches conclude.
 } as const;
 

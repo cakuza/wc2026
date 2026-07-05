@@ -77,11 +77,13 @@ assert.equal(label(91, "away"), "Norway", "Norway propagates from finished Ivory
 assert.equal(label(96, "home"), "Switzerland", "finished source winner propagates to downstream home");
 assert.equal(label(96, "away"), "Colombia", "finished source winner propagates to downstream away");
 assert.equal(label(95, "home"), "Argentina", "one resolved side displays the team");
-assert.equal(label(95, "away"), "Australia/Egypt Winner", "one unresolved side preserves the source placeholder");
+assert.equal(label(95, "away"), "Egypt", "finished Australia/Egypt source propagates Egypt to downstream away");
 
 const emptyResolution = buildKnockoutResolution({});
-assert.equal(label(97, "home", emptyResolution), "Paraguay/France Winner", "unresolved future home placeholder uses known current participants");
-assert.equal(label(97, "away", emptyResolution), "Canada/Morocco Winner", "unresolved future away placeholder uses known current participants");
+assert.equal(label(97, "home", emptyResolution), "France", "finished Paraguay/France source propagates France to QF home fallback");
+assert.equal(label(97, "away", emptyResolution), "Morocco", "finished Canada/Morocco source propagates Morocco to QF away fallback");
+assert.equal(label(96, "home", emptyResolution), "Switzerland", "finished Switzerland/Algeria source propagates Switzerland to R16 home fallback");
+assert.equal(label(95, "away", emptyResolution), "Egypt", "finished Australia/Egypt source propagates Egypt to R16 away fallback");
 assert.equal(label(90, "home"), "Canada", "Canada vs Morocco never falls back to Winner Match 73");
 assert.equal(label(90, "away"), "Morocco", "Canada vs Morocco never falls back to Winner Match 75");
 
@@ -91,6 +93,10 @@ assert.equal(getParticipantDisplay(knockout(89), "home", resolution).teamCode, "
 assert.equal(getParticipantDisplay(knockout(89), "away", resolution).teamCode, "fr", "France flag code propagates");
 assert.equal(getParticipantDisplay(knockout(91), "home", resolution).teamCode, "br", "Brazil flag code propagates");
 assert.equal(getParticipantDisplay(knockout(91), "away", resolution).teamCode, "no", "Norway flag code propagates");
+assert.equal(getParticipantDisplay(knockout(97), "home", emptyResolution).teamCode, "fr", "France QF fallback flag code propagates");
+assert.equal(getParticipantDisplay(knockout(97), "away", emptyResolution).teamCode, "ma", "Morocco QF fallback flag code propagates");
+assert.equal(getParticipantDisplay(knockout(96), "home", emptyResolution).teamCode, "ch", "Switzerland R16 fallback flag code propagates");
+assert.equal(getParticipantDisplay(knockout(95), "away", emptyResolution).teamCode, "eg", "Egypt R16 fallback flag code propagates");
 
 const failedPreviewStrings = [
   "Germany/Paraguay Winner",
@@ -99,6 +105,10 @@ const failedPreviewStrings = [
   "Netherlands/Morocco Winner",
   "Brazil/Japan Winner",
   "Ivory Coast/Norway Winner",
+  "Paraguay/France Winner",
+  "Canada/Morocco Winner",
+  "Switzerland/Algeria Winner",
+  "Australia/Egypt Winner",
 ];
 const resolvedR16Display = [
   label(89, "home"),
@@ -107,6 +117,10 @@ const resolvedR16Display = [
   label(90, "away"),
   label(91, "home"),
   label(91, "away"),
+  label(95, "away"),
+  label(96, "home"),
+  label(97, "home"),
+  label(97, "away"),
 ].join(" vs ");
 for (const badLabel of failedPreviewStrings) {
   assert.ok(!resolvedR16Display.includes(badLabel), `resolved R16 display does not contain ${badLabel}`);
@@ -125,9 +139,16 @@ const apiResolved = mergeResolvedParticipantsFromApiMatches({}, {
     resolvedHomeParticipant: { teamKey: "brazil", teamCode: "br" },
     resolvedAwayParticipant: { teamKey: "norway", teamCode: "no" },
   },
+  "match-95": {
+    resolvedAwayParticipant: { teamKey: "egypt", teamCode: "eg" },
+  },
   "match-96": {
     resolvedHomeParticipant: { teamKey: "switzerland", teamCode: "ch" },
     resolvedAwayParticipant: { teamKey: "colombia", teamCode: "co" },
+  },
+  "match-97": {
+    resolvedHomeParticipant: { teamKey: "france", teamCode: "fr" },
+    resolvedAwayParticipant: { teamKey: "morocco", teamCode: "ma" },
   },
 });
 
@@ -150,8 +171,11 @@ assert.equal(`${bracket91.home.label} vs ${bracket91.away.label}`, "Brazil vs No
 const bracket96 = buildBracketMatchModel({ match: ROUND_OF_16_MATCHES[7], isR32: false, resolvedParticipants: apiResolved, t, lang: "en" });
 assert.equal(`${bracket96.home.label} vs ${bracket96.away.label}`, "Switzerland vs Colombia", "bracket model resolves Switzerland vs Colombia path");
 
-const bracket97Unresolved = buildBracketMatchModel({ match: QUARTER_FINAL_MATCHES[0], isR32: false, resolvedParticipants: apiResolved, t, lang: "en" });
-assert.equal(`${bracket97Unresolved.home.label} vs ${bracket97Unresolved.away.label}`, "Paraguay/France Winner vs Canada/Morocco Winner", "future unresolved QF placeholders remain honest");
+const bracket95 = buildBracketMatchModel({ match: ROUND_OF_16_MATCHES[6], isR32: false, resolvedParticipants: apiResolved, t, lang: "en" });
+assert.equal(bracket95.away.label, "Egypt", "bracket model resolves Egypt path from Australia/Egypt");
+
+const bracket97Resolved = buildBracketMatchModel({ match: QUARTER_FINAL_MATCHES[0], isR32: false, resolvedParticipants: apiResolved, t, lang: "en" });
+assert.equal(`${bracket97Resolved.home.label} vs ${bracket97Resolved.away.label}`, "France vs Morocco", "finished R16 sources resolve QF M97");
 
 const previousTodaySnapshot: TodayLiveSnapshot = {
   snapshotId: "stale",
@@ -239,6 +263,8 @@ const match74 = MATCHES.find((m): m is KnockoutMatch => "matchNumber" in m && m.
 const match89 = MATCHES.find((m): m is KnockoutMatch => "matchNumber" in m && m.matchNumber === 89)!;
 const match90 = MATCHES.find((m): m is KnockoutMatch => "matchNumber" in m && m.matchNumber === 90)!;
 const match91 = MATCHES.find((m): m is KnockoutMatch => "matchNumber" in m && m.matchNumber === 91)!;
+const match95 = MATCHES.find((m): m is KnockoutMatch => "matchNumber" in m && m.matchNumber === 95)!;
+const match96 = MATCHES.find((m): m is KnockoutMatch => "matchNumber" in m && m.matchNumber === 96)!;
 const match97 = MATCHES.find((m): m is KnockoutMatch => "matchNumber" in m && m.matchNumber === 97)!;
 
 assert.equal(getParticipantDisplayLabel(match89.homeSlot, "en", resolution), "Paraguay", "Finished Germany/Paraguay source resolves to Paraguay, not Germany/Paraguay Winner.");
@@ -247,9 +273,11 @@ assert.equal(getParticipantDisplayLabel(match90.homeSlot, "en", resolution), "Ca
 assert.equal(getParticipantDisplayLabel(match90.awaySlot, "en", resolution), "Morocco", "Finished Netherlands/Morocco source resolves to Morocco, not Netherlands/Morocco Winner.");
 assert.equal(getParticipantDisplayLabel(match91.homeSlot, "en", resolution), "Brazil", "Finished Brazil/Japan source resolves to Brazil, not Brazil/Japan Winner.");
 assert.equal(getParticipantDisplayLabel(match91.awaySlot, "en", resolution), "Norway", "Finished Ivory Coast/Norway source resolves to Norway, not Ivory Coast/Norway Winner.");
+assert.equal(getParticipantDisplayLabel(match96.homeSlot, "en", resolution), "Switzerland", "Finished Switzerland/Algeria source resolves to Switzerland, not Switzerland/Algeria Winner.");
+assert.equal(getParticipantDisplayLabel(match95.awaySlot, "en", apiResolved), "Egypt", "Finished Australia/Egypt source resolves to Egypt, not Australia/Egypt Winner.");
 
-assert.equal(getParticipantDisplayLabel(match97.homeSlot, "en", apiResolved), "Paraguay/France Winner", "Bracket match 97 home is Paraguay/France Winner when match-89 is live.");
-assert.equal(getParticipantDisplayLabel(match97.awaySlot, "en", apiResolved), "Canada/Morocco Winner", "Canada/Morocco placeholder is Canada/Morocco Winner only when source match is LIVE.");
+assert.equal(getParticipantDisplayLabel(match97.homeSlot, "en", apiResolved), "France", "Finished Paraguay/France source resolves QF M97 home to France.");
+assert.equal(getParticipantDisplayLabel(match97.awaySlot, "en", apiResolved), "Morocco", "Finished Canada/Morocco source resolves QF M97 away to Morocco.");
 
 const bracket89Check = buildBracketMatchModel({ match: match89, isR32: false, resolvedParticipants: apiResolved, t, lang: "en" });
 assert.equal(bracket89Check.home.label, "Paraguay", "Bracket match 89 home is Paraguay when match-74 finished.");
@@ -267,5 +295,16 @@ assert.equal(`${label90Home} vs ${label90Away}`, "Canada vs Morocco", "Live Cana
 const label91Home = getParticipantDisplay(match91, "home", apiResolved, "en").label;
 const label91Away = getParticipantDisplay(match91, "away", apiResolved, "en").label;
 assert.equal(`${label91Home} vs ${label91Away}`, "Brazil vs Norway", "Brazil/Norway may render Brazil/Norway Winner only in a future downstream winner slot, not in the match card itself.");
+
+const dynamicReactSurfaces = [
+  "app/bracket/BracketContent.tsx",
+  "components/TodayMatches.tsx",
+  "components/TodayPageLiveSection.tsx",
+  "lib/tickerDisplay.ts",
+];
+const countrySpecificHardcodes = /\b(Paraguay|France|Switzerland|Algeria|Australia|Egypt|Canada|Morocco)\b/;
+for (const file of dynamicReactSurfaces) {
+  assert.ok(!countrySpecificHardcodes.test(readFileSync(file, "utf8")), `${file} contains no country-specific display hardcoding for patched knockout participants`);
+}
 
 console.log("P0 display consistency tests passed.");
