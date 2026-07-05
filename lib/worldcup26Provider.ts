@@ -6,7 +6,7 @@
  * - Only provides parsed goal scorer events. No substitutions, cards, lineups, xG, etc.
  * - If this provider fails, calling code falls back to the honest "scorer data unavailable" state.
  * - Do not invent data -- if a scorer string can't be parsed confidently, it is omitted.
- * - Scores and standings are NOT taken from this source.
+ * - Scores/status may be used only as a fallback when the primary provider is absent.
  */
 
 const ENDPOINT = "https://worldcup26.ir/get/games";

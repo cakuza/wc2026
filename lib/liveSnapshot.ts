@@ -151,7 +151,7 @@ function toLiveMatchStatus(status: SnapshotMatchStatus, fallback: LiveMatchStatu
 
 export function canonicalStatus({
   footballData,
-  worldcupGame: _worldcupGame,
+  worldcupGame,
 }: {
   footballData?: LiveMatchData;
   worldcupGame?: WorldCup26Game | null;
@@ -161,6 +161,7 @@ export function canonicalStatus({
   if (footballStatus === "LIVE" || footballStatus === "HALFTIME" || footballStatus === "SYNCING") {
     return footballStatus;
   }
+  if (worldcupGame?.finished) return "FINISHED";
   return "SCHEDULED";
 }
 
@@ -372,8 +373,8 @@ function withCanonicalMatchState({
   if (!providerId) return null;
 
   const status = canonicalStatus({ footballData: live, worldcupGame });
-  const homeScore = live?.homeScore ?? null;
-  const awayScore = live?.awayScore ?? null;
+  const homeScore = live?.homeScore ?? worldcupGame?.homeScore ?? null;
+  const awayScore = live?.awayScore ?? worldcupGame?.awayScore ?? null;
 
   if (!live && homeScore === null && awayScore === null && status === "SCHEDULED" && scorers.length === 0) {
     return null;
@@ -394,7 +395,7 @@ function withCanonicalMatchState({
     status: toLiveMatchStatus(status, live?.status),
     homeScore,
     awayScore,
-    winner: live?.winner ?? winnerFromScore(homeScore, awayScore),
+    winner: live?.winner ?? (status === "FINISHED" ? winnerFromScore(homeScore, awayScore) : null),
     stage: live?.stage,
     rawStage: live?.rawStage,
     scoreDuration: live?.scoreDuration,
