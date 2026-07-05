@@ -28,8 +28,8 @@ export function generateStaticParams() {
 }
 
 export const dynamicParams = false;
-export const dynamic = "force-dynamic";
-export const revalidate = 30;
+// export const dynamic = "force-dynamic"; // removed for ISR
+export const revalidate = 60;
 
 export async function generateMetadata({
   params,

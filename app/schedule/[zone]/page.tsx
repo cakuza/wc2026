@@ -10,8 +10,8 @@ import type { GoalScorerEvent } from "@/lib/worldcup26Provider";
 const BASE_URL = "https://www.worldcupmatchday.com";
 
 export const dynamicParams = false;
-export const dynamic = "force-dynamic";
-export const revalidate = 30;
+// export const dynamic = "force-dynamic"; // removed for ISR
+export const revalidate = 60;
 
 export function generateStaticParams() {
   return TIMEZONE_SLUGS.map((zone) => ({ zone }));

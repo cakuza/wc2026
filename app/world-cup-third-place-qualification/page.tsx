@@ -6,8 +6,8 @@ import { ThirdPlaceTable } from "@/components/ThirdPlaceTable";
 import { getLiveRefreshPolicy } from "@/lib/liveRefreshPolicy";
 import { getTournamentLiveSnapshot } from "@/lib/liveSnapshot";
 
-export const revalidate = 30;
-export const dynamic = "force-dynamic";
+export const revalidate = 60;
+// export const dynamic = "force-dynamic"; // removed for ISR
 
 const BASE_URL = "https://www.worldcupmatchday.com";
 

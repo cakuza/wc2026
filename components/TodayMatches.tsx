@@ -285,14 +285,14 @@ export function TodayMatches({
     let inFlight = false;
 
     async function poll(shouldContinue: boolean = hasLiveOrImminent) {
-      if (cancelled || document.hidden || inFlight) {
-        if (shouldContinue) schedule();
+      if (cancelled || inFlight) {
+        if (shouldContinue && !document.hidden) schedule();
         return;
       }
       inFlight = true;
       try {
         const data = shouldContinue
-          ? await fetch("/api/live-snapshot", { cache: "no-store" }).then((res) => (res.ok ? res.json() : null))
+          ? await fetch("/api/live-snapshot").then((res) => (res.ok ? res.json() : null))
           : await fetchClientLiveSnapshot();
         if (data) {
           if (!cancelled) {
@@ -303,22 +303,29 @@ export function TodayMatches({
         // keep last known snapshot; retry on next tick
       } finally {
         inFlight = false;
-        if (shouldContinue) schedule();
+        if (shouldContinue && !document.hidden) schedule();
       }
     }
 
     function schedule() {
-      if (cancelled) return;
+      if (cancelled || document.hidden) return;
       const jitter = Math.floor(Math.random() * 5_000);
-      timer = setTimeout(poll, 25_000 + jitter);
+      timer = setTimeout(() => poll(hasLiveOrImminent), 30_000 + jitter);
     }
 
     function handleVisibilityChange() {
-      if (!document.hidden) poll();
+      if (!document.hidden) {
+        if (timer) clearTimeout(timer);
+        poll(hasLiveOrImminent);
+      } else {
+        if (timer) clearTimeout(timer);
+      }
     }
 
-    poll(false);
-    if (hasLiveOrImminent) schedule();
+    // Always fetch once on mount to ensure we have the latest data,
+    // regardless of whether there is a live match.
+    poll(hasLiveOrImminent);
+    
     document.addEventListener("visibilitychange", handleVisibilityChange);
     return () => {
       cancelled = true;
