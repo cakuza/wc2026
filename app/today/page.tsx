@@ -1,4 +1,4 @@
-import { getResolvedHomeTeam, getResolvedAwayTeam, getResolvedHomeCode, getResolvedAwayCode, getParticipantDisplayLabel, isKnockoutMatch, type ResolvedParticipantLookup } from "@/lib/participant-resolution";
+import { getParticipantDisplay, type ResolvedParticipantLookup } from "@/lib/participant-resolution";
 import type { Metadata } from "next";
 import { cookies } from "next/headers";
 import Link from "next/link";
@@ -10,10 +10,11 @@ import { LiveSnapshotDebug } from "@/components/LiveSnapshotDebug";
 import { FreshnessLabel } from "@/components/FreshnessLabel";
 import { MatchdayDateNav } from "@/components/MatchdayDateNav";
 import { LiveDataUnavailableNotice } from "@/components/LiveDataUnavailableNotice";
+import { TodayPageLiveSection } from "@/components/TodayPageLiveSection";
 import { matchSlug, matchUtcDate, type Match } from "@/lib/matches";
-import { countryName } from "@/lib/i18n";
 import type { LiveMatchData } from "@/lib/liveMatchData";
 import type { GoalScorerEvent } from "@/lib/worldcup26Provider";
+import type { TodayLiveSnapshot } from "@/components/TodayMatches";
 import { getTournamentLiveSnapshot } from "@/lib/liveSnapshot";
 import { getLiveRefreshPolicy } from "@/lib/liveRefreshPolicy";
 import { buildKnockoutResolution } from "@/lib/knockoutResolution";
@@ -122,20 +123,19 @@ function shortScorerName(playerName: string) {
 }
 
 function teamLabel(match: Match, side: "home" | "away", resolvedParticipants?: ResolvedParticipantLookup): string {
-  const key = side === "home" ? getResolvedHomeTeam(match, resolvedParticipants) : getResolvedAwayTeam(match, resolvedParticipants);
-  if (key) return countryName(key, "en");
-  if (!isKnockoutMatch(match)) return side === "home" ? match.homeKey : match.awayKey;
-  return getParticipantDisplayLabel(side === "home" ? match.homeSlot : match.awaySlot);
+  return getParticipantDisplay(match, side, resolvedParticipants).label;
 }
 
 function TodaySummary({
   matches,
   liveData,
   scorerLines,
+  resolvedParticipants,
 }: {
   matches: Match[];
   liveData: Record<string, LiveMatchData>;
   scorerLines: Record<string, GoalScorerEvent[]>;
+  resolvedParticipants?: ResolvedParticipantLookup;
 }) {
   const rows = matches
     .map((match) => {
@@ -192,7 +192,7 @@ function TodaySummary({
                 return (
                   <p key={matchSlug(match)}>
                     <Link href={`/matches/${matchSlug(match)}`} className="font-semibold text-white hover:text-accent">
-                      {(getResolvedHomeTeam(match) ? countryName(getResolvedHomeTeam(match)!, "en") : (isKnockoutMatch(match) ? getParticipantDisplayLabel(match.homeSlot) : match.homeKey))} {scoreText(live!)} {(getResolvedAwayTeam(match) ? countryName(getResolvedAwayTeam(match)!, "en") : (isKnockoutMatch(match) ? getParticipantDisplayLabel(match.awaySlot) : match.awayKey))}
+                      {teamLabel(match, "home", resolvedParticipants)} {scoreText(live!)} {teamLabel(match, "away", resolvedParticipants)}
                     </Link>
                     {goals ? <span className="text-white/45"> — Goals: {goals}</span> : null}
                   </p>
@@ -211,14 +211,14 @@ function TodaySummary({
               {inProgress.map(({ match, live }) => (
                 <p key={matchSlug(match)}>
                   <Link href={`/matches/${matchSlug(match)}`} className="font-semibold text-white hover:text-accent">
-                    {(getResolvedHomeTeam(match) ? countryName(getResolvedHomeTeam(match)!, "en") : (isKnockoutMatch(match) ? getParticipantDisplayLabel(match.homeSlot) : match.homeKey))} {scoreText(live!)} {(getResolvedAwayTeam(match) ? countryName(getResolvedAwayTeam(match)!, "en") : (isKnockoutMatch(match) ? getParticipantDisplayLabel(match.awaySlot) : match.awayKey))} — LIVE
+                    {teamLabel(match, "home", resolvedParticipants)} {scoreText(live!)} {teamLabel(match, "away", resolvedParticipants)} — LIVE
                   </Link>
                 </p>
               ))}
               {syncing.map(({ match }) => (
                 <p key={matchSlug(match)}>
                   <Link href={`/matches/${matchSlug(match)}`} className="font-semibold text-white hover:text-accent">
-                    {(getResolvedHomeTeam(match) ? countryName(getResolvedHomeTeam(match)!, "en") : (isKnockoutMatch(match) ? getParticipantDisplayLabel(match.homeSlot) : match.homeKey))} vs {(getResolvedAwayTeam(match) ? countryName(getResolvedAwayTeam(match)!, "en") : (isKnockoutMatch(match) ? getParticipantDisplayLabel(match.awaySlot) : match.awayKey))} — score syncing
+                    {teamLabel(match, "home", resolvedParticipants)} vs {teamLabel(match, "away", resolvedParticipants)} — score syncing
                   </Link>
                 </p>
               ))}
@@ -233,7 +233,7 @@ function TodaySummary({
             </p>
             <p className="mt-1">
               <Link href={`/matches/${matchSlug(next)}`} className="font-semibold text-white hover:text-accent">
-                {(getResolvedHomeTeam(next) ? countryName(getResolvedHomeTeam(next)!, "en") : (isKnockoutMatch(next) ? getParticipantDisplayLabel(next.homeSlot) : next.homeKey))} vs {(getResolvedAwayTeam(next) ? countryName(getResolvedAwayTeam(next)!, "en") : (isKnockoutMatch(next) ? getParticipantDisplayLabel(next.awaySlot) : next.awayKey))}
+                {teamLabel(next, "home", resolvedParticipants)} vs {teamLabel(next, "away", resolvedParticipants)}
               </Link>{" "}
               — <MatchTime match={next} withZone className="font-semibold text-white/80" />
             </p>
@@ -260,6 +260,8 @@ function MatchRow({
 }) {
   const home = teamLabel(m, "home", resolvedParticipants);
   const away = teamLabel(m, "away", resolvedParticipants);
+  const homeDisplay = getParticipantDisplay(m, "home", resolvedParticipants);
+  const awayDisplay = getParticipantDisplay(m, "away", resolvedParticipants);
   // In the cold-start fallback a started match has an unknown result — never
   // show it as Scheduled or invent a score.
   const hasScore = !liveDataUnavailable && live && live.homeScore !== null && live.awayScore !== null;
@@ -277,7 +279,7 @@ function MatchRow({
           <div className="flex items-center gap-3">
             <div className="flex min-w-0 flex-1 items-center justify-end gap-2 text-end">
               <span className="truncate font-semibold text-white">{home}</span>
-              <Flag code={getResolvedHomeCode(m, resolvedParticipants) ?? m.homeCode} alt="" width={30} height={22} />
+              {homeDisplay.teamCode ? <Flag code={homeDisplay.teamCode} alt="" width={30} height={22} /> : null}
             </div>
             {hasScore ? (
               <span className="shrink-0 font-heading text-sm font-extrabold tabular-nums text-white">
@@ -289,7 +291,7 @@ function MatchRow({
               </span>
             )}
             <div className="flex min-w-0 flex-1 items-center gap-2">
-              <Flag code={getResolvedAwayCode(m, resolvedParticipants) ?? m.awayCode} alt="" width={30} height={22} />
+              {awayDisplay.teamCode ? <Flag code={awayDisplay.teamCode} alt="" width={30} height={22} /> : null}
               <span className="truncate font-semibold text-white">{away}</span>
             </div>
           </div>
@@ -381,6 +383,19 @@ export default async function TodayPage({
   for (const [id, entry] of Object.entries(snapshot.matches)) {
     if (entry.scorers.length > 0) scorerLines[id] = entry.scorers;
   }
+  const todayLiveSnapshot: TodayLiveSnapshot = {
+    snapshotId: snapshot.snapshotId,
+    generatedAt: snapshot.generatedAt,
+    liveDataByProviderId: liveData,
+    scorersByMatchId: scorerLines,
+    resolvedParticipants,
+    primaryProviderFetchedAt: snapshot.primaryProviderFetchedAt,
+    primaryProviderOk: snapshot.primaryProviderOk,
+  };
+  const liveDataUnavailableByMatchId = Object.fromEntries(
+    Object.entries(snapshot.matches).map(([id, entry]) => [id, Boolean(entry.liveDataUnavailable)]),
+  );
+  const longDateLabels = Object.fromEntries(days.map(({ date }) => [date, longDate(date)]));
   const refreshPolicy = getLiveRefreshPolicy(
     summaryMatches.map((match) => {
       const snap = snapshot.matches[matchSlug(match)];
@@ -447,10 +462,6 @@ export default async function TodayPage({
           </Link>
         )}
 
-        {isToday && hasSelectedMatches && (
-          <TodaySummary matches={summaryMatches} liveData={liveData} scorerLines={scorerLines} />
-        )}
-
         {showUpcomingFallback && (
           <div className="mb-6 rounded-xl border border-white/10 bg-navyCard px-4 py-4 text-sm text-white/60">
             <p className="font-semibold text-white/80">No World Cup matches are scheduled today.</p>
@@ -471,6 +482,17 @@ export default async function TodayPage({
           </div>
         )}
 
+        <TodayPageLiveSection
+          days={days}
+          summaryMatches={summaryMatches}
+          isToday={isToday}
+          showUpcomingFallback={showUpcomingFallback}
+          initialSnapshot={todayLiveSnapshot}
+          initialLiveDataUnavailableByMatchId={liveDataUnavailableByMatchId}
+          longDate={longDateLabels}
+        />
+
+        {false && (
         <div className="space-y-8">
           {days.map(({ date, matches }) => (
             <section key={date}>
@@ -492,6 +514,7 @@ export default async function TodayPage({
             </section>
           ))}
         </div>
+        )}
 
         {/* Quick links */}
         <div className="mt-8 flex flex-wrap gap-3 text-sm">

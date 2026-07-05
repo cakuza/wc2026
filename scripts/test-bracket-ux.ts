@@ -276,13 +276,13 @@ const KEY_CODE_MAP: Record<string, string> = {
   colombia: "co", ghana: "gh", australia: "au", egypt: "eg",
 };
 for (const [matchNum, participants] of Object.entries(RESOLVED_PARTICIPANTS)) {
-  const homeExpected = KEY_CODE_MAP[participants.home.teamKey];
-  const awayExpected = KEY_CODE_MAP[participants.away.teamKey];
-  if (homeExpected !== undefined) {
+  const homeExpected = participants.home ? KEY_CODE_MAP[participants.home.teamKey] : undefined;
+  const awayExpected = participants.away ? KEY_CODE_MAP[participants.away.teamKey] : undefined;
+  if (participants.home && homeExpected !== undefined) {
     checkEqual(participants.home.teamCode, homeExpected,
       `M${matchNum} home: teamCode "${participants.home.teamCode}" matches teamKey "${participants.home.teamKey}"`);
   }
-  if (awayExpected !== undefined) {
+  if (participants.away && awayExpected !== undefined) {
     checkEqual(participants.away.teamCode, awayExpected,
       `M${matchNum} away: teamCode "${participants.away.teamCode}" matches teamKey "${participants.away.teamKey}"`);
   }

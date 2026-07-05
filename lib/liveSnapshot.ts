@@ -25,6 +25,7 @@ import { applyVerifiedGoalCorrections } from "./verifiedMatchEventCorrections";
 import { countryName } from "./i18n";
 import { getResolvedAwayTeam, getResolvedHomeTeam } from "./participant-resolution";
 import { squadFor } from "./squads";
+import { applyCanonicalMatchResultFallback } from "./canonicalMatchResults";
 
 export const LIVE_SNAPSHOT_CACHE_KEY = "worldcup-tournament-live-snapshot-v9";
 export const LIVE_SNAPSHOT_REVALIDATE_SECONDS = 25;
@@ -151,13 +152,14 @@ function toLiveMatchStatus(status: SnapshotMatchStatus, fallback: LiveMatchStatu
 
 export function canonicalStatus({
   footballData,
-  worldcupGame: _worldcupGame,
+  worldcupGame,
 }: {
   footballData?: LiveMatchData;
   worldcupGame?: WorldCup26Game | null;
 }): SnapshotMatchStatus {
   const footballStatus = toSnapshotStatus(footballData);
   if (footballStatus === "FINISHED") return "FINISHED";
+  if (worldcupGame?.finished) return "FINISHED";
   if (footballStatus === "LIVE" || footballStatus === "HALFTIME" || footballStatus === "SYNCING") {
     return footballStatus;
   }
@@ -372,8 +374,8 @@ function withCanonicalMatchState({
   if (!providerId) return null;
 
   const status = canonicalStatus({ footballData: live, worldcupGame });
-  const homeScore = live?.homeScore ?? null;
-  const awayScore = live?.awayScore ?? null;
+  const homeScore = live?.homeScore ?? (worldcupGame?.finished ? worldcupGame.homeScore : null) ?? null;
+  const awayScore = live?.awayScore ?? (worldcupGame?.finished ? worldcupGame.awayScore : null) ?? null;
 
   if (!live && homeScore === null && awayScore === null && status === "SCHEDULED" && scorers.length === 0) {
     return null;
@@ -394,7 +396,7 @@ function withCanonicalMatchState({
     status: toLiveMatchStatus(status, live?.status),
     homeScore,
     awayScore,
-    winner: live?.winner ?? winnerFromScore(homeScore, awayScore),
+    winner: live?.winner ?? (status === "FINISHED" ? winnerFromScore(homeScore, awayScore) : null),
     stage: live?.stage,
     rawStage: live?.rawStage,
     scoreDuration: live?.scoreDuration,
@@ -489,13 +491,13 @@ export async function buildTournamentLiveSnapshot({
     const live = providerId ? filteredLiveData.get(providerId) : undefined;
     const worldcupGame = worldcupByMatch.get(internalId);
     const scorers = scorersFromWorldcupGame(match, worldcupGame);
-    const canonicalLive = withCanonicalMatchState({
+    const canonicalLive = applyCanonicalMatchResultFallback(match, withCanonicalMatchState({
       match,
       live,
       worldcupGame,
       scorers,
       generatedAt,
-    });
+    }) ?? undefined, generatedAt) ?? null;
     if (providerId && canonicalLive) canonicalLiveData.set(providerId, canonicalLive);
     const canonicalScorers = (canonicalLive?.goals ?? []).map((event): GoalScorerEvent => ({
       type: event.type === "PENALTY_GOAL" ? "PENALTY_GOAL" : "GOAL",
@@ -512,7 +514,7 @@ export async function buildTournamentLiveSnapshot({
     }));
     if (canonicalScorers.length > 0) scorerEventsByMatch.set(internalId, canonicalScorers);
 
-    const status = canonicalStatus({ footballData: live, worldcupGame });
+    const status = toSnapshotStatus(canonicalLive ?? undefined);
     matches[internalId] = {
       match,
       internalId,
@@ -1008,7 +1010,8 @@ async function getTruthfulFallbackSnapshot(): Promise<TournamentLiveSnapshot> {
     const matches: Record<string, SerializableSnapshotMatch> = {};
     for (const [id, m] of Object.entries(base.matches)) {
       const kickoffPassed = matchUtcDate(m.match).getTime() <= nowMs;
-      matches[id] = kickoffPassed ? { ...m, liveDataUnavailable: true } : m;
+      const hasResolvedScore = m.status === "FINISHED" && m.homeScore !== null && m.awayScore !== null;
+      matches[id] = kickoffPassed && !hasResolvedScore ? { ...m, liveDataUnavailable: true } : m;
     }
 
     truthfulFallbackSnapshot = { ...base, matches, isFallback: true };

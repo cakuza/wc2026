@@ -9,6 +9,7 @@ import { getDisplayMatchdayForTimeZone, resolveSelectedTimeZone } from "@/lib/to
 import { TZ_COOKIE } from "@/lib/timezone";
 import { getTournamentLiveSnapshot } from "@/lib/liveSnapshot";
 import { LiveDataUnavailableNotice } from "@/components/LiveDataUnavailableNotice";
+import { buildKnockoutResolution } from "@/lib/knockoutResolution";
 
 const BASE_URL = "https://www.worldcupmatchday.com";
 
@@ -44,16 +45,17 @@ export default async function TodayPage({
   const tickerMatches = getTickerMatches(now);
   const initialMatchday = getDisplayMatchdayForTimeZone({ now, timeZone: selectedTimeZone });
   const snapshot = await getTournamentLiveSnapshot();
+  const resolvedParticipants = buildKnockoutResolution(snapshot.matches);
 
   return (
     <>
-      <Ticker items={tickerMatches} />
+      <Ticker items={tickerMatches} resolvedParticipants={resolvedParticipants} />
       {snapshot.isFallback ? (
         <div className="mx-auto max-w-7xl px-4 pt-6">
           <LiveDataUnavailableNotice show />
         </div>
       ) : null}
-      <Hero initialMatchday={initialMatchday} snapshot={snapshot} />
+      <Hero initialMatchday={initialMatchday} snapshot={snapshot} resolvedParticipants={resolvedParticipants} />
       <HomeTrivia />
       <TeamsByConfederationPreview />
     </>

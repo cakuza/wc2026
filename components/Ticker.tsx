@@ -1,5 +1,4 @@
 "use client";
-import { getResolvedHomeTeam, getResolvedAwayTeam, getResolvedHomeCode, getResolvedAwayCode, getParticipantDisplayLabel, isKnockoutMatch } from "@/lib/participant-resolution";
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import dynamic from "next/dynamic";
@@ -8,61 +7,82 @@ import { useLang } from "@/components/LanguageProvider";
 import { useTimezone } from "@/components/TimezoneProvider";
 import { matchUtcDate, type Match } from "@/lib/matches";
 import { getMatchCalendarDateInZone } from "@/lib/todaySelection";
+import type { ResolvedParticipantLookup } from "@/lib/participant-resolution";
+import { mergeResolvedParticipantsFromApiMatches } from "@/lib/resolvedParticipantsFromApi";
+import { getTickerDisplay } from "@/lib/tickerDisplay";
+import { fetchClientLiveSnapshot } from "@/lib/clientLiveSnapshot";
 
 const PIXELS_PER_SECOND = 80;
 
-/**
- * TickerDuplicate is loaded with { ssr: false }.
- * This is the ONLY reliable way in Next.js App Router to guarantee a
- * component never appears in SSR HTML — useState conditionals are still
- * executed on the server.
- */
 const TickerDuplicate = dynamic(
   () => import("@/components/TickerDuplicate"),
-  { ssr: false }
+  { ssr: false },
 );
 
-function TickerItems({ items }: { items: Match[] }) {
-  const { t, country, formatDate } = useLang();
+function TickerItems({
+  items,
+  resolvedParticipants,
+}: {
+  items: Match[];
+  resolvedParticipants?: ResolvedParticipantLookup;
+}) {
+  const { t, lang, formatDate } = useLang();
   const { timeZone } = useTimezone();
+
   return (
     <>
-      {items.map((m, i) => (
-        <span
-          key={i}
-          className="mx-4 flex items-center gap-2 whitespace-nowrap text-sm font-semibold text-white"
-        >
-          {getResolvedHomeTeam(m) && <Flag code={getResolvedHomeCode(m) ?? ""} alt="" width={22} height={16} className="rounded-sm" />}
-          <span>{getResolvedHomeTeam(m) ? country(getResolvedHomeTeam(m)!) : (isKnockoutMatch(m) ? getParticipantDisplayLabel(m.homeSlot) : m.homeKey)}</span>
-          <span className="opacity-70">{t("vs")}</span>
-          {getResolvedAwayTeam(m) && <Flag code={getResolvedAwayCode(m) ?? ""} alt="" width={22} height={16} className="rounded-sm" />}
-          <span>{getResolvedAwayTeam(m) ? country(getResolvedAwayTeam(m)!) : (isKnockoutMatch(m) ? getParticipantDisplayLabel(m.awaySlot) : m.awayKey)}</span>
-          <span className="opacity-70">·</span>
-          <span className="opacity-80">{formatDate(getMatchCalendarDateInZone(matchUtcDate(m), timeZone))}</span>
-        </span>
-      ))}
+      {items.map((m, i) => {
+        const { home, away } = getTickerDisplay(m, resolvedParticipants, lang);
+        return (
+          <span
+            key={i}
+            className="mx-4 flex items-center gap-2 whitespace-nowrap text-sm font-semibold text-white"
+          >
+            {home.teamCode && <Flag code={home.teamCode} alt="" width={22} height={16} className="rounded-sm" />}
+            <span>{home.label}</span>
+            <span className="opacity-70">{t("vs")}</span>
+            {away.teamCode && <Flag code={away.teamCode} alt="" width={22} height={16} className="rounded-sm" />}
+            <span>{away.label}</span>
+            <span className="opacity-70">·</span>
+            <span className="opacity-80">{formatDate(getMatchCalendarDateInZone(matchUtcDate(m), timeZone))}</span>
+          </span>
+        );
+      })}
     </>
   );
 }
 
-export function Ticker({ items }: { items: Match[] }) {
-  const { t, country, formatDate } = useLang();
+export function Ticker({
+  items,
+  resolvedParticipants,
+}: {
+  items: Match[];
+  resolvedParticipants?: ResolvedParticipantLookup;
+}) {
+  const { t, formatDate } = useLang();
+  const [liveResolvedParticipants, setLiveResolvedParticipants] = useState(resolvedParticipants);
   const trackRef = useRef<HTMLDivElement>(null);
   const posRef = useRef(0);
   const rafRef = useRef<number>(0);
   const lastRef = useRef<number | null>(null);
-
-  /**
-   * dupeReady becomes true when TickerDuplicate fires its onMount callback.
-   * The animation useEffect depends on dupeReady so it re-runs once the
-   * duplicate is actually in the DOM — at that moment scrollWidth = 2×
-   * single-copy width and the seamless loop works correctly.
-   */
   const [dupeReady, setDupeReady] = useState(false);
   const handleDupeMount = useCallback(() => setDupeReady(true), []);
 
   useEffect(() => {
-    // Don't start until the duplicate is in the DOM (correct scrollWidth).
+    let cancelled = false;
+    async function refreshResolvedParticipants() {
+      const data = await fetchClientLiveSnapshot();
+      if (!cancelled && data?.matches) {
+        setLiveResolvedParticipants((prev) => mergeResolvedParticipantsFromApiMatches(prev, data.matches));
+      }
+    }
+    refreshResolvedParticipants();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  useEffect(() => {
     if (!dupeReady) return;
 
     const track = trackRef.current;
@@ -90,8 +110,7 @@ export function Ticker({ items }: { items: Match[] }) {
 
     rafRef.current = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(rafRef.current);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [t, country, formatDate, dupeReady]);
+  }, [t, formatDate, dupeReady]);
 
   return (
     <div className="overflow-hidden border-b border-white/10 bg-accent">
@@ -101,17 +120,10 @@ export function Ticker({ items }: { items: Match[] }) {
         </span>
         <div className="relative flex-1 overflow-hidden">
           <div ref={trackRef} className="flex w-max items-center py-2">
-            {/* Real copy — visible to screen readers and Googlebot */}
             <div className="flex items-center">
-              <TickerItems items={items} />
+              <TickerItems items={items} resolvedParticipants={liveResolvedParticipants} />
             </div>
-
-            {/*
-             * Duplicate for seamless visual loop.
-             * Loaded with { ssr: false } — NEVER in SSR HTML.
-             * aria-hidden + data-nosnippet set inside TickerDuplicate itself.
-             */}
-            <TickerDuplicate items={items} onMount={handleDupeMount} />
+            <TickerDuplicate items={items} resolvedParticipants={liveResolvedParticipants} onMount={handleDupeMount} />
           </div>
         </div>
       </div>

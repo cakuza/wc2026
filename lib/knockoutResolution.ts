@@ -47,8 +47,8 @@ export function buildKnockoutResolution(matches: Record<string, SerializableSnap
 
   for (const [matchNumber, participants] of Object.entries(RESOLVED_PARTICIPANTS)) {
     result[Number(matchNumber)] = {
-      home: participants.home,
-      away: participants.away,
+      ...(participants.home ? { home: participants.home } : {}),
+      ...(participants.away ? { away: participants.away } : {}),
     };
   }
 

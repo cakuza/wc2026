@@ -48,7 +48,7 @@ export function getScoreFreshnessLabel({
   const age = formatRelativeAge(primaryProviderFetchedAt, now);
 
   if (!primaryProviderOk) {
-    return { label: `Live data may be delayed · Last checked ${age}`, state: "stale" };
+    return { label: `Live data may be delayed · Last successful check ${age}`, state: "stale" };
   }
 
   // "Last checked" — the timestamp is the latest application poll, not a

@@ -1,15 +1,15 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { useLang } from "@/components/LanguageProvider";
 import { Flag } from "@/components/Flag";
 import { FINAL_MATCH, QUARTER_FINAL_MATCHES, ROUND_OF_16_MATCHES, ROUND_OF_32_MATCHES, SEMI_FINAL_MATCHES, slotLabel } from "@/lib/knockoutBracket2026";
-import { countryName, type Lang } from "@/lib/i18n";
-import { MATCHES } from "@/lib/matches";
-import { resolvedHome, resolvedAway, RESOLVED_PARTICIPANTS } from "@/lib/resolvedParticipants";
-import type { ResolvedParticipantLookup } from "@/lib/participant-resolution";
-
-// WC 2026: 48 teams → 32 knockout teams (top 2 from each of 12 groups + 8 best 3rd-placed)
-// Knockout bracket: R32 (16 matches) → R16 (8) → QF (4) → SF (2) → Final (1)
+import { type Lang } from "@/lib/i18n";
+import { MATCHES, type Match } from "@/lib/matches";
+import { RESOLVED_PARTICIPANTS } from "@/lib/resolvedParticipants";
+import { getParticipantDisplay, knockoutSlotLabel, isKnockoutMatch, type ResolvedParticipantLookup } from "@/lib/participant-resolution";
+import { mergeResolvedParticipantsFromApiMatches } from "@/lib/resolvedParticipantsFromApi";
+import { fetchClientLiveSnapshot } from "@/lib/clientLiveSnapshot";
 
 // --- Layout constants ---
 const CARD_H = 62;   // card height in px
@@ -47,23 +47,6 @@ function matchDateStr(matchNumber: number): string | undefined {
   const day = d.getDate();
   const month = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"][d.getMonth()];
   return `${day} ${month}`;
-}
-
-function slotWinnerLabel(
-  sourceMatchNum: number,
-  t: (key: string) => string,
-  lang: Lang
-): string {
-  if (sourceMatchNum >= 73 && sourceMatchNum <= 88) {
-    const hp = resolvedHome(sourceMatchNum);
-    const ap = resolvedAway(sourceMatchNum);
-    if (hp && ap) {
-      return `${t("bracket_winner_of")} ${countryName(hp.teamKey, lang)} vs ${countryName(ap.teamKey, lang)}`;
-    }
-  }
-  if (sourceMatchNum >= 89 && sourceMatchNum <= 96) return t("bracket_r16_winner");
-  if (sourceMatchNum >= 97 && sourceMatchNum <= 100) return t("bracket_qf_winner");
-  return t("bracket_sf_winner");
 }
 
 // --- Bracket slot data ---
@@ -118,28 +101,59 @@ const FINAL_DATE: Record<string, string> = {
   ja: "2026年7月19日",
 };
 
-function labelForResolved(side: { teamKey: string } | undefined, fallback: string, lang: Parameters<typeof countryName>[1]): string {
-  return side ? countryName(side.teamKey, lang) : fallback;
-}
-
-export function BracketContent({ resolvedParticipants }: { resolvedParticipants?: ResolvedParticipantLookup }) {
-  const { t, lang } = useLang();
-
-  const mapMatch = (match: any, isR32: boolean) => {
+export function buildBracketMatchModel({
+  match,
+  isR32,
+  resolvedParticipants,
+  t,
+  lang,
+}: {
+  match: any;
+  isR32: boolean;
+  resolvedParticipants?: ResolvedParticipantLookup;
+  t: (key: string) => string;
+  lang: Lang;
+}): BMatch {
+    const scheduleMatch = MATCHES.find((x): x is Match & { matchNumber: number } =>
+      "matchNumber" in x && x.matchNumber === match.matchNumber
+    );
+    const homeDisplay = scheduleMatch ? getParticipantDisplay(scheduleMatch, "home", resolvedParticipants, lang) : null;
+    const awayDisplay = scheduleMatch ? getParticipantDisplay(scheduleMatch, "away", resolvedParticipants, lang) : null;
     const resolved = resolvedParticipants?.[match.matchNumber] ?? RESOLVED_PARTICIPANTS[match.matchNumber];
     return {
       id: `M${match.matchNumber}`,
       dateLabel: matchDateStr(match.matchNumber),
       home: {
-        label: resolved?.home ? countryName(resolved.home.teamKey, lang) : (isR32 ? slotLabel(match.home) : slotWinnerLabel(match.homeWinnerOf, t, lang)),
-        flagCode: resolved?.home?.teamCode ?? undefined,
+        label: homeDisplay?.isResolved ? homeDisplay.label : (isR32 ? slotLabel(match.home) : (scheduleMatch && isKnockoutMatch(scheduleMatch) ? knockoutSlotLabel(scheduleMatch.homeSlot, lang, resolvedParticipants) : "TBD")),
+        flagCode: homeDisplay?.teamCode ?? resolved?.home?.teamCode ?? undefined,
       },
       away: {
-        label: resolved?.away ? countryName(resolved.away.teamKey, lang) : (isR32 ? slotLabel(match.away) : slotWinnerLabel(match.awayWinnerOf, t, lang)),
-        flagCode: resolved?.away?.teamCode ?? undefined,
+        label: awayDisplay?.isResolved ? awayDisplay.label : (isR32 ? slotLabel(match.away) : (scheduleMatch && isKnockoutMatch(scheduleMatch) ? knockoutSlotLabel(scheduleMatch.awaySlot, lang, resolvedParticipants) : "TBD")),
+        flagCode: awayDisplay?.teamCode ?? resolved?.away?.teamCode ?? undefined,
       },
     };
-  };
+}
+
+export function BracketContent({ resolvedParticipants }: { resolvedParticipants?: ResolvedParticipantLookup }) {
+  const { t, lang } = useLang();
+  const [liveResolvedParticipants, setLiveResolvedParticipants] = useState(resolvedParticipants);
+
+  useEffect(() => {
+    let cancelled = false;
+    async function refreshResolvedParticipants() {
+      const data = await fetchClientLiveSnapshot();
+      if (!cancelled && data?.matches) {
+        setLiveResolvedParticipants((prev) => mergeResolvedParticipantsFromApiMatches(prev, data.matches));
+      }
+    }
+    refreshResolvedParticipants();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const mapMatch = (match: any, isR32: boolean) =>
+    buildBracketMatchModel({ match, isR32, resolvedParticipants: liveResolvedParticipants, t, lang });
 
   const ROUND_MATCHES: BMatch[][] = [
     ROUND_OF_32_MATCHES.map((m) => mapMatch(m, true)),

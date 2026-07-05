@@ -6,8 +6,9 @@ import { TodayMatches, type TodayLiveSnapshot } from "@/components/TodayMatches"
 import { useLang } from "@/components/LanguageProvider";
 import { type DisplayMatchday } from "@/lib/matches";
 import type { TournamentLiveSnapshot } from "@/lib/liveSnapshot";
+import type { ResolvedParticipantLookup } from "@/lib/participant-resolution";
 
-function toTodayLiveSnapshot(snapshot: TournamentLiveSnapshot): TodayLiveSnapshot {
+function toTodayLiveSnapshot(snapshot: TournamentLiveSnapshot, resolvedParticipants: ResolvedParticipantLookup): TodayLiveSnapshot {
   const scorersByMatchId: Record<string, TodayLiveSnapshot["scorersByMatchId"][string]> = {};
   for (const [id, entry] of Object.entries(snapshot.matches)) {
     if (entry.scorers.length > 0) scorersByMatchId[id] = entry.scorers;
@@ -17,6 +18,7 @@ function toTodayLiveSnapshot(snapshot: TournamentLiveSnapshot): TodayLiveSnapsho
     generatedAt: snapshot.generatedAt,
     liveDataByProviderId: snapshot.liveDataByProviderId,
     scorersByMatchId,
+    resolvedParticipants,
     primaryProviderFetchedAt: snapshot.primaryProviderFetchedAt,
     primaryProviderOk: snapshot.primaryProviderOk,
   };
@@ -25,9 +27,11 @@ function toTodayLiveSnapshot(snapshot: TournamentLiveSnapshot): TodayLiveSnapsho
 export function Hero({
   initialMatchday,
   snapshot,
+  resolvedParticipants,
 }: {
   initialMatchday: DisplayMatchday;
   snapshot: TournamentLiveSnapshot;
+  resolvedParticipants: ResolvedParticipantLookup;
 }) {
   const { t } = useLang();
   return (
@@ -99,7 +103,7 @@ export function Hero({
         </div>
 
         {/* Right: dynamic today's / next matches (client component) */}
-        <TodayMatches initialMatchday={initialMatchday} liveSnapshot={toTodayLiveSnapshot(snapshot)} />
+        <TodayMatches initialMatchday={initialMatchday} liveSnapshot={toTodayLiveSnapshot(snapshot, resolvedParticipants)} />
       </div>
     </section>
   );

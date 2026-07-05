@@ -1,5 +1,5 @@
 "use client";
-import { getResolvedHomeTeam, getResolvedAwayTeam, getResolvedHomeCode, getResolvedAwayCode, getParticipantDisplayLabel, isKnockoutMatch } from "@/lib/participant-resolution";
+import { getParticipantDisplay, type ResolvedParticipantLookup } from "@/lib/participant-resolution";
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
@@ -13,17 +13,101 @@ import { matchSlug, matchUtcDate, type DisplayMatchday, type Match } from "@/lib
 import { getDisplayMatchdayForTimeZone } from "@/lib/todaySelection";
 import type { LiveMatchData } from "@/lib/liveMatchData";
 import type { GoalScorerEvent } from "@/lib/worldcup26Provider";
-import { countryName } from "@/lib/i18n";
 import { reconcileGoalEvents } from "@/lib/scoreReconciliation";
+import { mergeResolvedParticipantsFromApiMatches } from "@/lib/resolvedParticipantsFromApi";
+import { fetchClientLiveSnapshot } from "@/lib/clientLiveSnapshot";
+import { applyCanonicalMatchResultFallback } from "@/lib/canonicalMatchResults";
 
 export type TodayLiveSnapshot = {
   snapshotId: string;
   generatedAt: string;
   liveDataByProviderId: Record<string, LiveMatchData>;
   scorersByMatchId: Record<string, GoalScorerEvent[]>;
+  resolvedParticipants: ResolvedParticipantLookup;
   primaryProviderFetchedAt: string | null;
   primaryProviderOk: boolean;
 };
+
+type ApiSnapshotMatchUpdate = {
+  status: "SCHEDULED" | "LIVE" | "HALFTIME" | "SYNCING" | "FINISHED";
+  homeScore: number | null;
+  awayScore: number | null;
+  winner?: LiveMatchData["winner"];
+  scorers?: GoalScorerEvent[];
+  resolvedHomeParticipant?: { teamKey: string; teamCode: string } | null;
+  resolvedAwayParticipant?: { teamKey: string; teamCode: string } | null;
+};
+
+type ApiTodayLiveSnapshot = {
+  snapshotId: string;
+  generatedAt: string;
+  updatedAt?: string;
+  primaryProviderFetchedAt: string | null;
+  primaryProviderOk: boolean;
+  matches: Record<string, ApiSnapshotMatchUpdate>;
+};
+
+function apiStatusToLiveStatus(status: ApiSnapshotMatchUpdate["status"]): LiveMatchData["status"] {
+  if (status === "LIVE") return "IN_PLAY";
+  if (status === "HALFTIME") return "PAUSED";
+  if (status === "FINISHED") return "FINISHED";
+  if (status === "SYNCING") return "IN_PLAY";
+  return "SCHEDULED";
+}
+
+export function applyTodaySnapshotUpdate(
+  prev: TodayLiveSnapshot,
+  data: ApiTodayLiveSnapshot,
+  allMatches: Match[],
+): TodayLiveSnapshot {
+  const liveDataByProviderId: Record<string, LiveMatchData> = { ...prev.liveDataByProviderId };
+
+  for (const match of allMatches) {
+    const providerId = match.providerIds?.footballData;
+    if (!providerId) continue;
+    const update = data.matches[matchSlug(match)];
+    if (!update) continue;
+    const key = String(providerId);
+    const previous = liveDataByProviderId[key];
+    liveDataByProviderId[key] = {
+      ...(previous ?? {
+        provider: "football-data.org",
+        providerMatchId: providerId,
+        status: "SCHEDULED",
+        homeScore: null,
+        awayScore: null,
+        winner: null,
+        lastSyncedAt: data.updatedAt ?? data.generatedAt,
+        eventDataAvailable: false,
+      }),
+      status: apiStatusToLiveStatus(update.status),
+      homeScore: update.homeScore,
+      awayScore: update.awayScore,
+      winner: update.winner ?? previous?.winner ?? null,
+      lastSyncedAt: data.updatedAt ?? data.generatedAt,
+    };
+  }
+
+  for (const match of allMatches) {
+    const providerId = match.providerIds?.footballData;
+    if (!providerId) continue;
+    const key = String(providerId);
+    const normalized = applyCanonicalMatchResultFallback(match, liveDataByProviderId[key], data.updatedAt ?? data.generatedAt);
+    if (normalized) liveDataByProviderId[key] = normalized;
+  }
+
+  return {
+    snapshotId: data.snapshotId,
+    generatedAt: data.generatedAt,
+    resolvedParticipants: mergeResolvedParticipantsFromApiMatches(prev.resolvedParticipants, data.matches),
+    primaryProviderFetchedAt: data.primaryProviderFetchedAt,
+    primaryProviderOk: data.primaryProviderOk,
+    liveDataByProviderId,
+    scorersByMatchId: Object.fromEntries(
+      Object.entries(data.matches).map(([id, match]) => [id, match.scorers ?? []]),
+    ),
+  };
+}
 
 function shortScorerName(playerName: string) {
   if (playerName.includes(".")) return playerName;
@@ -46,20 +130,24 @@ function MatchRow({
   m,
   live,
   scorers,
+  resolvedParticipants,
 }: {
   m: Match;
   live: LiveMatchData | undefined;
   scorers?: GoalScorerEvent[];
+  resolvedParticipants?: ResolvedParticipantLookup;
 }) {
-  const { t, country } = useLang();
+  const { t, lang } = useLang();
+  const home = getParticipantDisplay(m, "home", resolvedParticipants, lang);
+  const away = getParticipantDisplay(m, "away", resolvedParticipants, lang);
   const hasScore = live && live.homeScore !== null && live.awayScore !== null;
   const isLive = live?.status === "IN_PLAY" || live?.status === "PAUSED";
   const isFinished = live?.status === "FINISHED";
   const { confirmedEvents, scorerDetailsIncomplete } = reconcileGoalEvents({
     homeScore: live?.homeScore ?? null,
     awayScore: live?.awayScore ?? null,
-    homeTeamName: getResolvedHomeTeam(m) ? countryName(getResolvedHomeTeam(m)!, "en") : (isKnockoutMatch(m) ? getParticipantDisplayLabel(m.homeSlot) : m.homeKey),
-    awayTeamName: getResolvedAwayTeam(m) ? countryName(getResolvedAwayTeam(m)!, "en") : (isKnockoutMatch(m) ? getParticipantDisplayLabel(m.awaySlot) : m.awayKey),
+    homeTeamName: home.label,
+    awayTeamName: away.label,
     events: scorers ?? [],
   });
   const goals = scorerText(confirmedEvents);
@@ -72,8 +160,8 @@ function MatchRow({
     >
       <div className="flex items-center gap-2">
         <div className="flex min-w-0 flex-1 items-center justify-end gap-2">
-          <span className="min-w-0 truncate text-sm font-bold text-white">{getResolvedHomeTeam(m) ? country(getResolvedHomeTeam(m)!) : (isKnockoutMatch(m) ? getParticipantDisplayLabel(m.homeSlot) : m.homeKey)}</span>
-          {getResolvedHomeTeam(m) && <Flag code={getResolvedHomeCode(m) ?? ""} alt="" width={28} height={20} />}
+          <span className="min-w-0 truncate text-sm font-bold text-white">{home.label}</span>
+          {home.teamCode && <Flag code={home.teamCode} alt="" width={28} height={20} />}
         </div>
 
         {hasScore ? (
@@ -85,8 +173,8 @@ function MatchRow({
         )}
 
         <div className="flex min-w-0 flex-1 items-center gap-2">
-          {getResolvedAwayTeam(m) && <Flag code={getResolvedAwayCode(m) ?? ""} alt="" width={28} height={20} />}
-          <span className="min-w-0 truncate text-sm font-bold text-white">{getResolvedAwayTeam(m) ? country(getResolvedAwayTeam(m)!) : (isKnockoutMatch(m) ? getParticipantDisplayLabel(m.awaySlot) : m.awayKey)}</span>
+          {away.teamCode && <Flag code={away.teamCode} alt="" width={28} height={20} />}
+          <span className="min-w-0 truncate text-sm font-bold text-white">{away.label}</span>
         </div>
       </div>
 
@@ -192,46 +280,30 @@ export function TodayMatches({
   // or starting soon — reads the shared server snapshot, never the upstream
   // provider directly, so request volume stays bounded regardless of visitor count.
   useEffect(() => {
-    if (!hasLiveOrImminent) return;
-
     let cancelled = false;
     let timer: ReturnType<typeof setTimeout> | null = null;
     let inFlight = false;
 
-    async function poll() {
+    async function poll(shouldContinue: boolean = hasLiveOrImminent) {
       if (cancelled || document.hidden || inFlight) {
-        schedule();
+        if (shouldContinue) schedule();
         return;
       }
       inFlight = true;
       try {
-        const res = await fetch("/api/live-snapshot", { cache: "no-store" });
-        if (res.ok) {
-          const data = await res.json();
+        const data = shouldContinue
+          ? await fetch("/api/live-snapshot", { cache: "no-store" }).then((res) => (res.ok ? res.json() : null))
+          : await fetchClientLiveSnapshot();
+        if (data) {
           if (!cancelled) {
-            setSnapshot((prev) => ({
-              snapshotId: data.snapshotId,
-              generatedAt: data.generatedAt,
-              primaryProviderFetchedAt: data.primaryProviderFetchedAt,
-              primaryProviderOk: data.primaryProviderOk,
-              liveDataByProviderId: Object.fromEntries(
-                Object.entries(prev.liveDataByProviderId).map(([pid, live]) => {
-                  const m = allMatches.find((match) => String(match.providerIds?.footballData) === pid);
-                  const update = m ? data.matches[matchSlug(m)] : undefined;
-                  return [pid, update ? { ...live, status: update.status, homeScore: update.homeScore, awayScore: update.awayScore } : live];
-                }),
-              ),
-              scorersByMatchId: Object.fromEntries(
-                Object.entries(data.matches as Record<string, { scorers: GoalScorerEvent[] }>).map(([id, m]) => [id, m.scorers]),
-              ),
-            }));
+            setSnapshot((prev) => applyTodaySnapshotUpdate(prev, data, allMatches));
           }
         }
       } catch {
         // keep last known snapshot; retry on next tick
       } finally {
         inFlight = false;
-        schedule();
+        if (shouldContinue) schedule();
       }
     }
 
@@ -245,7 +317,8 @@ export function TodayMatches({
       if (!document.hidden) poll();
     }
 
-    schedule();
+    poll(false);
+    if (hasLiveOrImminent) schedule();
     document.addEventListener("visibilitychange", handleVisibilityChange);
     return () => {
       cancelled = true;
@@ -266,6 +339,7 @@ export function TodayMatches({
         m={m}
         live={m.providerIds?.footballData ? snapshot.liveDataByProviderId[String(m.providerIds.footballData)] : undefined}
         scorers={snapshot.scorersByMatchId[matchSlug(m)]}
+        resolvedParticipants={snapshot.resolvedParticipants}
       />
     ));
 
