@@ -16,6 +16,7 @@ import type { GoalScorerEvent } from "@/lib/worldcup26Provider";
 import { reconcileGoalEvents } from "@/lib/scoreReconciliation";
 import { mergeResolvedParticipantsFromApiMatches } from "@/lib/resolvedParticipantsFromApi";
 import { fetchClientLiveSnapshot } from "@/lib/clientLiveSnapshot";
+import { applyCanonicalMatchResultFallback } from "@/lib/canonicalMatchResults";
 
 export type TodayLiveSnapshot = {
   snapshotId: string;
@@ -85,6 +86,14 @@ export function applyTodaySnapshotUpdate(
       winner: update.winner ?? previous?.winner ?? null,
       lastSyncedAt: data.updatedAt ?? data.generatedAt,
     };
+  }
+
+  for (const match of allMatches) {
+    const providerId = match.providerIds?.footballData;
+    if (!providerId) continue;
+    const key = String(providerId);
+    const normalized = applyCanonicalMatchResultFallback(match, liveDataByProviderId[key], data.updatedAt ?? data.generatedAt);
+    if (normalized) liveDataByProviderId[key] = normalized;
   }
 
   return {

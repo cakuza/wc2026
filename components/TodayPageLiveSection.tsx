@@ -7,6 +7,7 @@ import { MatchTime } from "@/components/MatchTime";
 import { applyTodaySnapshotUpdate, type TodayLiveSnapshot } from "@/components/TodayMatches";
 import { getParticipantDisplay } from "@/lib/participant-resolution";
 import { fetchClientLiveSnapshot } from "@/lib/clientLiveSnapshot";
+import { hasCanonicalCompletedResult } from "@/lib/canonicalMatchResults";
 import { matchSlug, matchUtcDate, type Match } from "@/lib/matches";
 import type { LiveMatchData } from "@/lib/liveMatchData";
 import type { GoalScorerEvent } from "@/lib/worldcup26Provider";
@@ -282,11 +283,17 @@ export function TodayPageLiveSection({
       const data = await fetchClientLiveSnapshot();
       if (!cancelled && data?.matches) {
         setSnapshot((prev) => applyTodaySnapshotUpdate(prev, data, allMatches));
+        const canonicalAvailability = Object.fromEntries(
+          allMatches
+            .filter((match) => hasCanonicalCompletedResult(match))
+            .map((match) => [matchSlug(match), false]),
+        );
         setLiveDataUnavailableByMatchId((prev) => ({
           ...prev,
           ...Object.fromEntries(
             Object.entries(data.matches).map(([id, match]: [string, any]) => [id, Boolean(match.liveDataUnavailable)]),
           ),
+          ...canonicalAvailability,
         }));
       }
     }
