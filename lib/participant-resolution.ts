@@ -1,4 +1,4 @@
-import { Match, KnockoutMatch, ParticipantSlot } from "./matches";
+import { MATCHES, Match, KnockoutMatch, ParticipantSlot } from "./matches";
 import { TOURNAMENT_FINAL_DATE } from "./matches";
 import { resolvedHome, resolvedAway, type ResolvedSide } from "./resolvedParticipants";
 import { countryName, type Lang } from "./i18n";
@@ -41,7 +41,7 @@ export function getResolvedAwayTeam(match: Match, resolvedParticipants?: Resolve
 /**
  * Returns a display label for a slot if the team is unresolved.
  */
-export function getParticipantDisplayLabel(slot: ParticipantSlot, lang: Lang = "en"): string {
+export function getParticipantDisplayLabel(slot: ParticipantSlot, lang: Lang = "en", resolvedParticipants?: ResolvedParticipantLookup): string {
   switch (slot.kind) {
     case "resolved":
       return slot.teamKey; // Up to caller to translate to human name
@@ -51,9 +51,21 @@ export function getParticipantDisplayLabel(slot: ParticipantSlot, lang: Lang = "
       return `3rd Group ${slot.groups.join("/")}`;
     case "winnerOf": {
       const mn = slot.matchNumber;
-      if (mn >= 73 && mn <= 88) {
-        const hp = resolvedHome(mn);
-        const ap = resolvedAway(mn);
+      if (resolvedParticipants) {
+        const downstreamMatch = MATCHES.find((m) => isKnockoutMatch(m) && (
+          (m.homeSlot.kind === slot.kind && (m.homeSlot as any).matchNumber === (slot as any).matchNumber) ||
+          (m.awaySlot.kind === slot.kind && (m.awaySlot as any).matchNumber === (slot as any).matchNumber)
+        ));
+        if (downstreamMatch) {
+          const side = (downstreamMatch as KnockoutMatch).homeSlot.kind === slot.kind && ((downstreamMatch as KnockoutMatch).homeSlot as any).matchNumber === (slot as any).matchNumber ? "home" : "away";
+          const resolved = getResolvedSide(downstreamMatch, side, resolvedParticipants);
+          if (resolved) return countryName(resolved.teamKey, lang);
+        }
+      }
+      const sourceMatch = MATCHES.find((m) => "matchNumber" in m && m.matchNumber === mn);
+      if (sourceMatch && isKnockoutMatch(sourceMatch)) {
+        const hp = getResolvedSide(sourceMatch, "home", resolvedParticipants);
+        const ap = getResolvedSide(sourceMatch, "away", resolvedParticipants);
         if (hp && ap) {
           return `${countryName(hp.teamKey, lang)}/${countryName(ap.teamKey, lang)} Winner`;
         }
@@ -62,9 +74,18 @@ export function getParticipantDisplayLabel(slot: ParticipantSlot, lang: Lang = "
     }
     case "loserOf": {
       const mn = slot.matchNumber;
-      if (mn >= 73 && mn <= 88) {
-        const hp = resolvedHome(mn);
-        const ap = resolvedAway(mn);
+      if (resolvedParticipants) {
+        const downstreamMatch = MATCHES.find((m) => isKnockoutMatch(m) && (m.homeSlot === slot || m.awaySlot === slot));
+        if (downstreamMatch) {
+          const side = (downstreamMatch as KnockoutMatch).homeSlot === slot ? "home" : "away";
+          const resolved = getResolvedSide(downstreamMatch as KnockoutMatch, side, resolvedParticipants);
+          if (resolved) return countryName(resolved.teamKey, lang);
+        }
+      }
+      const sourceMatch = MATCHES.find((m) => "matchNumber" in m && m.matchNumber === mn);
+      if (sourceMatch && isKnockoutMatch(sourceMatch)) {
+        const hp = getResolvedSide(sourceMatch, "home", resolvedParticipants);
+        const ap = getResolvedSide(sourceMatch, "away", resolvedParticipants);
         if (hp && ap) {
           return `${countryName(hp.teamKey, lang)}/${countryName(ap.teamKey, lang)} Loser`;
         }
@@ -121,7 +142,7 @@ export function getParticipantDisplay(
   }
 
   return {
-    label: getParticipantDisplayLabel(side === "home" ? match.homeSlot : match.awaySlot, lang),
+    label: getParticipantDisplayLabel(side === "home" ? match.homeSlot : match.awaySlot, lang, resolvedParticipants),
     teamKey: null,
     teamCode: null,
     isResolved: false,
@@ -134,12 +155,24 @@ export function getParticipantDisplay(
  * For deeper rounds, returns stage-aware phrases.
  * Prefer over getParticipantDisplayLabel for any user-visible text.
  */
-export function knockoutSlotLabel(slot: ParticipantSlot, lang: Lang = "en"): string {
+export function knockoutSlotLabel(slot: ParticipantSlot, lang: Lang = "en", resolvedParticipants?: ResolvedParticipantLookup): string {
   if (slot.kind === "winnerOf") {
     const mn = slot.matchNumber;
-    if (mn >= 73 && mn <= 88) {
-      const hp = resolvedHome(mn);
-      const ap = resolvedAway(mn);
+    if (resolvedParticipants) {
+      const downstreamMatch = MATCHES.find((m) => isKnockoutMatch(m) && (
+        (m.homeSlot.kind === slot.kind && (m.homeSlot as any).matchNumber === (slot as any).matchNumber) ||
+        (m.awaySlot.kind === slot.kind && (m.awaySlot as any).matchNumber === (slot as any).matchNumber)
+      ));
+      if (downstreamMatch) {
+        const side = (downstreamMatch as KnockoutMatch).homeSlot.kind === slot.kind && ((downstreamMatch as KnockoutMatch).homeSlot as any).matchNumber === (slot as any).matchNumber ? "home" : "away";
+        const resolved = getResolvedSide(downstreamMatch, side, resolvedParticipants);
+        if (resolved) return countryName(resolved.teamKey, lang);
+      }
+    }
+    const sourceMatch = MATCHES.find((m) => "matchNumber" in m && m.matchNumber === mn);
+    if (sourceMatch && isKnockoutMatch(sourceMatch)) {
+      const hp = getResolvedSide(sourceMatch, "home", resolvedParticipants);
+      const ap = getResolvedSide(sourceMatch, "away", resolvedParticipants);
       if (hp && ap) {
         return `${countryName(hp.teamKey, lang)}/${countryName(ap.teamKey, lang)} Winner`;
       }
@@ -148,8 +181,18 @@ export function knockoutSlotLabel(slot: ParticipantSlot, lang: Lang = "en"): str
     if (mn >= 97 && mn <= 100) return "Quarter-final winner";
     return "Semi-final winner";
   }
-  if (slot.kind === "loserOf") return "Semi-final runner-up";
-  return getParticipantDisplayLabel(slot, lang);
+  if (slot.kind === "loserOf") {
+    if (resolvedParticipants) {
+      const downstreamMatch = MATCHES.find((m) => isKnockoutMatch(m) && (m.homeSlot === slot || m.awaySlot === slot));
+      if (downstreamMatch) {
+        const side = (downstreamMatch as KnockoutMatch).homeSlot === slot ? "home" : "away";
+        const resolved = getResolvedSide(downstreamMatch as KnockoutMatch, side, resolvedParticipants);
+        if (resolved) return countryName(resolved.teamKey, lang);
+      }
+    }
+    return "Semi-final runner-up";
+  }
+  return getParticipantDisplayLabel(slot, lang, resolvedParticipants);
 }
 
 /**

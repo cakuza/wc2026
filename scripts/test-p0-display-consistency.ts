@@ -3,7 +3,7 @@ import { readFileSync } from "node:fs";
 import { MATCHES, matchSlug, type KnockoutMatch } from "../lib/matches";
 import { ROUND_OF_16_MATCHES, QUARTER_FINAL_MATCHES } from "../lib/knockoutBracket2026";
 import { buildKnockoutResolution } from "../lib/knockoutResolution";
-import { getParticipantDisplay } from "../lib/participant-resolution";
+import { getParticipantDisplay, getParticipantDisplayLabel } from "../lib/participant-resolution";
 import { getScoreFreshnessLabel } from "../lib/freshness";
 import { mergeResolvedParticipantsFromApiMatches } from "../lib/resolvedParticipantsFromApi";
 import { getTickerDisplay } from "../lib/tickerDisplay";
@@ -56,6 +56,7 @@ function label(matchNumber: number, side: "home" | "away", resolved = resolution
 
 const sourceMatches: Record<string, SerializableSnapshotMatch> = {
   [matchSlug(knockout(73))]: snap(73, "FINISHED", 0, 1, "AWAY_TEAM"),
+  [matchSlug(knockout(74))]: snap(74, "FINISHED", 0, 1, "AWAY_TEAM"),
   [matchSlug(knockout(75))]: snap(75, "FINISHED", 1, 1, "AWAY_TEAM"),
   [matchSlug(knockout(85))]: snap(85, "FINISHED", 2, 0, "HOME_TEAM"),
   [matchSlug(knockout(86))]: snap(86, "FINISHED", 3, 2, "HOME_TEAM"),
@@ -183,4 +184,25 @@ assert.match(layout, /@vercel\/analytics\/next/, "Vercel Analytics remains mount
 const today = readFileSync("app/today/page.tsx", "utf8");
 assert.match(today, /<LiveDataAutoRefresh intervalMs=\{refreshPolicy\.intervalMs\}/, "router/polling policy remains delegated to refreshPolicy");
 
-console.log("P0 display consistency tests passed (33 assertions).");
+const match74 = MATCHES.find((m): m is KnockoutMatch => "matchNumber" in m && m.matchNumber === 74)!;
+const match89 = MATCHES.find((m): m is KnockoutMatch => "matchNumber" in m && m.matchNumber === 89)!;
+const match90 = MATCHES.find((m): m is KnockoutMatch => "matchNumber" in m && m.matchNumber === 90)!;
+const match97 = MATCHES.find((m): m is KnockoutMatch => "matchNumber" in m && m.matchNumber === 97)!;
+
+assert.equal(getParticipantDisplayLabel(match89.homeSlot, "en", resolution), "Paraguay", "Finished Germany/Paraguay source resolves to Paraguay, not Germany/Paraguay Winner.");
+assert.equal(getParticipantDisplayLabel(match90.homeSlot, "en", resolution), "Canada", "Finished South Africa/Canada source resolves to Canada, not South Africa/Canada Winner.");
+
+assert.equal(getParticipantDisplayLabel(match97.homeSlot, "en", apiResolved), "Paraguay/France Winner", "Bracket match 97 home is Paraguay/France Winner when match-89 is live.");
+assert.equal(getParticipantDisplayLabel(match97.awaySlot, "en", apiResolved), "Canada/Morocco Winner", "Canada/Morocco placeholder is Canada/Morocco Winner only when source match is LIVE.");
+
+const bracket89Check = buildBracketMatchModel({ match: match89, isR32: false, resolvedParticipants: apiResolved, t, lang: "en" });
+assert.equal(bracket89Check.home.label, "Paraguay", "Bracket match 89 home is Paraguay when match-74 finished.");
+
+const bracket90Check = buildBracketMatchModel({ match: match90, isR32: false, resolvedParticipants: apiResolved, t, lang: "en" });
+assert.equal(bracket90Check.away.label, "Morocco", "Bracket match 90 away is Morocco when match-75 finished.");
+
+const label90Home = getParticipantDisplay(match90, "home", apiResolved, "en").label;
+const label90Away = getParticipantDisplay(match90, "away", apiResolved, "en").label;
+assert.equal(`${label90Home} vs ${label90Away}`, "Canada vs Morocco", "Live Canada/Morocco may render Canada/Morocco Winner only in a future downstream winner slot, not in the match card itself.");
+
+console.log("P0 display consistency tests passed (40 assertions).");
