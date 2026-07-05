@@ -374,8 +374,8 @@ function withCanonicalMatchState({
   if (!providerId) return null;
 
   const status = canonicalStatus({ footballData: live, worldcupGame });
-  const homeScore = live?.homeScore ?? worldcupGame?.homeScore ?? null;
-  const awayScore = live?.awayScore ?? worldcupGame?.awayScore ?? null;
+  const homeScore = live?.homeScore ?? (worldcupGame?.finished ? worldcupGame.homeScore : null) ?? null;
+  const awayScore = live?.awayScore ?? (worldcupGame?.finished ? worldcupGame.awayScore : null) ?? null;
 
   if (!live && homeScore === null && awayScore === null && status === "SCHEDULED" && scorers.length === 0) {
     return null;

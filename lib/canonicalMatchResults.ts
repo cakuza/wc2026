@@ -51,6 +51,36 @@ function resultIsConfirmed(result: CompletedResult, generatedAt: string): boolea
   return Number.isFinite(generatedAtMs) && Number.isFinite(confirmedAtMs) && generatedAtMs >= confirmedAtMs;
 }
 
+function isNonScoreBearingStatus(status: LiveMatchData["status"]): boolean {
+  return (
+    status === "SCHEDULED" ||
+    status === "TIMED" ||
+    status === "UNKNOWN" ||
+    status === "POSTPONED" ||
+    status === "CANCELLED"
+  );
+}
+
+function stripUnconfirmedScore(live: LiveMatchData, generatedAt: string): LiveMatchData {
+  return {
+    ...live,
+    homeScore: null,
+    awayScore: null,
+    winner: null,
+    scoreDuration: undefined,
+    regularTimeScore: undefined,
+    extraTimeScore: undefined,
+    penaltyShootoutScore: undefined,
+    lastSyncedAt: live.lastSyncedAt ?? generatedAt,
+    goalEventCompleteness: getGoalEventCompleteness({
+      homeScore: null,
+      awayScore: null,
+      goals: live.goals ?? [],
+      eventDataAvailable: Boolean(live.eventDataAvailable),
+    }),
+  };
+}
+
 export function applyCanonicalMatchResultFallback(
   match: Match,
   live: LiveMatchData | undefined,
@@ -91,6 +121,9 @@ export function applyCanonicalMatchResultFallback(
   const generatedAtMs = Date.parse(generatedAt);
   const kickoffMs = matchUtcDate(match).getTime();
   const isPreKickoff = Number.isFinite(generatedAtMs) && generatedAtMs < kickoffMs;
+  if (live && isNonScoreBearingStatus(live.status) && (live.homeScore !== null || live.awayScore !== null || live.winner !== null)) {
+    return stripUnconfirmedScore(live, generatedAt);
+  }
   if (
     live &&
     isPreKickoff &&

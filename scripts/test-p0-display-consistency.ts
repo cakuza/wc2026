@@ -212,9 +212,9 @@ const updatedTodaySnapshot = applyTodaySnapshotUpdate(previousTodaySnapshot, {
       resolvedAwayParticipant: { teamKey: "morocco", teamCode: "ma" },
     },
     [matchSlug(knockout(91))]: {
-      status: "SYNCING",
-      homeScore: null,
-      awayScore: null,
+      status: "SCHEDULED",
+      homeScore: 0,
+      awayScore: 0,
       winner: null,
       scorers: [],
       resolvedHomeParticipant: { teamKey: "brazil", teamCode: "br" },
@@ -246,7 +246,15 @@ assert.deepEqual(
   { status: "FINISHED", homeScore: 0, awayScore: 3 },
   "Today projection replaces stale M90 live row with canonical Morocco final",
 );
-assert.equal(updatedTodaySnapshot.liveDataByProviderId[String(knockout(91).providerIds?.footballData)]?.status, "SCHEDULED", "Today projection downgrades pre-kickoff M91 syncing row to scheduled");
+assert.deepEqual(
+  {
+    status: updatedTodaySnapshot.liveDataByProviderId[String(knockout(91).providerIds?.footballData)]?.status,
+    homeScore: updatedTodaySnapshot.liveDataByProviderId[String(knockout(91).providerIds?.footballData)]?.homeScore,
+    awayScore: updatedTodaySnapshot.liveDataByProviderId[String(knockout(91).providerIds?.footballData)]?.awayScore,
+  },
+  { status: "SCHEDULED", homeScore: null, awayScore: null },
+  "Today projection strips unconfirmed scheduled M91 0-0 so UI renders Brazil vs Norway with kickoff time",
+);
 assert.deepEqual(getTodayPageLabels(knockout(89), updatedTodaySnapshot), { home: "Paraguay", away: "France" }, "/today summary projection resolves Paraguay vs France");
 assert.deepEqual(getTodayPageLabels(knockout(90), updatedTodaySnapshot), { home: "Canada", away: "Morocco" }, "/today summary projection resolves Canada vs Morocco");
 assert.deepEqual(getTodayPageLabels(knockout(91), updatedTodaySnapshot), { home: "Brazil", away: "Norway" }, "/today summary projection resolves Brazil vs Norway");
