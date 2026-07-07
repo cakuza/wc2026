@@ -22,7 +22,9 @@ export function TimezoneLabel({ className }: { className?: string }) {
  * "Times shown in <timezone>" label + a small <select> letting the viewer override the
  * detected/saved timezone. Selection is persisted via TimezoneProvider (localStorage).
  */
-export function TimezonePicker({ className }: { className?: string }) {
+import { Suspense } from "react";
+
+function TimezonePickerInner({ className }: { className?: string }) {
   const { timeZone, setTimeZone } = useTimezone();
   const pathname = usePathname();
   const router = useRouter();
@@ -55,5 +57,13 @@ export function TimezonePicker({ className }: { className?: string }) {
         ))}
       </select>
     </div>
+  );
+}
+
+export function TimezonePicker({ className }: { className?: string }) {
+  return (
+    <Suspense fallback={<div className={className ?? "flex flex-wrap items-center gap-2 text-[11px] text-white/55"}><span suppressHydrationWarning>Loading timezone...</span></div>}>
+      <TimezonePickerInner className={className} />
+    </Suspense>
   );
 }

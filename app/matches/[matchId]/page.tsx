@@ -10,8 +10,8 @@ import { matchBySlug } from "@/lib/matches";
 import { getResolvedHomeTeam, getResolvedAwayTeam, getParticipantDisplayLabel, isKnockoutMatch, knockoutSlotLabel, matchStageLabel } from "@/lib/participant-resolution";
 import { buildKnockoutResolution } from "@/lib/knockoutResolution";
 
-export const revalidate = 30;
-export const dynamic = "force-dynamic";
+export const revalidate = 60;
+// export const dynamic = "force-dynamic"; // removed for ISR
 
 // ── Stage string tables ──────────────────────────────────────────────────────
 

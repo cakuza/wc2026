@@ -196,20 +196,18 @@ export function MatchDetail({
   // upstream providers directly, and uses the current snapshot state (not
   // just the initial server props) for all subsequent live-status decisions.
   useEffect(() => {
-    if (!pollingActive) return;
-
     let cancelled = false;
     let timer: ReturnType<typeof setTimeout> | null = null;
     let inFlight = false;
 
     async function poll() {
-      if (cancelled || document.hidden || inFlight) {
-        schedule();
+      if (cancelled || inFlight) {
+        if (pollingActive && !document.hidden) schedule();
         return;
       }
       inFlight = true;
       try {
-        const res = await fetch("/api/live-snapshot", { cache: "no-store" });
+        const res = await fetch("/api/live-snapshot");
         if (res.ok) {
           const data = await res.json();
           const update = data.matches?.[internalId];
@@ -232,7 +230,6 @@ export function MatchDetail({
                 scorers,
                 goalEventCompleteness,
                 penaltyShootoutScore: update.penaltyShootoutScore ?? prev.penaltyShootoutScore,
-                // Cleared as soon as a validated snapshot arrives (false).
                 liveDataUnavailable: update.liveDataUnavailable ?? false,
                 primaryProviderFetchedAt: data.primaryProviderFetchedAt,
                 primaryProviderOk: data.primaryProviderOk,
@@ -246,21 +243,28 @@ export function MatchDetail({
         // keep last known state; retry on next tick
       } finally {
         inFlight = false;
-        schedule();
+        if (pollingActive && !document.hidden) schedule();
       }
     }
 
     function schedule() {
-      if (cancelled) return;
+      if (cancelled || document.hidden) return;
       const jitter = Math.floor(Math.random() * 5_000);
-      timer = setTimeout(poll, 25_000 + jitter);
+      timer = setTimeout(poll, 30_000 + jitter);
     }
 
     function handleVisibilityChange() {
-      if (!document.hidden) poll();
+      if (!document.hidden) {
+        if (timer) clearTimeout(timer);
+        poll();
+      } else {
+        if (timer) clearTimeout(timer);
+      }
     }
 
-    schedule();
+    // Always fetch once on mount, so stale ISR HTML gets fresh data immediately.
+    poll();
+    
     document.addEventListener("visibilitychange", handleVisibilityChange);
     return () => {
       cancelled = true;

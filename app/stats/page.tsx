@@ -6,8 +6,8 @@ import StatsContent from "@/components/StatsContent";
 import { getLiveRefreshPolicy } from "@/lib/liveRefreshPolicy";
 import { getTournamentLiveSnapshot } from "@/lib/liveSnapshot";
 
-export const revalidate = 30;
-export const dynamic = "force-dynamic";
+export const revalidate = 60;
+// export const dynamic = "force-dynamic"; // removed for ISR
 
 export const metadata: Metadata = {
   title: "World Cup 2026 Stats - Goals, Scores, Standings & Top Scorers",

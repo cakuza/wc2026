@@ -10,8 +10,8 @@ import type { LiveMatchStatus } from "@/lib/liveMatchData";
 import type { GoalScorerEvent } from "@/lib/worldcup26Provider";
 import { buildKnockoutResolution } from "@/lib/knockoutResolution";
 
-export const revalidate = 30;
-export const dynamic = "force-dynamic";
+export const revalidate = 60;
+// export const dynamic = "force-dynamic"; // removed for ISR
 
 const BASE_URL = "https://www.worldcupmatchday.com";
 

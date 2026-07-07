@@ -20,8 +20,8 @@ import { getLiveRefreshPolicy } from "@/lib/liveRefreshPolicy";
 const BASE = "https://www.worldcupmatchday.com";
 
 export const dynamicParams = false;
-export const dynamic = "force-dynamic";
-export const revalidate = 30;
+// export const dynamic = "force-dynamic"; // removed for ISR
+export const revalidate = 60;
 
 export function generateStaticParams() {
   return generateGroupStaticParams();

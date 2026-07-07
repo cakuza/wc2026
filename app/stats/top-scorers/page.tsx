@@ -20,8 +20,8 @@ import {
 
 const BASE = "https://www.worldcupmatchday.com";
 
-export const dynamic = "force-dynamic";
-export const revalidate = 30;
+// export const dynamic = "force-dynamic"; // removed for ISR
+export const revalidate = 60;
 
 export const metadata: Metadata = {
   title: "World Cup 2026 Top Scorers — Golden Boot Standings",
