@@ -49,13 +49,15 @@ function runTests() {
       providerGameId: "1", homeTeamName: "A", awayTeamName: "B",
       homeScore: 2, awayScore: 0,
       homeScorers: [{ minute: 10, playerName: "P1" }, { minute: 20, playerName: "P2" }] as any,
-      awayScorers: [], finished: true, localDate: "",
+      awayScorers: [], finished: true,
+      isLive: false, localDate: "",
     }];
     const partialNewGames: WorldCup26Game[] = [{
       providerGameId: "1", homeTeamName: "A", awayTeamName: "B",
       homeScore: 2, awayScore: 0,
       homeScorers: [], // Empty scorers in update!
-      awayScorers: [], finished: true, localDate: "",
+      awayScorers: [], finished: true,
+      isLive: false, localDate: "",
     }];
     const merged = monotonicMergeWorldcupGames(oldGames, partialNewGames);
     assert.strictEqual(merged[0].homeScorers.length, 2, "Scorers should be retained from LKG");
@@ -67,12 +69,14 @@ function runTests() {
       providerGameId: "1", homeTeamName: "A", awayTeamName: "B",
       homeScore: 2, awayScore: 1,
       homeScorers: [{ minute: 10, playerName: "P1" }] as any,
-      awayScorers: [], finished: true, localDate: "",
+      awayScorers: [], finished: true,
+      isLive: false, localDate: "",
     }];
     const emptyNewGames: WorldCup26Game[] = [{
       providerGameId: "1", homeTeamName: "A", awayTeamName: "B",
       homeScore: null, awayScore: null,
-      homeScorers: [], awayScorers: [], finished: false, localDate: "",
+      homeScorers: [], awayScorers: [], finished: false,
+      isLive: false, localDate: "",
     }];
     const merged = monotonicMergeWorldcupGames(oldGames, emptyNewGames);
     assert.strictEqual(merged[0].homeScore, 2);
@@ -130,13 +134,15 @@ function runTests() {
       providerGameId: "1", homeTeamName: "A", awayTeamName: "B",
       homeScore: 1, awayScore: 0,
       homeScorers: [{ minute: 10, playerName: "Wrong" }] as any,
-      awayScorers: [], finished: true, localDate: "",
+      awayScorers: [], finished: true,
+      isLive: false, localDate: "",
     }];
     const newGames: WorldCup26Game[] = [{
       providerGameId: "1", homeTeamName: "A", awayTeamName: "B",
       homeScore: 2, awayScore: 0,
       homeScorers: [{ minute: 15, playerName: "Correct" }] as any,
-      awayScorers: [], finished: true, localDate: "",
+      awayScorers: [], finished: true,
+      isLive: false, localDate: "",
     }];
     // When new data is non-empty, it overrides the old
     const merged = monotonicMergeWorldcupGames(oldGames, newGames);

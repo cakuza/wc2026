@@ -44,6 +44,7 @@ function qatarGame(awayScorers: WorldCup26Game["awayScorers"]): WorldCup26Game {
     homeScore: 1,
     awayScore: 1,
     finished: true,
+      isLive: false,
     homeScorers: [{
       type: "GOAL",
       minute: 90,

@@ -54,6 +54,7 @@ function worldcupGame(finished: boolean): WorldCup26Game {
     homeScore: 1,
     awayScore: 1,
     finished,
+    isLive: false,
     homeScorers: [scorer("C. Larin", "Canada", 11), scorer("C. Larin", "Canada", 11)],
     awayScorers: [scorer("Jovo Lukic", "Bosnia and Herzegovina", 21)],
     localDate: "2026-06-12",

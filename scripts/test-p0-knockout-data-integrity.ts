@@ -128,8 +128,10 @@ async function main() {
       [537418, liveFromFootballData(fd75)],
     ]),
     worldcupGames: [
-      { providerGameId: "537415", homeTeamName: "Germany", awayTeamName: "Paraguay", homeScore: 1, awayScore: 1, finished: true, localDate: "2026-06-29", homeScorers: [{ playerName: "Kai Havertz", minute: 54, teamName: "Germany", type: "GOAL", isPenalty: false, isOwnGoal: false, provider: "worldcup26.ir", confidence: "high" }], awayScorers: [{ playerName: "Khvliv Ansisv", minute: 42, teamName: "Paraguay", type: "GOAL", isPenalty: false, isOwnGoal: false, provider: "worldcup26.ir", confidence: "high" }] } as any,
-      { providerGameId: "537418", homeTeamName: "Netherlands", awayTeamName: "Morocco", homeScore: 1, awayScore: 1, finished: true, localDate: "2026-06-30", homeScorers: [{ playerName: "Kvdi Khakpv", minute: 72, teamName: "Netherlands", type: "GOAL", isPenalty: false, isOwnGoal: false, provider: "worldcup26.ir", confidence: "high" }], awayScorers: [{ playerName: "Issa Diop", minute: 90, stoppageTime: 1, minuteLabel: "90+1'", teamName: "Morocco", type: "GOAL", isPenalty: false, isOwnGoal: false, provider: "worldcup26.ir", confidence: "high" }] } as any,
+      { providerGameId: "537415", homeTeamName: "Germany", awayTeamName: "Paraguay", homeScore: 1, awayScore: 1, finished: true,
+      isLive: false, localDate: "2026-06-29", homeScorers: [{ playerName: "Kai Havertz", minute: 54, teamName: "Germany", type: "GOAL", isPenalty: false, isOwnGoal: false, provider: "worldcup26.ir", confidence: "high" }], awayScorers: [{ playerName: "Khvliv Ansisv", minute: 42, teamName: "Paraguay", type: "GOAL", isPenalty: false, isOwnGoal: false, provider: "worldcup26.ir", confidence: "high" }] } as any,
+      { providerGameId: "537418", homeTeamName: "Netherlands", awayTeamName: "Morocco", homeScore: 1, awayScore: 1, finished: true,
+      isLive: false, localDate: "2026-06-30", homeScorers: [{ playerName: "Kvdi Khakpv", minute: 72, teamName: "Netherlands", type: "GOAL", isPenalty: false, isOwnGoal: false, provider: "worldcup26.ir", confidence: "high" }], awayScorers: [{ playerName: "Issa Diop", minute: 90, stoppageTime: 1, minuteLabel: "90+1'", teamName: "Morocco", type: "GOAL", isPenalty: false, isOwnGoal: false, provider: "worldcup26.ir", confidence: "high" }] } as any,
     ],
     generatedAt: "2026-06-30T06:11:00.000Z",
     primaryProviderOk: true,

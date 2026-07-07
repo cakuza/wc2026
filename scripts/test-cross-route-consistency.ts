@@ -53,6 +53,7 @@ async function runTests() {
       homeScore: 1,
       awayScore: 1,
       finished: true,
+      isLive: false,
       localDate: "2026-06-12",
       homeScorers: [{ playerName: "Cyle Larin", minute: 78, teamName: "Canada", type: "GOAL", isPenalty: false, isOwnGoal: false, provider: "worldcup26.ir", confidence: "high" }],
       awayScorers: [{ playerName: "Jovo Lukić", minute: 21, teamName: "Bosnia & Herzegovina", type: "GOAL", isPenalty: false, isOwnGoal: false, provider: "worldcup26.ir", confidence: "high" }]

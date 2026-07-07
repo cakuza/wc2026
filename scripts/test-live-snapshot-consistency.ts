@@ -159,6 +159,7 @@ const worldcupGames: WorldCup26Game[] = [
     homeScore: 1,
     awayScore: 1,
     finished: true,
+      isLive: false,
     homeScorers: [scorer("C. Larin", "Canada", 11)],
     awayScorers: [scorer("Jovo Lukic", "Bosnia and Herzegovina", 21)],
     localDate: "2026-06-12",
@@ -170,6 +171,7 @@ const worldcupGames: WorldCup26Game[] = [
     homeScore: 4,
     awayScore: 1,
     finished: true,
+      isLive: false,
     homeScorers: [
       scorer("D. Bobadilla", "United States", 7, { isOwnGoal: true, minuteLabel: "7'" }),
       scorer("F. Balogun", "United States", 31, { minuteLabel: "31'" }),

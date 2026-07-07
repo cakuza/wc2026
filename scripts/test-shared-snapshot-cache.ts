@@ -59,6 +59,7 @@ function resetAll() {
   secondaryMock = [{
     id: "f995fc1d", home_team_name_en: "Mexico", away_team_name_en: "South Africa",
     home_score: 2, away_score: 0, home_scorers: `{"Player A 10'"}`, away_scorers: `{}`, finished: true,
+      isLive: false,
   }];
 }
 

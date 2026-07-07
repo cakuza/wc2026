@@ -36,6 +36,7 @@ function makeGame(
     homeScore: null,
     awayScore: null,
     finished: false,
+      isLive: false,
     homeScorers: [],
     awayScorers: [],
     localDate: null,
@@ -81,6 +82,7 @@ function buildFullHealthyPayload(): WorldCup26Game[] {
       homeScore: scores.h,
       awayScore: scores.a,
       finished: true,
+      isLive: false,
       homeScorers,
       awayScorers,
       localDate: m.date,
@@ -200,7 +202,8 @@ test("Result is NOT ok when Mexico vs South Africa has 2-0 but zero scorers", ()
       normalizeForMatching(g.homeTeamName) === "mexico" &&
       normalizeForMatching(g.awayTeamName) === "southafrica"
     ) {
-      return { ...g, homeScore: 2, awayScore: 0, finished: true, homeScorers: [], awayScorers: [] };
+      return { ...g, homeScore: 2, awayScore: 0, finished: true,
+      isLive: false, homeScorers: [], awayScorers: [] };
     }
     return g;
   });
@@ -214,7 +217,8 @@ test("Error mentions Mexico vs South Africa scorer insufficiency or zero events"
       normalizeForMatching(g.homeTeamName) === "mexico" &&
       normalizeForMatching(g.awayTeamName) === "southafrica"
     ) {
-      return { ...g, homeScore: 2, awayScore: 0, finished: true, homeScorers: [], awayScorers: [] };
+      return { ...g, homeScore: 2, awayScore: 0, finished: true,
+      isLive: false, homeScorers: [], awayScorers: [] };
     }
     return g;
   });
@@ -236,7 +240,8 @@ test("Result is NOT ok when homeScorers is not an array", () => {
       normalizeForMatching(g.awayTeamName) === "southafrica"
     ) {
       // Cast to simulate corrupted payload
-      return { ...g, homeScore: 2, awayScore: 0, finished: true, homeScorers: null as any, awayScorers: [] };
+      return { ...g, homeScore: 2, awayScore: 0, finished: true,
+      isLive: false, homeScorers: null as any, awayScorers: [] };
     }
     return g;
   });
@@ -250,7 +255,8 @@ test("Error mentions malformed scorer arrays or missing home scorers", () => {
       normalizeForMatching(g.homeTeamName) === "mexico" &&
       normalizeForMatching(g.awayTeamName) === "southafrica"
     ) {
-      return { ...g, homeScore: 2, awayScore: 0, finished: true, homeScorers: null as any, awayScorers: [] };
+      return { ...g, homeScore: 2, awayScore: 0, finished: true,
+      isLive: false, homeScorers: null as any, awayScorers: [] };
     }
     return g;
   });
@@ -276,6 +282,7 @@ test("Scorer event with empty playerName is flagged", () => {
         homeScore: 2,
         awayScore: 0,
         finished: true,
+      isLive: false,
         homeScorers: [fakeScorer("   ")], // blank name
         awayScorers: [],
       };
@@ -299,6 +306,7 @@ test("Scorer event with non-number non-null minute is flagged", () => {
         homeScore: 2,
         awayScore: 0,
         finished: true,
+      isLive: false,
         homeScorers: [{ ...fakeScorer("Good Player"), minute: "45" as any }],
         awayScorers: [],
       };
@@ -363,7 +371,8 @@ function patchKoreaScore(homeScore: number, awayScore: number): WorldCup26Game[]
     ) {
       const homeScorers = Array.from({ length: homeScore }, (_, i) => fakeScorer(`Home ${i + 1}`));
       const awayScorers = Array.from({ length: awayScore }, (_, i) => fakeScorer(`Away ${i + 1}`));
-      return { ...g, homeScore, awayScore, finished: true, homeScorers, awayScorers };
+      return { ...g, homeScore, awayScore, finished: true,
+      isLive: false, homeScorers, awayScorers };
     }
     return g;
   });
@@ -399,7 +408,8 @@ test("Missing scorer events for South Korea vs Czechia fails", () => {
       normalizeForMatching(g.homeTeamName) === "southkorea" &&
       normalizeForMatching(g.awayTeamName) === "czechia"
     ) {
-      return { ...g, homeScore: 2, awayScore: 1, finished: true, homeScorers: [], awayScorers: [] };
+      return { ...g, homeScore: 2, awayScore: 1, finished: true,
+      isLive: false, homeScorers: [], awayScorers: [] };
     }
     return g;
   });

@@ -90,6 +90,7 @@ async function runTests() {
         home_scorers: `{"Julián Quiñones 10'"}`,
         away_scorers: `{}`,
         finished: true,
+      isLive: false,
       },
     ];
 
@@ -123,6 +124,7 @@ async function runTests() {
         home_scorers: `{"Julián Quiñones 10'","Raúl Jiménez 20'"}`,
         away_scorers: `{}`,
         finished: true,
+      isLive: false,
       },
     ];
     // Bust the bulk secondary cache so recovery is tested
@@ -147,6 +149,7 @@ async function runTests() {
         home_scorers: `{}`,
         away_scorers: `{}`,
         finished: true,
+      isLive: false,
       },
     ];
     adapter.store.delete("worldcup-bulk-secondary-v8");
@@ -185,6 +188,7 @@ async function runTests() {
         home_scorers: `{"Julián Quiñones 10'","Raúl Jiménez 20'"}`,
         away_scorers: `{}`,
         finished: true,
+      isLive: false,
       },
     ];
     await getTournamentLiveSnapshot();
@@ -219,6 +223,7 @@ async function runTests() {
         home_scorers: `{"Julián Quiñones 10'","Raúl Jiménez 85'"}`,
         away_scorers: `{}`,
         finished: true,
+      isLive: false,
       },
     ];
     adapter.store.delete("worldcup-bulk-secondary-v8");
@@ -246,6 +251,7 @@ async function runTests() {
         home_scorers: `{"Julián Quiñones 10'","Raúl Jiménez 50'"}`,
         away_scorers: `{}`,
         finished: true,
+      isLive: false,
       },
     ];
     await getTournamentLiveSnapshot();
@@ -261,6 +267,7 @@ async function runTests() {
         home_scorers: `{}`,
         away_scorers: `{}`,
         finished: true,
+      isLive: false,
       },
     ];
     const snap = await getTournamentLiveSnapshot();
@@ -283,6 +290,7 @@ async function runTests() {
         home_scorers: `{"Julián Quiñones 10'","Raúl Jiménez 55'"}`,
         away_scorers: `{}`,
         finished: true,
+      isLive: false,
       },
     ];
 

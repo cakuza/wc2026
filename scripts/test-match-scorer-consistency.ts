@@ -27,6 +27,7 @@ function game(
     homeScore,
     awayScore,
     finished: true,
+      isLive: false,
     homeScorers: [],
     awayScorers: [],
     localDate: "06/18/2026 12:00",

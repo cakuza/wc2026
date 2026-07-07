@@ -17,7 +17,8 @@ const liveData: ReadonlyMap<number, LiveMatchData> = new Map([
   [537327, { provider: "football-data.org", providerMatchId: 537327, status: "FINISHED", homeScore: 2, awayScore: 0, winner: "HOME_TEAM", lastSyncedAt: "2026-06-11T21:00:00.000Z", eventDataAvailable: false }],
 ]);
 const worldcupGames: WorldCup26Game[] = [
-  { providerGameId: "mexico-sa", homeTeamName: "Mexico", awayTeamName: "South Africa", homeScore: 2, awayScore: 0, finished: true, homeScorers: [], awayScorers: [], localDate: "2026-06-11" },
+  { providerGameId: "mexico-sa", homeTeamName: "Mexico", awayTeamName: "South Africa", homeScore: 2, awayScore: 0, finished: true,
+      isLive: false, homeScorers: [], awayScorers: [], localDate: "2026-06-11" },
 ];
 async function main() {
 const snapshot = await buildTournamentLiveSnapshot({ liveData, worldcupGames, generatedAt: "2026-06-13T10:00:00.000Z" });

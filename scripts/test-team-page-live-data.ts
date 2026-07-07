@@ -18,8 +18,10 @@ const liveData: ReadonlyMap<number, LiveMatchData> = new Map([
 ]);
 
 const worldcupGames: WorldCup26Game[] = [
-  { providerGameId: "mexico-sa", homeTeamName: "Mexico", awayTeamName: "South Africa", homeScore: 2, awayScore: 0, finished: true, homeScorers: [], awayScorers: [], localDate: "2026-06-11" },
-  { providerGameId: "canada-bosnia", homeTeamName: "Canada", awayTeamName: "Bosnia and Herzegovina", homeScore: 1, awayScore: 1, finished: true, homeScorers: [], awayScorers: [], localDate: "2026-06-12" },
+  { providerGameId: "mexico-sa", homeTeamName: "Mexico", awayTeamName: "South Africa", homeScore: 2, awayScore: 0, finished: true,
+      isLive: false, homeScorers: [], awayScorers: [], localDate: "2026-06-11" },
+  { providerGameId: "canada-bosnia", homeTeamName: "Canada", awayTeamName: "Bosnia and Herzegovina", homeScore: 1, awayScore: 1, finished: true,
+      isLive: false, homeScorers: [], awayScorers: [], localDate: "2026-06-12" },
 ];
 
 async function main() {
