@@ -9,31 +9,43 @@ export type RoundOf32Match = {
 };
 
 export const ROUND_OF_32_MATCHES: RoundOf32Match[] = [
-  { matchNumber: 73, home: { kind: "group", place: 2, group: "A" }, away: { kind: "group", place: 2, group: "B" } },
+  // Feeding into M89 (M97 Top)
   { matchNumber: 74, home: { kind: "group", place: 1, group: "E" }, away: { kind: "third", groups: ["A", "B", "C", "D", "F"] } },
-  { matchNumber: 75, home: { kind: "group", place: 1, group: "F" }, away: { kind: "group", place: 2, group: "C" } },
-  { matchNumber: 76, home: { kind: "group", place: 1, group: "C" }, away: { kind: "group", place: 2, group: "F" } },
   { matchNumber: 77, home: { kind: "group", place: 1, group: "I" }, away: { kind: "third", groups: ["C", "D", "F", "G", "H"] } },
-  { matchNumber: 78, home: { kind: "group", place: 2, group: "E" }, away: { kind: "group", place: 2, group: "I" } },
-  { matchNumber: 79, home: { kind: "group", place: 1, group: "A" }, away: { kind: "third", groups: ["C", "E", "F", "H", "I"] } },
-  { matchNumber: 80, home: { kind: "group", place: 1, group: "L" }, away: { kind: "third", groups: ["E", "H", "I", "J", "K"] } },
-  { matchNumber: 81, home: { kind: "group", place: 1, group: "D" }, away: { kind: "third", groups: ["B", "E", "F", "I", "J"] } },
-  { matchNumber: 82, home: { kind: "group", place: 1, group: "G" }, away: { kind: "third", groups: ["A", "E", "H", "I", "J"] } },
+  // Feeding into M90 (M97 Bottom)
+  { matchNumber: 73, home: { kind: "group", place: 2, group: "A" }, away: { kind: "group", place: 2, group: "B" } },
+  { matchNumber: 75, home: { kind: "group", place: 1, group: "F" }, away: { kind: "group", place: 2, group: "C" } },
+  // Feeding into M93 (M98 Top)
   { matchNumber: 83, home: { kind: "group", place: 2, group: "K" }, away: { kind: "group", place: 2, group: "L" } },
   { matchNumber: 84, home: { kind: "group", place: 1, group: "H" }, away: { kind: "group", place: 2, group: "J" } },
-  { matchNumber: 85, home: { kind: "group", place: 1, group: "B" }, away: { kind: "third", groups: ["E", "F", "G", "I", "J"] } },
+  // Feeding into M94 (M98 Bottom)
+  { matchNumber: 81, home: { kind: "group", place: 1, group: "D" }, away: { kind: "third", groups: ["B", "E", "F", "I", "J"] } },
+  { matchNumber: 82, home: { kind: "group", place: 1, group: "G" }, away: { kind: "third", groups: ["A", "E", "H", "I", "J"] } },
+  // Feeding into M91 (M99 Top)
+  { matchNumber: 76, home: { kind: "group", place: 1, group: "C" }, away: { kind: "group", place: 2, group: "F" } },
+  { matchNumber: 78, home: { kind: "group", place: 2, group: "E" }, away: { kind: "group", place: 2, group: "I" } },
+  // Feeding into M92 (M99 Bottom)
+  { matchNumber: 79, home: { kind: "group", place: 1, group: "A" }, away: { kind: "third", groups: ["C", "E", "F", "H", "I"] } },
+  { matchNumber: 80, home: { kind: "group", place: 1, group: "L" }, away: { kind: "third", groups: ["E", "H", "I", "J", "K"] } },
+  // Feeding into M95 (M100 Top)
   { matchNumber: 86, home: { kind: "group", place: 1, group: "J" }, away: { kind: "group", place: 2, group: "H" } },
-  { matchNumber: 87, home: { kind: "group", place: 1, group: "K" }, away: { kind: "third", groups: ["D", "E", "I", "J", "L"] } },
   { matchNumber: 88, home: { kind: "group", place: 2, group: "D" }, away: { kind: "group", place: 2, group: "G" } },
+  // Feeding into M96 (M100 Bottom)
+  { matchNumber: 85, home: { kind: "group", place: 1, group: "B" }, away: { kind: "third", groups: ["E", "F", "G", "I", "J"] } },
+  { matchNumber: 87, home: { kind: "group", place: 1, group: "K" }, away: { kind: "third", groups: ["D", "E", "I", "J", "L"] } },
 ];
 
 export const ROUND_OF_16_MATCHES = [
+  // Feeding into M97
   { matchNumber: 89, homeWinnerOf: 74, awayWinnerOf: 77 },
   { matchNumber: 90, homeWinnerOf: 73, awayWinnerOf: 75 },
-  { matchNumber: 91, homeWinnerOf: 76, awayWinnerOf: 78 },
-  { matchNumber: 92, homeWinnerOf: 79, awayWinnerOf: 80 },
+  // Feeding into M98
   { matchNumber: 93, homeWinnerOf: 83, awayWinnerOf: 84 },
   { matchNumber: 94, homeWinnerOf: 81, awayWinnerOf: 82 },
+  // Feeding into M99
+  { matchNumber: 91, homeWinnerOf: 76, awayWinnerOf: 78 },
+  { matchNumber: 92, homeWinnerOf: 79, awayWinnerOf: 80 },
+  // Feeding into M100
   { matchNumber: 95, homeWinnerOf: 86, awayWinnerOf: 88 },
   { matchNumber: 96, homeWinnerOf: 85, awayWinnerOf: 87 },
 ];

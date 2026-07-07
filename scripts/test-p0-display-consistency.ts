@@ -159,19 +159,24 @@ const t = (key: string) => ({
   bracket_sf_winner: "Semi-final winner",
 }[key] ?? key);
 
-const bracket89 = buildBracketMatchModel({ match: ROUND_OF_16_MATCHES[0], isR32: false, resolvedParticipants: apiResolved, t, lang: "en" });
+const match89 = ROUND_OF_16_MATCHES.find(m => m.matchNumber === 89)!;
+const bracket89 = buildBracketMatchModel({ match: match89, isR32: false, resolvedParticipants: apiResolved, t, lang: "en" });
 assert.equal(`${bracket89.home.label} vs ${bracket89.away.label}`, "Paraguay vs France", "bracket model resolves Paraguay vs France path");
 
-const bracket90 = buildBracketMatchModel({ match: ROUND_OF_16_MATCHES[1], isR32: false, resolvedParticipants: apiResolved, t, lang: "en" });
+const match90 = ROUND_OF_16_MATCHES.find(m => m.matchNumber === 90)!;
+const bracket90 = buildBracketMatchModel({ match: match90, isR32: false, resolvedParticipants: apiResolved, t, lang: "en" });
 assert.equal(`${bracket90.home.label} vs ${bracket90.away.label}`, "Canada vs Morocco", "bracket model resolves Canada vs Morocco path");
 
-const bracket91 = buildBracketMatchModel({ match: ROUND_OF_16_MATCHES[2], isR32: false, resolvedParticipants: apiResolved, t, lang: "en" });
+const match91 = ROUND_OF_16_MATCHES.find(m => m.matchNumber === 91)!;
+const bracket91 = buildBracketMatchModel({ match: match91, isR32: false, resolvedParticipants: apiResolved, t, lang: "en" });
 assert.equal(`${bracket91.home.label} vs ${bracket91.away.label}`, "Brazil vs Norway", "bracket model resolves Brazil vs Norway path");
 
-const bracket96 = buildBracketMatchModel({ match: ROUND_OF_16_MATCHES[7], isR32: false, resolvedParticipants: apiResolved, t, lang: "en" });
+const match96 = ROUND_OF_16_MATCHES.find(m => m.matchNumber === 96)!;
+const bracket96 = buildBracketMatchModel({ match: match96, isR32: false, resolvedParticipants: apiResolved, t, lang: "en" });
 assert.equal(`${bracket96.home.label} vs ${bracket96.away.label}`, "Switzerland vs Colombia", "bracket model resolves Switzerland vs Colombia path");
 
-const bracket95 = buildBracketMatchModel({ match: ROUND_OF_16_MATCHES[6], isR32: false, resolvedParticipants: apiResolved, t, lang: "en" });
+const match95 = ROUND_OF_16_MATCHES.find(m => m.matchNumber === 95)!;
+const bracket95 = buildBracketMatchModel({ match: match95, isR32: false, resolvedParticipants: apiResolved, t, lang: "en" });
 assert.equal(bracket95.away.label, "Egypt", "bracket model resolves Egypt path from Australia/Egypt");
 
 const bracket97Resolved = buildBracketMatchModel({ match: QUARTER_FINAL_MATCHES[0], isR32: false, resolvedParticipants: apiResolved, t, lang: "en" });

@@ -23,7 +23,8 @@ import {
 import { findPlayerAlias } from "./worldcup26PlayerAliases";
 import { applyVerifiedGoalCorrections } from "./verifiedMatchEventCorrections";
 import { countryName } from "./i18n";
-import { getResolvedAwayTeam, getResolvedHomeTeam } from "./participant-resolution";
+import { getResolvedAwayTeam, getResolvedHomeTeam, type ResolvedParticipantLookup } from "./participant-resolution";
+import { buildKnockoutResolution } from "./knockoutResolution";
 import { squadFor } from "./squads";
 import { applyCanonicalMatchResultFallback } from "./canonicalMatchResults";
 
@@ -267,13 +268,16 @@ export function dedupeScorers(events: GoalScorerEvent[]): GoalScorerEvent[] {
   return result.sort((a, b) => (a.minute ?? 999) - (b.minute ?? 999) || (a.stoppageTime ?? 0) - (b.stoppageTime ?? 0));
 }
 
-function worldcupGamesByInternalId(games: WorldCup26Game[] | null): Map<string, WorldCup26Game> {
+function worldcupGamesByInternalId(
+  games: WorldCup26Game[] | null,
+  resolvedParticipants?: ResolvedParticipantLookup
+): Map<string, WorldCup26Game> {
   const result = new Map<string, WorldCup26Game>();
   if (!games) return result;
 
   for (const match of MATCHES) {
-    const homeTeam = getResolvedHomeTeam(match);
-    const awayTeam = getResolvedAwayTeam(match);
+    const homeTeam = getResolvedHomeTeam(match, resolvedParticipants);
+    const awayTeam = getResolvedAwayTeam(match, resolvedParticipants);
     if (!homeTeam || !awayTeam) continue;
     const homeDisplay = countryName(homeTeam, "en");
     const awayDisplay = countryName(awayTeam, "en");
@@ -480,7 +484,38 @@ export async function buildTournamentLiveSnapshot({
     if (knownProviderIds.has(id)) filteredLiveData.set(id, data);
   }
 
-  const worldcupByMatch = worldcupGamesByInternalId(worldcupGames);
+  // PASS 1: Build preliminary snapshot using only primary data to resolve knockout participants
+  const pass1Matches: Record<string, SerializableSnapshotMatch> = {};
+  for (const match of MATCHES) {
+    const internalId = matchSlug(match);
+    const providerId = match.providerIds?.footballData ?? null;
+    const live = providerId ? filteredLiveData.get(providerId) : undefined;
+    const canonicalLive = applyCanonicalMatchResultFallback(match, withCanonicalMatchState({
+      match,
+      live,
+      worldcupGame: undefined,
+      scorers: [],
+      generatedAt,
+    }) ?? undefined, generatedAt) ?? null;
+    
+    pass1Matches[internalId] = {
+      match,
+      internalId,
+      providerMatchId: providerId,
+      status: toSnapshotStatus(canonicalLive ?? undefined),
+      homeScore: canonicalLive?.homeScore ?? null,
+      awayScore: canonicalLive?.awayScore ?? null,
+      scorers: [],
+      goalEventCompleteness: { expectedGoalCount: 0, normalizedGoalEventCount: 0, missingGoalEventCount: 0, isGoalEventDataComplete: true, completenessReason: "no-data" },
+      sourceUpdatedAt: null,
+      providerUpdatedAt: null,
+      live: canonicalLive,
+    };
+  }
+  const resolvedParticipants = buildKnockoutResolution(pass1Matches);
+
+  // PASS 2: Match secondary provider games using resolved participants and build final snapshot
+  const worldcupByMatch = worldcupGamesByInternalId(worldcupGames, resolvedParticipants);
   const matches: Record<string, SerializableSnapshotMatch> = {};
   const scorerEventsByMatch = new Map<string, GoalScorerEvent[]>();
   const canonicalLiveData = new Map<number, LiveMatchData>();
