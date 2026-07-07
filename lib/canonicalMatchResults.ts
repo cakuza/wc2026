@@ -42,6 +42,8 @@ const COMPLETED_KNOCKOUT_RESULTS: Readonly<Record<number, CompletedResult>> = {
   89: { homeScore: 0, awayScore: 1, winner: "AWAY_TEAM", scoreDuration: "REGULAR", confirmedAt: "2026-07-04T23:00:00.000Z" },
   90: { homeScore: 0, awayScore: 3, winner: "AWAY_TEAM", scoreDuration: "REGULAR", confirmedAt: "2026-07-04T19:00:00.000Z" },
   91: { homeScore: 1, awayScore: 2, winner: "AWAY_TEAM", scoreDuration: "REGULAR", confirmedAt: "2026-07-05T20:00:00.000Z" },
+  92: { homeScore: 2, awayScore: 3, winner: "AWAY_TEAM", scoreDuration: "REGULAR", confirmedAt: "2026-07-06T03:00:00.000Z" },
+  93: { homeScore: 0, awayScore: 1, winner: "AWAY_TEAM", scoreDuration: "REGULAR", confirmedAt: "2026-07-06T22:00:00.000Z" },
   94: { homeScore: 1, awayScore: 4, winner: "AWAY_TEAM", scoreDuration: "REGULAR", confirmedAt: "2026-07-06T23:00:00.000Z" },
 };
 

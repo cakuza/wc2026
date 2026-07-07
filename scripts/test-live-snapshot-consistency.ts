@@ -103,6 +103,26 @@ const liveData: ReadonlyMap<number, LiveMatchData> = new Map([
     },
   ],
   [
+    // match-79: Mexico (home) vs Ecuador - Mexico wins, advances to 92
+    537425,
+    { provider: "football-data.org", providerMatchId: 537425, status: "FINISHED", homeScore: 1, awayScore: 0, winner: "HOME_TEAM", lastSyncedAt: "2026-07-07T21:00:00.000Z", eventDataAvailable: false }
+  ],
+  [
+    // match-80: England (home) vs DR Congo - England wins, advances to 92
+    537426,
+    { provider: "football-data.org", providerMatchId: 537426, status: "FINISHED", homeScore: 1, awayScore: 0, winner: "HOME_TEAM", lastSyncedAt: "2026-07-07T21:00:00.000Z", eventDataAvailable: false }
+  ],
+  [
+    // match-83: Portugal (home) vs Croatia - Portugal wins, advances to 93
+    537419,
+    { provider: "football-data.org", providerMatchId: 537419, status: "FINISHED", homeScore: 1, awayScore: 0, winner: "HOME_TEAM", lastSyncedAt: "2026-07-07T21:00:00.000Z", eventDataAvailable: false }
+  ],
+  [
+    // match-84: Spain (home) vs Austria - Spain wins, advances to 93
+    537420,
+    { provider: "football-data.org", providerMatchId: 537420, status: "FINISHED", homeScore: 1, awayScore: 0, winner: "HOME_TEAM", lastSyncedAt: "2026-07-07T21:00:00.000Z", eventDataAvailable: false }
+  ],
+  [
     // match-94 regression: provider data is WRONG (reversed). Canonical must override.
     USA_BELGIUM_PROVIDER_ID,
     {
@@ -228,10 +248,10 @@ async function main() {
 
   const derivedThirds = computeThirdPlaceRanking(snapshot.standingsByGroup);
   assert(JSON.stringify(derivedThirds) === JSON.stringify(snapshot.thirdPlaceRanking), "third-place ranking derives from updated standings");
-  // Stats counts: 2 group matches + matches 81, 82, 94 (liveData) + canonical knockout results (74,75,85,87,88,89,90,91) = 13 total
-  // Goals: 5 (USA-Para) + 2 (Canada-Bosnia) + 2 (m81) + 3 (m82) + 1+4 (m94 canonical) + 8 remaining canonical = 33
-  assert(snapshot.tournamentStats.matchesPlayed === 13, "Stats includes mocked matches, upstream bracket matches, and canonical knockout results");
-  assert(snapshot.tournamentStats.totalGoals === 33, "Stats includes mocked goals, upstream bracket goals, and canonical knockout goals");
+  // Stats counts: 2 group matches + matches 81, 82, 94 (liveData) + 79, 80, 83, 84 (liveData) + canonical knockout results (74,75,85,87,88,89,90,91,92,93) = 19 total
+  // Goals: 5 (USA-Para) + 2 (Canada-Bosnia) + 2 (m81) + 3 (m82) + 4 (mocks 79,80,83,84) + 1+4 (m94) + 2+3 (m92) + 0+1 (m93) + 8 remaining canonical = 43
+  assert(snapshot.tournamentStats.matchesPlayed === 19, "Stats includes mocked matches, upstream bracket matches, and canonical knockout results");
+  assert(snapshot.tournamentStats.totalGoals === 43, "Stats includes mocked goals, upstream bracket goals, and canonical knockout goals");
   assert(!snapshot.liveDataByProviderId["999999"], "unknown provider match is ignored safely");
 
   // === match-94 regression: canonical must override incorrect provider data ===
@@ -246,9 +266,27 @@ async function main() {
 
   // === bracket propagation: Belgium must advance to QF, not United States ===
   const bracketResolution = buildKnockoutResolution(snapshot.matches);
-  const qf98 = bracketResolution[98]; // QF match whose awaySlot = winnerOf(94)
+  const qf98 = bracketResolution[98]; // QF match whose awaySlot = winnerOf(94), homeSlot = winnerOf(93)
   assert(qf98?.away?.teamKey === "belgium", "QF match-98 away slot resolves to Belgium (not United States)");
   assert(qf98?.away?.teamKey !== "unitedStates", "United States does NOT advance from match-94");
+
+  // === M92 and M93 canonical overriding provider (missing) data ===
+  const m92 = snapshot.matches["match-92"];
+  assert(m92 !== undefined && m92.status === "FINISHED", "match-92 status is FINISHED via canonical fallback");
+  assert(m92?.homeScore === 2 && m92?.awayScore === 3, "match-92 score is 2-3 (canonical)");
+  assert(m92?.live?.winner === "AWAY_TEAM", "match-92 winner is AWAY_TEAM (England)");
+
+  const m93 = snapshot.matches["match-93"];
+  assert(m93 !== undefined && m93.status === "FINISHED", "match-93 status is FINISHED via canonical fallback");
+  assert(m93?.homeScore === 0 && m93?.awayScore === 1, "match-93 score is 0-1 (canonical)");
+  assert(m93?.live?.winner === "AWAY_TEAM", "match-93 winner is AWAY_TEAM (Spain)");
+
+  // === bracket propagation: Spain and England must advance ===
+  assert(qf98?.home?.teamKey === "spain", "QF match-98 home slot resolves to Spain (winner of 93, overrides any stale seed)");
+  
+  const qf99 = bracketResolution[99]; // QF match whose homeSlot = winnerOf(91), awaySlot = winnerOf(92)
+  assert(qf99?.home?.teamKey === "norway", "QF match-99 home slot resolves to Norway (winner of 91)");
+  assert(qf99?.away?.teamKey === "england", "QF match-99 away slot resolves to England (winner of 92)");
 
   const appFiles = [
     "app/today/page.tsx",
