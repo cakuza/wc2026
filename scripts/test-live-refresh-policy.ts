@@ -110,7 +110,7 @@ const incompleteShootout = getLiveRefreshPolicy(
 assert(incompleteShootout.reason === "near-match", "FINISHED penalty shootout match with missing shootout score remains refresh-eligible");
 
 // 4. Finished knockout match with unresolved participants remains refresh-eligible
-const knockoutMatch = MATCHES.find(m => "matchNumber" in m && m.matchNumber === 89);
+const knockoutMatch = MATCHES.find(m => "matchNumber" in m && m.matchNumber === 92);
 if (knockoutMatch) {
   const unresolvedKnockout = getLiveRefreshPolicy(
     [{
@@ -143,7 +143,7 @@ const weeksInFuture = getLiveRefreshPolicy(
 assert(weeksInFuture.reason === "idle", "a match weeks in the future does not trigger live refresh");
 
 // 6. Unresolved future knockout match does not trigger live refresh
-const futureKnockout = MATCHES.find(m => "matchNumber" in m && m.matchNumber === 89);
+const futureKnockout = MATCHES.find(m => "matchNumber" in m && m.matchNumber === 92);
 if (futureKnockout) {
   const unresolvedFutureKnockout = getLiveRefreshPolicy(
     [{ match: futureKnockout, status: "SCHEDULED" }],
@@ -237,14 +237,14 @@ const staleScorerGap = getLiveRefreshPolicy(
 assert(staleScorerGap.reason === "idle", "old scorer-only gaps do not hammer providers indefinitely");
 
 // 10. Bracket propagation can complete after an upstream match finalizes
-const m74Raw = MATCHES.find(m => "matchNumber" in m && m.matchNumber === 74)!;
-const m89Raw = MATCHES.find(m => "matchNumber" in m && m.matchNumber === 89)!;
+const m79Raw = MATCHES.find(m => "matchNumber" in m && m.matchNumber === 79)!;
+const m92Raw = MATCHES.find(m => "matchNumber" in m && m.matchNumber === 92)!;
 
 const unresolvedBracket = buildKnockoutResolution({
-  "match-74": {
-    match: m74Raw,
-    internalId: "match-74",
-    providerMatchId: 537415,
+  "match-79": {
+    match: m79Raw,
+    internalId: "match-79",
+    providerMatchId: 537419,
     status: "SCHEDULED",
     homeScore: null,
     awayScore: null,
@@ -261,16 +261,16 @@ const unresolvedBracket = buildKnockoutResolution({
     live: null,
   }
 });
-assert(unresolvedBracket[89]?.home === undefined, "bracket propagation: Match 89 home is unresolved when Match 74 is scheduled");
+assert(unresolvedBracket[92]?.home === undefined, "bracket propagation: Match 92 home is unresolved when Match 79 is scheduled");
 
 const resolvedBracket = buildKnockoutResolution({
-  "match-74": {
-    match: m74Raw,
-    internalId: "match-74",
-    providerMatchId: 537415,
+  "match-79": {
+    match: m79Raw,
+    internalId: "match-79",
+    providerMatchId: 537419,
     status: "FINISHED",
-    homeScore: 1,
-    awayScore: 1,
+    homeScore: 2,
+    awayScore: 0,
     scorers: [],
     goalEventCompleteness: {
       isGoalEventDataComplete: true,
@@ -283,39 +283,37 @@ const resolvedBracket = buildKnockoutResolution({
     providerUpdatedAt: new Date().toISOString(),
     live: {
       provider: "football-data.org",
-      providerMatchId: 537415,
+      providerMatchId: 537419,
       status: "FINISHED",
-      homeScore: 1,
-      awayScore: 1,
-      winner: "AWAY_TEAM",
-      scoreDuration: "PENALTY_SHOOTOUT",
-      penaltyShootoutScore: { home: 3, away: 4 },
+      homeScore: 2,
+      awayScore: 0,
+      winner: "HOME_TEAM",
+      scoreDuration: "REGULAR",
       lastSyncedAt: new Date().toISOString(),
       eventDataAvailable: true,
     },
   }
 });
-assert(resolvedBracket[89]?.home?.teamKey === "paraguay", "bracket propagation can complete after an upstream match finalizes");
+assert(resolvedBracket[92]?.home?.teamKey === "mexico", "bracket propagation can complete after an upstream match finalizes");
 
 const completedAndPropagated = getLiveRefreshPolicy(
   [{
-    match: m74Raw,
+    match: m79Raw,
     status: "FINISHED",
-    homeScore: 1,
-    awayScore: 1,
+    homeScore: 2,
+    awayScore: 0,
     live: liveData({
-      providerMatchId: 537415,
-      homeScore: 1,
-      awayScore: 1,
-      winner: "AWAY_TEAM",
-      scoreDuration: "PENALTY_SHOOTOUT",
-      penaltyShootoutScore: { home: 3, away: 4 },
+      providerMatchId: 537419,
+      homeScore: 2,
+      awayScore: 0,
+      winner: "HOME_TEAM",
+      scoreDuration: "REGULAR",
     }),
   }, {
-    match: m89Raw,
+    match: m92Raw,
     status: "SCHEDULED",
   }],
-  new Date(matchUtcDate(m74Raw).getTime() + 5 * 60 * 60 * 1000),
+  new Date(matchUtcDate(m79Raw).getTime() + 5 * 60 * 60 * 1000),
 );
 assert(completedAndPropagated.reason === "idle", "completed upstream can leave aggressive refresh once downstream bracket advancement is resolved");
 

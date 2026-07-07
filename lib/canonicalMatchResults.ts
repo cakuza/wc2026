@@ -13,6 +13,22 @@ type CompletedResult = {
 };
 
 const COMPLETED_KNOCKOUT_RESULTS: Readonly<Record<number, CompletedResult>> = {
+  74: {
+    homeScore: 1,
+    awayScore: 1,
+    winner: "AWAY_TEAM",
+    scoreDuration: "PENALTY_SHOOTOUT",
+    confirmedAt: "2026-06-29T22:00:00.000Z",
+    penaltyShootoutScore: { home: 3, away: 4 },
+  },
+  75: {
+    homeScore: 1,
+    awayScore: 1,
+    winner: "AWAY_TEAM",
+    scoreDuration: "PENALTY_SHOOTOUT",
+    confirmedAt: "2026-06-29T23:30:00.000Z",
+    penaltyShootoutScore: { home: 2, away: 3 },
+  },
   85: { homeScore: 2, awayScore: 0, winner: "HOME_TEAM", scoreDuration: "REGULAR", confirmedAt: "2026-07-03T05:30:00.000Z" },
   87: { homeScore: 1, awayScore: 0, winner: "HOME_TEAM", scoreDuration: "REGULAR", confirmedAt: "2026-07-04T03:30:00.000Z" },
   88: {
