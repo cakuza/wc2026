@@ -33,6 +33,7 @@ export type WorldCup26Game = {
   homeScore: number | null;
   awayScore: number | null;
   finished: boolean;
+  isLive: boolean;
   homeScorers: GoalScorerEvent[];
   awayScorers: GoalScorerEvent[];
   localDate: string | null;
@@ -165,6 +166,11 @@ function parseGame(raw: RawGame): WorldCup26Game | null {
     raw.finished === true ||
     raw.time_elapsed === "finished";
 
+  const isLive = 
+    raw.time_elapsed === "live" || 
+    raw.time_elapsed === "halftime" || 
+    (!finished && raw.time_elapsed !== "notstarted" && raw.time_elapsed != null);
+
   return {
     providerGameId: typeof raw.id === "string" ? raw.id : String(raw.id ?? ""),
     homeTeamName,
@@ -172,6 +178,7 @@ function parseGame(raw: RawGame): WorldCup26Game | null {
     homeScore,
     awayScore,
     finished,
+    isLive,
     homeScorers: parseScorers(raw.home_scorers, homeTeamName),
     awayScorers: parseScorers(raw.away_scorers, awayTeamName),
     localDate: typeof raw.local_date === "string" ? raw.local_date : null,

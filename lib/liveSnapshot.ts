@@ -132,14 +132,18 @@ export function normalizeTeamName(name: string): string {
   return TEAM_NAME_ALIASES[norm] ?? norm;
 }
 
-function toSnapshotStatus(live: LiveMatchData | undefined): SnapshotMatchStatus {
-  if (!live) return "SCHEDULED";
-  if ((live.status === "IN_PLAY" || live.status === "PAUSED") && (live.homeScore === null || live.awayScore === null)) {
+function toSnapshotStatus(live: LiveMatchData | undefined, worldcupGame?: WorldCup26Game | null, homeScore?: number | null, awayScore?: number | null): SnapshotMatchStatus {
+  let status: LiveMatchData["status"] = live?.status ?? "SCHEDULED";
+  if (!live && worldcupGame) {
+    if (worldcupGame.finished) status = "FINISHED";
+    else if (worldcupGame.isLive || homeScore !== null || awayScore !== null) status = "IN_PLAY";
+  }
+  if (status === "IN_PLAY" && (live?.homeScore === null || live?.awayScore === null)) {
     return "SYNCING";
   }
-  if (live.status === "IN_PLAY") return "LIVE";
-  if (live.status === "PAUSED") return "HALFTIME";
-  if (live.status === "FINISHED") return "FINISHED";
+  if (status === "IN_PLAY") return "LIVE";
+  if (status === "PAUSED") return "HALFTIME";
+  if (status === "FINISHED") return "FINISHED";
   return "SCHEDULED";
 }
 
@@ -161,8 +165,8 @@ export function canonicalStatus({
   const footballStatus = toSnapshotStatus(footballData);
   if (footballStatus === "FINISHED") return "FINISHED";
   if (worldcupGame?.finished) return "FINISHED";
-  if (footballStatus === "LIVE" || footballStatus === "HALFTIME" || footballStatus === "SYNCING") {
-    return footballStatus;
+  if (footballStatus === "LIVE" || footballStatus === "HALFTIME" || footballStatus === "SYNCING" || worldcupGame?.isLive) {
+    return footballStatus === "HALFTIME" ? "HALFTIME" : "LIVE";
   }
   return "SCHEDULED";
 }
@@ -276,15 +280,20 @@ function worldcupGamesByInternalId(
   if (!games) return result;
 
   for (const match of MATCHES) {
-    const homeTeam = getResolvedHomeTeam(match, resolvedParticipants);
-    const awayTeam = getResolvedAwayTeam(match, resolvedParticipants);
-    if (!homeTeam || !awayTeam) continue;
-    const homeDisplay = countryName(homeTeam, "en");
-    const awayDisplay = countryName(awayTeam, "en");
-    const homeKey = normalizeTeamName(homeDisplay);
-    const awayKey = normalizeTeamName(awayDisplay);
-
     const game = games.find((g) => {
+      const matchNum = "matchNumber" in match ? match.matchNumber : null;
+      if (matchNum !== null && g.providerGameId === String(matchNum)) {
+        return true;
+      }
+
+      const homeTeam = getResolvedHomeTeam(match, resolvedParticipants);
+      const awayTeam = getResolvedAwayTeam(match, resolvedParticipants);
+      if (!homeTeam || !awayTeam) return false;
+      const homeDisplay = countryName(homeTeam, "en");
+      const awayDisplay = countryName(awayTeam, "en");
+      const homeKey = normalizeTeamName(homeDisplay);
+      const awayKey = normalizeTeamName(awayDisplay);
+
       const gHome = normalizeTeamName(g.homeTeamName);
       const gAway = normalizeTeamName(g.awayTeamName);
       return gHome === homeKey && gAway === awayKey;
@@ -296,11 +305,15 @@ function worldcupGamesByInternalId(
   return result;
 }
 
-function scorersFromWorldcupGame(match: Match, game: WorldCup26Game | undefined): GoalScorerEvent[] {
+function scorersFromWorldcupGame(
+  match: Match, 
+  game: WorldCup26Game | undefined,
+  resolvedParticipants?: ResolvedParticipantLookup
+): GoalScorerEvent[] {
   if (!game) return [];
   const internalId = matchSlug(match);
-  const homeTeam = getResolvedHomeTeam(match);
-  const awayTeam = getResolvedAwayTeam(match);
+  const homeTeam = getResolvedHomeTeam(match, resolvedParticipants);
+  const awayTeam = getResolvedAwayTeam(match, resolvedParticipants);
   if (!homeTeam || !awayTeam) return [];
   const homeDisplay = countryName(homeTeam, "en");
   const awayDisplay = countryName(awayTeam, "en");
@@ -485,15 +498,17 @@ export async function buildTournamentLiveSnapshot({
   }
 
   // PASS 1: Build preliminary snapshot using only primary data to resolve knockout participants
+  const pass1WorldcupByMatch = worldcupGamesByInternalId(worldcupGames);
   const pass1Matches: Record<string, SerializableSnapshotMatch> = {};
   for (const match of MATCHES) {
     const internalId = matchSlug(match);
     const providerId = match.providerIds?.footballData ?? null;
     const live = providerId ? filteredLiveData.get(providerId) : undefined;
+    const worldcupGame = pass1WorldcupByMatch.get(internalId);
     const canonicalLive = applyCanonicalMatchResultFallback(match, withCanonicalMatchState({
       match,
       live,
-      worldcupGame: undefined,
+      worldcupGame,
       scorers: [],
       generatedAt,
     }) ?? undefined, generatedAt) ?? null;
@@ -525,7 +540,7 @@ export async function buildTournamentLiveSnapshot({
     const providerId = match.providerIds?.footballData ?? null;
     const live = providerId ? filteredLiveData.get(providerId) : undefined;
     const worldcupGame = worldcupByMatch.get(internalId);
-    const scorers = scorersFromWorldcupGame(match, worldcupGame);
+    const scorers = scorersFromWorldcupGame(match, worldcupGame, resolvedParticipants);
     const canonicalLive = applyCanonicalMatchResultFallback(match, withCanonicalMatchState({
       match,
       live,
