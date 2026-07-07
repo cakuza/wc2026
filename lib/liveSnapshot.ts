@@ -506,7 +506,7 @@ export async function buildTournamentLiveSnapshot({
       homeScore: canonicalLive?.homeScore ?? null,
       awayScore: canonicalLive?.awayScore ?? null,
       scorers: [],
-      goalEventCompleteness: { expectedGoalCount: 0, normalizedGoalEventCount: 0, missingGoalEventCount: 0, isGoalEventDataComplete: true, completenessReason: "no-data" },
+      goalEventCompleteness: { expectedGoalCount: 0, normalizedGoalEventCount: 0, missingGoalEventCount: 0, isGoalEventDataComplete: true, completenessReason: "event-data-unavailable" },
       sourceUpdatedAt: null,
       providerUpdatedAt: null,
       live: canonicalLive,

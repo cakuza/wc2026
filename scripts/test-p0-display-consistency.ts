@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { MATCHES, matchSlug, type KnockoutMatch } from "../lib/matches";
+import { MATCHES, matchSlug, type KnockoutMatch, type Match } from "../lib/matches";
 import { ROUND_OF_16_MATCHES, QUARTER_FINAL_MATCHES } from "../lib/knockoutBracket2026";
 import { buildKnockoutResolution } from "../lib/knockoutResolution";
 import { getParticipantDisplay, getParticipantDisplayLabel } from "../lib/participant-resolution";
@@ -303,21 +303,21 @@ const today = readFileSync("app/today/page.tsx", "utf8");
 assert.match(today, /<LiveDataAutoRefresh intervalMs=\{refreshPolicy\.intervalMs\}/, "router/polling policy remains delegated to refreshPolicy");
 
 const match74 = MATCHES.find((m): m is KnockoutMatch => "matchNumber" in m && m.matchNumber === 74)!;
-const match89 = MATCHES.find((m): m is KnockoutMatch => "matchNumber" in m && m.matchNumber === 89)!;
-const match90 = MATCHES.find((m): m is KnockoutMatch => "matchNumber" in m && m.matchNumber === 90)!;
-const match91 = MATCHES.find((m): m is KnockoutMatch => "matchNumber" in m && m.matchNumber === 91)!;
-const match95 = MATCHES.find((m): m is KnockoutMatch => "matchNumber" in m && m.matchNumber === 95)!;
-const match96 = MATCHES.find((m): m is KnockoutMatch => "matchNumber" in m && m.matchNumber === 96)!;
+const match89CheckMatch = MATCHES.find((m): m is KnockoutMatch => "matchNumber" in m && m.matchNumber === 89)!;
+const match90CheckMatch = MATCHES.find((m): m is KnockoutMatch => "matchNumber" in m && m.matchNumber === 90)!;
+const match91CheckMatch = MATCHES.find((m): m is KnockoutMatch => "matchNumber" in m && m.matchNumber === 91)!;
+const match95CheckMatch = MATCHES.find((m): m is KnockoutMatch => "matchNumber" in m && m.matchNumber === 95)!;
+const match96CheckMatch = MATCHES.find((m): m is KnockoutMatch => "matchNumber" in m && m.matchNumber === 96)!;
 const match97 = MATCHES.find((m): m is KnockoutMatch => "matchNumber" in m && m.matchNumber === 97)!;
 
-assert.equal(getParticipantDisplayLabel(match89.homeSlot, "en", resolution), "Paraguay", "Finished Germany/Paraguay source resolves to Paraguay, not Germany/Paraguay Winner.");
-assert.equal(getParticipantDisplayLabel(match89.awaySlot, "en", resolution), "France", "Finished France/Sweden source resolves to France, not France/Sweden Winner.");
-assert.equal(getParticipantDisplayLabel(match90.homeSlot, "en", resolution), "Canada", "Finished South Africa/Canada source resolves to Canada, not South Africa/Canada Winner.");
-assert.equal(getParticipantDisplayLabel(match90.awaySlot, "en", resolution), "Morocco", "Finished Netherlands/Morocco source resolves to Morocco, not Netherlands/Morocco Winner.");
-assert.equal(getParticipantDisplayLabel(match91.homeSlot, "en", resolution), "Brazil", "Finished Brazil/Japan source resolves to Brazil, not Brazil/Japan Winner.");
-assert.equal(getParticipantDisplayLabel(match91.awaySlot, "en", resolution), "Norway", "Finished Ivory Coast/Norway source resolves to Norway, not Ivory Coast/Norway Winner.");
-assert.equal(getParticipantDisplayLabel(match96.homeSlot, "en", resolution), "Switzerland", "Finished Switzerland/Algeria source resolves to Switzerland, not Switzerland/Algeria Winner.");
-assert.equal(getParticipantDisplayLabel(match95.awaySlot, "en", apiResolved), "Egypt", "Finished Australia/Egypt source resolves to Egypt, not Australia/Egypt Winner.");
+assert.equal(getParticipantDisplayLabel(match89CheckMatch.homeSlot, "en", resolution), "Paraguay", "Finished Germany/Paraguay source resolves to Paraguay, not Germany/Paraguay Winner.");
+assert.equal(getParticipantDisplayLabel(match89CheckMatch.awaySlot, "en", resolution), "France", "Finished France/Sweden source resolves to France, not France/Sweden Winner.");
+assert.equal(getParticipantDisplayLabel(match90CheckMatch.homeSlot, "en", resolution), "Canada", "Finished South Africa/Canada source resolves to Canada, not South Africa/Canada Winner.");
+assert.equal(getParticipantDisplayLabel(match90CheckMatch.awaySlot, "en", resolution), "Morocco", "Finished Netherlands/Morocco source resolves to Morocco, not Netherlands/Morocco Winner.");
+assert.equal(getParticipantDisplayLabel(match91CheckMatch.homeSlot, "en", resolution), "Brazil", "Finished Brazil/Japan source resolves to Brazil, not Brazil/Japan Winner.");
+assert.equal(getParticipantDisplayLabel(match91CheckMatch.awaySlot, "en", resolution), "Norway", "Finished Ivory Coast/Norway source resolves to Norway, not Ivory Coast/Norway Winner.");
+assert.equal(getParticipantDisplayLabel(match96CheckMatch.homeSlot, "en", resolution), "Switzerland", "Finished Switzerland/Algeria source resolves to Switzerland, not Switzerland/Algeria Winner.");
+assert.equal(getParticipantDisplayLabel(match95CheckMatch.awaySlot, "en", apiResolved), "Egypt", "Finished Australia/Egypt source resolves to Egypt, not Australia/Egypt Winner.");
 
 assert.equal(getParticipantDisplayLabel(match97.homeSlot, "en", apiResolved), "France", "Finished Paraguay/France source resolves QF M97 home to France.");
 assert.equal(getParticipantDisplayLabel(match97.awaySlot, "en", apiResolved), "Morocco", "Finished Canada/Morocco source resolves QF M97 away to Morocco.");
@@ -331,12 +331,12 @@ assert.equal(bracket90Check.away.label, "Morocco", "Bracket match 90 away is Mor
 const bracket91Check = buildBracketMatchModel({ match: match91, isR32: false, resolvedParticipants: apiResolved, t, lang: "en" });
 assert.equal(`${bracket91Check.home.label} vs ${bracket91Check.away.label}`, "Brazil vs Norway", "Bracket match 91 is Brazil vs Norway when matches 76 and 78 finished.");
 
-const label90Home = getParticipantDisplay(match90, "home", apiResolved, "en").label;
-const label90Away = getParticipantDisplay(match90, "away", apiResolved, "en").label;
+const label90Home = getParticipantDisplay(match90 as unknown as Match, "home", apiResolved, "en").label;
+const label90Away = getParticipantDisplay(match90 as unknown as Match, "away", apiResolved, "en").label;
 assert.equal(`${label90Home} vs ${label90Away}`, "Canada vs Morocco", "Live Canada/Morocco may render Canada/Morocco Winner only in a future downstream winner slot, not in the match card itself.");
 
-const label91Home = getParticipantDisplay(match91, "home", apiResolved, "en").label;
-const label91Away = getParticipantDisplay(match91, "away", apiResolved, "en").label;
+const label91Home = getParticipantDisplay(match91 as unknown as Match, "home", apiResolved, "en").label;
+const label91Away = getParticipantDisplay(match91 as unknown as Match, "away", apiResolved, "en").label;
 assert.equal(`${label91Home} vs ${label91Away}`, "Brazil vs Norway", "Brazil/Norway may render Brazil/Norway Winner only in a future downstream winner slot, not in the match card itself.");
 
 const dynamicReactSurfaces = [

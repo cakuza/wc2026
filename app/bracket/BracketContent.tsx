@@ -5,11 +5,12 @@ import { useLang } from "@/components/LanguageProvider";
 import { Flag } from "@/components/Flag";
 import { FINAL_MATCH, QUARTER_FINAL_MATCHES, ROUND_OF_16_MATCHES, ROUND_OF_32_MATCHES, SEMI_FINAL_MATCHES, slotLabel } from "@/lib/knockoutBracket2026";
 import { type Lang } from "@/lib/i18n";
-import { MATCHES, type Match } from "@/lib/matches";
+import { MATCHES, matchUtcDate, type Match } from "@/lib/matches";
 import { RESOLVED_PARTICIPANTS } from "@/lib/resolvedParticipants";
 import { getParticipantDisplay, knockoutSlotLabel, isKnockoutMatch, type ResolvedParticipantLookup } from "@/lib/participant-resolution";
 import { mergeResolvedParticipantsFromApiMatches } from "@/lib/resolvedParticipantsFromApi";
 import { fetchClientLiveSnapshot } from "@/lib/clientLiveSnapshot";
+import { isMatchPollingActive } from "@/lib/scoreReconciliation";
 
 // --- Layout constants ---
 const CARD_H = 62;   // card height in px
@@ -137,19 +138,64 @@ export function buildBracketMatchModel({
 export function BracketContent({ resolvedParticipants }: { resolvedParticipants?: ResolvedParticipantLookup }) {
   const { t, lang } = useLang();
   const [liveResolvedParticipants, setLiveResolvedParticipants] = useState(resolvedParticipants);
+  const [now, setNow] = useState(() => Date.now());
+
+  const hasLiveOrImminent = MATCHES.some((m) => {
+    return isMatchPollingActive("SCHEDULED", matchUtcDate(m).getTime(), now, false);
+  });
 
   useEffect(() => {
     let cancelled = false;
-    async function refreshResolvedParticipants() {
-      const data = await fetchClientLiveSnapshot();
-      if (!cancelled && data?.matches) {
-        setLiveResolvedParticipants((prev) => mergeResolvedParticipantsFromApiMatches(prev, data.matches));
+    let timer: ReturnType<typeof setTimeout> | null = null;
+    let inFlight = false;
+
+    async function poll(shouldContinue: boolean = hasLiveOrImminent) {
+      if (cancelled || inFlight) {
+        if (shouldContinue && !document.hidden) schedule();
+        return;
+      }
+      inFlight = true;
+      try {
+        const data = await fetchClientLiveSnapshot();
+        if (data?.matches && !cancelled) {
+          setLiveResolvedParticipants((prev) => mergeResolvedParticipantsFromApiMatches(prev, data.matches));
+        }
+      } catch {
+        // ignore
+      } finally {
+        inFlight = false;
+        if (shouldContinue && !document.hidden) schedule();
       }
     }
-    refreshResolvedParticipants();
+
+    function schedule() {
+      if (cancelled || document.hidden) return;
+      const jitter = Math.floor(Math.random() * 5_000);
+      timer = setTimeout(() => poll(hasLiveOrImminent), 30_000 + jitter);
+    }
+
+    function handleVisibilityChange() {
+      if (!document.hidden) {
+        if (timer) clearTimeout(timer);
+        poll(hasLiveOrImminent);
+      } else {
+        if (timer) clearTimeout(timer);
+      }
+    }
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    poll(hasLiveOrImminent);
+
     return () => {
       cancelled = true;
+      if (timer) clearTimeout(timer);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
     };
+  }, [hasLiveOrImminent]);
+
+  useEffect(() => {
+    const interval = setInterval(() => setNow(Date.now()), 30_000);
+    return () => clearInterval(interval);
   }, []);
 
   const mapMatch = (match: any, isR32: boolean) =>
