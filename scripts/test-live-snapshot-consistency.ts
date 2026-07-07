@@ -4,13 +4,18 @@ import { getTodayMatchesForTimeZone } from "../lib/todaySelection";
 import { matchSlug } from "../lib/matches";
 import { buildScorerSentence } from "../lib/resultSummary";
 import { computeThirdPlaceRanking } from "../lib/thirdPlaceRanking";
+import { buildKnockoutResolution } from "../lib/knockoutResolution";
 import type { LiveMatchData } from "../lib/liveMatchData";
 import type { GoalScorerEvent, WorldCup26Game } from "../lib/worldcup26Provider";
 
 const CANADA_PROVIDER_ID = 537333;
 const USA_PROVIDER_ID = 537345;
+// match-94: United States (home, matchNumber 81 winner) vs Belgium (away, matchNumber 82 winner)
+// Provider incorrectly reports 4-1 HOME_TEAM; canonical correct is 1-4 AWAY_TEAM (Belgium wins)
+const USA_BELGIUM_PROVIDER_ID = 537380;
 const CANADA_MATCH_ID = "canada-vs-bosnia-jun12";
 const USA_MATCH_ID = "united-states-vs-paraguay-jun12";
+const USA_BELGIUM_MATCH_ID = "match-94";
 
 let passed = 0;
 let failed = 0;
@@ -66,6 +71,48 @@ const liveData: ReadonlyMap<number, LiveMatchData> = new Map([
       awayScore: 1,
       winner: "HOME_TEAM",
       lastSyncedAt: "2026-06-13T01:20:00.000Z",
+      eventDataAvailable: false,
+    },
+  ],
+  [
+    // match-81: United States (home) vs Bosnia — USA wins, advances to match-94
+    537421,
+    {
+      provider: "football-data.org",
+      providerMatchId: 537421,
+      status: "FINISHED",
+      homeScore: 2,
+      awayScore: 0,
+      winner: "HOME_TEAM",  // United States wins
+      lastSyncedAt: "2026-07-01T22:00:00.000Z",
+      eventDataAvailable: false,
+    },
+  ],
+  [
+    // match-82: Belgium (home) vs Senegal — Belgium wins, advances to match-94
+    537422,
+    {
+      provider: "football-data.org",
+      providerMatchId: 537422,
+      status: "FINISHED",
+      homeScore: 3,
+      awayScore: 0,
+      winner: "HOME_TEAM",  // Belgium wins
+      lastSyncedAt: "2026-07-01T20:00:00.000Z",
+      eventDataAvailable: false,
+    },
+  ],
+  [
+    // match-94 regression: provider data is WRONG (reversed). Canonical must override.
+    USA_BELGIUM_PROVIDER_ID,
+    {
+      provider: "football-data.org",
+      providerMatchId: USA_BELGIUM_PROVIDER_ID,
+      status: "FINISHED",
+      homeScore: 4,   // WRONG — provider has score backwards
+      awayScore: 1,   // WRONG — provider has score backwards
+      winner: "HOME_TEAM",  // WRONG — USA did NOT win; Belgium won
+      lastSyncedAt: "2026-07-06T23:30:00.000Z",
       eventDataAvailable: false,
     },
   ],
@@ -181,12 +228,27 @@ async function main() {
 
   const derivedThirds = computeThirdPlaceRanking(snapshot.standingsByGroup);
   assert(JSON.stringify(derivedThirds) === JSON.stringify(snapshot.thirdPlaceRanking), "third-place ranking derives from updated standings");
-  assert(snapshot.tournamentStats.matchesPlayed === 11, "Stats includes both mocked finished matches and canonical knockout results");
-  assert(snapshot.tournamentStats.totalGoals === 28, "Stats includes seven mocked goals and 21 canonical goals");
+  // Stats counts: 2 group matches + matches 81, 82, 94 (liveData) + canonical knockout results (74,75,85,87,88,89,90,91) = 13 total
+  // Goals: 5 (USA-Para) + 2 (Canada-Bosnia) + 2 (m81) + 3 (m82) + 1+4 (m94 canonical) + 8 remaining canonical = 33
+  assert(snapshot.tournamentStats.matchesPlayed === 13, "Stats includes mocked matches, upstream bracket matches, and canonical knockout results");
+  assert(snapshot.tournamentStats.totalGoals === 33, "Stats includes mocked goals, upstream bracket goals, and canonical knockout goals");
   assert(!snapshot.liveDataByProviderId["999999"], "unknown provider match is ignored safely");
 
-  const m94 = snapshot.matches["match-94"];
-  assert(m94?.status === "FINISHED" && m94.homeScore === 4, "USA vs Belgium finished result appears in live snapshot or canonical fallback");
+  // === match-94 regression: canonical must override incorrect provider data ===
+  // Provider says: United States 4-1 Belgium, HOME_TEAM wins (WRONG)
+  // Canonical says: United States 1-4 Belgium, AWAY_TEAM wins (Belgium, CORRECT)
+  const m94 = snapshot.matches[USA_BELGIUM_MATCH_ID];
+  assert(m94 !== undefined, "match-94 (USA vs Belgium) appears in snapshot");
+  assert(m94?.status === "FINISHED", "match-94 status is FINISHED");
+  assert(m94?.homeScore === 1, "match-94 homeScore = 1 (canonical overrides provider's wrong 4)");
+  assert(m94?.awayScore === 4, "match-94 awayScore = 4 (canonical overrides provider's wrong 1)");
+  assert(m94?.live?.winner === "AWAY_TEAM", "match-94 winner = AWAY_TEAM (Belgium, canonical overrides HOME_TEAM)");
+
+  // === bracket propagation: Belgium must advance to QF, not United States ===
+  const bracketResolution = buildKnockoutResolution(snapshot.matches);
+  const qf98 = bracketResolution[98]; // QF match whose awaySlot = winnerOf(94)
+  assert(qf98?.away?.teamKey === "belgium", "QF match-98 away slot resolves to Belgium (not United States)");
+  assert(qf98?.away?.teamKey !== "unitedStates", "United States does NOT advance from match-94");
 
   const appFiles = [
     "app/today/page.tsx",
