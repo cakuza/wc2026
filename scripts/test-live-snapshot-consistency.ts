@@ -181,12 +181,12 @@ async function main() {
 
   const derivedThirds = computeThirdPlaceRanking(snapshot.standingsByGroup);
   assert(JSON.stringify(derivedThirds) === JSON.stringify(snapshot.thirdPlaceRanking), "third-place ranking derives from updated standings");
-  assert(snapshot.tournamentStats.matchesPlayed === 10, "Stats includes both mocked finished matches and canonical knockout results");
-  assert(snapshot.tournamentStats.totalGoals === 25, "Stats includes seven mocked goals and 18 canonical goals");
+  assert(snapshot.tournamentStats.matchesPlayed === 11, "Stats includes both mocked finished matches and canonical knockout results");
+  assert(snapshot.tournamentStats.totalGoals === 28, "Stats includes seven mocked goals and 21 canonical goals");
   assert(!snapshot.liveDataByProviderId["999999"], "unknown provider match is ignored safely");
 
   const m94 = snapshot.matches["match-94"];
-  assert(m94?.status === "FINISHED" && m94.awayScore === 4, "USA vs Belgium finished result appears in live snapshot or canonical fallback");
+  assert(m94?.status === "FINISHED" && m94.homeScore === 4, "USA vs Belgium finished result appears in live snapshot or canonical fallback");
 
   const appFiles = [
     "app/today/page.tsx",
