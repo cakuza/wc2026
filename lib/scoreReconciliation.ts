@@ -137,15 +137,29 @@ export function reconcileGoalEvents<T extends ReconcilableGoalEvent>({
   };
 }
 
+import { LIVE_REFRESH_START_BEFORE_MS, LIVE_REFRESH_STOP_AFTER_MS } from "./liveRefreshPolicy";
+
 /**
- * True while a match should be polled for live updates: during LIVE/HALFTIME/
- * SYNCING statuses, or within 15 minutes of kickoff (before or after). Must be
+ * Shared evaluation logic to determine whether we should keep polling
+ * /api/live-snapshot for a specific match. This is intentionally separate
+ * from global server-side interval derivation so the client can manage its
+ * own decoupled polling lifecycle on Match Detail pages. This state is
  * evaluated against the current snapshot status and clock, not a one-time
  * initial value, so polling starts/stops as the match transitions.
  */
-export function isMatchPollingActive(status: SnapshotMatchStatus, kickoffMs: number, now: number): boolean {
-  if (status === "LIVE" || status === "HALFTIME" || status === "SYNCING") return true;
-  return Math.abs(kickoffMs - now) <= 15 * 60 * 1000;
+export function isMatchPollingActive(
+  status: SnapshotMatchStatus,
+  kickoffMs: number,
+  now: number,
+  isFinishedAndComplete: boolean = false
+): boolean {
+  if (now < kickoffMs - LIVE_REFRESH_START_BEFORE_MS || now > kickoffMs + LIVE_REFRESH_STOP_AFTER_MS) {
+    return false;
+  }
+  if (status === "FINISHED" && isFinishedAndComplete) {
+    return false;
+  }
+  return true;
 }
 
 export const POST_MATCH_RECONCILIATION_WINDOW_MS = 4 * 60 * 60 * 1000;

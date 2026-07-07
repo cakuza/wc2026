@@ -223,25 +223,42 @@ export function orderMatches(matches: Match[], liveDataByProviderId: Record<stri
   });
 }
 
+import { LIVE_REFRESH_START_BEFORE_MS, LIVE_REFRESH_STOP_AFTER_MS, isCanonicalComplete } from "@/lib/liveRefreshPolicy";
+
 /**
- * True while any match is currently live, or within 15 minutes of kickoff
- * (before or after) — the window in which the client should be polling
- * `/api/live-snapshot`. Must be evaluated against the *current* snapshot
+ * Shared evaluation logic to determine whether we should keep polling
+ * /api/live-snapshot for the Today/Home page. Evaluated against the current
  * state and clock, not a one-time initial value, so it reflects:
  *  - a match that starts live within the window,
  *  - a poll response that flips a match to IN_PLAY,
- *  - the clock advancing past kickoff + 15 minutes (stop polling).
+ *  - the clock advancing past kickoff + 195 minutes (stop polling).
  */
 export function isLiveOrImminent(
   matches: Match[],
   liveDataByProviderId: Record<string, LiveMatchData>,
+  resolvedParticipants: ResolvedParticipantLookup,
   now: number,
 ): boolean {
   return matches.some((m) => {
-    const live = m.providerIds?.footballData ? liveDataByProviderId[String(m.providerIds.footballData)] : undefined;
-    if (live?.status === "IN_PLAY" || live?.status === "PAUSED") return true;
     const kickoffMs = matchUtcDate(m).getTime();
-    return Math.abs(kickoffMs - now) <= 15 * 60 * 1000;
+    if (now < kickoffMs - LIVE_REFRESH_START_BEFORE_MS || now > kickoffMs + LIVE_REFRESH_STOP_AFTER_MS) {
+      return false;
+    }
+    const live = m.providerIds?.footballData ? liveDataByProviderId[String(m.providerIds.footballData)] : undefined;
+    if (live?.status === "FINISHED") {
+      const isComplete = isCanonicalComplete(
+        {
+          match: m,
+          status: live.status,
+          live,
+          homeScore: live.homeScore,
+          awayScore: live.awayScore,
+        },
+        resolvedParticipants
+      );
+      if (isComplete) return false;
+    }
+    return true;
   });
 }
 
@@ -274,7 +291,7 @@ export function TodayMatches({
   const allMatches = md.days ? md.days.flatMap((d) => d.matches) : md.matches;
   // Uses the live React state (snapshot), not the initial liveSnapshot prop, so
   // a poll that flips a match to IN_PLAY (or FINISHED) is reflected immediately.
-  const hasLiveOrImminent = isLiveOrImminent(allMatches, snapshot.liveDataByProviderId, now);
+  const hasLiveOrImminent = isLiveOrImminent(allMatches, snapshot.liveDataByProviderId, snapshot.resolvedParticipants, now);
 
   // Poll the lightweight internal live-snapshot endpoint while a match is live
   // or starting soon — reads the shared server snapshot, never the upstream

@@ -17,6 +17,7 @@ import { buildScorerSentence } from "@/lib/resultSummary";
 import { missingScorerDetailText, type GoalEventCompleteness } from "@/lib/goalEventCompleteness";
 import { type SnapshotMatchStatus } from "@/lib/liveSnapshot";
 import { reconcileGoalEvents, isMatchPollingActive, isMatchInReconciliationWindow } from "@/lib/scoreReconciliation";
+import { isCanonicalComplete } from "@/lib/liveRefreshPolicy";
 import type { GoalScorerEvent } from "@/lib/worldcup26Provider";
 import { slugFor } from "@/lib/teams";
 
@@ -176,6 +177,8 @@ export function MatchDetail({
     secondaryProviderFetchedAt: initialSecondaryProviderFetchedAt,
     secondaryProviderOk: initialSecondaryProviderOk,
     penaltyShootoutScore: live?.penaltyShootoutScore ?? null,
+    winner: live?.winner ?? null,
+    scoreDuration: live?.scoreDuration ?? null,
   });
 
   const internalId = matchSlug(match);
@@ -189,7 +192,30 @@ export function MatchDetail({
     return () => clearInterval(interval);
   }, []);
 
-  const pollingActive = isMatchPollingActive(liveState.status, kickoffMs, now);
+  const isComplete = isCanonicalComplete(
+    {
+      match,
+      status: liveState.status,
+      live: {
+        provider: "football-data.org",
+        providerMatchId: 0,
+        status: liveState.status === "FINISHED" ? "FINISHED" : "IN_PLAY",
+        winner: liveState.winner,
+        scoreDuration: liveState.scoreDuration,
+        lastSyncedAt: "",
+        eventDataAvailable: true,
+        penaltyShootoutScore: liveState.penaltyShootoutScore,
+        homeScore: liveState.homeScore,
+        awayScore: liveState.awayScore,
+      },
+      homeScore: liveState.homeScore,
+      awayScore: liveState.awayScore,
+      goalEventCompleteness: liveState.goalEventCompleteness,
+    },
+    resolvedParticipants ?? {}
+  );
+
+  const pollingActive = isMatchPollingActive(liveState.status, kickoffMs, now, isComplete);
 
   // Poll the lightweight internal live-snapshot endpoint while the match is
   // live or starting soon — reads the shared server snapshot, never the
@@ -230,6 +256,8 @@ export function MatchDetail({
                 scorers,
                 goalEventCompleteness,
                 penaltyShootoutScore: update.penaltyShootoutScore ?? prev.penaltyShootoutScore,
+                winner: update.winner ?? prev.winner,
+                scoreDuration: prev.scoreDuration, // Not returned by API, keep previous
                 liveDataUnavailable: update.liveDataUnavailable ?? false,
                 primaryProviderFetchedAt: data.primaryProviderFetchedAt,
                 primaryProviderOk: data.primaryProviderOk,

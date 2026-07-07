@@ -46,7 +46,7 @@ function dependentSlotsFor(match: KnockoutMatch): Array<{ matchNumber: number; s
   return slots;
 }
 
-function isCanonicalComplete(item: RefreshCandidate, resolvedParticipants: ReturnType<typeof buildKnockoutResolution>): boolean {
+export function isCanonicalComplete(item: RefreshCandidate, resolvedParticipants: ReturnType<typeof buildKnockoutResolution>): boolean {
   if (item.status !== "FINISHED") return false;
   if (item.homeScore === null || item.homeScore === undefined || item.awayScore === null || item.awayScore === undefined) return false;
   if (!item.live) return false;
@@ -70,50 +70,50 @@ function isCanonicalComplete(item: RefreshCandidate, resolvedParticipants: Retur
   return true;
 }
 
+export const LIVE_REFRESH_START_BEFORE_MS = 15 * 60 * 1000;
+export const LIVE_REFRESH_STOP_AFTER_MS = 195 * 60 * 1000;
+
 export function getLiveRefreshPolicy(
   candidates: RefreshCandidate[],
   now: Date = new Date(),
 ): LiveRefreshPolicy {
-  if (candidates.some((item) => item.status === "LIVE" || item.status === "HALFTIME" || item.status === "SYNCING")) {
+  const nowMs = now.getTime();
+
+  // Filter candidates to only those within the strict match window
+  const activeCandidates = candidates.filter((item) => {
+    const kickoff = matchUtcDate(item.match).getTime();
+    return nowMs >= kickoff - LIVE_REFRESH_START_BEFORE_MS && nowMs <= kickoff + LIVE_REFRESH_STOP_AFTER_MS;
+  });
+
+  if (activeCandidates.length === 0) {
+    return { intervalMs: null, reason: "idle" };
+  }
+
+  // If any active candidate is currently LIVE, HALFTIME, or SYNCING, use the aggressive interval
+  if (activeCandidates.some((item) => item.status === "LIVE" || item.status === "HALFTIME" || item.status === "SYNCING")) {
     return { intervalMs: LIVE_INTERVAL_MS, reason: "live" };
   }
 
   const matchesRecord: Record<string, any> = {};
-  candidates.forEach((c, idx) => {
+  activeCandidates.forEach((c, idx) => {
     matchesRecord[idx] = c;
   });
   const resolvedParticipants = buildKnockoutResolution(matchesRecord);
 
-  const nowMs = now.getTime();
-  const nearMatch = candidates.some((item) => {
+  const nearMatch = activeCandidates.some((item) => {
     // 1. Not finished:
     if (item.status !== "FINISHED") {
-      const kickoff = matchUtcDate(item.match).getTime();
-      // Eligible if kickoff is within 2 hours in the future, or kickoff is in the past
-      return nowMs >= kickoff - NEAR_MATCH_WINDOW_MS;
+      return true;
     }
 
     // 2. Finished, but canonical data is incomplete:
     if (!isCanonicalComplete(item, resolvedParticipants)) {
-      const referenceTime = matchUtcDate(item.match).getTime();
-      const ageMs = nowMs - referenceTime;
-      const isWithinLimit = ageMs <= MAX_CANONICAL_RECONCILIATION_WINDOW_MS;
-      if (!isWithinLimit) {
-        const matchId = "matchNumber" in item.match ? item.match.matchNumber : `${item.match.homeKey}-vs-${item.match.awayKey}`;
-        console.warn(
-          `[liveRefreshPolicy] Match ${matchId} finished but incomplete ` +
-          `exceeding max reconciliation safety window (48h). Stopping refreshes.`
-        );
-      }
-      return isWithinLimit;
+      return true;
     }
 
     // 3. Finished and canonical data is complete, but scorer details are incomplete:
     if (item.goalEventCompleteness?.isGoalEventDataComplete === false) {
-      const referenceTime = item.providerUpdatedAt ? new Date(item.providerUpdatedAt).getTime() : matchUtcDate(item.match).getTime();
-      if (Number.isFinite(referenceTime)) {
-        return Math.abs(nowMs - referenceTime) <= POST_FINAL_ENRICHMENT_WINDOW_MS;
-      }
+      return true;
     }
 
     return false;

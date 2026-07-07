@@ -60,7 +60,7 @@ if (match) {
   const initialLiveData: Record<string, LiveMatchData> = { [providerId]: scheduledLive() };
   const tNearKickoff = kickoffMs - 10 * 60 * 1000; // 10 minutes before kickoff
   assert(
-    isLiveOrImminent([m], initialLiveData, tNearKickoff) === true,
+    isLiveOrImminent([m], initialLiveData, {}, tNearKickoff) === true,
     "polling is active when loaded 10 minutes before kickoff (still SCHEDULED)",
   );
 
@@ -70,24 +70,24 @@ if (match) {
   };
   const tAtKickoff = kickoffMs + 5 * 60 * 1000; // 5 minutes after kickoff
   assert(
-    isLiveOrImminent([m], inPlayLiveData, tAtKickoff) === true,
+    isLiveOrImminent([m], inPlayLiveData, {}, tAtKickoff) === true,
     "polling stays active once the snapshot flips the match to IN_PLAY",
   );
 
   // --- Step 3: clock advances past kickoff + 15 minutes, match remains scheduled-shaped data stale but not live ---
   const tFarPastKickoff = kickoffMs + 20 * 60 * 1000; // 20 minutes after kickoff
   const finishedLiveData: Record<string, LiveMatchData> = {
-    [providerId]: scheduledLive({ status: "FINISHED", rawStatus: "FINISHED", homeScore: 2, awayScore: 1 }),
+    [providerId]: scheduledLive({ status: "FINISHED", rawStatus: "FINISHED", homeScore: 2, awayScore: 1, winner: "HOME_TEAM", scoreDuration: "REGULAR" }),
   };
   assert(
-    isLiveOrImminent([m], finishedLiveData, tFarPastKickoff) === false,
+    isLiveOrImminent([m], finishedLiveData, {}, tFarPastKickoff) === false,
     "polling stops once the match is FINISHED and the clock is past kickoff + 15 minutes",
   );
 
   // --- Sanity: far from kickoff and not live -> not imminent ---
   const tFarBefore = kickoffMs - 60 * 60 * 1000; // 1 hour before kickoff
   assert(
-    isLiveOrImminent([m], initialLiveData, tFarBefore) === false,
+    isLiveOrImminent([m], initialLiveData, {}, tFarBefore) === false,
     "polling is inactive when more than 15 minutes before kickoff and not live",
   );
 }

@@ -34,7 +34,7 @@ ok(snapshotRevalidateSeconds(new Date(kick + 60 * 60 * 1000)) === LIVE_SNAPSHOT_
 ok(snapshotRevalidateSeconds(new Date(kick + 5 * 60 * 60 * 1000)) >= IDLE_SNAPSHOT_CACHE_REVALIDATE_SECONDS || hasLiveWindow(new Date(kick + 5 * 60 * 60 * 1000)), "idle cadence used outside live windows");
 
 // ── Declared, enforced budget ────────────────────────────────────────────────
-const livePollSeconds = (getLiveRefreshPolicy([{ match: sample, status: "LIVE" }]).intervalMs ?? 0) / 1000;
+const livePollSeconds = (getLiveRefreshPolicy([{ match: sample, status: "LIVE" }], new Date(kick + 60 * 60 * 1000)).intervalMs ?? 0) / 1000;
 ok(livePollSeconds > 0 && livePollSeconds <= 35, `client live poll ≤ 35s (got ${livePollSeconds}s)`);
 const worstCase = PROVIDER_REVALIDATE_SECONDS + LIVE_SNAPSHOT_CACHE_REVALIDATE_SECONDS + livePollSeconds;
 ok(worstCase <= MAX_LIVE_APP_STALENESS_SECONDS, `provider(${PROVIDER_REVALIDATE_SECONDS}) + snapshot(${LIVE_SNAPSHOT_CACHE_REVALIDATE_SECONDS}) + poll(${livePollSeconds}) = ${worstCase}s ≤ declared ${MAX_LIVE_APP_STALENESS_SECONDS}s`);
