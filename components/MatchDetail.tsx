@@ -1,7 +1,7 @@
 "use client";
 import { getResolvedHomeTeam, getResolvedAwayTeam, getParticipantDisplayLabel, isKnockoutMatch, knockoutSlotLabel, getResolvedHomeCode, getResolvedAwayCode, matchStageLabel, type ResolvedParticipantLookup } from "@/lib/participant-resolution";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import { Flag } from "@/components/Flag";
 import { KickoffDateTime } from "@/components/MatchTime";
@@ -16,7 +16,7 @@ import { countryName } from "@/lib/i18n";
 import { buildScorerSentence } from "@/lib/resultSummary";
 import { missingScorerDetailText, type GoalEventCompleteness } from "@/lib/goalEventCompleteness";
 import { type SnapshotMatchStatus } from "@/lib/liveSnapshot";
-import { reconcileGoalEvents, isMatchPollingActive, isMatchInReconciliationWindow } from "@/lib/scoreReconciliation";
+import { reconcileGoalEvents, isMatchInReconciliationWindow } from "@/lib/scoreReconciliation";
 import { isCanonicalComplete } from "@/lib/liveRefreshPolicy";
 import type { GoalScorerEvent } from "@/lib/worldcup26Provider";
 import { slugFor } from "@/lib/teams";
@@ -181,17 +181,9 @@ export function MatchDetail({
     scoreDuration: live?.scoreDuration ?? null,
   });
 
-  const internalId = matchSlug(match);
-  const kickoffMs = matchUtcDate(match).getTime();
-
-  // Ticks periodically so pollingActive re-evaluates as kickoff approaches or
-  // passes, even while no poll-driven re-render has happened yet.
-  const [now, setNow] = useState(() => Date.now());
-  useEffect(() => {
-    const interval = setInterval(() => setNow(Date.now()), 30_000);
-    return () => clearInterval(interval);
-  }, []);
-
+  // Containment mode: clock tick and polling removed. Match page displays
+  // server-rendered ISR state only; no client fetch is triggered.
+  const now = Date.now();
   const isComplete = isCanonicalComplete(
     {
       match,
@@ -214,93 +206,6 @@ export function MatchDetail({
     },
     resolvedParticipants ?? {}
   );
-
-  const pollingActive = isMatchPollingActive(liveState.status, kickoffMs, now, isComplete);
-
-  // Poll the lightweight internal live-snapshot endpoint while the match is
-  // live or starting soon — reads the shared server snapshot, never the
-  // upstream providers directly, and uses the current snapshot state (not
-  // just the initial server props) for all subsequent live-status decisions.
-  useEffect(() => {
-    let cancelled = false;
-    let timer: ReturnType<typeof setTimeout> | null = null;
-    let inFlight = false;
-
-    async function poll() {
-      if (cancelled || inFlight) {
-        if (pollingActive && !document.hidden) schedule();
-        return;
-      }
-      inFlight = true;
-      try {
-        const res = await fetch("/api/live-snapshot");
-        if (res.ok) {
-          const data = await res.json();
-          const update = data.matches?.[internalId];
-          if (!cancelled && update) {
-            setLiveState((prev) => {
-              const status = (prev.status === "FINISHED" && update.status !== "FINISHED")
-                ? prev.status
-                : update.status;
-              const homeScore = update.homeScore === null && prev.homeScore !== null ? prev.homeScore : update.homeScore;
-              const awayScore = update.awayScore === null && prev.awayScore !== null ? prev.awayScore : update.awayScore;
-              const scorers = update.scorers.length === 0 && prev.scorers.length > 0 ? prev.scorers : update.scorers;
-              const goalEventCompleteness = update.goalEventCompleteness.missingGoalEventCount > 0 && prev.goalEventCompleteness.missingGoalEventCount === 0
-                ? prev.goalEventCompleteness
-                : update.goalEventCompleteness;
-
-              return {
-                status,
-                homeScore,
-                awayScore,
-                scorers,
-                goalEventCompleteness,
-                penaltyShootoutScore: update.penaltyShootoutScore ?? prev.penaltyShootoutScore,
-                winner: update.winner ?? prev.winner,
-                scoreDuration: prev.scoreDuration, // Not returned by API, keep previous
-                liveDataUnavailable: update.liveDataUnavailable ?? false,
-                primaryProviderFetchedAt: data.primaryProviderFetchedAt,
-                primaryProviderOk: data.primaryProviderOk,
-                secondaryProviderFetchedAt: data.secondaryProviderFetchedAt,
-                secondaryProviderOk: data.secondaryProviderOk,
-              };
-            });
-          }
-        }
-      } catch {
-        // keep last known state; retry on next tick
-      } finally {
-        inFlight = false;
-        if (pollingActive && !document.hidden) schedule();
-      }
-    }
-
-    function schedule() {
-      if (cancelled || document.hidden) return;
-      const jitter = Math.floor(Math.random() * 5_000);
-      timer = setTimeout(poll, 30_000 + jitter);
-    }
-
-    function handleVisibilityChange() {
-      if (!document.hidden) {
-        if (timer) clearTimeout(timer);
-        poll();
-      } else {
-        if (timer) clearTimeout(timer);
-      }
-    }
-
-    // Always fetch once on mount, so stale ISR HTML gets fresh data immediately.
-    poll();
-    
-    document.addEventListener("visibilitychange", handleVisibilityChange);
-    return () => {
-      cancelled = true;
-      if (timer) clearTimeout(timer);
-      document.removeEventListener("visibilitychange", handleVisibilityChange);
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pollingActive, internalId]);
 
   const homeScore = liveState.homeScore;
   const awayScore = liveState.awayScore;

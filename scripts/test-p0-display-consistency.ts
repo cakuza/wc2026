@@ -300,7 +300,7 @@ const layout = readFileSync("app/layout.tsx", "utf8");
 assert.match(layout, /@vercel\/analytics\/next/, "Vercel Analytics remains mounted");
 
 const today = readFileSync("app/today/page.tsx", "utf8");
-assert.match(today, /<LiveDataAutoRefresh intervalMs=\{refreshPolicy\.intervalMs\}/, "router/polling policy remains delegated to refreshPolicy");
+// Containment mode: LiveDataAutoRefresh (router.refresh polling) is intentionally\n// removed to eliminate idle CPU and ISR writes. Verify it is absent.\nassert.doesNotMatch(today, /<LiveDataAutoRefresh/, "containment mode: LiveDataAutoRefresh polling is disabled");
 
 const match74 = MATCHES.find((m): m is KnockoutMatch => "matchNumber" in m && m.matchNumber === 74)!;
 const match89CheckMatch = MATCHES.find((m): m is KnockoutMatch => "matchNumber" in m && m.matchNumber === 89)!;

@@ -1,12 +1,11 @@
 import type { Metadata } from "next";
-import { cookies } from "next/headers";
 import { Ticker } from "@/components/Ticker";
 import { Hero } from "@/components/Hero";
 import { HomeTrivia } from "@/components/HomeTrivia";
 import { TeamsByConfederationPreview } from "@/components/TeamsByConfederation";
 import { getTickerMatches } from "@/lib/matches";
-import { getDisplayMatchdayForTimeZone, resolveSelectedTimeZone } from "@/lib/todaySelection";
-import { TZ_COOKIE } from "@/lib/timezone";
+import { getDisplayMatchdayForTimeZone } from "@/lib/todaySelection";
+import { DEFAULT_TIMEZONE } from "@/lib/timezone";
 import { getTournamentLiveSnapshot } from "@/lib/liveSnapshot";
 import { LiveDataUnavailableNotice } from "@/components/LiveDataUnavailableNotice";
 import { buildKnockoutResolution } from "@/lib/knockoutResolution";
@@ -27,11 +26,10 @@ export const metadata: Metadata = {
   },
 };
 
-// Renders dynamically (cookies() makes this opt out of ISR automatically) so the
-// homepage Today card stays in sync with the shared live snapshot — a 60s page
-// cache must not hide a 25-30s snapshot refresh.
-export const revalidate = 30;
-export const dynamic = "force-dynamic";
+// Static-first containment mode: no runtime cookies() call, no force-dynamic.
+// The page is now ISR with a long revalidation window. The client-side
+// TimezoneProvider handles timezone selection after hydration at zero cost.
+export const revalidate = 3600; // revalidate at most once per hour
 
 export default async function TodayPage({
   searchParams,
@@ -39,8 +37,9 @@ export default async function TodayPage({
   searchParams?: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const params = searchParams ? await searchParams : {};
-  const cookieTz = (await cookies()).get(TZ_COOKIE)?.value;
-  const selectedTimeZone = resolveSelectedTimeZone(params.tz, cookieTz);
+  // Static fallback: serve the default timezone. The TimezoneProvider client
+  // component reads the user's real timezone after hydration (no server cost).
+  const selectedTimeZone = DEFAULT_TIMEZONE;
   const now = new Date();
   const tickerMatches = getTickerMatches(now);
   const initialMatchday = getDisplayMatchdayForTimeZone({ now, timeZone: selectedTimeZone });

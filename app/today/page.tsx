@@ -1,11 +1,9 @@
 import { getParticipantDisplay, type ResolvedParticipantLookup } from "@/lib/participant-resolution";
 import type { Metadata } from "next";
-import { cookies } from "next/headers";
 import Link from "next/link";
 import { Flag } from "@/components/Flag";
 import { MatchTime } from "@/components/MatchTime";
 import { TimezonePicker } from "@/components/TimezoneLabel";
-import { LiveDataAutoRefresh } from "@/components/LiveDataAutoRefresh";
 import { LiveSnapshotDebug } from "@/components/LiveSnapshotDebug";
 import { FreshnessLabel } from "@/components/FreshnessLabel";
 import { MatchdayDateNav } from "@/components/MatchdayDateNav";
@@ -24,9 +22,8 @@ import {
   nextUpcomingMatchesForTimeZone,
   previousMatchdayWithMatches,
   resolveSelectedMatchday,
-  resolveSelectedTimeZone,
 } from "@/lib/todaySelection";
-import { TZ_COOKIE } from "@/lib/timezone";
+import { DEFAULT_TIMEZONE } from "@/lib/timezone";
 
 const BASE_URL = "https://www.worldcupmatchday.com";
 
@@ -34,8 +31,10 @@ const BASE_URL = "https://www.worldcupmatchday.com";
 // matchday as "tonight's games" — drives the previous-matchday continuity link.
 const MIDNIGHT_CONTINUITY_END_HOUR = 3;
 
-export const revalidate = 30;
-export const dynamic = "force-dynamic";
+// Static-first containment mode: removed force-dynamic and cookies() to allow
+// ISR. The page is revalidated hourly at most. Final scores appear on the next
+// ISR revalidation; live polling has been removed to eliminate idle CPU cost.
+export const revalidate = 3600;
 
 export async function generateMetadata({
   searchParams,
@@ -345,8 +344,9 @@ export default async function TodayPage({
   searchParams?: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const params = searchParams ? await searchParams : {};
-  const cookieTz = (await cookies()).get(TZ_COOKIE)?.value;
-  const selectedTimeZone = resolveSelectedTimeZone(params.tz, cookieTz);
+  // Static fallback: use the default timezone at render time. The client-side
+  // TimezoneProvider hydrates the correct local timezone at zero server cost.
+  const selectedTimeZone = DEFAULT_TIMEZONE;
 
   // Resolve which local calendar date to show: a valid in-range ?date= wins,
   // otherwise the viewer's actual local today. "Today" never changes meaning.
@@ -409,7 +409,7 @@ export default async function TodayPage({
 
   return (
     <>
-      <LiveDataAutoRefresh intervalMs={refreshPolicy.intervalMs} />
+      {/* LiveDataAutoRefresh removed: router.refresh polling disabled in containment mode */}
       <LiveSnapshotDebug snapshotId={snapshot.snapshotId} generatedAt={snapshot.generatedAt} />
       <script
         type="application/ld+json"

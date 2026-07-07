@@ -6,22 +6,12 @@ import { buildKnockoutResolution } from "@/lib/knockoutResolution";
 import { isKnockoutMatch } from "@/lib/participant-resolution";
 import type { ResolvedSide } from "@/lib/resolvedParticipants";
 
-// Lightweight internal endpoint for client-side polling (/today, homepage Today
-// card, match pages). Reads the shared server snapshot — never calls the
-// upstream providers directly, so request volume stays bounded regardless of
-// visitor count. The snapshot itself refreshes via unstable_cache internally.
+// Containment mode: this endpoint is no longer polled by clients in normal
+// operation. It remains available for manual debugging and canonical fallback.
+// CDN TTL is set to a very long idle window so even stray requests are served
+// from cache without spawning a new function invocation.
 //
-// Response caching strategy:
-//   Cache-Control: public, max-age=0, must-revalidate
-//     — browsers always revalidate; CDN-only caching.
-//   Vercel-CDN-Cache-Control: public, max-age=<TTL>, stale-while-revalidate=<SWR>
-//     — Vercel's edge serves concurrent polls from cache, collapsing many
-//       Function invocations into one per TTL window per region.
-//
-// TTL tiers (set by snapshotCdnTtl):
-//   active  (LIVE/HALFTIME/SYNCING or near-kickoff) → 10 s / SWR 10 s
-//   idle    (no imminent match)                      → 60 s / SWR 30 s
-//   fallback (cold-start, isFallback=true)           →  5 s / SWR  0 s
+// To restore live polling: re-add force-dynamic and wire up client components.
 export const dynamic = "force-dynamic";
 
 export async function GET() {
@@ -37,7 +27,11 @@ export async function GET() {
           }
         : null;
 
-    const { maxAge, swr } = snapshotCdnTtl(snapshot);
+    // Containment mode: use a fixed long idle TTL regardless of match state.
+    // Clients do not poll this endpoint in normal operation, so the CDN serves
+    // rare stray requests from cache for up to 1 hour without invoking the function.
+    const maxAge = 3600;
+    const swr = 1800;
 
     return NextResponse.json(
       {
