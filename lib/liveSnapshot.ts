@@ -760,11 +760,18 @@ const LIVE_WINDOW_MS = 4 * 60 * 60 * 1000;
 
 // Declared, enforced maximum application-added staleness for a LIVE score beyond
 // provider availability:
-//   provider revalidate (≤10s, lazily driven at the snapshot cadence)
-//   + snapshot revalidate (10s live)
-//   + client live poll (15s, see liveRefreshPolicy)
-//   = 35s.
-export const MAX_LIVE_APP_STALENESS_SECONDS = 35;
+//   provider budget (~12s, PROVIDER_REVALIDATE_SECONDS, lazily driven at the
+//     snapshot cadence)
+//   + server snapshot/cache budget (~10s, LIVE_SNAPSHOT_CACHE_REVALIDATE_SECONDS)
+//   + client live refresh budget (~30s, LIVE_INTERVAL_MS in liveRefreshPolicy)
+//   = ~52s worst case.
+// Declared budget is 55s (small safety margin over the 52s worst case). Widened
+// from the prior 35s (12s + 10s + 13s poll) as an intentional, temporary
+// tradeoff during Vercel Hobby-plan usage containment — client poll cadence was
+// relaxed 13s -> 30s to cut Function Invocations/Edge Requests during live
+// windows. Revisit alongside liveRefreshPolicy's LIVE_INTERVAL_MS if the
+// interval is ever tightened back up.
+export const MAX_LIVE_APP_STALENESS_SECONDS = 55;
 
 /** Whether any fixture is currently within its live window (schedule + clock only). */
 export function hasLiveWindow(now: Date = new Date(), matches: readonly Match[] = MATCHES): boolean {

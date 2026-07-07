@@ -35,10 +35,10 @@ ok(snapshotRevalidateSeconds(new Date(kick + 5 * 60 * 60 * 1000)) >= IDLE_SNAPSH
 
 // ── Declared, enforced budget ────────────────────────────────────────────────
 const livePollSeconds = (getLiveRefreshPolicy([{ match: sample, status: "LIVE" }]).intervalMs ?? 0) / 1000;
-ok(livePollSeconds > 0 && livePollSeconds <= 15, `client live poll ≤ 15s (got ${livePollSeconds}s)`);
+ok(livePollSeconds > 0 && livePollSeconds <= 35, `client live poll ≤ 35s (got ${livePollSeconds}s)`);
 const worstCase = PROVIDER_REVALIDATE_SECONDS + LIVE_SNAPSHOT_CACHE_REVALIDATE_SECONDS + livePollSeconds;
 ok(worstCase <= MAX_LIVE_APP_STALENESS_SECONDS, `provider(${PROVIDER_REVALIDATE_SECONDS}) + snapshot(${LIVE_SNAPSHOT_CACHE_REVALIDATE_SECONDS}) + poll(${livePollSeconds}) = ${worstCase}s ≤ declared ${MAX_LIVE_APP_STALENESS_SECONDS}s`);
-ok(MAX_LIVE_APP_STALENESS_SECONDS <= 35, `declared budget ${MAX_LIVE_APP_STALENESS_SECONDS}s within ~30–35s target`);
+ok(MAX_LIVE_APP_STALENESS_SECONDS <= 55, `declared budget ${MAX_LIVE_APP_STALENESS_SECONDS}s within ~50–55s containment target`);
 
 // ── Clock-controlled SWR sequence: 1–0 → 2–0 visible within budget ───────────
 {
