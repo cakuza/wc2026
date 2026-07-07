@@ -82,8 +82,8 @@ export function parseFootballDataScore(entry: Record<string, unknown>): Football
     : null;
 
   const displayScore = duration === "PENALTY_SHOOTOUT"
-    ? addPeriodScores(regularTimeScore, extraTimeScore) ?? fullTimeScore
-    : fullTimeScore;
+    ? addPeriodScores(regularTimeScore, extraTimeScore) ?? fullTimeScore ?? regularTimeScore ?? periodScore(score.halfTime)
+    : fullTimeScore ?? regularTimeScore ?? periodScore(score.halfTime);
   const winner = rawWinner ?? (duration === "PENALTY_SHOOTOUT"
     ? winnerFromScore(penaltyShootoutScore)
     : winnerFromScore(displayScore));

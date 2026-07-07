@@ -16,10 +16,9 @@ function sideFromSlot(slot: ParticipantSlot, winners: ReadonlyMap<number, Winner
 }
 
 function sideForMatch(match: KnockoutMatch, side: "home" | "away", winners: ReadonlyMap<number, WinnerRecord>): ResolvedSide | null {
-  const dynamicSide = sideFromSlot(side === "home" ? match.homeSlot : match.awaySlot, winners);
-  if (dynamicSide) return dynamicSide;
   const seeded = RESOLVED_PARTICIPANTS[match.matchNumber]?.[side];
-  return seeded ?? null;
+  if (seeded) return seeded;
+  return sideFromSlot(side === "home" ? match.homeSlot : match.awaySlot, winners);
 }
 
 function winnerSide(snapshotMatch: SerializableSnapshotMatch | undefined): "home" | "away" | null {

@@ -331,12 +331,12 @@ assert.equal(bracket90Check.away.label, "Morocco", "Bracket match 90 away is Mor
 const bracket91Check = buildBracketMatchModel({ match: match91, isR32: false, resolvedParticipants: apiResolved, t, lang: "en" });
 assert.equal(`${bracket91Check.home.label} vs ${bracket91Check.away.label}`, "Brazil vs Norway", "Bracket match 91 is Brazil vs Norway when matches 76 and 78 finished.");
 
-const label90Home = getParticipantDisplay(match90 as unknown as Match, "home", apiResolved, "en").label;
-const label90Away = getParticipantDisplay(match90 as unknown as Match, "away", apiResolved, "en").label;
+const label90Home = getParticipantDisplay(match90CheckMatch, "home", apiResolved, "en").label;
+const label90Away = getParticipantDisplay(match90CheckMatch, "away", apiResolved, "en").label;
 assert.equal(`${label90Home} vs ${label90Away}`, "Canada vs Morocco", "Live Canada/Morocco may render Canada/Morocco Winner only in a future downstream winner slot, not in the match card itself.");
 
-const label91Home = getParticipantDisplay(match91 as unknown as Match, "home", apiResolved, "en").label;
-const label91Away = getParticipantDisplay(match91 as unknown as Match, "away", apiResolved, "en").label;
+const label91Home = getParticipantDisplay(match91CheckMatch, "home", apiResolved, "en").label;
+const label91Away = getParticipantDisplay(match91CheckMatch, "away", apiResolved, "en").label;
 assert.equal(`${label91Home} vs ${label91Away}`, "Brazil vs Norway", "Brazil/Norway may render Brazil/Norway Winner only in a future downstream winner slot, not in the match card itself.");
 
 const dynamicReactSurfaces = [
