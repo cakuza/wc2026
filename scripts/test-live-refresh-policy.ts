@@ -38,11 +38,11 @@ function liveData(overrides: Partial<LiveMatchData> = {}): LiveMatchData {
 
 const live = getLiveRefreshPolicy([{ match, status: "LIVE" }], now);
 assert(live.reason === "live", "LIVE uses live refresh policy");
-assert(live.intervalMs !== null && live.intervalMs >= 10_000 && live.intervalMs <= 20_000, "LIVE interval is 10-20 seconds (tightened for live freshness budget)");
+assert(live.intervalMs === 30_000, "LIVE interval is 30 seconds (Vercel usage containment)");
 
 const halftime = getLiveRefreshPolicy([{ match, status: "HALFTIME" }], now);
 assert(halftime.reason === "live", "HALFTIME uses live refresh policy");
-assert(halftime.intervalMs !== null && halftime.intervalMs >= 10_000 && halftime.intervalMs <= 20_000, "HALFTIME interval is 10-20 seconds");
+assert(halftime.intervalMs === 30_000, "HALFTIME interval is 30 seconds");
 
 const syncing = getLiveRefreshPolicy([{ match, status: "SYNCING" }], now);
 assert(syncing.reason === "live", "SYNCING uses live refresh policy");
@@ -64,7 +64,7 @@ const recentFinished = getLiveRefreshPolicy(
   now,
 );
 assert(recentFinished.reason === "near-match", "recent FINISHED uses near-match refresh policy");
-assert(recentFinished.intervalMs === 60_000, "recent FINISHED interval is 60 seconds");
+assert(recentFinished.intervalMs === 120_000, "recent FINISHED interval is 120 seconds (Vercel usage containment)");
 
 const farFuture = getLiveRefreshPolicy([{ match: MATCHES[MATCHES.length - 1], status: "SCHEDULED" }], now);
 assert(farFuture.reason === "idle", "far-future scheduled match does not poll");

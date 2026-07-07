@@ -20,8 +20,8 @@ export type LiveRefreshPolicy = {
   reason: "live" | "near-match" | "idle";
 };
 
-const LIVE_INTERVAL_MS = 13_000;
-const NEAR_MATCH_INTERVAL_MS = 60_000;
+const LIVE_INTERVAL_MS = 30_000;
+const NEAR_MATCH_INTERVAL_MS = 120_000;
 const NEAR_MATCH_WINDOW_MS = 2 * 60 * 60 * 1000;
 const POST_FINAL_ENRICHMENT_WINDOW_MS = 6 * 60 * 60 * 1000;
 const MAX_CANONICAL_RECONCILIATION_WINDOW_MS = 48 * 60 * 60 * 1000;
