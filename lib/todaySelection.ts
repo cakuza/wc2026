@@ -1,4 +1,5 @@
 import { DEFAULT_TIMEZONE, isValidTimeZone } from "./timezone";
+import { getParticipantDisplay } from "./participant-resolution";
 import { MATCHES, matchUtcDate, ARCHIVE_DEFAULT_DATE, type DisplayMatchday, type Match } from "./matches";
 
 export type SelectedTodayMatchday = {
@@ -217,10 +218,14 @@ export function getDisplayMatchdayForTimeZone({
   now = new Date(ARCHIVE_DEFAULT_DATE),
   timeZone,
   matches = MATCHES,
+  resolvedParticipants,
+  liveDataByProviderId,
 }: {
   now?: Date;
   timeZone: string;
   matches?: Match[];
+  resolvedParticipants?: import("./participant-resolution").ResolvedParticipantLookup;
+  liveDataByProviderId?: Record<string, any>;
 }): DisplayMatchday {
   const todayISO = getMatchCalendarDateInZone(now, timeZone);
   const tomorrowISO = addCalendarDays(todayISO, 1);
@@ -229,25 +234,36 @@ export function getDisplayMatchdayForTimeZone({
   const today = byDate.find((day) => day.date === todayISO);
   if (today) return { labelKey: "sec_todayMatches", date: today.date, matches: today.matches };
 
-  const nextIdx = byDate.findIndex((day) => day.date >= todayISO);
-  if (nextIdx === -1) {
-    const last = byDate[byDate.length - 1];
-    return { labelKey: "sec_latestResults", date: last.date, matches: last.matches };
+  const nextResolved = getNextResolvedUpcomingMatchday(todayISO, matches, resolvedParticipants, timeZone);
+  if (nextResolved) {
+    if (nextResolved.date === tomorrowISO) {
+      return { labelKey: "sec_tomorrowMatches", date: nextResolved.date, matches: nextResolved.matches };
+    }
+    const idx = byDate.findIndex(d => d.date === nextResolved.date);
+    if (idx !== -1) {
+      const upcomingDays = byDate.slice(idx, idx + 3).filter(day => day.matches.every(m => areMatchParticipantsResolved(m, resolvedParticipants)));
+      const allMatches = upcomingDays.flatMap((day) => day.matches);
+      return {
+        labelKey: "sec_nextMatches",
+        date: upcomingDays[0].date,
+        matches: allMatches,
+        days: upcomingDays.length > 1 ? upcomingDays : undefined,
+      };
+    }
   }
 
-  const next = byDate[nextIdx];
-  if (next.date === tomorrowISO) {
-    return { labelKey: "sec_tomorrowMatches", date: next.date, matches: next.matches };
+  if (liveDataByProviderId) {
+    const latestCompleted = getLatestCompletedMatches(matches, liveDataByProviderId);
+    if (latestCompleted.length > 0) {
+      const latestDate = getMatchCalendarDateInZone(matchUtcDate(latestCompleted[0]), timeZone);
+      const completedMatchesOnDate = latestCompleted.filter(m => getMatchCalendarDateInZone(matchUtcDate(m), timeZone) === latestDate);
+      return { labelKey: "sec_latestResults", date: latestDate, matches: completedMatchesOnDate };
+    }
   }
 
-  const upcomingDays = byDate.slice(nextIdx, nextIdx + 3);
-  const allMatches = upcomingDays.flatMap((day) => day.matches);
-  return {
-    labelKey: "sec_nextMatches",
-    date: upcomingDays[0].date,
-    matches: allMatches,
-    days: upcomingDays.length > 1 ? upcomingDays : undefined,
-  };
+  const allDates = getMatchdayDates(matches, timeZone);
+  const firstDate = allDates[0];
+  return { labelKey: "sec_nextMatches", date: firstDate, matches: getMatchesForDateInZone({ date: firstDate, timeZone, matches }) };
 }
 
 export function getTodayMatchesForTimeZone({
@@ -291,4 +307,85 @@ export function nextUpcomingMatchesForTimeZone({
   }
 
   return [...byDate.entries()].slice(0, daysToShow).map(([date, dayMatches]) => ({ date, matches: dayMatches }));
+}
+
+export function getMatchdayDates(matches: Match[], timeZone: string): string[] {
+  const dates = new Set<string>();
+  for (const m of matches) {
+    dates.add(getMatchCalendarDateInZone(matchUtcDate(m), timeZone));
+  }
+  return Array.from(dates).sort();
+}
+
+export function getPreviousMatchdayDate(selectedDate: string, matchdayDates: string[]): string | null {
+  const idx = matchdayDates.indexOf(selectedDate);
+  if (idx > 0) return matchdayDates[idx - 1];
+  if (idx === -1) {
+    const prevs = [...matchdayDates].reverse().find(d => d < selectedDate);
+    return prevs || null;
+  }
+  return null;
+}
+
+export function getNextMatchdayDate(selectedDate: string, matchdayDates: string[]): string | null {
+  const idx = matchdayDates.indexOf(selectedDate);
+  if (idx !== -1 && idx < matchdayDates.length - 1) return matchdayDates[idx + 1];
+  if (idx === -1) {
+    const nexts = matchdayDates.find(d => d > selectedDate);
+    return nexts || null;
+  }
+  return null;
+}
+
+export function isParticipantResolved(label: string): boolean {
+  if (!label) return false;
+  const lower = label.toLowerCase();
+  return !(
+    lower.includes("winner match") ||
+    lower.includes("loser match") ||
+    lower.includes("winner of") ||
+    lower.includes("loser of") ||
+    lower === "tbd" ||
+    lower === "to be decided"
+  );
+}
+
+export function areMatchParticipantsResolved(match: Match, resolvedParticipants?: import("./participant-resolution").ResolvedParticipantLookup): boolean {
+  const home = getParticipantDisplay(match, "home", resolvedParticipants);
+  const away = getParticipantDisplay(match, "away", resolvedParticipants);
+  return isParticipantResolved(home.label) && isParticipantResolved(away.label);
+}
+
+export function getNextResolvedUpcomingMatchday(
+  referenceDate: string,
+  matches: Match[],
+  resolvedParticipants: import("./participant-resolution").ResolvedParticipantLookup | undefined,
+  timeZone: string
+): { date: string, matches: Match[] } | null {
+  const dates = getMatchdayDates(matches, timeZone);
+  const futureDates = dates.filter(d => d > referenceDate);
+
+  for (const d of futureDates) {
+    const dayMatches = getMatchesForDateInZone({ date: d, timeZone, matches });
+    const allResolved = dayMatches.every(m => areMatchParticipantsResolved(m, resolvedParticipants));
+    if (allResolved && dayMatches.length > 0) {
+      return { date: d, matches: dayMatches };
+    }
+  }
+  return null;
+}
+
+export function getLatestCompletedMatches(matches: Match[], liveDataByProviderId: Record<string, any>, limit: number = 100): Match[] {
+  const completedMatchIds = new Set(
+    Object.entries(liveDataByProviderId)
+      .filter(([_, live]) => live?.status === "FINISHED")
+      .map(([id]) => id)
+  );
+
+  const completedMatches = matches.filter(m => {
+    if (m.providerIds?.footballData && completedMatchIds.has(String(m.providerIds.footballData))) return true;
+    return false;
+  }).sort((a, b) => matchUtcDate(b).getTime() - matchUtcDate(a).getTime());
+
+  return completedMatches.slice(0, limit);
 }

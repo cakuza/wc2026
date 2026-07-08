@@ -157,8 +157,14 @@ export function TodayMatches({
   // (avoids any server/client date drift), while the initial value keeps SSR stable.
   const [md, setMd] = useState(initialMatchday);
   useEffect(() => {
-    setMd(getDisplayMatchdayForTimeZone({ timeZone }));
-  }, [timeZone]);
+    setMd(
+      getDisplayMatchdayForTimeZone({
+        timeZone,
+        resolvedParticipants: liveSnapshot.resolvedParticipants,
+        liveDataByProviderId: liveSnapshot.liveDataByProviderId,
+      })
+    );
+  }, [timeZone, liveSnapshot]);
 
   const dateLabel = md.days
     ? `${formatDate(md.days[0].date)} – ${formatDate(md.days[md.days.length - 1].date)}`

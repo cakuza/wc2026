@@ -36,10 +36,15 @@ export default async function TodayPage() {
   // component reads the user's real timezone after hydration (no server cost).
   const selectedTimeZone = DEFAULT_TIMEZONE;
   const now = new Date(ARCHIVE_DEFAULT_DATE);
-  const tickerMatches = getTickerMatches(now);
-  const initialMatchday = getDisplayMatchdayForTimeZone({ now, timeZone: selectedTimeZone });
   const snapshot = await getTournamentLiveSnapshot();
   const resolvedParticipants = buildKnockoutResolution(snapshot.matches);
+  const tickerMatches = getTickerMatches(now);
+  const initialMatchday = getDisplayMatchdayForTimeZone({
+    now,
+    timeZone: selectedTimeZone,
+    resolvedParticipants,
+    liveDataByProviderId: snapshot.liveDataByProviderId,
+  });
 
   return (
     <>

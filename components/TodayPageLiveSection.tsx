@@ -75,6 +75,10 @@ function TodaySummary({
   );
   const upcoming = matches
     .filter((match) => {
+      const isResolved = getParticipantDisplay(match, "home", snapshot.resolvedParticipants).isResolved &&
+                         getParticipantDisplay(match, "away", snapshot.resolvedParticipants).isResolved;
+      if (!isResolved) return false;
+
       const live = match.providerIds?.footballData
         ? snapshot.liveDataByProviderId[String(match.providerIds.footballData)]
         : undefined;
@@ -175,6 +179,23 @@ function MatchRow({
   const isLive = !liveDataUnavailable && (live?.status === "IN_PLAY" || live?.status === "PAUSED");
   const isFinished = !liveDataUnavailable && live?.status === "FINISHED";
   const goals = liveDataUnavailable ? null : scorerText(snapshot.scorersByMatchId[matchSlug(m)]);
+
+  const isUnresolved = !homeDisplay.isResolved || !awayDisplay.isResolved;
+
+  if (isUnresolved) {
+    const stageName =
+      m.stage === "F"
+        ? "Final"
+        : m.stage === "3P"
+        ? "Third-place playoff"
+        : "Match";
+    return (
+      <div className="flex flex-col gap-2 rounded-lg border border-white/10 bg-navyCard px-4 py-3 text-center transition hover:border-white/20 hover:bg-white/5">
+        <p className="text-sm font-semibold text-white/70">{stageName} — teams to be decided</p>
+        <p className="text-xs text-white/40">Participants will be confirmed once previous matches conclude.</p>
+      </div>
+    );
+  }
 
   return (
     <Link
