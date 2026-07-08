@@ -11,6 +11,7 @@ import {
   previousMatchdayWithMatches,
   nextUpcomingMatchesForTimeZone,
 } from "@/lib/todaySelection";
+import { ARCHIVE_DEFAULT_DATE } from "@/lib/matches";
 import type { TodayLiveSnapshot } from "@/components/TodayMatches";
 
 const MIDNIGHT_CONTINUITY_END_HOUR = 3;
@@ -43,14 +44,14 @@ export function TodayContent({
 
   const showUpcomingFallback = !resolved.isExplicitDate && !hasSelectedMatches;
   const fallbackDays = showUpcomingFallback
-    ? nextUpcomingMatchesForTimeZone({ timeZone: selectedTimeZone })
+    ? nextUpcomingMatchesForTimeZone({ now: new Date(ARCHIVE_DEFAULT_DATE), timeZone: selectedTimeZone })
     : [];
 
   const days = hasSelectedMatches ? [{ date: resolved.date, matches: selectedMatches }] : fallbackDays;
   const summaryMatches = hasSelectedMatches ? selectedMatches : (fallbackDays[0]?.matches ?? []);
   const isToday = resolved.isToday;
 
-  const localHour = localHourInTimeZone(new Date(), selectedTimeZone);
+  const localHour = localHourInTimeZone(new Date(ARCHIVE_DEFAULT_DATE), selectedTimeZone);
   const inMidnightWindow = localHour >= 0 && localHour < MIDNIGHT_CONTINUITY_END_HOUR;
   const previousMatchday =
     !resolved.isExplicitDate && inMidnightWindow

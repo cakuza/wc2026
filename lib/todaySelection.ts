@@ -190,8 +190,12 @@ export function resolveSelectedMatchday({
   now?: Date;
   matches?: Match[];
 }): ResolvedMatchday {
-  const todayDate = getMatchCalendarDateInZone(now, timeZone);
+  let todayDate = getMatchCalendarDateInZone(now, timeZone);
   const { min, max } = getTournamentDateRangeInZone({ timeZone, matches });
+  if (todayDate > max) {
+    todayDate = max;
+  }
+
 
   const candidate = isValidISODate(dateParam)
     ? Array.isArray(dateParam)
@@ -200,7 +204,11 @@ export function resolveSelectedMatchday({
     : null;
   const inRange = candidate !== null && candidate >= min && candidate <= max;
   const isExplicitDate = inRange && candidate !== todayDate;
-  const date = inRange ? (candidate as string) : todayDate;
+  let date = inRange ? (candidate as string) : todayDate;
+
+  if (!inRange && date > max) {
+    date = max;
+  }
 
   return {
     date,
