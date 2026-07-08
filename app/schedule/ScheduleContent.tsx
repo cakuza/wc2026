@@ -77,7 +77,20 @@ function ScorerText({ events }: { events: GoalScorerEvent[] }) {
 export function ScheduleContent({ liveScores, scorerLines, resolvedParticipants }: Props) {
   const { t, country, formatDate, locale } = useLang();
   const { timeZone } = useTimezone();
-  const days = groupMatchesByCalendarDate(MATCHES, timeZone);
+  const completed = MATCHES.filter((m) => {
+    const pid = m.providerIds?.footballData;
+    const score = pid ? liveScores?.[pid] : undefined;
+    return score?.status === "FINISHED";
+  });
+  const upcoming = MATCHES.filter((m) => {
+    const pid = m.providerIds?.footballData;
+    const score = pid ? liveScores?.[pid] : undefined;
+    return score?.status !== "FINISHED";
+  });
+
+  const completedDays = groupMatchesByCalendarDate(completed, timeZone).reverse();
+  completedDays.forEach(day => day.matches.reverse());
+  const upcomingDays = groupMatchesByCalendarDate(upcoming, timeZone);
 
   const longDate = (iso: string) =>
     new Intl.DateTimeFormat(locale, {
@@ -86,6 +99,111 @@ export function ScheduleContent({ liveScores, scorerLines, resolvedParticipants 
       day: "numeric",
       timeZone,
     }).format(new Date(`${iso}T12:00:00Z`));
+
+  const renderMatches = (matches: Match[]) => (
+    <div className="space-y-2">
+      {matches.map((m, i) => {
+        const pid = m.providerIds?.footballData;
+        const score = pid ? liveScores?.[pid] : undefined;
+        const hasScore = !!score && score.homeScore !== null && score.awayScore !== null;
+        const isFinishedOrLive =
+          !!score && (score.status === "FINISHED" || score.status === "IN_PLAY" || score.status === "PAUSED");
+        const isSyncing = !!score && isFinishedOrLive && !hasScore;
+        const isFinished = score?.status === "FINISHED";
+        const isLive = score?.status === "IN_PLAY" || score?.status === "PAUSED";
+        const events = scorerLines?.[matchSlug(m)];
+        const hasGoals = !!events && events.length > 0;
+
+        let statusPill: React.ReactNode = null;
+        if (hasScore && isFinished) {
+          statusPill = <StatusPill status="FT" />;
+        } else if (hasScore && isLive) {
+          statusPill = <StatusPill status={score!.status === "PAUSED" ? "HT" : "LIVE"} />;
+        } else if (isSyncing) {
+          statusPill = <StatusPill status="SYNCING" />;
+        }
+
+        return (
+          <Link
+            key={i}
+            href={`/matches/${matchSlug(m)}`}
+            prefetch={false}
+            className="block rounded-lg border border-white/10 bg-navyCard px-4 py-3 transition hover:border-white/20 hover:bg-white/5"
+          >
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-start">
+              <div data-schedule-score-cluster className="min-w-0 flex-1">
+                <div className="flex items-center gap-3">
+                  <div className="flex min-w-0 flex-1 items-center justify-end gap-2 text-end">
+                    <span className="truncate font-semibold text-white">
+                      {getResolvedHomeTeam(m, resolvedParticipants) ? country(getResolvedHomeTeam(m, resolvedParticipants)!) : (isKnockoutMatch(m) ? getParticipantDisplayLabel(m.homeSlot) : m.homeKey)}
+                    </span>
+                    {getResolvedHomeTeam(m, resolvedParticipants) && (
+                      <Flag
+                        code={getResolvedHomeCode(m, resolvedParticipants) ?? ""}
+                        alt=""
+                        width={30}
+                        height={22}
+                        className="rounded-sm"
+                      />
+                    )}
+                  </div>
+
+                  {hasScore && score ? (
+                    <ScoreRow score={score} />
+                  ) : (
+                    <span className="shrink-0 rounded bg-navy px-2 py-1 font-heading text-xs font-bold uppercase text-white/50">
+                      {t("vs")}
+                    </span>
+                  )}
+
+                  <div className="flex min-w-0 flex-1 items-center gap-2">
+                    {getResolvedAwayTeam(m, resolvedParticipants) && (
+                      <Flag
+                        code={getResolvedAwayCode(m, resolvedParticipants) ?? ""}
+                        alt=""
+                        width={30}
+                        height={22}
+                        className="rounded-sm"
+                      />
+                    )}
+                    <span className="truncate font-semibold text-white">
+                      {getResolvedAwayTeam(m, resolvedParticipants) ? country(getResolvedAwayTeam(m, resolvedParticipants)!) : (isKnockoutMatch(m) ? getParticipantDisplayLabel(m.awaySlot) : m.awayKey)}
+                    </span>
+                  </div>
+                </div>
+
+                {hasGoals && (
+                  <p data-schedule-scorer-line className="mt-1.5 truncate text-center text-[11px] text-white/40">
+                    Goals: <ScorerText events={events!} />
+                  </p>
+                )}
+                {score?.penaltyShootoutScore && (
+                  <p className="mt-1 text-center text-[10px] text-white/40">
+                    Penalties: {score.penaltyShootoutScore.home}-{score.penaltyShootoutScore.away}
+                  </p>
+                )}
+              </div>
+
+              <div data-schedule-right-meta className="hidden w-28 shrink-0 text-end text-xs text-white/50 sm:block">
+                {statusPill ? (
+                  <div className="flex justify-end">{statusPill}</div>
+                ) : (
+                  <MatchTime match={m} className="font-semibold text-white/80" />
+                )}
+                <div>{m.venue ?? formatDate(m.date)}</div>
+              </div>
+            </div>
+            {statusPill && (
+              <div className="mt-1.5 flex items-center gap-1.5 sm:hidden">
+                {statusPill}
+                <span className="truncate text-[11px] text-white/40">{m.venue}</span>
+              </div>
+            )}
+          </Link>
+        );
+      })}
+    </div>
+  );
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-8">
@@ -117,115 +235,37 @@ export function ScheduleContent({ liveScores, scorerLines, resolvedParticipants 
       </p>
       <TimezonePicker className="mb-6 flex flex-wrap items-center gap-2 text-[11px] text-white/55" />
 
-      <div className="space-y-8">
-        {days.map(({ date, matches }) => (
-          <section key={date}>
-            <h2 className="mb-3 border-b-2 border-accent pb-2 font-heading text-xl font-extrabold uppercase tracking-wide text-white">
-              {longDate(date)}
-            </h2>
-            <div className="space-y-2">
-              {matches.map((m, i) => {
-                const pid = m.providerIds?.footballData;
-                const score = pid ? liveScores?.[pid] : undefined;
-                const hasScore = !!score && score.homeScore !== null && score.awayScore !== null;
-                const isFinishedOrLive =
-                  !!score && (score.status === "FINISHED" || score.status === "IN_PLAY" || score.status === "PAUSED");
-                const isSyncing = !!score && isFinishedOrLive && !hasScore;
-                const isFinished = score?.status === "FINISHED";
-                const isLive = score?.status === "IN_PLAY" || score?.status === "PAUSED";
-                const events = scorerLines?.[matchSlug(m)];
-                const hasGoals = !!events && events.length > 0;
+      {completedDays.length > 0 && (
+        <div className="mb-12">
+          <h2 className="mb-4 font-heading text-2xl font-extrabold uppercase text-white">Latest Results</h2>
+          <div className="space-y-8">
+            {completedDays.map(({ date, matches }) => (
+              <section key={date}>
+                <h3 className="mb-3 border-b-2 border-accent pb-2 font-heading text-xl font-extrabold uppercase tracking-wide text-white">
+                  {longDate(date)}
+                </h3>
+                {renderMatches(matches)}
+              </section>
+            ))}
+          </div>
+        </div>
+      )}
 
-                // Status pill that replaces the kickoff time on the right once a match
-                // has started — never sits on the score line or in the scorer text.
-                let statusPill: React.ReactNode = null;
-                if (hasScore && isFinished) {
-                  statusPill = <StatusPill status="FT" />;
-                } else if (hasScore && isLive) {
-                  statusPill = <StatusPill status={score!.status === "PAUSED" ? "HT" : "LIVE"} />;
-                } else if (isSyncing) {
-                  statusPill = <StatusPill status="SYNCING" />;
-                }
-
-                return (
-                  <Link
-                    key={i}
-                    href={`/matches/${matchSlug(m)}`}
-                    prefetch={false}
-                    className="block rounded-lg border border-white/10 bg-navyCard px-4 py-3 transition hover:border-white/20 hover:bg-white/5"
-                  >
-                    <div className="flex flex-col gap-2 sm:flex-row sm:items-start">
-                      <div data-schedule-score-cluster className="min-w-0 flex-1">
-                        <div className="flex items-center gap-3">
-                          <div className="flex min-w-0 flex-1 items-center justify-end gap-2 text-end">
-                            <span className="truncate font-semibold text-white">
-                              {getResolvedHomeTeam(m, resolvedParticipants) ? country(getResolvedHomeTeam(m, resolvedParticipants)!) : (isKnockoutMatch(m) ? getParticipantDisplayLabel(m.homeSlot) : m.homeKey)}
-                            </span>
-                            {getResolvedHomeTeam(m, resolvedParticipants) && (
-                              <Flag
-                                code={getResolvedHomeCode(m, resolvedParticipants) ?? ""}
-                                alt=""
-                                width={30}
-                                height={22}
-                                className="rounded-sm"
-                              />
-                            )}
-                          </div>
-
-                          {hasScore && score ? (
-                            <ScoreRow score={score} />
-                          ) : (
-                            <span className="shrink-0 rounded bg-navy px-2 py-1 font-heading text-xs font-bold uppercase text-white/50">
-                              {t("vs")}
-                            </span>
-                          )}
-
-                          <div className="flex min-w-0 flex-1 items-center gap-2">
-                            {getResolvedAwayTeam(m, resolvedParticipants) && (
-                              <Flag
-                                code={getResolvedAwayCode(m, resolvedParticipants) ?? ""}
-                                alt=""
-                                width={30}
-                                height={22}
-                                className="rounded-sm"
-                              />
-                            )}
-                            <span className="truncate font-semibold text-white">
-                              {getResolvedAwayTeam(m, resolvedParticipants) ? country(getResolvedAwayTeam(m, resolvedParticipants)!) : (isKnockoutMatch(m) ? getParticipantDisplayLabel(m.awaySlot) : m.awayKey)}
-                            </span>
-                          </div>
-                        </div>
-
-                        {hasGoals && (
-                          <p data-schedule-scorer-line className="mt-1.5 truncate text-center text-[11px] text-white/40">
-                            Goals: <ScorerText events={events!} />
-                          </p>
-                        )}
-                      </div>
-
-                      <div data-schedule-right-meta className="hidden w-28 shrink-0 text-end text-xs text-white/50 sm:block">
-                        {statusPill ? (
-                          <div className="flex justify-end">{statusPill}</div>
-                        ) : (
-                          <MatchTime match={m} className="font-semibold text-white/80" />
-                        )}
-                        <div>{m.venue ?? formatDate(m.date)}</div>
-                      </div>
-                    </div>
-                    {/* Mobile-only status pill (right-side column is hidden below sm) */}
-                    {statusPill && (
-                      <div className="mt-1.5 flex items-center gap-1.5 sm:hidden">
-                        {statusPill}
-                        <span className="truncate text-[11px] text-white/40">{m.venue}</span>
-                      </div>
-                    )}
-                  </Link>
-                );
-              })}
-            </div>
-          </section>
-        ))}
-      </div>
+      {upcomingDays.length > 0 && (
+        <div>
+          <h2 className="mb-4 font-heading text-2xl font-extrabold uppercase text-white">Upcoming Fixtures</h2>
+          <div className="space-y-8">
+            {upcomingDays.map(({ date, matches }) => (
+              <section key={date}>
+                <h3 className="mb-3 border-b-2 border-accent pb-2 font-heading text-xl font-extrabold uppercase tracking-wide text-white">
+                  {longDate(date)}
+                </h3>
+                {renderMatches(matches)}
+              </section>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

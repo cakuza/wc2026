@@ -33,13 +33,19 @@ export type ScheduleMatchScore = {
   status: LiveMatchStatus;
   homeScore: number | null;
   awayScore: number | null;
+  penaltyShootoutScore?: { home: number | null; away: number | null };
 };
 
 export default async function SchedulePage() {
   const snapshot = await getTournamentLiveSnapshot();
   const liveScores: Record<number, ScheduleMatchScore> = {};
   for (const [id, data] of Object.entries(snapshot.liveDataByProviderId)) {
-    liveScores[Number(id)] = { status: data.status, homeScore: data.homeScore, awayScore: data.awayScore };
+    liveScores[Number(id)] = {
+      status: data.status,
+      homeScore: data.homeScore,
+      awayScore: data.awayScore,
+      penaltyShootoutScore: data.penaltyShootoutScore ?? undefined,
+    };
   }
 
   const scorerLines: Record<string, GoalScorerEvent[]> = {};

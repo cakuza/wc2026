@@ -13,6 +13,7 @@ type CompletedResult = {
 };
 
 export const COMPLETED_KNOCKOUT_RESULTS: Readonly<Record<number, CompletedResult>> = {
+  73: { homeScore: 0, awayScore: 1, winner: "AWAY_TEAM", scoreDuration: "REGULAR", confirmedAt: "2026-06-29T12:00:00.000Z" },
   74: {
     homeScore: 1,
     awayScore: 1,
@@ -29,7 +30,17 @@ export const COMPLETED_KNOCKOUT_RESULTS: Readonly<Record<number, CompletedResult
     confirmedAt: "2026-06-29T23:30:00.000Z",
     penaltyShootoutScore: { home: 2, away: 3 },
   },
+  76: { homeScore: 2, awayScore: 1, winner: "HOME_TEAM", scoreDuration: "REGULAR", confirmedAt: "2026-06-29T12:00:00.000Z" },
+  77: { homeScore: 3, awayScore: 0, winner: "HOME_TEAM", scoreDuration: "REGULAR", confirmedAt: "2026-06-29T12:00:00.000Z" },
+  78: { homeScore: 1, awayScore: 2, winner: "AWAY_TEAM", scoreDuration: "REGULAR", confirmedAt: "2026-06-29T12:00:00.000Z" },
+  79: { homeScore: 2, awayScore: 0, winner: "HOME_TEAM", scoreDuration: "REGULAR", confirmedAt: "2026-06-29T12:00:00.000Z" },
+  80: { homeScore: 2, awayScore: 1, winner: "HOME_TEAM", scoreDuration: "REGULAR", confirmedAt: "2026-06-29T12:00:00.000Z" },
+  81: { homeScore: 2, awayScore: 0, winner: "HOME_TEAM", scoreDuration: "REGULAR", confirmedAt: "2026-06-29T12:00:00.000Z" },
+  82: { homeScore: 3, awayScore: 2, winner: "HOME_TEAM", scoreDuration: "REGULAR", confirmedAt: "2026-06-29T12:00:00.000Z" },
+  83: { homeScore: 2, awayScore: 1, winner: "HOME_TEAM", scoreDuration: "REGULAR", confirmedAt: "2026-06-29T12:00:00.000Z" },
+  84: { homeScore: 3, awayScore: 0, winner: "HOME_TEAM", scoreDuration: "REGULAR", confirmedAt: "2026-06-29T12:00:00.000Z" },
   85: { homeScore: 2, awayScore: 0, winner: "HOME_TEAM", scoreDuration: "REGULAR", confirmedAt: "2026-07-03T05:30:00.000Z" },
+  86: { homeScore: 3, awayScore: 2, winner: "HOME_TEAM", scoreDuration: "REGULAR", confirmedAt: "2026-06-29T12:00:00.000Z" },
   87: { homeScore: 1, awayScore: 0, winner: "HOME_TEAM", scoreDuration: "REGULAR", confirmedAt: "2026-07-04T03:30:00.000Z" },
   88: {
     homeScore: 1,
@@ -45,6 +56,15 @@ export const COMPLETED_KNOCKOUT_RESULTS: Readonly<Record<number, CompletedResult
   92: { homeScore: 2, awayScore: 3, winner: "AWAY_TEAM", scoreDuration: "REGULAR", confirmedAt: "2026-07-06T03:00:00.000Z" },
   93: { homeScore: 0, awayScore: 1, winner: "AWAY_TEAM", scoreDuration: "REGULAR", confirmedAt: "2026-07-06T22:00:00.000Z" },
   94: { homeScore: 1, awayScore: 4, winner: "AWAY_TEAM", scoreDuration: "REGULAR", confirmedAt: "2026-07-06T23:00:00.000Z" },
+  95: { homeScore: 3, awayScore: 2, winner: "HOME_TEAM", scoreDuration: "REGULAR", confirmedAt: "2026-07-06T12:00:00.000Z" },
+  96: {
+    homeScore: 0,
+    awayScore: 0,
+    winner: "HOME_TEAM",
+    scoreDuration: "PENALTY_SHOOTOUT",
+    confirmedAt: "2026-07-06T12:00:00.000Z",
+    penaltyShootoutScore: { home: 4, away: 3 },
+  },
 };
 
 function matchNumber(match: Match): number | null {

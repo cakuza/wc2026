@@ -413,9 +413,7 @@ export default async function TodayPage() {
             ? isToday
               ? "World Cup Matches Today"
               : "World Cup Matches"
-            : isToday
-              ? "No World Cup Matches Today"
-              : "No World Cup Matches"}
+            : "Latest World Cup Results"}
         </h1>
         <p className="mb-2 max-w-3xl text-sm text-white/50">
           Follow World Cup matches with scores, kickoff times in your selected timezone,
@@ -455,11 +453,10 @@ export default async function TodayPage() {
 
         {showUpcomingFallback && (
           <div className="mb-6 rounded-xl border border-white/10 bg-navyCard px-4 py-4 text-sm text-white/60">
-            <p className="font-semibold text-white/80">No World Cup matches are scheduled today.</p>
-            <p className="mt-1">Here are the next upcoming fixtures. See the full {" "}
+            <p className="font-semibold text-white/80">Latest Results</p>
+            <p className="mt-1">The World Cup matches have concluded. See the full {" "}
               <Link href="/schedule" className="font-semibold text-accent underline underline-offset-2 hover:text-white">match schedule</Link>{" "}
-              or the {" "}
-              <Link href="/groups" className="font-semibold text-accent underline underline-offset-2 hover:text-white">group standings</Link>.
+              for complete results.
             </p>
           </div>
         )}

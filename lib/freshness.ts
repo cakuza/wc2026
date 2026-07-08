@@ -41,5 +41,5 @@ export function getScoreFreshnessLabel({
   primaryProviderOk: boolean;
   now?: number;
 }): { label: string; state: FreshnessState } {
-  return { label: "Static archive mode", state: "normal" };
+  return { label: "", state: "normal" };
 }
