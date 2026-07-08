@@ -209,8 +209,8 @@ export function resolveSelectedMatchday({
     isExplicitDate,
     min,
     max,
-    prevDate: date > min ? addCalendarDays(date, -1) : null,
-    nextDate: date < max ? addCalendarDays(date, 1) : null,
+    prevDate: date > min ? getPreviousMatchdayDate(date, getMatchdayDates(matches, timeZone)) : null,
+    nextDate: date < max ? getNextMatchdayDate(date, getMatchdayDates(matches, timeZone)) : null,
   };
 }
 
