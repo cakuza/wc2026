@@ -8,6 +8,8 @@ import type { MetadataRoute } from "next";
 //   explicit instruction.
 // - Bingbot / Googlebot: full access.
 
+export const dynamic = "force-static";
+
 export default function robots(): MetadataRoute.Robots {
   return {
     rules: [

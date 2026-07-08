@@ -165,7 +165,7 @@ export function MatchDetail({
   const { t, country, formatDate } = useLang();
   void events;
 
-  const [liveState, setLiveState] = useState({
+  const liveState = {
     status: initialStatus,
     homeScore: initialHomeScore,
     awayScore: initialAwayScore,
@@ -179,7 +179,7 @@ export function MatchDetail({
     penaltyShootoutScore: live?.penaltyShootoutScore ?? null,
     winner: live?.winner ?? null,
     scoreDuration: live?.scoreDuration ?? null,
-  });
+  };
 
   // Containment mode: clock tick and polling removed. Match page displays
   // server-rendered ISR state only; no client fetch is triggered.

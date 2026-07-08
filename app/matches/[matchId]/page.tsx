@@ -6,12 +6,16 @@ import { MatchDetail } from "@/components/MatchDetail";
 import { countryName } from "@/lib/i18n";
 import { getGoalEventCompleteness } from "@/lib/goalEventCompleteness";
 import { getTournamentLiveSnapshot } from "@/lib/liveSnapshot";
-import { matchBySlug } from "@/lib/matches";
+import { matchBySlug, MATCHES, matchSlug } from "@/lib/matches";
 import { getResolvedHomeTeam, getResolvedAwayTeam, getParticipantDisplayLabel, isKnockoutMatch, knockoutSlotLabel, matchStageLabel } from "@/lib/participant-resolution";
 import { buildKnockoutResolution } from "@/lib/knockoutResolution";
 
 export const revalidate = 60;
 // export const dynamic = "force-dynamic"; // removed for ISR
+
+export function generateStaticParams() {
+  return MATCHES.map((match) => ({ matchId: matchSlug(match) }));
+}
 
 // ── Stage string tables ──────────────────────────────────────────────────────
 

@@ -36,13 +36,8 @@ const MIDNIGHT_CONTINUITY_END_HOUR = 3;
 // ISR revalidation; live polling has been removed to eliminate idle CPU cost.
 export const revalidate = 3600;
 
-export async function generateMetadata({
-  searchParams,
-}: {
-  searchParams?: Promise<Record<string, string | string[] | undefined>>;
-}): Promise<Metadata> {
-  const params = searchParams ? await searchParams : {};
-  const hasDateParam = typeof params.date === "string" && params.date.length > 0;
+export async function generateMetadata(): Promise<Metadata> {
+  const hasDateParam = false;
   return {
     title: "World Cup Matches Today — Scores, Fixtures & Kickoff Times",
     description:
@@ -338,19 +333,15 @@ function MatchRow({
   );
 }
 
-export default async function TodayPage({
-  searchParams,
-}: {
-  searchParams?: Promise<Record<string, string | string[] | undefined>>;
-}) {
-  const params = searchParams ? await searchParams : {};
+export default async function TodayPage() {
+  const params = {};
   // Static fallback: use the default timezone at render time. The client-side
   // TimezoneProvider hydrates the correct local timezone at zero server cost.
   const selectedTimeZone = DEFAULT_TIMEZONE;
 
   // Resolve which local calendar date to show: a valid in-range ?date= wins,
   // otherwise the viewer's actual local today. "Today" never changes meaning.
-  const resolved = resolveSelectedMatchday({ dateParam: params.date, timeZone: selectedTimeZone });
+  const resolved = resolveSelectedMatchday({ dateParam: undefined, timeZone: selectedTimeZone });
   const selectedMatches = getMatchesForDateInZone({ date: resolved.date, timeZone: selectedTimeZone });
   const hasSelectedMatches = selectedMatches.length > 0;
 

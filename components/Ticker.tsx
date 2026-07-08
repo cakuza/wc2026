@@ -10,7 +10,6 @@ import { getMatchCalendarDateInZone } from "@/lib/todaySelection";
 import type { ResolvedParticipantLookup } from "@/lib/participant-resolution";
 import { mergeResolvedParticipantsFromApiMatches } from "@/lib/resolvedParticipantsFromApi";
 import { getTickerDisplay } from "@/lib/tickerDisplay";
-import { fetchClientLiveSnapshot } from "@/lib/clientLiveSnapshot";
 
 const PIXELS_PER_SECOND = 80;
 
@@ -60,27 +59,12 @@ export function Ticker({
   resolvedParticipants?: ResolvedParticipantLookup;
 }) {
   const { t, formatDate } = useLang();
-  const [liveResolvedParticipants, setLiveResolvedParticipants] = useState(resolvedParticipants);
   const trackRef = useRef<HTMLDivElement>(null);
   const posRef = useRef(0);
   const rafRef = useRef<number>(0);
   const lastRef = useRef<number | null>(null);
   const [dupeReady, setDupeReady] = useState(false);
   const handleDupeMount = useCallback(() => setDupeReady(true), []);
-
-  useEffect(() => {
-    let cancelled = false;
-    async function refreshResolvedParticipants() {
-      const data = await fetchClientLiveSnapshot();
-      if (!cancelled && data?.matches) {
-        setLiveResolvedParticipants((prev) => mergeResolvedParticipantsFromApiMatches(prev, data.matches));
-      }
-    }
-    refreshResolvedParticipants();
-    return () => {
-      cancelled = true;
-    };
-  }, []);
 
   useEffect(() => {
     if (!dupeReady) return;
@@ -121,9 +105,9 @@ export function Ticker({
         <div className="relative flex-1 overflow-hidden">
           <div ref={trackRef} className="flex w-max items-center py-2">
             <div className="flex items-center">
-              <TickerItems items={items} resolvedParticipants={liveResolvedParticipants} />
+              <TickerItems items={items} resolvedParticipants={resolvedParticipants} />
             </div>
-            <TickerDuplicate items={items} resolvedParticipants={liveResolvedParticipants} onMount={handleDupeMount} />
+            <TickerDuplicate items={items} resolvedParticipants={resolvedParticipants} onMount={handleDupeMount} />
           </div>
         </div>
       </div>

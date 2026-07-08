@@ -13,6 +13,8 @@ const STATIC_DATE = new Date("2026-06-11T00:00:00Z");
 // Live-data pages update constantly during the tournament — omit lastModified
 // so crawlers aren't misled into thinking content changes on every deploy.
 
+export const dynamic = "force-static";
+
 export default function sitemap(): MetadataRoute.Sitemap {
   assertWorldCupData();
 

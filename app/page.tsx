@@ -31,12 +31,7 @@ export const metadata: Metadata = {
 // TimezoneProvider handles timezone selection after hydration at zero cost.
 export const revalidate = 3600; // revalidate at most once per hour
 
-export default async function TodayPage({
-  searchParams,
-}: {
-  searchParams?: Promise<Record<string, string | string[] | undefined>>;
-}) {
-  const params = searchParams ? await searchParams : {};
+export default async function TodayPage() {
   // Static fallback: serve the default timezone. The TimezoneProvider client
   // component reads the user's real timezone after hydration (no server cost).
   const selectedTimeZone = DEFAULT_TIMEZONE;

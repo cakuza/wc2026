@@ -8,8 +8,6 @@ import { type Lang } from "@/lib/i18n";
 import { MATCHES, matchUtcDate, type Match } from "@/lib/matches";
 import { RESOLVED_PARTICIPANTS } from "@/lib/resolvedParticipants";
 import { getParticipantDisplay, knockoutSlotLabel, isKnockoutMatch, type ResolvedParticipantLookup } from "@/lib/participant-resolution";
-import { mergeResolvedParticipantsFromApiMatches } from "@/lib/resolvedParticipantsFromApi";
-import { fetchClientLiveSnapshot } from "@/lib/clientLiveSnapshot";
 import { isMatchPollingActive } from "@/lib/scoreReconciliation";
 
 // --- Layout constants ---
@@ -137,61 +135,7 @@ export function buildBracketMatchModel({
 
 export function BracketContent({ resolvedParticipants }: { resolvedParticipants?: ResolvedParticipantLookup }) {
   const { t, lang } = useLang();
-  const [liveResolvedParticipants, setLiveResolvedParticipants] = useState(resolvedParticipants);
   const [now, setNow] = useState(() => Date.now());
-
-  const hasLiveOrImminent = MATCHES.some((m) => {
-    return isMatchPollingActive("SCHEDULED", matchUtcDate(m).getTime(), now, false);
-  });
-
-  useEffect(() => {
-    let cancelled = false;
-    let timer: ReturnType<typeof setTimeout> | null = null;
-    let inFlight = false;
-
-    async function poll(shouldContinue: boolean = hasLiveOrImminent) {
-      if (cancelled || inFlight) {
-        if (shouldContinue && !document.hidden) schedule();
-        return;
-      }
-      inFlight = true;
-      try {
-        const data = await fetchClientLiveSnapshot();
-        if (data?.matches && !cancelled) {
-          setLiveResolvedParticipants((prev) => mergeResolvedParticipantsFromApiMatches(prev, data.matches));
-        }
-      } catch {
-        // ignore
-      } finally {
-        inFlight = false;
-        if (shouldContinue && !document.hidden) schedule();
-      }
-    }
-
-    function schedule() {
-      if (cancelled || document.hidden) return;
-      const jitter = Math.floor(Math.random() * 5_000);
-      timer = setTimeout(() => poll(hasLiveOrImminent), 30_000 + jitter);
-    }
-
-    function handleVisibilityChange() {
-      if (!document.hidden) {
-        if (timer) clearTimeout(timer);
-        poll(hasLiveOrImminent);
-      } else {
-        if (timer) clearTimeout(timer);
-      }
-    }
-
-    document.addEventListener("visibilitychange", handleVisibilityChange);
-    poll(hasLiveOrImminent);
-
-    return () => {
-      cancelled = true;
-      if (timer) clearTimeout(timer);
-      document.removeEventListener("visibilitychange", handleVisibilityChange);
-    };
-  }, [hasLiveOrImminent]);
 
   useEffect(() => {
     const interval = setInterval(() => setNow(Date.now()), 30_000);
@@ -199,7 +143,7 @@ export function BracketContent({ resolvedParticipants }: { resolvedParticipants?
   }, []);
 
   const mapMatch = (match: any, isR32: boolean) =>
-    buildBracketMatchModel({ match, isR32, resolvedParticipants: liveResolvedParticipants, t, lang });
+    buildBracketMatchModel({ match, isR32, resolvedParticipants, t, lang });
 
   const ROUND_MATCHES: BMatch[][] = [
     ROUND_OF_32_MATCHES.map((m) => mapMatch(m, true)),
