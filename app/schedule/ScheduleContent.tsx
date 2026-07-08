@@ -7,7 +7,7 @@ import { TimezonePicker } from "@/components/TimezoneLabel";
 import { useTimezone } from "@/components/TimezoneProvider";
 import { useLang } from "@/components/LanguageProvider";
 import { matchSlug, Match, MATCHES } from "@/lib/matches";
-import { getResolvedHomeTeam, getResolvedAwayTeam, getResolvedHomeCode, getResolvedAwayCode, getParticipantDisplayLabel, isKnockoutMatch, type ResolvedParticipantLookup } from "@/lib/participant-resolution";
+import { getResolvedHomeTeam, getResolvedAwayTeam, getResolvedHomeCode, getResolvedAwayCode, knockoutSlotLabel, isKnockoutMatch, type ResolvedParticipantLookup } from "@/lib/participant-resolution";
 import { groupMatchesByCalendarDate } from "@/lib/todaySelection";
 import type { GoalScorerEvent } from "@/lib/worldcup26Provider";
 import type { ScheduleMatchScore } from "./page";
@@ -75,7 +75,7 @@ function ScorerText({ events }: { events: GoalScorerEvent[] }) {
 }
 
 export function ScheduleContent({ liveScores, scorerLines, resolvedParticipants }: Props) {
-  const { t, country, formatDate, locale } = useLang();
+  const { t, country, formatDate, locale, lang } = useLang();
   const { timeZone } = useTimezone();
   const completed = MATCHES.filter((m) => {
     const pid = m.providerIds?.footballData;
@@ -135,7 +135,7 @@ export function ScheduleContent({ liveScores, scorerLines, resolvedParticipants 
                 <div className="flex items-center gap-3">
                   <div className="flex min-w-0 flex-1 items-center justify-end gap-2 text-end">
                     <span className="truncate font-semibold text-white">
-                      {getResolvedHomeTeam(m, resolvedParticipants) ? country(getResolvedHomeTeam(m, resolvedParticipants)!) : (isKnockoutMatch(m) ? getParticipantDisplayLabel(m.homeSlot) : m.homeKey)}
+                      {getResolvedHomeTeam(m, resolvedParticipants) ? country(getResolvedHomeTeam(m, resolvedParticipants)!) : (isKnockoutMatch(m) ? knockoutSlotLabel(m.homeSlot, lang, resolvedParticipants) : m.homeKey)}
                     </span>
                     {getResolvedHomeTeam(m, resolvedParticipants) && (
                       <Flag
@@ -167,7 +167,7 @@ export function ScheduleContent({ liveScores, scorerLines, resolvedParticipants 
                       />
                     )}
                     <span className="truncate font-semibold text-white">
-                      {getResolvedAwayTeam(m, resolvedParticipants) ? country(getResolvedAwayTeam(m, resolvedParticipants)!) : (isKnockoutMatch(m) ? getParticipantDisplayLabel(m.awaySlot) : m.awayKey)}
+                      {getResolvedAwayTeam(m, resolvedParticipants) ? country(getResolvedAwayTeam(m, resolvedParticipants)!) : (isKnockoutMatch(m) ? knockoutSlotLabel(m.awaySlot, lang, resolvedParticipants) : m.awayKey)}
                     </span>
                   </div>
                 </div>

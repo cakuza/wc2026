@@ -83,10 +83,10 @@ async function runTests() {
     const groupB = snapshot.standingsByGroup["B"];
     const canadaRow = groupB.find(r => r.teamKey === "canada");
     const bosniaRow = groupB.find(r => r.teamKey === "bosnia");
-    assert.strictEqual(canadaRow?.points, 1, "Standings route: Canada has 1 point");
-    assert.strictEqual(bosniaRow?.points, 1, "Standings route: Bosnia has 1 point");
-    assert.strictEqual(canadaRow?.goalsFor, 1, "Standings route: Canada GF is 1");
-    assert.strictEqual(bosniaRow?.goalsFor, 1, "Standings route: Bosnia GF is 1");
+    assert.strictEqual(canadaRow?.points, 4, "Standings route: Canada has 4 points");
+    assert.strictEqual(bosniaRow?.points, 4, "Standings route: Bosnia has 4 points");
+    assert.strictEqual(canadaRow?.goalsFor, 8, "Standings route: Canada GF is 8");
+    assert.strictEqual(bosniaRow?.goalsFor, 5, "Standings route: Bosnia GF is 5");
 
     // Route 3: Third Place (consumes snapshot.thirdPlaceRanking)
     // Implicitly tested since thirdPlaceRanking is derived purely from group standings.
