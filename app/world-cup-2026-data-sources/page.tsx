@@ -28,7 +28,7 @@ const FAQS = [
   },
   {
     q: "How often do standings update?",
-    a: "Group standings are calculated automatically from completed, synced match results. They update each time the live snapshot refreshes — approximately every 10 seconds during live matches and every 90 seconds at idle. A 'Standings last synced' timestamp is shown on each group page.",
+    a: "Group standings are calculated automatically from completed, synced match results.",
   },
   {
     q: "Is WorldCupMatchDay affiliated with FIFA or any official body?",

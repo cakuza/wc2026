@@ -1,5 +1,5 @@
 import { DEFAULT_TIMEZONE, isValidTimeZone } from "./timezone";
-import { MATCHES, matchUtcDate, type DisplayMatchday, type Match } from "./matches";
+import { MATCHES, matchUtcDate, TOURNAMENT_END_TARGET, type DisplayMatchday, type Match } from "./matches";
 
 export type SelectedTodayMatchday = {
   date: string;
@@ -181,7 +181,7 @@ export type ResolvedMatchday = {
 export function resolveSelectedMatchday({
   dateParam,
   timeZone,
-  now = new Date(),
+  now = new Date(TOURNAMENT_END_TARGET),
   matches = MATCHES,
 }: {
   dateParam: string | string[] | undefined;
@@ -214,7 +214,7 @@ export function resolveSelectedMatchday({
 }
 
 export function getDisplayMatchdayForTimeZone({
-  now = new Date(),
+  now = new Date(TOURNAMENT_END_TARGET),
   timeZone,
   matches = MATCHES,
 }: {

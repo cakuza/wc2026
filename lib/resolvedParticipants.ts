@@ -53,10 +53,13 @@ export const RESOLVED_PARTICIPANTS: Readonly<Record<number, ResolvedMatchPartici
   89: { home: { teamKey: "paraguay", teamCode: "py" }, away: { teamKey: "france", teamCode: "fr" }, resolvedAt: "2026-07-04", confidence: "confirmed" },
   90: { home: { teamKey: "canada", teamCode: "ca" }, away: { teamKey: "morocco", teamCode: "ma" }, resolvedAt: "2026-07-04", confidence: "confirmed" },
   91: { home: { teamKey: "brazil", teamCode: "br" }, away: { teamKey: "norway", teamCode: "no" }, resolvedAt: "2026-07-05", confidence: "confirmed" },
-  95: { away: { teamKey: "egypt", teamCode: "eg" }, resolvedAt: "2026-07-04", confidence: "confirmed" },
+  92: { home: { teamKey: "mexico", teamCode: "mx" }, away: { teamKey: "england", teamCode: "gb-eng" }, resolvedAt: "2026-07-05", confidence: "confirmed" },
+  93: { home: { teamKey: "portugal", teamCode: "pt" }, away: { teamKey: "spain", teamCode: "es" }, resolvedAt: "2026-07-05", confidence: "confirmed" },
+  94: { home: { teamKey: "unitedStates", teamCode: "us" }, away: { teamKey: "belgium", teamCode: "be" }, resolvedAt: "2026-07-05", confidence: "confirmed" },
+  95: { home: { teamKey: "argentina", teamCode: "ar" }, away: { teamKey: "egypt", teamCode: "eg" }, resolvedAt: "2026-07-04", confidence: "confirmed" },
   96: { home: { teamKey: "switzerland", teamCode: "ch" }, away: { teamKey: "colombia", teamCode: "co" }, resolvedAt: "2026-07-04", confidence: "confirmed" },
   97: { home: { teamKey: "france", teamCode: "fr" }, away: { teamKey: "morocco", teamCode: "ma" }, resolvedAt: "2026-07-04", confidence: "confirmed" },
-  // M92-Final: unresolved until their source matches conclude.
+  // M98-Final: unresolved until their source matches conclude.
 } as const;
 
 /** Returns the resolved home side for a match number, or null if unresolved. */

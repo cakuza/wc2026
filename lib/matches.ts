@@ -224,7 +224,7 @@ export type DisplayMatchday = {
 //  • Today → show today's full schedule
 //  • Tomorrow → show tomorrow's full schedule
 //  • Before tournament / gap → show the next 3 matchdays combined (more useful overview)
-export function getDisplayMatchday(now: Date = new Date()): DisplayMatchday {
+export function getDisplayMatchday(now: Date = new Date(TOURNAMENT_END_TARGET)): DisplayMatchday {
   const todayISO = localISODate(now);
   const tomorrow = new Date(now);
   tomorrow.setDate(tomorrow.getDate() + 1);
@@ -259,7 +259,7 @@ export function getDisplayMatchday(now: Date = new Date()): DisplayMatchday {
 }
 
 /** Build the compact homepage ticker list from a single, shared clock value. */
-export function getTickerMatches(now: Date = new Date()): Match[] {
+export function getTickerMatches(now: Date = new Date(TOURNAMENT_END_TARGET)): Match[] {
   const todayStart = new Date(now);
   todayStart.setHours(0, 0, 0, 0);
   const sevenDaysLater = new Date(todayStart);

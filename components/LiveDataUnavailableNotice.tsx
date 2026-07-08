@@ -10,11 +10,7 @@ export function LiveDataUnavailableNotice({ show }: { show?: boolean }) {
       role="status"
       className="mb-6 rounded-xl border border-amber-400/30 bg-amber-400/10 px-4 py-3 text-sm text-amber-200"
     >
-      <span className="font-semibold">Live match data is temporarily unavailable.</span>{" "}
-      <span className="text-amber-200/80">
-        Fixtures and kickoff times are shown below; scores, standings and Top Scorers will appear
-        once live data refreshes.
-      </span>
+      <span className="font-semibold">Static archive mode: results are updated manually after verification.</span>
     </div>
   );
 }

@@ -5,7 +5,7 @@ interface DataAvailabilityNoticeProps {
 
 export function DataAvailabilityNotice({
   show,
-  message = "Live data is temporarily unavailable. The last verified data is shown where available.",
+  message = "Static archive mode: results are updated manually after verification.",
 }: DataAvailabilityNoticeProps) {
   if (!show) return null;
   return (

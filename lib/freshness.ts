@@ -41,17 +41,5 @@ export function getScoreFreshnessLabel({
   primaryProviderOk: boolean;
   now?: number;
 }): { label: string; state: FreshnessState } {
-  if (!primaryProviderFetchedAt) {
-    return { label: "Scores syncing…", state: "updating" };
-  }
-
-  const age = formatRelativeAge(primaryProviderFetchedAt, now);
-
-  if (!primaryProviderOk) {
-    return { label: `Live data may be delayed · Last successful check ${age}`, state: "stale" };
-  }
-
-  // "Last checked" — the timestamp is the latest application poll, not a
-  // guarantee that the underlying provider data is itself fresh.
-  return { label: `Last checked ${age}`, state: getFreshnessState(primaryProviderFetchedAt, now) };
+  return { label: "Static archive mode", state: "normal" };
 }

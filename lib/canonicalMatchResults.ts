@@ -12,7 +12,7 @@ type CompletedResult = {
   penaltyShootoutScore?: PeriodScore;
 };
 
-const COMPLETED_KNOCKOUT_RESULTS: Readonly<Record<number, CompletedResult>> = {
+export const COMPLETED_KNOCKOUT_RESULTS: Readonly<Record<number, CompletedResult>> = {
   74: {
     homeScore: 1,
     awayScore: 1,

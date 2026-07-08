@@ -95,6 +95,8 @@ export function getParticipantDisplayLabel(slot: ParticipantSlot, lang: Lang = "
   }
 }
 
+import { COMPLETED_KNOCKOUT_RESULTS } from "./canonicalMatchResults";
+
 function getResolvedSide(match: Match, side: ParticipantSide, resolvedParticipants?: ResolvedParticipantLookup): ResolvedSide | null {
   if (!isKnockoutMatch(match)) {
     const teamKey = side === "home" ? match.homeKey : match.awayKey;
@@ -110,6 +112,28 @@ function getResolvedSide(match: Match, side: ParticipantSide, resolvedParticipan
 
   const slot = side === "home" ? match.homeSlot : match.awaySlot;
   if (slot.kind === "resolved") return { teamKey: slot.teamKey, teamCode: slot.teamCode };
+
+  if (slot.kind === "winnerOf") {
+    const sourceMatch = MATCHES.find((m) => "matchNumber" in m && m.matchNumber === slot.matchNumber);
+    if (sourceMatch && isKnockoutMatch(sourceMatch)) {
+      const result = COMPLETED_KNOCKOUT_RESULTS[slot.matchNumber];
+      if (result) {
+        const winSide = result.winner === "HOME_TEAM" ? "home" : "away";
+        return getResolvedSide(sourceMatch, winSide, resolvedParticipants);
+      }
+    }
+  }
+
+  if (slot.kind === "loserOf") {
+    const sourceMatch = MATCHES.find((m) => "matchNumber" in m && m.matchNumber === slot.matchNumber);
+    if (sourceMatch && isKnockoutMatch(sourceMatch)) {
+      const result = COMPLETED_KNOCKOUT_RESULTS[slot.matchNumber];
+      if (result) {
+        const loseSide = result.winner === "HOME_TEAM" ? "away" : "home";
+        return getResolvedSide(sourceMatch, loseSide, resolvedParticipants);
+      }
+    }
+  }
 
   return null;
 }
