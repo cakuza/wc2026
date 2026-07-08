@@ -26,7 +26,8 @@
     "test:readiness-validator": "tsx scripts/test-readiness-validator.ts",
     "test:p0-knockout-integrity": "tsx scripts/test-p0-knockout-data-integrity.ts",
     "test:runtime:cold-cache": "tsx scripts/test-cold-cache-runtime.ts",
-    "check:readiness": "tsx scripts/check-secondary-provider-readiness.ts"
+    "check:readiness": "tsx scripts/check-secondary-provider-readiness.ts",
+    "validate:archive": "npx tsx scripts/archive/validate-archive.ts"
   },
   "dependencies": {
     "@vercel/analytics": "^2.0.1",

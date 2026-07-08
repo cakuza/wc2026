@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useLang } from "@/components/LanguageProvider";
-import { KICKOFF_TARGET, TOURNAMENT_END_TARGET } from "@/lib/matches";
+import { KICKOFF_TARGET, ARCHIVE_DEFAULT_DATE } from "@/lib/matches";
 
 export type CountdownPhase = "before" | "during" | "after";
 type Parts = { days: number; hours: number; minutes: number; seconds: number };
@@ -19,7 +19,7 @@ function diff(target: number): Parts {
 }
 
 const KICKOFF = new Date(KICKOFF_TARGET).getTime();
-const TOURNAMENT_END = new Date(TOURNAMENT_END_TARGET).getTime();
+const TOURNAMENT_END = new Date(ARCHIVE_DEFAULT_DATE).getTime();
 
 function computeState(): CountdownState {
   const now = Date.now();

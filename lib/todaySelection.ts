@@ -1,5 +1,5 @@
 import { DEFAULT_TIMEZONE, isValidTimeZone } from "./timezone";
-import { MATCHES, matchUtcDate, TOURNAMENT_END_TARGET, type DisplayMatchday, type Match } from "./matches";
+import { MATCHES, matchUtcDate, ARCHIVE_DEFAULT_DATE, type DisplayMatchday, type Match } from "./matches";
 
 export type SelectedTodayMatchday = {
   date: string;
@@ -181,7 +181,7 @@ export type ResolvedMatchday = {
 export function resolveSelectedMatchday({
   dateParam,
   timeZone,
-  now = new Date(TOURNAMENT_END_TARGET),
+  now = new Date(ARCHIVE_DEFAULT_DATE),
   matches = MATCHES,
 }: {
   dateParam: string | string[] | undefined;
@@ -214,7 +214,7 @@ export function resolveSelectedMatchday({
 }
 
 export function getDisplayMatchdayForTimeZone({
-  now = new Date(TOURNAMENT_END_TARGET),
+  now = new Date(ARCHIVE_DEFAULT_DATE),
   timeZone,
   matches = MATCHES,
 }: {
@@ -232,7 +232,7 @@ export function getDisplayMatchdayForTimeZone({
   const nextIdx = byDate.findIndex((day) => day.date >= todayISO);
   if (nextIdx === -1) {
     const last = byDate[byDate.length - 1];
-    return { labelKey: "sec_nextMatches", date: last.date, matches: last.matches };
+    return { labelKey: "sec_latestResults", date: last.date, matches: last.matches };
   }
 
   const next = byDate[nextIdx];

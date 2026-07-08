@@ -3,7 +3,7 @@ import { Ticker } from "@/components/Ticker";
 import { Hero } from "@/components/Hero";
 import { HomeTrivia } from "@/components/HomeTrivia";
 import { TeamsByConfederationPreview } from "@/components/TeamsByConfederation";
-import { getTickerMatches } from "@/lib/matches";
+import { getTickerMatches, ARCHIVE_DEFAULT_DATE } from "@/lib/matches";
 import { getDisplayMatchdayForTimeZone } from "@/lib/todaySelection";
 import { DEFAULT_TIMEZONE } from "@/lib/timezone";
 import { getTournamentLiveSnapshot } from "@/lib/liveSnapshot";
@@ -35,7 +35,7 @@ export default async function TodayPage() {
   // Static fallback: serve the default timezone. The TimezoneProvider client
   // component reads the user's real timezone after hydration (no server cost).
   const selectedTimeZone = DEFAULT_TIMEZONE;
-  const now = new Date();
+  const now = new Date(ARCHIVE_DEFAULT_DATE);
   const tickerMatches = getTickerMatches(now);
   const initialMatchday = getDisplayMatchdayForTimeZone({ now, timeZone: selectedTimeZone });
   const snapshot = await getTournamentLiveSnapshot();

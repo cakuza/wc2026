@@ -176,7 +176,7 @@ export const KICKOFF_TARGET = "2026-06-11T19:00:00Z";
 
 // Final matchday — exact kickoff time TBC, so this marks end-of-day for countdown purposes.
 export const TOURNAMENT_FINAL_DATE = new Date(Math.max(...MATCHES.map(m => matchUtcDate(m).getTime()))).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" });
-export const TOURNAMENT_END_TARGET = "2026-07-20T04:00:00Z";
+export const ARCHIVE_DEFAULT_DATE = "2026-07-20T04:00:00Z";
 
 /** Convert a fixture's venue-local kickoff into an absolute UTC instant. */
 export function matchUtcDate(m: Match): Date {
@@ -211,7 +211,7 @@ function localISODate(d: Date): string {
   return `${y}-${m}-${day}`;
 }
 
-export type MatchdayLabel = "sec_todayMatches" | "sec_tomorrowMatches" | "sec_nextMatches";
+export type MatchdayLabel = "sec_todayMatches" | "sec_tomorrowMatches" | "sec_nextMatches" | "sec_latestResults";
 
 export type DisplayMatchday = {
   labelKey: MatchdayLabel;
@@ -224,7 +224,7 @@ export type DisplayMatchday = {
 //  • Today → show today's full schedule
 //  • Tomorrow → show tomorrow's full schedule
 //  • Before tournament / gap → show the next 3 matchdays combined (more useful overview)
-export function getDisplayMatchday(now: Date = new Date(TOURNAMENT_END_TARGET)): DisplayMatchday {
+export function getDisplayMatchday(now: Date = new Date(ARCHIVE_DEFAULT_DATE)): DisplayMatchday {
   const todayISO = localISODate(now);
   const tomorrow = new Date(now);
   tomorrow.setDate(tomorrow.getDate() + 1);
@@ -259,7 +259,7 @@ export function getDisplayMatchday(now: Date = new Date(TOURNAMENT_END_TARGET)):
 }
 
 /** Build the compact homepage ticker list from a single, shared clock value. */
-export function getTickerMatches(now: Date = new Date(TOURNAMENT_END_TARGET)): Match[] {
+export function getTickerMatches(now: Date = new Date(ARCHIVE_DEFAULT_DATE)): Match[] {
   const todayStart = new Date(now);
   todayStart.setHours(0, 0, 0, 0);
   const sevenDaysLater = new Date(todayStart);

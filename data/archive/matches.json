@@ -1,0 +1,181 @@
+[
+  {
+    "matchNumber": 89,
+    "slug": "match-89",
+    "stage": "ROUND_OF_16",
+    "kickoffUtc": null,
+    "venue": null,
+    "homeTeamId": "paraguay",
+    "awayTeamId": "france",
+    "score": {
+      "home": 0,
+      "away": 1
+    },
+    "extraTime": false,
+    "penaltyScore": null,
+    "winnerTeamId": "france",
+    "scoreComplete": true,
+    "eventsComplete": false,
+    "statsComplete": false,
+    "lineupsComplete": false,
+    "referee": null,
+    "attendance": null
+  },
+  {
+    "matchNumber": 90,
+    "slug": "match-90",
+    "stage": "ROUND_OF_16",
+    "kickoffUtc": null,
+    "venue": null,
+    "homeTeamId": "canada",
+    "awayTeamId": "morocco",
+    "score": {
+      "home": 0,
+      "away": 3
+    },
+    "extraTime": false,
+    "penaltyScore": null,
+    "winnerTeamId": "morocco",
+    "scoreComplete": true,
+    "eventsComplete": false,
+    "statsComplete": false,
+    "lineupsComplete": false,
+    "referee": null,
+    "attendance": null
+  },
+  {
+    "matchNumber": 91,
+    "slug": "match-91",
+    "stage": "ROUND_OF_16",
+    "kickoffUtc": null,
+    "venue": null,
+    "homeTeamId": "brazil",
+    "awayTeamId": "norway",
+    "score": {
+      "home": 1,
+      "away": 2
+    },
+    "extraTime": false,
+    "penaltyScore": null,
+    "winnerTeamId": "norway",
+    "scoreComplete": true,
+    "eventsComplete": false,
+    "statsComplete": false,
+    "lineupsComplete": false,
+    "referee": null,
+    "attendance": null
+  },
+  {
+    "matchNumber": 92,
+    "slug": "match-92",
+    "stage": "ROUND_OF_16",
+    "kickoffUtc": null,
+    "venue": null,
+    "homeTeamId": "mexico",
+    "awayTeamId": "england",
+    "score": {
+      "home": 2,
+      "away": 3
+    },
+    "extraTime": false,
+    "penaltyScore": null,
+    "winnerTeamId": "england",
+    "scoreComplete": true,
+    "eventsComplete": false,
+    "statsComplete": false,
+    "lineupsComplete": false,
+    "referee": null,
+    "attendance": null
+  },
+  {
+    "matchNumber": 93,
+    "slug": "match-93",
+    "stage": "ROUND_OF_16",
+    "kickoffUtc": null,
+    "venue": null,
+    "homeTeamId": "portugal",
+    "awayTeamId": "spain",
+    "score": {
+      "home": 0,
+      "away": 1
+    },
+    "extraTime": false,
+    "penaltyScore": null,
+    "winnerTeamId": "spain",
+    "scoreComplete": true,
+    "eventsComplete": false,
+    "statsComplete": false,
+    "lineupsComplete": false,
+    "referee": null,
+    "attendance": null
+  },
+  {
+    "matchNumber": 94,
+    "slug": "match-94",
+    "stage": "ROUND_OF_16",
+    "kickoffUtc": null,
+    "venue": null,
+    "homeTeamId": "unitedStates",
+    "awayTeamId": "belgium",
+    "score": {
+      "home": 1,
+      "away": 4
+    },
+    "extraTime": false,
+    "penaltyScore": null,
+    "winnerTeamId": "belgium",
+    "scoreComplete": true,
+    "eventsComplete": false,
+    "statsComplete": false,
+    "lineupsComplete": false,
+    "referee": null,
+    "attendance": null
+  },
+  {
+    "matchNumber": 95,
+    "slug": "match-95",
+    "stage": "ROUND_OF_16",
+    "kickoffUtc": null,
+    "venue": null,
+    "homeTeamId": "argentina",
+    "awayTeamId": "egypt",
+    "score": {
+      "home": 3,
+      "away": 2
+    },
+    "extraTime": false,
+    "penaltyScore": null,
+    "winnerTeamId": "argentina",
+    "scoreComplete": true,
+    "eventsComplete": false,
+    "statsComplete": false,
+    "lineupsComplete": false,
+    "referee": null,
+    "attendance": null
+  },
+  {
+    "matchNumber": 96,
+    "slug": "match-96",
+    "stage": "ROUND_OF_16",
+    "kickoffUtc": null,
+    "venue": null,
+    "homeTeamId": "switzerland",
+    "awayTeamId": "colombia",
+    "score": {
+      "home": 0,
+      "away": 0
+    },
+    "extraTime": true,
+    "penaltyScore": {
+      "home": 4,
+      "away": 3
+    },
+    "winnerTeamId": "switzerland",
+    "scoreComplete": true,
+    "eventsComplete": false,
+    "statsComplete": false,
+    "lineupsComplete": false,
+    "referee": null,
+    "attendance": null
+  }
+]
