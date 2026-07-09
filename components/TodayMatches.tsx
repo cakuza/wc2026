@@ -164,6 +164,7 @@ export function TodayMatches({
   useEffect(() => {
     setMd(
       getDisplayMatchdayForTimeZone({
+        now: new Date(),
         timeZone,
         resolvedParticipants: liveSnapshot.resolvedParticipants,
         liveDataByProviderId: liveSnapshot.liveDataByProviderId,

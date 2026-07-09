@@ -410,6 +410,38 @@ export function MatchDetail({
             )}
           </div>
 
+          {/* Goal Scorers / Match Events in Hero */}
+          {status !== "upcoming" && (
+            <div className="mt-5 w-full border-t border-white/5 pt-4 text-center">
+              {confirmedGoals.length > 0 ? (
+                <ul className="mx-auto flex max-w-sm flex-col items-center gap-1.5">
+                  {confirmedGoals.map((g, i) => (
+                    <li key={i} className="flex items-center justify-center gap-2 text-[13px]">
+                      <span className="font-heading font-bold tabular-nums text-white/50">
+                        {g.minuteLabel ?? (g.minute != null ? `${g.minute}'` : "—")}
+                      </span>
+                      <span className="font-semibold text-white/90">{g.playerName ?? "Scorer pending"}</span>
+                      {g.assistName && (
+                        <span className="text-[11px] text-white/40">(ast: {g.assistName})</span>
+                      )}
+                      {g.isOwnGoal && (
+                        <span className="text-[11px] font-bold text-red-400">(OG)</span>
+                      )}
+                      {(g.isPenalty || g.type === "PENALTY_GOAL") && (
+                        <span className="text-[11px] font-bold text-yellow-400">(P)</span>
+                      )}
+                    </li>
+                  ))}
+                  {missingGoalText && <li className="mt-1 text-[11px] text-white/40">{missingGoalText}</li>}
+                </ul>
+              ) : missingGoalText ? (
+                <p className="text-[13px] text-white/50">{missingGoalText}</p>
+              ) : (
+                <p className="text-[13px] text-white/50">Match events unavailable</p>
+              )}
+            </div>
+          )}
+
           {/* Date / time / venue */}
           <div className="mt-6 flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-sm text-white/50">
             {match.time ? (
@@ -516,37 +548,7 @@ export function MatchDetail({
           </EventSection>
         ) : (
           <>
-            {/* Goals */}
-            <EventSection title={t("match_goals")} icon="⚽">
-              {confirmedGoals.length > 0 ? (
-                <ul className="space-y-2">
-                  {confirmedGoals.map((g, i) => (
-                    <li key={i} className="flex items-center gap-3 text-sm">
-                      <span className="w-8 shrink-0 text-right font-heading font-bold tabular-nums text-white/50">
-                        {g.minuteLabel ?? (g.minute != null ? `${g.minute}'` : "—")}
-                      </span>
-                      <span className="font-semibold text-white">{g.playerName ?? "Scorer pending"}</span>
-                      {g.assistName && (
-                        <span className="text-xs text-white/50"> (ast: {g.assistName})</span>
-                      )}
-                      {g.isOwnGoal && (
-                        <span className="text-xs text-red-400">(OG)</span>
-                      )}
-                      {(g.isPenalty || g.type === "PENALTY_GOAL") && (
-                        <span className="text-xs text-yellow-400">(P)</span>
-                      )}
-                    </li>
-                  ))}
-                  {missingGoalText ? (
-                    <li className="pt-1 text-sm text-white/45">{missingGoalText}</li>
-                  ) : null}
-                </ul>
-              ) : missingGoalText ? (
-                <EmptyEvents note={missingGoalText} />
-              ) : (
-                <EmptyEvents note={t("match_noEvents")} />
-              )}
-            </EventSection>
+
 
             {/* Cards */}
             <EventSection title={t("match_bookings")} icon="🟨">
