@@ -6,6 +6,8 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { useLang } from "@/components/LanguageProvider";
 import { DESKTOP_LINKS, PRIMARY_LINKS, SECONDARY_LINKS, isActive } from "@/lib/navLinks";
+import { getTodayHref } from "@/lib/todaySelection";
+import { useTimezone } from "@/components/TimezoneProvider";
 
 function PrimaryIcon({ href }: { href: string }) {
   const common = {
@@ -70,11 +72,13 @@ function MobileDrawer({
   onClose,
   pathname,
   t,
+  todayHref,
 }: {
   open: boolean;
   onClose: () => void;
   pathname: string;
   t: (key: string) => string;
+  todayHref: string;
 }) {
   const panelRef = useRef<HTMLDivElement>(null);
   const restoreFocusRef = useRef<HTMLElement | null>(null);
@@ -158,11 +162,12 @@ function MobileDrawer({
         </div>
         <nav aria-label="Secondary" className="flex flex-col gap-1 px-3 py-3">
           {SECONDARY_LINKS.map((l) => {
+            const actualHref = l.href === "/today" ? todayHref : l.href;
             const active = isActive(pathname, l.href);
             return (
               <Link
                 key={l.href}
-                href={l.href}
+                href={actualHref}
                 onClick={onClose}
                 aria-current={active ? "page" : undefined}
                 className={`flex min-h-[44px] items-center rounded-lg px-4 font-heading text-sm font-bold uppercase tracking-wide transition ${
@@ -191,6 +196,10 @@ export function Nav() {
     setMenuOpen(false);
   }, [pathname]);
 
+  const { timeZone } = useTimezone();
+  const tz = timeZone || "UTC"; // or use the imported DEFAULT_TIMEZONE
+  const todayHref = getTodayHref(tz);
+
   return (
     <header className="sticky top-0 z-40 border-b-[3px] border-accent bg-navy">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-2 px-4 sm:gap-4">
@@ -202,11 +211,12 @@ export function Nav() {
           {/* Desktop nav */}
           <nav aria-label="Primary" className="hidden items-center gap-1 lg:flex">
             {DESKTOP_LINKS.map((l) => {
+              const actualHref = l.href === "/today" ? todayHref : l.href;
               const active = isActive(pathname, l.href);
               return (
                 <Link
                   key={l.href}
-                  href={l.href}
+                  href={actualHref}
                   aria-current={active ? "page" : undefined}
                   className={`rounded px-3 py-2 font-heading text-sm font-bold uppercase tracking-wide transition ${
                     active ? "bg-accent text-white" : "text-white/70 hover:bg-white/10 hover:text-white"
@@ -241,11 +251,12 @@ export function Nav() {
       <nav aria-label="Primary" className="border-t border-white/10 bg-navy lg:hidden">
         <div className="mx-auto grid max-w-7xl grid-cols-4">
           {PRIMARY_LINKS.map((l) => {
+            const actualHref = l.href === "/today" ? todayHref : l.href;
             const active = isActive(pathname, l.href);
             return (
               <Link
                 key={l.href}
-                href={l.href}
+                href={actualHref}
                 aria-current={active ? "page" : undefined}
                 className={`flex min-h-[44px] flex-col items-center justify-center gap-0.5 px-1 py-1.5 font-heading text-[11px] font-bold uppercase tracking-wide transition ${
                   active
@@ -265,7 +276,7 @@ export function Nav() {
         </div>
       </nav>
 
-      <MobileDrawer open={menuOpen} onClose={closeMenu} pathname={pathname} t={t} />
+      <MobileDrawer open={menuOpen} onClose={closeMenu} pathname={pathname} t={t} todayHref={todayHref} />
     </header>
   );
 }

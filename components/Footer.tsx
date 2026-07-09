@@ -2,10 +2,15 @@
 
 import Link from "next/link";
 import { useLang } from "@/components/LanguageProvider";
+import { useTimezone } from "@/components/TimezoneProvider";
 import { TIMEZONES } from "@/lib/timezones";
+import { getTodayHref } from "@/lib/todaySelection";
 
 export function Footer() {
   const { t } = useLang();
+  const { timeZone } = useTimezone();
+  const tz = timeZone || "UTC";
+  const todayHref = getTodayHref(tz);
 
   const GUIDE_LINKS = [
     { href: "/matchday-hub", label: t("nav_matchdayHub") },
@@ -42,7 +47,7 @@ export function Footer() {
             {NAV_LINKS.map((l) => (
               <Link
                 key={l.href}
-                href={l.href}
+                href={l.href === "/today" ? todayHref : l.href}
                 className="font-heading text-xs font-bold uppercase tracking-wide text-white/55 transition hover:text-white"
               >
                 {l.label}

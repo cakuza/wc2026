@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { TeamsByConfederation } from "@/components/TeamsByConfederation";
+import { getTodayHref } from "@/lib/todaySelection";
+import { DEFAULT_TIMEZONE } from "@/lib/timezone";
 
 const BASE_URL = "https://www.worldcupmatchday.com";
 
@@ -53,7 +55,7 @@ export default function TeamsByConfederationPage() {
             { href: "/teams", label: "All Teams" },
             { href: "/groups", label: "Groups" },
             { href: "/schedule", label: "Schedule" },
-            { href: "/today", label: "Today" },
+            { href: getTodayHref(DEFAULT_TIMEZONE), label: "Today" },
           ].map((l) => (
             <Link key={l.href} href={l.href} className="rounded-lg border border-white/15 bg-navyCard px-4 py-2 font-heading text-xs font-bold uppercase tracking-wide text-white/70 transition hover:border-white/30 hover:text-white">
               {l.label}

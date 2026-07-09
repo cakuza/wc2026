@@ -9,6 +9,8 @@ import { getTournamentLiveSnapshot } from "@/lib/liveSnapshot";
 import { matchBySlug, MATCHES, matchSlug } from "@/lib/matches";
 import { getResolvedHomeTeam, getResolvedAwayTeam, getParticipantDisplayLabel, isKnockoutMatch, knockoutSlotLabel, matchStageLabel } from "@/lib/participant-resolution";
 import { buildKnockoutResolution } from "@/lib/knockoutResolution";
+import matchEventsData from "@/data/archive/match-events.json";
+import type { MatchEvents } from "@/lib/matchEvents";
 
 export const revalidate = 60;
 // export const dynamic = "force-dynamic"; // removed for ISR
@@ -258,7 +260,7 @@ export default async function MatchPage({
       ) : null}
       <MatchDetail
         match={match}
-        events={null}
+        events={(matchEventsData as unknown as Record<string, MatchEvents>)[matchId] ?? null}
         live={live}
         status={snap?.status ?? "SCHEDULED"}
         liveDataUnavailable={snap?.liveDataUnavailable ?? false}

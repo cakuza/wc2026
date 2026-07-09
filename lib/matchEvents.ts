@@ -6,6 +6,7 @@ export type GoalEvent = {
   minute: number;
   injuryTime?: number;
   scorer: string;
+  assist?: string;
   team: string; // homeKey or awayKey
   type: "GOAL" | "OWN_GOAL" | "PENALTY";
 };

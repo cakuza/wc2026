@@ -144,6 +144,8 @@ export function orderMatches(matches: Match[], liveDataByProviderId: Record<stri
 
 
 
+import { getTodayHref } from "@/lib/todaySelection";
+
 export function TodayMatches({
   initialMatchday,
   liveSnapshot,
@@ -153,6 +155,9 @@ export function TodayMatches({
 }) {
   const { t, formatDate } = useLang();
   const { timeZone } = useTimezone();
+  const tz = timeZone || "UTC";
+  const todayHref = getTodayHref(tz);
+
   // Computed in an effect so the chosen matchday always reflects the *client's* current date
   // (avoids any server/client date drift), while the initial value keeps SSR stable.
   const [md, setMd] = useState(initialMatchday);
@@ -214,7 +219,7 @@ export function TodayMatches({
       )}
 
       <Link
-        href="/today"
+        href={todayHref}
         className="mt-4 block text-center font-heading text-xs font-bold uppercase tracking-wide text-accent transition hover:text-white"
       >
         See today&apos;s matches →

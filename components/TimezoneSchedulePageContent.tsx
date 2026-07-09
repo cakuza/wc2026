@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useLang } from "@/components/LanguageProvider";
 import { TimezoneSchedule } from "@/components/TimezoneSchedule";
 import { TIMEZONES, type TimezoneConfig } from "@/lib/timezones";
+import { getTodayHref } from "@/lib/todaySelection";
 import type { LiveMatchStatus } from "@/lib/liveMatchData";
 import type { GoalScorerEvent } from "@/lib/worldcup26Provider";
 
@@ -48,7 +49,7 @@ export function TimezoneSchedulePageContent({
   ];
 
   const related = [
-    { href: "/today", label: t("nav_today") },
+    { href: getTodayHref(z.iana), label: t("nav_today") },
     { href: "/schedule", label: t("hub_fullSchedule") },
     { href: "/groups", label: t("nav_groups") },
     { href: "/teams", label: t("nav_teams") },

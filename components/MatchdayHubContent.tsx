@@ -3,7 +3,9 @@
 import Link from "next/link";
 import { Flag } from "@/components/Flag";
 import { useLang } from "@/components/LanguageProvider";
+import { useTimezone } from "@/components/TimezoneProvider";
 import { TIMEZONES } from "@/lib/timezones";
+import { getTodayHref } from "@/lib/todaySelection";
 
 type LinkItem = { href: string; label: string; note?: string; icon?: string; flag?: string };
 
@@ -51,6 +53,9 @@ function CardGrid({ items }: { items: LinkItem[] }) {
 
 export function MatchdayHubContent() {
   const { t } = useLang();
+  const { timeZone } = useTimezone();
+  const tz = timeZone || "UTC";
+  const todayHref = getTodayHref(tz);
 
   // The 7 direct timezone schedule cards (the redundant "all local times" card was removed —
   // these cards already cover that purpose and the full page lives at /world-cup-schedule-local-time).
@@ -110,7 +115,7 @@ export function MatchdayHubContent() {
   ];
 
   const coreLinks: LinkItem[] = [
-    { href: "/today", label: t("sec_todayMatches"), icon: "⚽" },
+    { href: todayHref, label: t("sec_todayMatches"), icon: "⚽" },
     { href: "/schedule", label: t("hub_fullSchedule"), icon: "📅" },
     { href: "/groups", label: t("nav_groups"), icon: "🧩" },
     { href: "/teams", label: t("nav_teams"), icon: "👥" },

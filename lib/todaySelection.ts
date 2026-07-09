@@ -1,6 +1,51 @@
 import { DEFAULT_TIMEZONE, isValidTimeZone } from "./timezone";
 import { getParticipantDisplay } from "./participant-resolution";
 import { MATCHES, matchUtcDate, ARCHIVE_DEFAULT_DATE, type DisplayMatchday, type Match } from "./matches";
+import { COMPLETED_GROUP_RESULTS, COMPLETED_KNOCKOUT_RESULTS } from "./canonicalMatchResults";
+
+export function getDefaultTodayDateForArchive(timeZone: string, matches: Match[] = MATCHES): string {
+  let latestMs = 0;
+  let latestMatch = matches[0];
+  for (const m of matches) {
+    const pId = m.providerIds?.footballData;
+    const num = 'matchNumber' in m ? m.matchNumber : null;
+    const isCompleted = (pId && COMPLETED_GROUP_RESULTS[pId]) || (num !== null && COMPLETED_KNOCKOUT_RESULTS[num]);
+    if (isCompleted) {
+      const ms = matchUtcDate(m).getTime();
+      if (ms > latestMs) {
+        latestMs = ms;
+        latestMatch = m;
+      }
+    }
+  }
+  if (!latestMatch) return getMatchCalendarDateInZone(matchUtcDate(matches[0]), timeZone);
+  return getMatchCalendarDateInZone(matchUtcDate(latestMatch), timeZone);
+}
+
+export function getTodayHref(timeZone: string, now: Date = new Date()): string {
+  const localDate = getMatchCalendarDateInZone(now, timeZone);
+  const matchdayDates = getMatchdayDates(MATCHES, timeZone); // already sorted
+
+  let targetDate = matchdayDates[matchdayDates.length - 1]; // fallback
+
+  if (matchdayDates.includes(localDate)) {
+    targetDate = localDate;
+  } else {
+    // next matchday after local date
+    const next = matchdayDates.find(d => d > localDate);
+    if (next) {
+      targetDate = next;
+    } else {
+      // latest matchday before local date
+      const prev = [...matchdayDates].reverse().find(d => d < localDate);
+      if (prev) {
+        targetDate = prev;
+      }
+    }
+  }
+
+  return `/today?date=${targetDate}&tz=${encodeURIComponent(timeZone)}`;
+}
 
 export type SelectedTodayMatchday = {
   date: string;

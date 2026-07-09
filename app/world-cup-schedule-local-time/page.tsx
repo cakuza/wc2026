@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { TIMEZONES } from "@/lib/timezones";
 import { MATCHES } from "@/lib/matches";
+import { getTodayHref } from "@/lib/todaySelection";
+import { DEFAULT_TIMEZONE } from "@/lib/timezone";
 
 const BASE_URL = "https://www.worldcupmatchday.com";
 
@@ -75,7 +77,7 @@ export default function LocalTimeHubPage() {
       {/* Core links */}
       <div className="mt-8 flex flex-wrap gap-3 text-sm">
         {[
-          { href: "/today", label: "Today" },
+          { href: getTodayHref(DEFAULT_TIMEZONE), label: "Today" },
           { href: "/schedule", label: "Full Schedule" },
           { href: "/groups", label: "Groups" },
           { href: "/teams", label: "Teams" },

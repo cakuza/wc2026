@@ -2,6 +2,8 @@
 
 import Link from "next/link";
 import { useLang } from "@/components/LanguageProvider";
+import { useTimezone } from "@/components/TimezoneProvider";
+import { getTodayHref } from "@/lib/todaySelection";
 import type { TournamentStats, TeamLeaderboards, PlayerGoalStat } from "@/lib/tournamentStats";
 import type { StandingRow } from "@/lib/groupStandings";
 
@@ -15,6 +17,9 @@ interface Props {
 
 export default function StatsContent({ tournamentStats, teamLeaderboards, standings, topScorers, hasEventData }: Props) {
   const { t, country } = useLang();
+  const { timeZone } = useTimezone();
+  const tz = timeZone || "UTC";
+  const todayHref = getTodayHref(tz);
 
   const ALL_TIME_RECORDS = [
     { key: "stats_most_titles",      value: "5",                                    detail: country("brazil"),             sub: "1958, 1962, 1970, 1994, 2002",  icon: "🏆" },
@@ -80,7 +85,7 @@ export default function StatsContent({ tournamentStats, teamLeaderboards, standi
             { href: "/schedule", label: "Schedule" },
             { href: "/groups", label: "Groups" },
             { href: "/world-cup-third-place-qualification", label: "Third-place ranking" },
-            { href: "/today", label: "Today" },
+            { href: todayHref, label: "Today" },
           ].map((l) => (
             <Link
               key={l.href}

@@ -7,7 +7,9 @@ import { Flag } from "@/components/Flag";
 import { KickoffDateTime } from "@/components/MatchTime";
 import { FreshnessLabel } from "@/components/FreshnessLabel";
 import { useLang } from "@/components/LanguageProvider";
+import { useTimezone } from "@/components/TimezoneProvider";
 import { MATCHES, matchSlug, matchUtcDate, type Match } from "@/lib/matches";
+import { getTodayHref } from "@/lib/todaySelection";
 import type { MatchEvents } from "@/lib/matchEvents";
 import type { LiveMatchData, LiveMatchEvent } from "@/lib/liveMatchData";
 import type { StandingRow } from "@/lib/groupStandings";
@@ -43,7 +45,7 @@ interface Props {
 
 type DisplayStatus = "upcoming" | "live" | "halftime" | "finished" | "syncing";
 
-function toLiveGoalEvent(event: GoalScorerEvent): LiveMatchEvent {
+function toLiveGoalEvent(event: any): LiveMatchEvent {
   return {
     type: event.isOwnGoal ? "OWN_GOAL" : event.isPenalty || event.type === "PENALTY_GOAL" ? "PENALTY_GOAL" : "GOAL",
     minute: event.minute,
@@ -53,6 +55,7 @@ function toLiveGoalEvent(event: GoalScorerEvent): LiveMatchEvent {
     playerTeamName: event.playerTeamName,
     playerName: event.playerName,
     isOwnGoal: event.isOwnGoal,
+    assistName: event.assistName,
   };
 }
 
@@ -163,6 +166,9 @@ export function MatchDetail({
   resolvedParticipants,
 }: Props) {
   const { t, country, formatDate } = useLang();
+  const { timeZone } = useTimezone();
+  const tz = timeZone || "UTC";
+  const todayHref = getTodayHref(tz);
   void events;
 
   const liveState = {
@@ -259,17 +265,49 @@ export function MatchDetail({
   const nowMs = Date.now();
   const isOldCompletedMatch = !isMatchInReconciliationWindow(liveState.status, matchTime, nowMs);
   const missingGoalText = missingScorerDetailText(goalCompleteness.missingGoalEventCount, isOldCompletedMatch);
+
+  const homeEnglish = homeKey ? countryName(homeKey, "en") : homeName;
+  const awayEnglish = awayKey ? countryName(awayKey, "en") : awayName;
+
+  const staticGoalEvents: LiveMatchEvent[] = (events?.goals || []).map(g => ({
+    type: g.type === "PENALTY" ? "PENALTY_GOAL" : g.type,
+    minute: g.minute,
+    stoppageTime: g.injuryTime,
+    minuteLabel: `${g.minute}${g.injuryTime ? `+${g.injuryTime}` : ""}'`,
+    teamName: g.team === match.homeKey ? homeEnglish : awayEnglish,
+    playerName: g.scorer,
+    assistName: g.assist,
+    isOwnGoal: g.type === "OWN_GOAL",
+  }));
+  const goalEventsSource = staticGoalEvents.length > 0
+    ? staticGoalEvents
+    : (live?.goals && live.goals.length > 0 ? live.goals : liveState.scorers);
+
   // Scorer events carry English provider team names regardless of UI
   // language, so match against English names rather than the localized
   // display names used elsewhere on the page.
   const { confirmedEvents: confirmedGoals } = reconcileGoalEvents({
     homeScore,
     awayScore,
-    homeTeamName: homeKey ? countryName(homeKey, "en") : homeName,
-    awayTeamName: awayKey ? countryName(awayKey, "en") : awayName,
-    events: liveState.scorers,
+    homeTeamName: homeEnglish,
+    awayTeamName: awayEnglish,
+    events: goalEventsSource as any[],
   });
   const scorers = buildScorerSentence(confirmedGoals.map(toLiveGoalEvent), homeName, awayName, goalCompleteness);
+
+  const staticCards = (events?.cards || []).map(c => ({
+    minute: c.minute,
+    type: c.type === "YELLOW" ? "YELLOW_CARD" : "RED_CARD",
+    playerName: c.player,
+  }));
+  const cardsSource = staticCards.length > 0 ? staticCards : (live?.bookings || []);
+
+  const staticSubs = (events?.substitutions || []).map(s => ({
+    minute: s.minute,
+    playerName: s.playerIn,
+    detail: s.playerOut,
+  }));
+  const subsSource = staticSubs.length > 0 ? staticSubs : (live?.substitutions || []);
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-8">
@@ -488,6 +526,9 @@ export function MatchDetail({
                         {g.minuteLabel ?? (g.minute != null ? `${g.minute}'` : "—")}
                       </span>
                       <span className="font-semibold text-white">{g.playerName ?? "Scorer pending"}</span>
+                      {g.assistName && (
+                        <span className="text-xs text-white/50"> (ast: {g.assistName})</span>
+                      )}
                       {g.isOwnGoal && (
                         <span className="text-xs text-red-400">(OG)</span>
                       )}
@@ -507,11 +548,11 @@ export function MatchDetail({
               )}
             </EventSection>
 
-            {/* Cards — only shown when the provider actually returned booking data */}
-            {live?.eventDataAvailable && live.bookings && live.bookings.length > 0 && (
-              <EventSection title={t("match_bookings")} icon="🟨">
+            {/* Cards */}
+            <EventSection title={t("match_bookings")} icon="🟨">
+              {cardsSource.length > 0 ? (
                 <ul className="space-y-2">
-                  {live.bookings.map((b, i) => (
+                  {cardsSource.map((b, i) => (
                     <li key={i} className="flex items-center gap-3 text-sm">
                       <span className="w-8 shrink-0 text-right font-heading font-bold tabular-nums text-white/50">
                         {b.minute != null ? `${b.minute}'` : "—"}
@@ -526,14 +567,16 @@ export function MatchDetail({
                     </li>
                   ))}
                 </ul>
-              </EventSection>
-            )}
+              ) : (
+                <EmptyEvents note={t("match_noEvents")} />
+              )}
+            </EventSection>
 
-            {/* Substitutions — only shown when the provider actually returned substitution data */}
-            {live?.eventDataAvailable && live.substitutions && live.substitutions.length > 0 && (
-              <EventSection title={t("match_subs")} icon="🔄">
+            {/* Substitutions */}
+            <EventSection title={t("match_subs")} icon="🔄">
+              {subsSource.length > 0 ? (
                 <ul className="space-y-2">
-                  {live.substitutions.map((s, i) => (
+                  {subsSource.map((s, i) => (
                     <li key={i} className="flex items-center gap-3 text-sm">
                       <span className="w-8 shrink-0 text-right font-heading font-bold tabular-nums text-white/50">
                         {s.minute != null ? `${s.minute}'` : "—"}
@@ -546,8 +589,10 @@ export function MatchDetail({
                     </li>
                   ))}
                 </ul>
-              </EventSection>
-            )}
+              ) : (
+                <EmptyEvents note={t("match_noEvents")} />
+              )}
+            </EventSection>
           </>
         )}
       </div>
@@ -613,7 +658,7 @@ export function MatchDetail({
               ] : [
                 { href: "/bracket", label: "View knockout bracket" },
               ]),
-              { href: "/today", label: "See today's matches" },
+              { href: todayHref, label: "See today's matches" },
               { href: "/stats", label: "See tournament stats" },
             ].map((l) => (
               <Link
