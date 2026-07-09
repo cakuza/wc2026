@@ -1,0 +1,1042 @@
+[
+  {
+    "internalMatchId": "mexico-vs-south-africa-jun11",
+    "date": "2026-06-11",
+    "home": "mexico",
+    "away": "southAfrica",
+    "stage": "Group",
+    "espnEventId": "760415",
+    "mappingConfidence": "exact",
+    "mappingBasis": "date/team exact"
+  },
+  {
+    "internalMatchId": "south-korea-vs-czechia-jun11",
+    "date": "2026-06-11",
+    "home": "southKorea",
+    "away": "czechia",
+    "stage": "Group",
+    "espnEventId": "760414",
+    "mappingConfidence": "likely",
+    "mappingBasis": "team exact, date offset"
+  },
+  {
+    "internalMatchId": "czechia-vs-south-africa-jun18",
+    "date": "2026-06-18",
+    "home": "czechia",
+    "away": "southAfrica",
+    "stage": "Group",
+    "espnEventId": "760438",
+    "mappingConfidence": "exact",
+    "mappingBasis": "date/team exact"
+  },
+  {
+    "internalMatchId": "mexico-vs-south-korea-jun18",
+    "date": "2026-06-18",
+    "home": "mexico",
+    "away": "southKorea",
+    "stage": "Group",
+    "espnEventId": "760441",
+    "mappingConfidence": "likely",
+    "mappingBasis": "team exact, date offset"
+  },
+  {
+    "internalMatchId": "czechia-vs-mexico-jun24",
+    "date": "2026-06-24",
+    "home": "czechia",
+    "away": "mexico",
+    "stage": "Group",
+    "espnEventId": "760467",
+    "mappingConfidence": "likely",
+    "mappingBasis": "team exact, date offset"
+  },
+  {
+    "internalMatchId": "south-africa-vs-south-korea-jun24",
+    "date": "2026-06-24",
+    "home": "southAfrica",
+    "away": "southKorea",
+    "stage": "Group",
+    "espnEventId": "760466",
+    "mappingConfidence": "likely",
+    "mappingBasis": "team exact, date offset"
+  },
+  {
+    "internalMatchId": "canada-vs-bosnia-jun12",
+    "date": "2026-06-12",
+    "home": "canada",
+    "away": "bosnia",
+    "stage": "Group",
+    "espnEventId": "760416",
+    "mappingConfidence": "exact",
+    "mappingBasis": "date/team exact"
+  },
+  {
+    "internalMatchId": "qatar-vs-switzerland-jun13",
+    "date": "2026-06-13",
+    "home": "qatar",
+    "away": "switzerland",
+    "stage": "Group",
+    "espnEventId": "760420",
+    "mappingConfidence": "exact",
+    "mappingBasis": "date/team exact"
+  },
+  {
+    "internalMatchId": "switzerland-vs-bosnia-jun18",
+    "date": "2026-06-18",
+    "home": "switzerland",
+    "away": "bosnia",
+    "stage": "Group",
+    "espnEventId": "760439",
+    "mappingConfidence": "exact",
+    "mappingBasis": "date/team exact"
+  },
+  {
+    "internalMatchId": "canada-vs-qatar-jun18",
+    "date": "2026-06-18",
+    "home": "canada",
+    "away": "qatar",
+    "stage": "Group",
+    "espnEventId": "760440",
+    "mappingConfidence": "exact",
+    "mappingBasis": "date/team exact"
+  },
+  {
+    "internalMatchId": "switzerland-vs-canada-jun24",
+    "date": "2026-06-24",
+    "home": "switzerland",
+    "away": "canada",
+    "stage": "Group",
+    "espnEventId": "760463",
+    "mappingConfidence": "exact",
+    "mappingBasis": "date/team exact"
+  },
+  {
+    "internalMatchId": "bosnia-vs-qatar-jun24",
+    "date": "2026-06-24",
+    "home": "bosnia",
+    "away": "qatar",
+    "stage": "Group",
+    "espnEventId": "760462",
+    "mappingConfidence": "exact",
+    "mappingBasis": "date/team exact"
+  },
+  {
+    "internalMatchId": "brazil-vs-morocco-jun13",
+    "date": "2026-06-13",
+    "home": "brazil",
+    "away": "morocco",
+    "stage": "Group",
+    "espnEventId": "760419",
+    "mappingConfidence": "exact",
+    "mappingBasis": "date/team exact"
+  },
+  {
+    "internalMatchId": "haiti-vs-scotland-jun13",
+    "date": "2026-06-13",
+    "home": "haiti",
+    "away": "scotland",
+    "stage": "Group",
+    "espnEventId": "760418",
+    "mappingConfidence": "likely",
+    "mappingBasis": "team exact, date offset"
+  },
+  {
+    "internalMatchId": "scotland-vs-morocco-jun19",
+    "date": "2026-06-19",
+    "home": "scotland",
+    "away": "morocco",
+    "stage": "Group",
+    "espnEventId": "760445",
+    "mappingConfidence": "exact",
+    "mappingBasis": "date/team exact"
+  },
+  {
+    "internalMatchId": "brazil-vs-haiti-jun19",
+    "date": "2026-06-19",
+    "home": "brazil",
+    "away": "haiti",
+    "stage": "Group",
+    "espnEventId": "760444",
+    "mappingConfidence": "likely",
+    "mappingBasis": "team exact, date offset"
+  },
+  {
+    "internalMatchId": "scotland-vs-brazil-jun24",
+    "date": "2026-06-24",
+    "home": "scotland",
+    "away": "brazil",
+    "stage": "Group",
+    "espnEventId": "760465",
+    "mappingConfidence": "exact",
+    "mappingBasis": "date/team exact"
+  },
+  {
+    "internalMatchId": "morocco-vs-haiti-jun24",
+    "date": "2026-06-24",
+    "home": "morocco",
+    "away": "haiti",
+    "stage": "Group",
+    "espnEventId": "760464",
+    "mappingConfidence": "exact",
+    "mappingBasis": "date/team exact"
+  },
+  {
+    "internalMatchId": "united-states-vs-paraguay-jun12",
+    "date": "2026-06-12",
+    "home": "unitedStates",
+    "away": "paraguay",
+    "stage": "Group",
+    "espnEventId": "760417",
+    "mappingConfidence": "likely",
+    "mappingBasis": "team exact, date offset"
+  },
+  {
+    "internalMatchId": "australia-vs-turkey-jun13",
+    "date": "2026-06-13",
+    "home": "australia",
+    "away": "turkey",
+    "stage": "Group",
+    "espnEventId": "760421",
+    "mappingConfidence": "likely",
+    "mappingBasis": "team exact, date offset"
+  },
+  {
+    "internalMatchId": "united-states-vs-australia-jun19",
+    "date": "2026-06-19",
+    "home": "unitedStates",
+    "away": "australia",
+    "stage": "Group",
+    "espnEventId": "760442",
+    "mappingConfidence": "exact",
+    "mappingBasis": "date/team exact"
+  },
+  {
+    "internalMatchId": "turkey-vs-paraguay-jun19",
+    "date": "2026-06-19",
+    "home": "turkey",
+    "away": "paraguay",
+    "stage": "Group",
+    "espnEventId": "760443",
+    "mappingConfidence": "likely",
+    "mappingBasis": "team exact, date offset"
+  },
+  {
+    "internalMatchId": "turkey-vs-united-states-jun25",
+    "date": "2026-06-25",
+    "home": "turkey",
+    "away": "unitedStates",
+    "stage": "Group",
+    "espnEventId": "760470",
+    "mappingConfidence": "likely",
+    "mappingBasis": "team exact, date offset"
+  },
+  {
+    "internalMatchId": "paraguay-vs-australia-jun25",
+    "date": "2026-06-25",
+    "home": "paraguay",
+    "away": "australia",
+    "stage": "Group",
+    "espnEventId": "760469",
+    "mappingConfidence": "likely",
+    "mappingBasis": "team exact, date offset"
+  },
+  {
+    "internalMatchId": "germany-vs-curacao-jun14",
+    "date": "2026-06-14",
+    "home": "germany",
+    "away": "curacao",
+    "stage": "Group",
+    "espnEventId": "760422",
+    "mappingConfidence": "exact",
+    "mappingBasis": "date/team exact"
+  },
+  {
+    "internalMatchId": "ivory-coast-vs-ecuador-jun14",
+    "date": "2026-06-14",
+    "home": "ivoryCoast",
+    "away": "ecuador",
+    "stage": "Group",
+    "espnEventId": "760423",
+    "mappingConfidence": "exact",
+    "mappingBasis": "date/team exact"
+  },
+  {
+    "internalMatchId": "germany-vs-ivory-coast-jun20",
+    "date": "2026-06-20",
+    "home": "germany",
+    "away": "ivoryCoast",
+    "stage": "Group",
+    "espnEventId": "760448",
+    "mappingConfidence": "exact",
+    "mappingBasis": "date/team exact"
+  },
+  {
+    "internalMatchId": "ecuador-vs-curacao-jun20",
+    "date": "2026-06-20",
+    "home": "ecuador",
+    "away": "curacao",
+    "stage": "Group",
+    "espnEventId": "760446",
+    "mappingConfidence": "likely",
+    "mappingBasis": "team exact, date offset"
+  },
+  {
+    "internalMatchId": "curacao-vs-ivory-coast-jun25",
+    "date": "2026-06-25",
+    "home": "curacao",
+    "away": "ivoryCoast",
+    "stage": "Group",
+    "espnEventId": "760473",
+    "mappingConfidence": "exact",
+    "mappingBasis": "date/team exact"
+  },
+  {
+    "internalMatchId": "ecuador-vs-germany-jun25",
+    "date": "2026-06-25",
+    "home": "ecuador",
+    "away": "germany",
+    "stage": "Group",
+    "espnEventId": "760468",
+    "mappingConfidence": "exact",
+    "mappingBasis": "date/team exact"
+  },
+  {
+    "internalMatchId": "netherlands-vs-japan-jun14",
+    "date": "2026-06-14",
+    "home": "netherlands",
+    "away": "japan",
+    "stage": "Group",
+    "espnEventId": "760425",
+    "mappingConfidence": "exact",
+    "mappingBasis": "date/team exact"
+  },
+  {
+    "internalMatchId": "sweden-vs-tunisia-jun14",
+    "date": "2026-06-14",
+    "home": "sweden",
+    "away": "tunisia",
+    "stage": "Group",
+    "espnEventId": "760424",
+    "mappingConfidence": "likely",
+    "mappingBasis": "team exact, date offset"
+  },
+  {
+    "internalMatchId": "netherlands-vs-sweden-jun20",
+    "date": "2026-06-20",
+    "home": "netherlands",
+    "away": "sweden",
+    "stage": "Group",
+    "espnEventId": "760447",
+    "mappingConfidence": "exact",
+    "mappingBasis": "date/team exact"
+  },
+  {
+    "internalMatchId": "tunisia-vs-japan-jun20",
+    "date": "2026-06-20",
+    "home": "tunisia",
+    "away": "japan",
+    "stage": "Group",
+    "espnEventId": "760449",
+    "mappingConfidence": "likely",
+    "mappingBasis": "team exact, date offset"
+  },
+  {
+    "internalMatchId": "japan-vs-sweden-jun25",
+    "date": "2026-06-25",
+    "home": "japan",
+    "away": "sweden",
+    "stage": "Group",
+    "espnEventId": "760471",
+    "mappingConfidence": "exact",
+    "mappingBasis": "date/team exact"
+  },
+  {
+    "internalMatchId": "tunisia-vs-netherlands-jun25",
+    "date": "2026-06-25",
+    "home": "tunisia",
+    "away": "netherlands",
+    "stage": "Group",
+    "espnEventId": "760472",
+    "mappingConfidence": "exact",
+    "mappingBasis": "date/team exact"
+  },
+  {
+    "internalMatchId": "belgium-vs-egypt-jun15",
+    "date": "2026-06-15",
+    "home": "belgium",
+    "away": "egypt",
+    "stage": "Group",
+    "espnEventId": "760426",
+    "mappingConfidence": "exact",
+    "mappingBasis": "date/team exact"
+  },
+  {
+    "internalMatchId": "iran-vs-new-zealand-jun15",
+    "date": "2026-06-15",
+    "home": "iran",
+    "away": "newZealand",
+    "stage": "Group",
+    "espnEventId": "760427",
+    "mappingConfidence": "likely",
+    "mappingBasis": "team exact, date offset"
+  },
+  {
+    "internalMatchId": "belgium-vs-iran-jun21",
+    "date": "2026-06-21",
+    "home": "belgium",
+    "away": "iran",
+    "stage": "Group",
+    "espnEventId": "760451",
+    "mappingConfidence": "exact",
+    "mappingBasis": "date/team exact"
+  },
+  {
+    "internalMatchId": "new-zealand-vs-egypt-jun21",
+    "date": "2026-06-21",
+    "home": "newZealand",
+    "away": "egypt",
+    "stage": "Group",
+    "espnEventId": "760452",
+    "mappingConfidence": "likely",
+    "mappingBasis": "team exact, date offset"
+  },
+  {
+    "internalMatchId": "egypt-vs-iran-jun26",
+    "date": "2026-06-26",
+    "home": "egypt",
+    "away": "iran",
+    "stage": "Group",
+    "espnEventId": "760476",
+    "mappingConfidence": "likely",
+    "mappingBasis": "team exact, date offset"
+  },
+  {
+    "internalMatchId": "new-zealand-vs-belgium-jun26",
+    "date": "2026-06-26",
+    "home": "newZealand",
+    "away": "belgium",
+    "stage": "Group",
+    "espnEventId": "760477",
+    "mappingConfidence": "likely",
+    "mappingBasis": "team exact, date offset"
+  },
+  {
+    "internalMatchId": "saudi-arabia-vs-uruguay-jun15",
+    "date": "2026-06-15",
+    "home": "saudiArabia",
+    "away": "uruguay",
+    "stage": "Group",
+    "espnEventId": "760429",
+    "mappingConfidence": "exact",
+    "mappingBasis": "date/team exact"
+  },
+  {
+    "internalMatchId": "spain-vs-cape-verde-jun15",
+    "date": "2026-06-15",
+    "home": "spain",
+    "away": "capeVerde",
+    "stage": "Group",
+    "espnEventId": "760428",
+    "mappingConfidence": "exact",
+    "mappingBasis": "date/team exact"
+  },
+  {
+    "internalMatchId": "spain-vs-saudi-arabia-jun21",
+    "date": "2026-06-21",
+    "home": "spain",
+    "away": "saudiArabia",
+    "stage": "Group",
+    "espnEventId": "760453",
+    "mappingConfidence": "exact",
+    "mappingBasis": "date/team exact"
+  },
+  {
+    "internalMatchId": "uruguay-vs-cape-verde-jun21",
+    "date": "2026-06-21",
+    "home": "uruguay",
+    "away": "capeVerde",
+    "stage": "Group",
+    "espnEventId": "760450",
+    "mappingConfidence": "exact",
+    "mappingBasis": "date/team exact"
+  },
+  {
+    "internalMatchId": "cape-verde-vs-saudi-arabia-jun26",
+    "date": "2026-06-26",
+    "home": "capeVerde",
+    "away": "saudiArabia",
+    "stage": "Group",
+    "espnEventId": "760478",
+    "mappingConfidence": "likely",
+    "mappingBasis": "team exact, date offset"
+  },
+  {
+    "internalMatchId": "uruguay-vs-spain-jun26",
+    "date": "2026-06-26",
+    "home": "uruguay",
+    "away": "spain",
+    "stage": "Group",
+    "espnEventId": "760479",
+    "mappingConfidence": "likely",
+    "mappingBasis": "team exact, date offset"
+  },
+  {
+    "internalMatchId": "france-vs-senegal-jun16",
+    "date": "2026-06-16",
+    "home": "france",
+    "away": "senegal",
+    "stage": "Group",
+    "espnEventId": "760432",
+    "mappingConfidence": "exact",
+    "mappingBasis": "date/team exact"
+  },
+  {
+    "internalMatchId": "iraq-vs-norway-jun16",
+    "date": "2026-06-16",
+    "home": "iraq",
+    "away": "norway",
+    "stage": "Group",
+    "espnEventId": "760430",
+    "mappingConfidence": "exact",
+    "mappingBasis": "date/team exact"
+  },
+  {
+    "internalMatchId": "france-vs-iraq-jun22",
+    "date": "2026-06-22",
+    "home": "france",
+    "away": "iraq",
+    "stage": "Group",
+    "espnEventId": "760457",
+    "mappingConfidence": "exact",
+    "mappingBasis": "date/team exact"
+  },
+  {
+    "internalMatchId": "norway-vs-senegal-jun22",
+    "date": "2026-06-22",
+    "home": "norway",
+    "away": "senegal",
+    "stage": "Group",
+    "espnEventId": "760454",
+    "mappingConfidence": "likely",
+    "mappingBasis": "team exact, date offset"
+  },
+  {
+    "internalMatchId": "norway-vs-france-jun26",
+    "date": "2026-06-26",
+    "home": "norway",
+    "away": "france",
+    "stage": "Group",
+    "espnEventId": "760475",
+    "mappingConfidence": "exact",
+    "mappingBasis": "date/team exact"
+  },
+  {
+    "internalMatchId": "senegal-vs-iraq-jun26",
+    "date": "2026-06-26",
+    "home": "senegal",
+    "away": "iraq",
+    "stage": "Group",
+    "espnEventId": "760474",
+    "mappingConfidence": "exact",
+    "mappingBasis": "date/team exact"
+  },
+  {
+    "internalMatchId": "argentina-vs-algeria-jun16",
+    "date": "2026-06-16",
+    "home": "argentina",
+    "away": "algeria",
+    "stage": "Group",
+    "espnEventId": "760433",
+    "mappingConfidence": "likely",
+    "mappingBasis": "team exact, date offset"
+  },
+  {
+    "internalMatchId": "austria-vs-jordan-jun16",
+    "date": "2026-06-16",
+    "home": "austria",
+    "away": "jordan",
+    "stage": "Group",
+    "espnEventId": "760431",
+    "mappingConfidence": "likely",
+    "mappingBasis": "team exact, date offset"
+  },
+  {
+    "internalMatchId": "argentina-vs-austria-jun22",
+    "date": "2026-06-22",
+    "home": "argentina",
+    "away": "austria",
+    "stage": "Group",
+    "espnEventId": "760456",
+    "mappingConfidence": "exact",
+    "mappingBasis": "date/team exact"
+  },
+  {
+    "internalMatchId": "jordan-vs-algeria-jun22",
+    "date": "2026-06-22",
+    "home": "jordan",
+    "away": "algeria",
+    "stage": "Group",
+    "espnEventId": "760455",
+    "mappingConfidence": "likely",
+    "mappingBasis": "team exact, date offset"
+  },
+  {
+    "internalMatchId": "algeria-vs-austria-jun27",
+    "date": "2026-06-27",
+    "home": "algeria",
+    "away": "austria",
+    "stage": "Group",
+    "espnEventId": "760484",
+    "mappingConfidence": "likely",
+    "mappingBasis": "team exact, date offset"
+  },
+  {
+    "internalMatchId": "jordan-vs-argentina-jun27",
+    "date": "2026-06-27",
+    "home": "jordan",
+    "away": "argentina",
+    "stage": "Group",
+    "espnEventId": "760483",
+    "mappingConfidence": "likely",
+    "mappingBasis": "team exact, date offset"
+  },
+  {
+    "internalMatchId": "portugal-vs-dr-congo-jun17",
+    "date": "2026-06-17",
+    "home": "portugal",
+    "away": "drCongo",
+    "stage": "Group",
+    "espnEventId": "760435",
+    "mappingConfidence": "exact",
+    "mappingBasis": "date/team exact"
+  },
+  {
+    "internalMatchId": "uzbekistan-vs-colombia-jun17",
+    "date": "2026-06-17",
+    "home": "uzbekistan",
+    "away": "colombia",
+    "stage": "Group",
+    "espnEventId": "760436",
+    "mappingConfidence": "likely",
+    "mappingBasis": "team exact, date offset"
+  },
+  {
+    "internalMatchId": "portugal-vs-uzbekistan-jun23",
+    "date": "2026-06-23",
+    "home": "portugal",
+    "away": "uzbekistan",
+    "stage": "Group",
+    "espnEventId": "760461",
+    "mappingConfidence": "exact",
+    "mappingBasis": "date/team exact"
+  },
+  {
+    "internalMatchId": "colombia-vs-dr-congo-jun23",
+    "date": "2026-06-23",
+    "home": "colombia",
+    "away": "drCongo",
+    "stage": "Group",
+    "espnEventId": "760459",
+    "mappingConfidence": "likely",
+    "mappingBasis": "team exact, date offset"
+  },
+  {
+    "internalMatchId": "colombia-vs-portugal-jun27",
+    "date": "2026-06-27",
+    "home": "colombia",
+    "away": "portugal",
+    "stage": "Group",
+    "espnEventId": "760481",
+    "mappingConfidence": "exact",
+    "mappingBasis": "date/team exact"
+  },
+  {
+    "internalMatchId": "dr-congo-vs-uzbekistan-jun27",
+    "date": "2026-06-27",
+    "home": "drCongo",
+    "away": "uzbekistan",
+    "stage": "Group",
+    "espnEventId": "760482",
+    "mappingConfidence": "exact",
+    "mappingBasis": "date/team exact"
+  },
+  {
+    "internalMatchId": "england-vs-croatia-jun17",
+    "date": "2026-06-17",
+    "home": "england",
+    "away": "croatia",
+    "stage": "Group",
+    "espnEventId": "760437",
+    "mappingConfidence": "exact",
+    "mappingBasis": "date/team exact"
+  },
+  {
+    "internalMatchId": "ghana-vs-panama-jun17",
+    "date": "2026-06-17",
+    "home": "ghana",
+    "away": "panama",
+    "stage": "Group",
+    "espnEventId": "760434",
+    "mappingConfidence": "exact",
+    "mappingBasis": "date/team exact"
+  },
+  {
+    "internalMatchId": "england-vs-ghana-jun23",
+    "date": "2026-06-23",
+    "home": "england",
+    "away": "ghana",
+    "stage": "Group",
+    "espnEventId": "760458",
+    "mappingConfidence": "exact",
+    "mappingBasis": "date/team exact"
+  },
+  {
+    "internalMatchId": "panama-vs-croatia-jun23",
+    "date": "2026-06-23",
+    "home": "panama",
+    "away": "croatia",
+    "stage": "Group",
+    "espnEventId": "760460",
+    "mappingConfidence": "exact",
+    "mappingBasis": "date/team exact"
+  },
+  {
+    "internalMatchId": "panama-vs-england-jun27",
+    "date": "2026-06-27",
+    "home": "panama",
+    "away": "england",
+    "stage": "Group",
+    "espnEventId": "760485",
+    "mappingConfidence": "exact",
+    "mappingBasis": "date/team exact"
+  },
+  {
+    "internalMatchId": "croatia-vs-ghana-jun27",
+    "date": "2026-06-27",
+    "home": "croatia",
+    "away": "ghana",
+    "stage": "Group",
+    "espnEventId": "760480",
+    "mappingConfidence": "exact",
+    "mappingBasis": "date/team exact"
+  },
+  {
+    "internalMatchId": "match-73",
+    "date": "2026-06-28",
+    "home": "tbd",
+    "away": "tbd",
+    "stage": "Knockout",
+    "espnEventId": "760486",
+    "mappingConfidence": "exact",
+    "mappingBasis": "date/team exact"
+  },
+  {
+    "internalMatchId": "match-74",
+    "date": "2026-06-29",
+    "home": "tbd",
+    "away": "tbd",
+    "stage": "Knockout",
+    "espnEventId": "760489",
+    "mappingConfidence": "exact",
+    "mappingBasis": "date/team exact"
+  },
+  {
+    "internalMatchId": "match-75",
+    "date": "2026-06-29",
+    "home": "tbd",
+    "away": "tbd",
+    "stage": "Knockout",
+    "espnEventId": "760488",
+    "mappingConfidence": "likely",
+    "mappingBasis": "team exact, date offset"
+  },
+  {
+    "internalMatchId": "match-76",
+    "date": "2026-06-29",
+    "home": "tbd",
+    "away": "tbd",
+    "stage": "Knockout",
+    "espnEventId": "760487",
+    "mappingConfidence": "exact",
+    "mappingBasis": "date/team exact"
+  },
+  {
+    "internalMatchId": "match-77",
+    "date": "2026-06-30",
+    "home": "tbd",
+    "away": "tbd",
+    "stage": "Knockout",
+    "espnEventId": "760492",
+    "mappingConfidence": "exact",
+    "mappingBasis": "date/team exact"
+  },
+  {
+    "internalMatchId": "match-78",
+    "date": "2026-06-30",
+    "home": "tbd",
+    "away": "tbd",
+    "stage": "Knockout",
+    "espnEventId": "760490",
+    "mappingConfidence": "exact",
+    "mappingBasis": "date/team exact"
+  },
+  {
+    "internalMatchId": "match-79",
+    "date": "2026-06-30",
+    "home": "tbd",
+    "away": "tbd",
+    "stage": "Knockout",
+    "espnEventId": "760491",
+    "mappingConfidence": "likely",
+    "mappingBasis": "team exact, date offset"
+  },
+  {
+    "internalMatchId": "match-80",
+    "date": "2026-07-01",
+    "home": "tbd",
+    "away": "tbd",
+    "stage": "Knockout",
+    "espnEventId": "760495",
+    "mappingConfidence": "exact",
+    "mappingBasis": "date/team exact"
+  },
+  {
+    "internalMatchId": "match-81",
+    "date": "2026-07-01",
+    "home": "tbd",
+    "away": "tbd",
+    "stage": "Knockout",
+    "espnEventId": "760494",
+    "mappingConfidence": "likely",
+    "mappingBasis": "team exact, date offset"
+  },
+  {
+    "internalMatchId": "match-82",
+    "date": "2026-07-01",
+    "home": "tbd",
+    "away": "tbd",
+    "stage": "Knockout",
+    "espnEventId": "760493",
+    "mappingConfidence": "exact",
+    "mappingBasis": "date/team exact"
+  },
+  {
+    "internalMatchId": "match-83",
+    "date": "2026-07-02",
+    "home": "tbd",
+    "away": "tbd",
+    "stage": "Knockout",
+    "espnEventId": "760496",
+    "mappingConfidence": "exact",
+    "mappingBasis": "date/team exact"
+  },
+  {
+    "internalMatchId": "match-84",
+    "date": "2026-07-02",
+    "home": "tbd",
+    "away": "tbd",
+    "stage": "Knockout",
+    "espnEventId": "760497",
+    "mappingConfidence": "exact",
+    "mappingBasis": "date/team exact"
+  },
+  {
+    "internalMatchId": "match-85",
+    "date": "2026-07-02",
+    "home": "tbd",
+    "away": "tbd",
+    "stage": "Knockout",
+    "espnEventId": "760498",
+    "mappingConfidence": "likely",
+    "mappingBasis": "team exact, date offset"
+  },
+  {
+    "internalMatchId": "match-86",
+    "date": "2026-07-03",
+    "home": "tbd",
+    "away": "tbd",
+    "stage": "Knockout",
+    "espnEventId": "760500",
+    "mappingConfidence": "exact",
+    "mappingBasis": "date/team exact"
+  },
+  {
+    "internalMatchId": "match-87",
+    "date": "2026-07-03",
+    "home": "tbd",
+    "away": "tbd",
+    "stage": "Knockout",
+    "espnEventId": "760501",
+    "mappingConfidence": "likely",
+    "mappingBasis": "team exact, date offset"
+  },
+  {
+    "internalMatchId": "match-88",
+    "date": "2026-07-03",
+    "home": "tbd",
+    "away": "tbd",
+    "stage": "Knockout",
+    "espnEventId": "760499",
+    "mappingConfidence": "exact",
+    "mappingBasis": "date/team exact"
+  },
+  {
+    "internalMatchId": "match-89",
+    "date": "2026-07-04",
+    "home": "tbd",
+    "away": "tbd",
+    "stage": "Knockout",
+    "espnEventId": "760503",
+    "mappingConfidence": "exact",
+    "mappingBasis": "date/team exact"
+  },
+  {
+    "internalMatchId": "match-90",
+    "date": "2026-07-04",
+    "home": "tbd",
+    "away": "tbd",
+    "stage": "Knockout",
+    "espnEventId": "760502",
+    "mappingConfidence": "exact",
+    "mappingBasis": "date/team exact"
+  },
+  {
+    "internalMatchId": "match-91",
+    "date": "2026-07-05",
+    "home": "tbd",
+    "away": "tbd",
+    "stage": "Knockout",
+    "espnEventId": "760504",
+    "mappingConfidence": "exact",
+    "mappingBasis": "date/team exact"
+  },
+  {
+    "internalMatchId": "match-92",
+    "date": "2026-07-05",
+    "home": "tbd",
+    "away": "tbd",
+    "stage": "Knockout",
+    "espnEventId": "760505",
+    "mappingConfidence": "likely",
+    "mappingBasis": "team exact, date offset"
+  },
+  {
+    "internalMatchId": "match-93",
+    "date": "2026-07-06",
+    "home": "tbd",
+    "away": "tbd",
+    "stage": "Knockout",
+    "espnEventId": "760506",
+    "mappingConfidence": "exact",
+    "mappingBasis": "date/team exact"
+  },
+  {
+    "internalMatchId": "match-94",
+    "date": "2026-07-06",
+    "home": "tbd",
+    "away": "tbd",
+    "stage": "Knockout",
+    "espnEventId": "760507",
+    "mappingConfidence": "likely",
+    "mappingBasis": "team exact, date offset"
+  },
+  {
+    "internalMatchId": "match-95",
+    "date": "2026-07-07",
+    "home": "tbd",
+    "away": "tbd",
+    "stage": "Knockout",
+    "espnEventId": "760509",
+    "mappingConfidence": "exact",
+    "mappingBasis": "date/team exact"
+  },
+  {
+    "internalMatchId": "match-96",
+    "date": "2026-07-07",
+    "home": "tbd",
+    "away": "tbd",
+    "stage": "Knockout",
+    "espnEventId": "760508",
+    "mappingConfidence": "exact",
+    "mappingBasis": "date/team exact"
+  },
+  {
+    "internalMatchId": "match-97",
+    "date": "2026-07-09",
+    "home": "tbd",
+    "away": "tbd",
+    "stage": "Knockout",
+    "espnEventId": "760510",
+    "mappingConfidence": "exact",
+    "mappingBasis": "date/team exact"
+  },
+  {
+    "internalMatchId": "match-98",
+    "date": "2026-07-10",
+    "home": "tbd",
+    "away": "tbd",
+    "stage": "Knockout",
+    "espnEventId": "760511",
+    "mappingConfidence": "exact",
+    "mappingBasis": "date/team exact"
+  },
+  {
+    "internalMatchId": "match-99",
+    "date": "2026-07-11",
+    "home": "tbd",
+    "away": "tbd",
+    "stage": "Knockout",
+    "espnEventId": "760512",
+    "mappingConfidence": "exact",
+    "mappingBasis": "date/team exact"
+  },
+  {
+    "internalMatchId": "match-100",
+    "date": "2026-07-11",
+    "home": "tbd",
+    "away": "tbd",
+    "stage": "Knockout",
+    "espnEventId": "760513",
+    "mappingConfidence": "likely",
+    "mappingBasis": "team exact, date offset"
+  },
+  {
+    "internalMatchId": "match-101",
+    "date": "2026-07-14",
+    "home": "tbd",
+    "away": "tbd",
+    "stage": "Knockout",
+    "espnEventId": null,
+    "mappingConfidence": "unresolved",
+    "mappingBasis": "unresolved"
+  },
+  {
+    "internalMatchId": "match-102",
+    "date": "2026-07-15",
+    "home": "tbd",
+    "away": "tbd",
+    "stage": "Knockout",
+    "espnEventId": null,
+    "mappingConfidence": "unresolved",
+    "mappingBasis": "unresolved"
+  },
+  {
+    "internalMatchId": "match-103",
+    "date": "2026-07-18",
+    "home": "tbd",
+    "away": "tbd",
+    "stage": "Knockout",
+    "espnEventId": null,
+    "mappingConfidence": "unresolved",
+    "mappingBasis": "unresolved"
+  },
+  {
+    "internalMatchId": "match-104",
+    "date": "2026-07-19",
+    "home": "tbd",
+    "away": "tbd",
+    "stage": "Knockout",
+    "espnEventId": null,
+    "mappingConfidence": "unresolved",
+    "mappingBasis": "unresolved"
+  }
+]

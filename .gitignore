@@ -21,3 +21,5 @@ scripts/soak-test.js
 scripts/soak-test.ps1
 scripts/run-all-tests.ps1
 %TEMP%/
+
+data/archive/raw/espn/

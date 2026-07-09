@@ -1,10 +1,3994 @@
-{
-  "match-89": {},
-  "match-90": {},
-  "match-91": {},
-  "match-92": {},
-  "match-93": {},
-  "match-94": {},
-  "match-95": {},
-  "match-96": {}
-}
+[
+  {
+    "matchId": "mexico-vs-south-africa-jun11",
+    "possession": {
+      "home": 60.5,
+      "away": 39.5
+    },
+    "shots": {
+      "home": 16,
+      "away": 3
+    },
+    "shotsOnTarget": {
+      "home": 4,
+      "away": 2
+    },
+    "corners": {
+      "home": 3,
+      "away": 1
+    },
+    "fouls": {
+      "home": 12,
+      "away": 11
+    },
+    "yellowCards": {
+      "home": 1,
+      "away": 2
+    },
+    "redCards": {
+      "home": 1,
+      "away": 2
+    },
+    "saves": {
+      "home": 2,
+      "away": 2
+    },
+    "offsides": {
+      "home": 1,
+      "away": 1
+    },
+    "sourceId": "espn",
+    "confidence": "source_single"
+  },
+  {
+    "matchId": "south-korea-vs-czechia-jun11",
+    "possession": {
+      "home": 61.5,
+      "away": 38.5
+    },
+    "shots": {
+      "home": 15,
+      "away": 7
+    },
+    "shotsOnTarget": {
+      "home": 6,
+      "away": 4
+    },
+    "corners": {
+      "home": 4,
+      "away": 5
+    },
+    "fouls": {
+      "home": 9,
+      "away": 16
+    },
+    "yellowCards": {
+      "home": 1,
+      "away": 0
+    },
+    "redCards": {
+      "home": 0,
+      "away": 0
+    },
+    "saves": {
+      "home": 3,
+      "away": 4
+    },
+    "offsides": {
+      "home": 2,
+      "away": 2
+    },
+    "sourceId": "espn",
+    "confidence": "source_single"
+  },
+  {
+    "matchId": "czechia-vs-south-africa-jun18",
+    "possession": {
+      "home": 38.3,
+      "away": 61.7
+    },
+    "shots": {
+      "home": 14,
+      "away": 17
+    },
+    "shotsOnTarget": {
+      "home": 3,
+      "away": 4
+    },
+    "corners": {
+      "home": 5,
+      "away": 5
+    },
+    "fouls": {
+      "home": 12,
+      "away": 10
+    },
+    "yellowCards": {
+      "home": 1,
+      "away": 2
+    },
+    "redCards": {
+      "home": 0,
+      "away": 0
+    },
+    "saves": {
+      "home": 3,
+      "away": 2
+    },
+    "offsides": {
+      "home": 2,
+      "away": 3
+    },
+    "sourceId": "espn",
+    "confidence": "source_single"
+  },
+  {
+    "matchId": "mexico-vs-south-korea-jun18",
+    "possession": {
+      "home": 42.4,
+      "away": 57.6
+    },
+    "shots": {
+      "home": 8,
+      "away": 9
+    },
+    "shotsOnTarget": {
+      "home": 4,
+      "away": 2
+    },
+    "corners": {
+      "home": 1,
+      "away": 2
+    },
+    "fouls": {
+      "home": 9,
+      "away": 7
+    },
+    "yellowCards": {
+      "home": 0,
+      "away": 2
+    },
+    "redCards": {
+      "home": 0,
+      "away": 0
+    },
+    "saves": {
+      "home": 2,
+      "away": 3
+    },
+    "offsides": {
+      "home": 3,
+      "away": 6
+    },
+    "sourceId": "espn",
+    "confidence": "source_single"
+  },
+  {
+    "matchId": "czechia-vs-mexico-jun24",
+    "possession": {
+      "home": 51.9,
+      "away": 48.1
+    },
+    "shots": {
+      "home": 13,
+      "away": 11
+    },
+    "shotsOnTarget": {
+      "home": 1,
+      "away": 5
+    },
+    "corners": {
+      "home": 5,
+      "away": 1
+    },
+    "fouls": {
+      "home": 9,
+      "away": 13
+    },
+    "yellowCards": {
+      "home": 0,
+      "away": 1
+    },
+    "redCards": {
+      "home": 0,
+      "away": 0
+    },
+    "saves": {
+      "home": 2,
+      "away": 1
+    },
+    "offsides": {
+      "home": 1,
+      "away": 0
+    },
+    "sourceId": "espn",
+    "confidence": "source_single"
+  },
+  {
+    "matchId": "south-africa-vs-south-korea-jun24",
+    "possession": {
+      "home": 31.6,
+      "away": 68.4
+    },
+    "shots": {
+      "home": 13,
+      "away": 8
+    },
+    "shotsOnTarget": {
+      "home": 4,
+      "away": 3
+    },
+    "corners": {
+      "home": 4,
+      "away": 6
+    },
+    "fouls": {
+      "home": 7,
+      "away": 9
+    },
+    "yellowCards": {
+      "home": 1,
+      "away": 1
+    },
+    "redCards": {
+      "home": 0,
+      "away": 0
+    },
+    "saves": {
+      "home": 2,
+      "away": 3
+    },
+    "offsides": {
+      "home": 3,
+      "away": 0
+    },
+    "sourceId": "espn",
+    "confidence": "source_single"
+  },
+  {
+    "matchId": "canada-vs-bosnia-jun12",
+    "possession": {
+      "home": 61.1,
+      "away": 38.9
+    },
+    "shots": {
+      "home": 13,
+      "away": 8
+    },
+    "shotsOnTarget": {
+      "home": 4,
+      "away": 3
+    },
+    "corners": {
+      "home": 9,
+      "away": 4
+    },
+    "fouls": {
+      "home": 10,
+      "away": 20
+    },
+    "yellowCards": {
+      "home": 2,
+      "away": 3
+    },
+    "redCards": {
+      "home": 0,
+      "away": 0
+    },
+    "saves": {
+      "home": 2,
+      "away": 1
+    },
+    "offsides": {
+      "home": 1,
+      "away": 0
+    },
+    "sourceId": "espn",
+    "confidence": "source_single"
+  },
+  {
+    "matchId": "qatar-vs-switzerland-jun13",
+    "possession": {
+      "home": 32,
+      "away": 68
+    },
+    "shots": {
+      "home": 6,
+      "away": 26
+    },
+    "shotsOnTarget": {
+      "home": 3,
+      "away": 7
+    },
+    "corners": {
+      "home": 3,
+      "away": 10
+    },
+    "fouls": {
+      "home": 12,
+      "away": 11
+    },
+    "yellowCards": {
+      "home": 2,
+      "away": 1
+    },
+    "redCards": {
+      "home": 0,
+      "away": 0
+    },
+    "saves": {
+      "home": 5,
+      "away": 3
+    },
+    "offsides": {
+      "home": 0,
+      "away": 1
+    },
+    "sourceId": "espn",
+    "confidence": "source_single"
+  },
+  {
+    "matchId": "switzerland-vs-bosnia-jun18",
+    "possession": {
+      "home": 62.3,
+      "away": 37.7
+    },
+    "shots": {
+      "home": 13,
+      "away": 5
+    },
+    "shotsOnTarget": {
+      "home": 7,
+      "away": 3
+    },
+    "corners": {
+      "home": 7,
+      "away": 3
+    },
+    "fouls": {
+      "home": 7,
+      "away": 18
+    },
+    "yellowCards": {
+      "home": 1,
+      "away": 2
+    },
+    "redCards": {
+      "home": 0,
+      "away": 1
+    },
+    "saves": {
+      "home": 2,
+      "away": 3
+    },
+    "offsides": {
+      "home": 3,
+      "away": 1
+    },
+    "sourceId": "espn",
+    "confidence": "source_single"
+  },
+  {
+    "matchId": "canada-vs-qatar-jun18",
+    "possession": {
+      "home": 79,
+      "away": 21
+    },
+    "shots": {
+      "home": 32,
+      "away": 2
+    },
+    "shotsOnTarget": {
+      "home": 10,
+      "away": 0
+    },
+    "corners": {
+      "home": 19,
+      "away": 1
+    },
+    "fouls": {
+      "home": 9,
+      "away": 10
+    },
+    "yellowCards": {
+      "home": 1,
+      "away": 1
+    },
+    "redCards": {
+      "home": 0,
+      "away": 2
+    },
+    "saves": {
+      "home": 0,
+      "away": 4
+    },
+    "offsides": {
+      "home": 1,
+      "away": 1
+    },
+    "sourceId": "espn",
+    "confidence": "source_single"
+  },
+  {
+    "matchId": "switzerland-vs-canada-jun24",
+    "possession": {
+      "home": 55.3,
+      "away": 44.7
+    },
+    "shots": {
+      "home": 6,
+      "away": 13
+    },
+    "shotsOnTarget": {
+      "home": 4,
+      "away": 7
+    },
+    "corners": {
+      "home": 2,
+      "away": 7
+    },
+    "fouls": {
+      "home": 19,
+      "away": 13
+    },
+    "yellowCards": {
+      "home": 1,
+      "away": 2
+    },
+    "redCards": {
+      "home": 0,
+      "away": 0
+    },
+    "saves": {
+      "home": 6,
+      "away": 2
+    },
+    "offsides": {
+      "home": 1,
+      "away": 3
+    },
+    "sourceId": "espn",
+    "confidence": "source_single"
+  },
+  {
+    "matchId": "bosnia-vs-qatar-jun24",
+    "possession": {
+      "home": 54.4,
+      "away": 45.6
+    },
+    "shots": {
+      "home": 14,
+      "away": 9
+    },
+    "shotsOnTarget": {
+      "home": 5,
+      "away": 3
+    },
+    "corners": {
+      "home": 5,
+      "away": 5
+    },
+    "fouls": {
+      "home": 9,
+      "away": 14
+    },
+    "yellowCards": {
+      "home": 1,
+      "away": 1
+    },
+    "redCards": {
+      "home": 0,
+      "away": 0
+    },
+    "saves": {
+      "home": 2,
+      "away": 3
+    },
+    "offsides": {
+      "home": 1,
+      "away": 3
+    },
+    "sourceId": "espn",
+    "confidence": "source_single"
+  },
+  {
+    "matchId": "brazil-vs-morocco-jun13",
+    "possession": {
+      "home": 51.4,
+      "away": 48.6
+    },
+    "shots": {
+      "home": 12,
+      "away": 14
+    },
+    "shotsOnTarget": {
+      "home": 5,
+      "away": 3
+    },
+    "corners": {
+      "home": 6,
+      "away": 2
+    },
+    "fouls": {
+      "home": 16,
+      "away": 14
+    },
+    "yellowCards": {
+      "home": 2,
+      "away": 0
+    },
+    "redCards": {
+      "home": 0,
+      "away": 0
+    },
+    "saves": {
+      "home": 2,
+      "away": 4
+    },
+    "offsides": {
+      "home": 0,
+      "away": 1
+    },
+    "sourceId": "espn",
+    "confidence": "source_single"
+  },
+  {
+    "matchId": "haiti-vs-scotland-jun13",
+    "possession": {
+      "home": 53.7,
+      "away": 46.3
+    },
+    "shots": {
+      "home": 15,
+      "away": 9
+    },
+    "shotsOnTarget": {
+      "home": 2,
+      "away": 2
+    },
+    "corners": {
+      "home": 4,
+      "away": 3
+    },
+    "fouls": {
+      "home": 23,
+      "away": 21
+    },
+    "yellowCards": {
+      "home": 1,
+      "away": 3
+    },
+    "redCards": {
+      "home": 0,
+      "away": 0
+    },
+    "saves": {
+      "home": 1,
+      "away": 2
+    },
+    "offsides": {
+      "home": 3,
+      "away": 1
+    },
+    "sourceId": "espn",
+    "confidence": "source_single"
+  },
+  {
+    "matchId": "scotland-vs-morocco-jun19",
+    "possession": {
+      "home": 41.1,
+      "away": 58.9
+    },
+    "shots": {
+      "home": 6,
+      "away": 12
+    },
+    "shotsOnTarget": {
+      "home": 0,
+      "away": 2
+    },
+    "corners": {
+      "home": 2,
+      "away": 5
+    },
+    "fouls": {
+      "home": 11,
+      "away": 8
+    },
+    "yellowCards": {
+      "home": 1,
+      "away": 1
+    },
+    "redCards": {
+      "home": 0,
+      "away": 0
+    },
+    "saves": {
+      "home": 1,
+      "away": 0
+    },
+    "offsides": {
+      "home": 1,
+      "away": 0
+    },
+    "sourceId": "espn",
+    "confidence": "source_single"
+  },
+  {
+    "matchId": "brazil-vs-haiti-jun19",
+    "possession": {
+      "home": 56.7,
+      "away": 43.3
+    },
+    "shots": {
+      "home": 8,
+      "away": 7
+    },
+    "shotsOnTarget": {
+      "home": 5,
+      "away": 3
+    },
+    "corners": {
+      "home": 4,
+      "away": 4
+    },
+    "fouls": {
+      "home": 13,
+      "away": 14
+    },
+    "yellowCards": {
+      "home": 1,
+      "away": 3
+    },
+    "redCards": {
+      "home": 0,
+      "away": 0
+    },
+    "saves": {
+      "home": 3,
+      "away": 2
+    },
+    "offsides": {
+      "home": 8,
+      "away": 4
+    },
+    "sourceId": "espn",
+    "confidence": "source_single"
+  },
+  {
+    "matchId": "scotland-vs-brazil-jun24",
+    "possession": {
+      "home": 46,
+      "away": 54
+    },
+    "shots": {
+      "home": 14,
+      "away": 21
+    },
+    "shotsOnTarget": {
+      "home": 5,
+      "away": 9
+    },
+    "corners": {
+      "home": 7,
+      "away": 7
+    },
+    "fouls": {
+      "home": 10,
+      "away": 11
+    },
+    "yellowCards": {
+      "home": 1,
+      "away": 2
+    },
+    "redCards": {
+      "home": 0,
+      "away": 0
+    },
+    "saves": {
+      "home": 5,
+      "away": 5
+    },
+    "offsides": {
+      "home": 0,
+      "away": 1
+    },
+    "sourceId": "espn",
+    "confidence": "source_single"
+  },
+  {
+    "matchId": "morocco-vs-haiti-jun24",
+    "possession": {
+      "home": 69.1,
+      "away": 30.9
+    },
+    "shots": {
+      "home": 22,
+      "away": 9
+    },
+    "shotsOnTarget": {
+      "home": 11,
+      "away": 2
+    },
+    "corners": {
+      "home": 9,
+      "away": 1
+    },
+    "fouls": {
+      "home": 10,
+      "away": 18
+    },
+    "yellowCards": {
+      "home": 0,
+      "away": 3
+    },
+    "redCards": {
+      "home": 0,
+      "away": 0
+    },
+    "saves": {
+      "home": 1,
+      "away": 8
+    },
+    "offsides": {
+      "home": 5,
+      "away": 0
+    },
+    "sourceId": "espn",
+    "confidence": "source_single"
+  },
+  {
+    "matchId": "united-states-vs-paraguay-jun12",
+    "possession": {
+      "home": 65.3,
+      "away": 34.7
+    },
+    "shots": {
+      "home": 16,
+      "away": 9
+    },
+    "shotsOnTarget": {
+      "home": 6,
+      "away": 1
+    },
+    "corners": {
+      "home": 3,
+      "away": 1
+    },
+    "fouls": {
+      "home": 13,
+      "away": 17
+    },
+    "yellowCards": {
+      "home": 1,
+      "away": 5
+    },
+    "redCards": {
+      "home": 0,
+      "away": 0
+    },
+    "saves": {
+      "home": 1,
+      "away": 3
+    },
+    "offsides": {
+      "home": 2,
+      "away": 1
+    },
+    "sourceId": "espn",
+    "confidence": "source_single"
+  },
+  {
+    "matchId": "australia-vs-turkey-jun13",
+    "possession": {
+      "home": 28.4,
+      "away": 71.6
+    },
+    "shots": {
+      "home": 9,
+      "away": 30
+    },
+    "shotsOnTarget": {
+      "home": 4,
+      "away": 8
+    },
+    "corners": {
+      "home": 5,
+      "away": 8
+    },
+    "fouls": {
+      "home": 12,
+      "away": 4
+    },
+    "yellowCards": {
+      "home": 0,
+      "away": 1
+    },
+    "redCards": {
+      "home": 0,
+      "away": 0
+    },
+    "saves": {
+      "home": 8,
+      "away": 2
+    },
+    "offsides": {
+      "home": 1,
+      "away": 3
+    },
+    "sourceId": "espn",
+    "confidence": "source_single"
+  },
+  {
+    "matchId": "united-states-vs-australia-jun19",
+    "possession": {
+      "home": 61.9,
+      "away": 38.1
+    },
+    "shots": {
+      "home": 10,
+      "away": 5
+    },
+    "shotsOnTarget": {
+      "home": 2,
+      "away": 2
+    },
+    "corners": {
+      "home": 7,
+      "away": 4
+    },
+    "fouls": {
+      "home": 12,
+      "away": 16
+    },
+    "yellowCards": {
+      "home": 3,
+      "away": 4
+    },
+    "redCards": {
+      "home": 0,
+      "away": 0
+    },
+    "saves": {
+      "home": 2,
+      "away": 1
+    },
+    "offsides": {
+      "home": 1,
+      "away": 0
+    },
+    "sourceId": "espn",
+    "confidence": "source_single"
+  },
+  {
+    "matchId": "turkey-vs-paraguay-jun19",
+    "possession": {
+      "home": 78.5,
+      "away": 21.5
+    },
+    "shots": {
+      "home": 32,
+      "away": 7
+    },
+    "shotsOnTarget": {
+      "home": 5,
+      "away": 2
+    },
+    "corners": {
+      "home": 12,
+      "away": 0
+    },
+    "fouls": {
+      "home": 14,
+      "away": 15
+    },
+    "yellowCards": {
+      "home": 1,
+      "away": 1
+    },
+    "redCards": {
+      "home": 0,
+      "away": 1
+    },
+    "saves": {
+      "home": 1,
+      "away": 5
+    },
+    "offsides": {
+      "home": 2,
+      "away": 3
+    },
+    "sourceId": "espn",
+    "confidence": "source_single"
+  },
+  {
+    "matchId": "turkey-vs-united-states-jun25",
+    "possession": {
+      "home": 47.4,
+      "away": 52.6
+    },
+    "shots": {
+      "home": 9,
+      "away": 18
+    },
+    "shotsOnTarget": {
+      "home": 3,
+      "away": 7
+    },
+    "corners": {
+      "home": 2,
+      "away": 9
+    },
+    "fouls": {
+      "home": 13,
+      "away": 13
+    },
+    "yellowCards": {
+      "home": 0,
+      "away": 1
+    },
+    "redCards": {
+      "home": 0,
+      "away": 0
+    },
+    "saves": {
+      "home": 5,
+      "away": 1
+    },
+    "offsides": {
+      "home": 2,
+      "away": 5
+    },
+    "sourceId": "espn",
+    "confidence": "source_single"
+  },
+  {
+    "matchId": "paraguay-vs-australia-jun25",
+    "possession": {
+      "home": 44,
+      "away": 56
+    },
+    "shots": {
+      "home": 7,
+      "away": 12
+    },
+    "shotsOnTarget": {
+      "home": 2,
+      "away": 5
+    },
+    "corners": {
+      "home": 1,
+      "away": 3
+    },
+    "fouls": {
+      "home": 9,
+      "away": 6
+    },
+    "yellowCards": {
+      "home": 1,
+      "away": 1
+    },
+    "redCards": {
+      "home": 0,
+      "away": 0
+    },
+    "saves": {
+      "home": 5,
+      "away": 2
+    },
+    "offsides": {
+      "home": 0,
+      "away": 0
+    },
+    "sourceId": "espn",
+    "confidence": "source_single"
+  },
+  {
+    "matchId": "germany-vs-curacao-jun14",
+    "possession": {
+      "home": 64.6,
+      "away": 35.4
+    },
+    "shots": {
+      "home": 26,
+      "away": 8
+    },
+    "shotsOnTarget": {
+      "home": 12,
+      "away": 2
+    },
+    "corners": {
+      "home": 8,
+      "away": 1
+    },
+    "fouls": {
+      "home": 18,
+      "away": 11
+    },
+    "yellowCards": {
+      "home": 0,
+      "away": 0
+    },
+    "redCards": {
+      "home": 0,
+      "away": 0
+    },
+    "saves": {
+      "home": 1,
+      "away": 4
+    },
+    "offsides": {
+      "home": 0,
+      "away": 1
+    },
+    "sourceId": "espn",
+    "confidence": "source_single"
+  },
+  {
+    "matchId": "ivory-coast-vs-ecuador-jun14",
+    "possession": {
+      "home": 48.4,
+      "away": 51.6
+    },
+    "shots": {
+      "home": 15,
+      "away": 12
+    },
+    "shotsOnTarget": {
+      "home": 4,
+      "away": 1
+    },
+    "corners": {
+      "home": 3,
+      "away": 6
+    },
+    "fouls": {
+      "home": 10,
+      "away": 13
+    },
+    "yellowCards": {
+      "home": 3,
+      "away": 1
+    },
+    "redCards": {
+      "home": 0,
+      "away": 0
+    },
+    "saves": {
+      "home": 1,
+      "away": 3
+    },
+    "offsides": {
+      "home": 0,
+      "away": 0
+    },
+    "sourceId": "espn",
+    "confidence": "source_single"
+  },
+  {
+    "matchId": "germany-vs-ivory-coast-jun20",
+    "possession": {
+      "home": 59.5,
+      "away": 40.5
+    },
+    "shots": {
+      "home": 16,
+      "away": 9
+    },
+    "shotsOnTarget": {
+      "home": 7,
+      "away": 2
+    },
+    "corners": {
+      "home": 8,
+      "away": 3
+    },
+    "fouls": {
+      "home": 5,
+      "away": 7
+    },
+    "yellowCards": {
+      "home": 0,
+      "away": 0
+    },
+    "redCards": {
+      "home": 0,
+      "away": 0
+    },
+    "saves": {
+      "home": 1,
+      "away": 5
+    },
+    "offsides": {
+      "home": 0,
+      "away": 1
+    },
+    "sourceId": "espn",
+    "confidence": "source_single"
+  },
+  {
+    "matchId": "ecuador-vs-curacao-jun20",
+    "possession": {
+      "home": 74.6,
+      "away": 25.4
+    },
+    "shots": {
+      "home": 27,
+      "away": 10
+    },
+    "shotsOnTarget": {
+      "home": 15,
+      "away": 3
+    },
+    "corners": {
+      "home": 9,
+      "away": 0
+    },
+    "fouls": {
+      "home": 7,
+      "away": 10
+    },
+    "yellowCards": {
+      "home": 1,
+      "away": 5
+    },
+    "redCards": {
+      "home": 0,
+      "away": 0
+    },
+    "saves": {
+      "home": 3,
+      "away": 15
+    },
+    "offsides": {
+      "home": 1,
+      "away": 2
+    },
+    "sourceId": "espn",
+    "confidence": "source_single"
+  },
+  {
+    "matchId": "curacao-vs-ivory-coast-jun25",
+    "possession": {
+      "home": 36.7,
+      "away": 63.3
+    },
+    "shots": {
+      "home": 11,
+      "away": 7
+    },
+    "shotsOnTarget": {
+      "home": 2,
+      "away": 3
+    },
+    "corners": {
+      "home": 4,
+      "away": 6
+    },
+    "fouls": {
+      "home": 11,
+      "away": 6
+    },
+    "yellowCards": {
+      "home": 2,
+      "away": 1
+    },
+    "redCards": {
+      "home": 0,
+      "away": 0
+    },
+    "saves": {
+      "home": 1,
+      "away": 2
+    },
+    "offsides": {
+      "home": 2,
+      "away": 1
+    },
+    "sourceId": "espn",
+    "confidence": "source_single"
+  },
+  {
+    "matchId": "ecuador-vs-germany-jun25",
+    "possession": {
+      "home": 38.9,
+      "away": 61.1
+    },
+    "shots": {
+      "home": 7,
+      "away": 11
+    },
+    "shotsOnTarget": {
+      "home": 3,
+      "away": 3
+    },
+    "corners": {
+      "home": 3,
+      "away": 2
+    },
+    "fouls": {
+      "home": 15,
+      "away": 10
+    },
+    "yellowCards": {
+      "home": 3,
+      "away": 1
+    },
+    "redCards": {
+      "home": 0,
+      "away": 0
+    },
+    "saves": {
+      "home": 2,
+      "away": 1
+    },
+    "offsides": {
+      "home": 1,
+      "away": 0
+    },
+    "sourceId": "espn",
+    "confidence": "source_single"
+  },
+  {
+    "matchId": "netherlands-vs-japan-jun14",
+    "possession": {
+      "home": 59.8,
+      "away": 40.2
+    },
+    "shots": {
+      "home": 10,
+      "away": 10
+    },
+    "shotsOnTarget": {
+      "home": 6,
+      "away": 3
+    },
+    "corners": {
+      "home": 5,
+      "away": 4
+    },
+    "fouls": {
+      "home": 7,
+      "away": 7
+    },
+    "yellowCards": {
+      "home": 3,
+      "away": 0
+    },
+    "redCards": {
+      "home": 0,
+      "away": 0
+    },
+    "saves": {
+      "home": 1,
+      "away": 4
+    },
+    "offsides": {
+      "home": 1,
+      "away": 0
+    },
+    "sourceId": "espn",
+    "confidence": "source_single"
+  },
+  {
+    "matchId": "sweden-vs-tunisia-jun14",
+    "possession": {
+      "home": 48.7,
+      "away": 51.3
+    },
+    "shots": {
+      "home": 13,
+      "away": 6
+    },
+    "shotsOnTarget": {
+      "home": 7,
+      "away": 2
+    },
+    "corners": {
+      "home": 4,
+      "away": 2
+    },
+    "fouls": {
+      "home": 10,
+      "away": 8
+    },
+    "yellowCards": {
+      "home": 0,
+      "away": 1
+    },
+    "redCards": {
+      "home": 0,
+      "away": 0
+    },
+    "saves": {
+      "home": 1,
+      "away": 1
+    },
+    "offsides": {
+      "home": 3,
+      "away": 6
+    },
+    "sourceId": "espn",
+    "confidence": "source_single"
+  },
+  {
+    "matchId": "netherlands-vs-sweden-jun20",
+    "possession": {
+      "home": 50.9,
+      "away": 49.1
+    },
+    "shots": {
+      "home": 10,
+      "away": 16
+    },
+    "shotsOnTarget": {
+      "home": 7,
+      "away": 8
+    },
+    "corners": {
+      "home": 2,
+      "away": 5
+    },
+    "fouls": {
+      "home": 9,
+      "away": 12
+    },
+    "yellowCards": {
+      "home": 0,
+      "away": 3
+    },
+    "redCards": {
+      "home": 0,
+      "away": 0
+    },
+    "saves": {
+      "home": 7,
+      "away": 2
+    },
+    "offsides": {
+      "home": 3,
+      "away": 3
+    },
+    "sourceId": "espn",
+    "confidence": "source_single"
+  },
+  {
+    "matchId": "tunisia-vs-japan-jun20",
+    "possession": {
+      "home": 37.9,
+      "away": 62.1
+    },
+    "shots": {
+      "home": 2,
+      "away": 11
+    },
+    "shotsOnTarget": {
+      "home": 0,
+      "away": 5
+    },
+    "corners": {
+      "home": 3,
+      "away": 5
+    },
+    "fouls": {
+      "home": 8,
+      "away": 15
+    },
+    "yellowCards": {
+      "home": 0,
+      "away": 0
+    },
+    "redCards": {
+      "home": 0,
+      "away": 0
+    },
+    "saves": {
+      "home": 1,
+      "away": 0
+    },
+    "offsides": {
+      "home": 1,
+      "away": 1
+    },
+    "sourceId": "espn",
+    "confidence": "source_single"
+  },
+  {
+    "matchId": "japan-vs-sweden-jun25",
+    "possession": {
+      "home": 52.3,
+      "away": 47.7
+    },
+    "shots": {
+      "home": 8,
+      "away": 11
+    },
+    "shotsOnTarget": {
+      "home": 3,
+      "away": 5
+    },
+    "corners": {
+      "home": 2,
+      "away": 8
+    },
+    "fouls": {
+      "home": 20,
+      "away": 11
+    },
+    "yellowCards": {
+      "home": 1,
+      "away": 2
+    },
+    "redCards": {
+      "home": 0,
+      "away": 0
+    },
+    "saves": {
+      "home": 4,
+      "away": 2
+    },
+    "offsides": {
+      "home": 3,
+      "away": 2
+    },
+    "sourceId": "espn",
+    "confidence": "source_single"
+  },
+  {
+    "matchId": "tunisia-vs-netherlands-jun25",
+    "possession": {
+      "home": 28.6,
+      "away": 71.4
+    },
+    "shots": {
+      "home": 10,
+      "away": 20
+    },
+    "shotsOnTarget": {
+      "home": 4,
+      "away": 7
+    },
+    "corners": {
+      "home": 4,
+      "away": 6
+    },
+    "fouls": {
+      "home": 11,
+      "away": 10
+    },
+    "yellowCards": {
+      "home": 0,
+      "away": 0
+    },
+    "redCards": {
+      "home": 0,
+      "away": 0
+    },
+    "saves": {
+      "home": 4,
+      "away": 3
+    },
+    "offsides": {
+      "home": 2,
+      "away": 1
+    },
+    "sourceId": "espn",
+    "confidence": "source_single"
+  },
+  {
+    "matchId": "belgium-vs-egypt-jun15",
+    "possession": {
+      "home": 53.6,
+      "away": 46.4
+    },
+    "shots": {
+      "home": 15,
+      "away": 14
+    },
+    "shotsOnTarget": {
+      "home": 3,
+      "away": 3
+    },
+    "corners": {
+      "home": 2,
+      "away": 7
+    },
+    "fouls": {
+      "home": 15,
+      "away": 15
+    },
+    "yellowCards": {
+      "home": 2,
+      "away": 2
+    },
+    "redCards": {
+      "home": 0,
+      "away": 0
+    },
+    "saves": {
+      "home": 2,
+      "away": 3
+    },
+    "offsides": {
+      "home": 0,
+      "away": 1
+    },
+    "sourceId": "espn",
+    "confidence": "source_single"
+  },
+  {
+    "matchId": "iran-vs-new-zealand-jun15",
+    "possession": {
+      "home": 48.5,
+      "away": 51.5
+    },
+    "shots": {
+      "home": 17,
+      "away": 14
+    },
+    "shotsOnTarget": {
+      "home": 4,
+      "away": 8
+    },
+    "corners": {
+      "home": 4,
+      "away": 1
+    },
+    "fouls": {
+      "home": 10,
+      "away": 8
+    },
+    "yellowCards": {
+      "home": 1,
+      "away": 0
+    },
+    "redCards": {
+      "home": 0,
+      "away": 0
+    },
+    "saves": {
+      "home": 6,
+      "away": 2
+    },
+    "offsides": {
+      "home": 2,
+      "away": 0
+    },
+    "sourceId": "espn",
+    "confidence": "source_single"
+  },
+  {
+    "matchId": "belgium-vs-iran-jun21",
+    "possession": {
+      "home": 70.1,
+      "away": 29.9
+    },
+    "shots": {
+      "home": 23,
+      "away": 7
+    },
+    "shotsOnTarget": {
+      "home": 7,
+      "away": 3
+    },
+    "corners": {
+      "home": 4,
+      "away": 2
+    },
+    "fouls": {
+      "home": 7,
+      "away": 9
+    },
+    "yellowCards": {
+      "home": 1,
+      "away": 1
+    },
+    "redCards": {
+      "home": 1,
+      "away": 0
+    },
+    "saves": {
+      "home": 3,
+      "away": 7
+    },
+    "offsides": {
+      "home": 3,
+      "away": 4
+    },
+    "sourceId": "espn",
+    "confidence": "source_single"
+  },
+  {
+    "matchId": "new-zealand-vs-egypt-jun21",
+    "possession": {
+      "home": 44.4,
+      "away": 55.6
+    },
+    "shots": {
+      "home": 11,
+      "away": 19
+    },
+    "shotsOnTarget": {
+      "home": 5,
+      "away": 7
+    },
+    "corners": {
+      "home": 4,
+      "away": 4
+    },
+    "fouls": {
+      "home": 14,
+      "away": 8
+    },
+    "yellowCards": {
+      "home": 2,
+      "away": 1
+    },
+    "redCards": {
+      "home": 0,
+      "away": 0
+    },
+    "saves": {
+      "home": 4,
+      "away": 4
+    },
+    "offsides": {
+      "home": 3,
+      "away": 0
+    },
+    "sourceId": "espn",
+    "confidence": "source_single"
+  },
+  {
+    "matchId": "egypt-vs-iran-jun26",
+    "possession": {
+      "home": 61.4,
+      "away": 38.6
+    },
+    "shots": {
+      "home": 15,
+      "away": 13
+    },
+    "shotsOnTarget": {
+      "home": 3,
+      "away": 4
+    },
+    "corners": {
+      "home": 8,
+      "away": 2
+    },
+    "fouls": {
+      "home": 11,
+      "away": 16
+    },
+    "yellowCards": {
+      "home": 3,
+      "away": 4
+    },
+    "redCards": {
+      "home": 0,
+      "away": 0
+    },
+    "saves": {
+      "home": 2,
+      "away": 2
+    },
+    "offsides": {
+      "home": 0,
+      "away": 3
+    },
+    "sourceId": "espn",
+    "confidence": "source_single"
+  },
+  {
+    "matchId": "new-zealand-vs-belgium-jun26",
+    "possession": {
+      "home": 45.5,
+      "away": 54.5
+    },
+    "shots": {
+      "home": 6,
+      "away": 35
+    },
+    "shotsOnTarget": {
+      "home": 2,
+      "away": 10
+    },
+    "corners": {
+      "home": 5,
+      "away": 8
+    },
+    "fouls": {
+      "home": 10,
+      "away": 7
+    },
+    "yellowCards": {
+      "home": 2,
+      "away": 0
+    },
+    "redCards": {
+      "home": 0,
+      "away": 0
+    },
+    "saves": {
+      "home": 5,
+      "away": 1
+    },
+    "offsides": {
+      "home": 1,
+      "away": 1
+    },
+    "sourceId": "espn",
+    "confidence": "source_single"
+  },
+  {
+    "matchId": "saudi-arabia-vs-uruguay-jun15",
+    "possession": {
+      "home": 33.2,
+      "away": 66.8
+    },
+    "shots": {
+      "home": 7,
+      "away": 27
+    },
+    "shotsOnTarget": {
+      "home": 3,
+      "away": 10
+    },
+    "corners": {
+      "home": 4,
+      "away": 14
+    },
+    "fouls": {
+      "home": 11,
+      "away": 6
+    },
+    "yellowCards": {
+      "home": 1,
+      "away": 0
+    },
+    "redCards": {
+      "home": 0,
+      "away": 0
+    },
+    "saves": {
+      "home": 9,
+      "away": 2
+    },
+    "offsides": {
+      "home": 0,
+      "away": 6
+    },
+    "sourceId": "espn",
+    "confidence": "source_single"
+  },
+  {
+    "matchId": "spain-vs-cape-verde-jun15",
+    "possession": {
+      "home": 74.3,
+      "away": 25.7
+    },
+    "shots": {
+      "home": 27,
+      "away": 6
+    },
+    "shotsOnTarget": {
+      "home": 7,
+      "away": 1
+    },
+    "corners": {
+      "home": 11,
+      "away": 1
+    },
+    "fouls": {
+      "home": 10,
+      "away": 1
+    },
+    "yellowCards": {
+      "home": 1,
+      "away": 1
+    },
+    "redCards": {
+      "home": 0,
+      "away": 0
+    },
+    "saves": {
+      "home": 1,
+      "away": 7
+    },
+    "offsides": {
+      "home": 2,
+      "away": 3
+    },
+    "sourceId": "espn",
+    "confidence": "source_single"
+  },
+  {
+    "matchId": "spain-vs-saudi-arabia-jun21",
+    "possession": {
+      "home": 67.1,
+      "away": 32.9
+    },
+    "shots": {
+      "home": 22,
+      "away": 3
+    },
+    "shotsOnTarget": {
+      "home": 8,
+      "away": 1
+    },
+    "corners": {
+      "home": 6,
+      "away": 1
+    },
+    "fouls": {
+      "home": 10,
+      "away": 2
+    },
+    "yellowCards": {
+      "home": 0,
+      "away": 2
+    },
+    "redCards": {
+      "home": 0,
+      "away": 0
+    },
+    "saves": {
+      "home": 1,
+      "away": 5
+    },
+    "offsides": {
+      "home": 2,
+      "away": 3
+    },
+    "sourceId": "espn",
+    "confidence": "source_single"
+  },
+  {
+    "matchId": "uruguay-vs-cape-verde-jun21",
+    "possession": {
+      "home": 65.2,
+      "away": 34.8
+    },
+    "shots": {
+      "home": 17,
+      "away": 12
+    },
+    "shotsOnTarget": {
+      "home": 2,
+      "away": 4
+    },
+    "corners": {
+      "home": 11,
+      "away": 4
+    },
+    "fouls": {
+      "home": 11,
+      "away": 4
+    },
+    "yellowCards": {
+      "home": 2,
+      "away": 2
+    },
+    "redCards": {
+      "home": 0,
+      "away": 0
+    },
+    "saves": {
+      "home": 2,
+      "away": 0
+    },
+    "offsides": {
+      "home": 3,
+      "away": 0
+    },
+    "sourceId": "espn",
+    "confidence": "source_single"
+  },
+  {
+    "matchId": "cape-verde-vs-saudi-arabia-jun26",
+    "possession": {
+      "home": 51,
+      "away": 49
+    },
+    "shots": {
+      "home": 15,
+      "away": 7
+    },
+    "shotsOnTarget": {
+      "home": 2,
+      "away": 3
+    },
+    "corners": {
+      "home": 4,
+      "away": 2
+    },
+    "fouls": {
+      "home": 10,
+      "away": 16
+    },
+    "yellowCards": {
+      "home": 1,
+      "away": 3
+    },
+    "redCards": {
+      "home": 0,
+      "away": 0
+    },
+    "saves": {
+      "home": 3,
+      "away": 2
+    },
+    "offsides": {
+      "home": 2,
+      "away": 0
+    },
+    "sourceId": "espn",
+    "confidence": "source_single"
+  },
+  {
+    "matchId": "uruguay-vs-spain-jun26",
+    "possession": {
+      "home": 33.1,
+      "away": 66.9
+    },
+    "shots": {
+      "home": 5,
+      "away": 6
+    },
+    "shotsOnTarget": {
+      "home": 1,
+      "away": 1
+    },
+    "corners": {
+      "home": 1,
+      "away": 6
+    },
+    "fouls": {
+      "home": 14,
+      "away": 14
+    },
+    "yellowCards": {
+      "home": 3,
+      "away": 1
+    },
+    "redCards": {
+      "home": 1,
+      "away": 0
+    },
+    "saves": {
+      "home": 0,
+      "away": 2
+    },
+    "offsides": {
+      "home": 5,
+      "away": 2
+    },
+    "sourceId": "espn",
+    "confidence": "source_single"
+  },
+  {
+    "matchId": "france-vs-senegal-jun16",
+    "possession": {
+      "home": 53.4,
+      "away": 46.6
+    },
+    "shots": {
+      "home": 11,
+      "away": 6
+    },
+    "shotsOnTarget": {
+      "home": 8,
+      "away": 2
+    },
+    "corners": {
+      "home": 6,
+      "away": 4
+    },
+    "fouls": {
+      "home": 5,
+      "away": 9
+    },
+    "yellowCards": {
+      "home": 0,
+      "away": 0
+    },
+    "redCards": {
+      "home": 0,
+      "away": 0
+    },
+    "saves": {
+      "home": 2,
+      "away": 5
+    },
+    "offsides": {
+      "home": 1,
+      "away": 3
+    },
+    "sourceId": "espn",
+    "confidence": "source_single"
+  },
+  {
+    "matchId": "iraq-vs-norway-jun16",
+    "possession": {
+      "home": 38.7,
+      "away": 61.3
+    },
+    "shots": {
+      "home": 11,
+      "away": 12
+    },
+    "shotsOnTarget": {
+      "home": 1,
+      "away": 5
+    },
+    "corners": {
+      "home": 2,
+      "away": 5
+    },
+    "fouls": {
+      "home": 12,
+      "away": 13
+    },
+    "yellowCards": {
+      "home": 1,
+      "away": 0
+    },
+    "redCards": {
+      "home": 0,
+      "away": 0
+    },
+    "saves": {
+      "home": 2,
+      "away": 0
+    },
+    "offsides": {
+      "home": 1,
+      "away": 0
+    },
+    "sourceId": "espn",
+    "confidence": "source_single"
+  },
+  {
+    "matchId": "france-vs-iraq-jun22",
+    "possession": {
+      "home": 55.6,
+      "away": 44.4
+    },
+    "shots": {
+      "home": 19,
+      "away": 4
+    },
+    "shotsOnTarget": {
+      "home": 5,
+      "away": 0
+    },
+    "corners": {
+      "home": 4,
+      "away": 2
+    },
+    "fouls": {
+      "home": 8,
+      "away": 4
+    },
+    "yellowCards": {
+      "home": 0,
+      "away": 1
+    },
+    "redCards": {
+      "home": 0,
+      "away": 0
+    },
+    "saves": {
+      "home": 0,
+      "away": 2
+    },
+    "offsides": {
+      "home": 1,
+      "away": 0
+    },
+    "sourceId": "espn",
+    "confidence": "source_single"
+  },
+  {
+    "matchId": "norway-vs-senegal-jun22",
+    "possession": {
+      "home": 41.7,
+      "away": 58.3
+    },
+    "shots": {
+      "home": 13,
+      "away": 16
+    },
+    "shotsOnTarget": {
+      "home": 7,
+      "away": 4
+    },
+    "corners": {
+      "home": 5,
+      "away": 4
+    },
+    "fouls": {
+      "home": 13,
+      "away": 5
+    },
+    "yellowCards": {
+      "home": 0,
+      "away": 0
+    },
+    "redCards": {
+      "home": 0,
+      "away": 0
+    },
+    "saves": {
+      "home": 2,
+      "away": 3
+    },
+    "offsides": {
+      "home": 0,
+      "away": 4
+    },
+    "sourceId": "espn",
+    "confidence": "source_single"
+  },
+  {
+    "matchId": "norway-vs-france-jun26",
+    "possession": {
+      "home": 43.3,
+      "away": 56.7
+    },
+    "shots": {
+      "home": 10,
+      "away": 18
+    },
+    "shotsOnTarget": {
+      "home": 4,
+      "away": 9
+    },
+    "corners": {
+      "home": 4,
+      "away": 5
+    },
+    "fouls": {
+      "home": 9,
+      "away": 11
+    },
+    "yellowCards": {
+      "home": 1,
+      "away": 1
+    },
+    "redCards": {
+      "home": 0,
+      "away": 0
+    },
+    "saves": {
+      "home": 5,
+      "away": 3
+    },
+    "offsides": {
+      "home": 1,
+      "away": 2
+    },
+    "sourceId": "espn",
+    "confidence": "source_single"
+  },
+  {
+    "matchId": "senegal-vs-iraq-jun26",
+    "possession": {
+      "home": 69.2,
+      "away": 30.8
+    },
+    "shots": {
+      "home": 28,
+      "away": 6
+    },
+    "shotsOnTarget": {
+      "home": 12,
+      "away": 1
+    },
+    "corners": {
+      "home": 12,
+      "away": 3
+    },
+    "fouls": {
+      "home": 10,
+      "away": 11
+    },
+    "yellowCards": {
+      "home": 2,
+      "away": 2
+    },
+    "redCards": {
+      "home": 0,
+      "away": 1
+    },
+    "saves": {
+      "home": 1,
+      "away": 7
+    },
+    "offsides": {
+      "home": 1,
+      "away": 0
+    },
+    "sourceId": "espn",
+    "confidence": "source_single"
+  },
+  {
+    "matchId": "argentina-vs-algeria-jun16",
+    "possession": {
+      "home": 47.8,
+      "away": 52.2
+    },
+    "shots": {
+      "home": 10,
+      "away": 7
+    },
+    "shotsOnTarget": {
+      "home": 6,
+      "away": 1
+    },
+    "corners": {
+      "home": 2,
+      "away": 2
+    },
+    "fouls": {
+      "home": 13,
+      "away": 8
+    },
+    "yellowCards": {
+      "home": 0,
+      "away": 0
+    },
+    "redCards": {
+      "home": 0,
+      "away": 0
+    },
+    "saves": {
+      "home": 0,
+      "away": 3
+    },
+    "offsides": {
+      "home": 3,
+      "away": 1
+    },
+    "sourceId": "espn",
+    "confidence": "source_single"
+  },
+  {
+    "matchId": "austria-vs-jordan-jun16",
+    "possession": {
+      "home": 63.2,
+      "away": 36.8
+    },
+    "shots": {
+      "home": 11,
+      "away": 11
+    },
+    "shotsOnTarget": {
+      "home": 4,
+      "away": 4
+    },
+    "corners": {
+      "home": 4,
+      "away": 3
+    },
+    "fouls": {
+      "home": 12,
+      "away": 7
+    },
+    "yellowCards": {
+      "home": 1,
+      "away": 0
+    },
+    "redCards": {
+      "home": 0,
+      "away": 0
+    },
+    "saves": {
+      "home": 3,
+      "away": 1
+    },
+    "offsides": {
+      "home": 3,
+      "away": 1
+    },
+    "sourceId": "espn",
+    "confidence": "source_single"
+  },
+  {
+    "matchId": "argentina-vs-austria-jun22",
+    "possession": {
+      "home": 53.6,
+      "away": 46.4
+    },
+    "shots": {
+      "home": 12,
+      "away": 6
+    },
+    "shotsOnTarget": {
+      "home": 5,
+      "away": 1
+    },
+    "corners": {
+      "home": 1,
+      "away": 3
+    },
+    "fouls": {
+      "home": 13,
+      "away": 13
+    },
+    "yellowCards": {
+      "home": 2,
+      "away": 2
+    },
+    "redCards": {
+      "home": 0,
+      "away": 0
+    },
+    "saves": {
+      "home": 1,
+      "away": 2
+    },
+    "offsides": {
+      "home": 2,
+      "away": 0
+    },
+    "sourceId": "espn",
+    "confidence": "source_single"
+  },
+  {
+    "matchId": "jordan-vs-algeria-jun22",
+    "possession": {
+      "home": 27.9,
+      "away": 72.1
+    },
+    "shots": {
+      "home": 8,
+      "away": 17
+    },
+    "shotsOnTarget": {
+      "home": 4,
+      "away": 8
+    },
+    "corners": {
+      "home": 1,
+      "away": 10
+    },
+    "fouls": {
+      "home": 11,
+      "away": 6
+    },
+    "yellowCards": {
+      "home": 1,
+      "away": 1
+    },
+    "redCards": {
+      "home": 0,
+      "away": 0
+    },
+    "saves": {
+      "home": 6,
+      "away": 3
+    },
+    "offsides": {
+      "home": 1,
+      "away": 0
+    },
+    "sourceId": "espn",
+    "confidence": "source_single"
+  },
+  {
+    "matchId": "algeria-vs-austria-jun27",
+    "possession": {
+      "home": 65,
+      "away": 35
+    },
+    "shots": {
+      "home": 12,
+      "away": 10
+    },
+    "shotsOnTarget": {
+      "home": 5,
+      "away": 3
+    },
+    "corners": {
+      "home": 0,
+      "away": 3
+    },
+    "fouls": {
+      "home": 3,
+      "away": 7
+    },
+    "yellowCards": {
+      "home": 0,
+      "away": 1
+    },
+    "redCards": {
+      "home": 0,
+      "away": 0
+    },
+    "saves": {
+      "home": 1,
+      "away": 2
+    },
+    "offsides": {
+      "home": 1,
+      "away": 3
+    },
+    "sourceId": "espn",
+    "confidence": "source_single"
+  },
+  {
+    "matchId": "jordan-vs-argentina-jun27",
+    "possession": {
+      "home": 26.7,
+      "away": 73.3
+    },
+    "shots": {
+      "home": 5,
+      "away": 12
+    },
+    "shotsOnTarget": {
+      "home": 1,
+      "away": 4
+    },
+    "corners": {
+      "home": 2,
+      "away": 6
+    },
+    "fouls": {
+      "home": 13,
+      "away": 7
+    },
+    "yellowCards": {
+      "home": 3,
+      "away": 0
+    },
+    "redCards": {
+      "home": 0,
+      "away": 0
+    },
+    "saves": {
+      "home": 1,
+      "away": 0
+    },
+    "offsides": {
+      "home": 1,
+      "away": 3
+    },
+    "sourceId": "espn",
+    "confidence": "source_single"
+  },
+  {
+    "matchId": "portugal-vs-dr-congo-jun17",
+    "possession": {
+      "home": 75.4,
+      "away": 24.6
+    },
+    "shots": {
+      "home": 7,
+      "away": 8
+    },
+    "shotsOnTarget": {
+      "home": 1,
+      "away": 2
+    },
+    "corners": {
+      "home": 5,
+      "away": 4
+    },
+    "fouls": {
+      "home": 9,
+      "away": 10
+    },
+    "yellowCards": {
+      "home": 3,
+      "away": 1
+    },
+    "redCards": {
+      "home": 0,
+      "away": 0
+    },
+    "saves": {
+      "home": 1,
+      "away": 0
+    },
+    "offsides": {
+      "home": 3,
+      "away": 2
+    },
+    "sourceId": "espn",
+    "confidence": "source_single"
+  },
+  {
+    "matchId": "uzbekistan-vs-colombia-jun17",
+    "possession": {
+      "home": 38.6,
+      "away": 61.4
+    },
+    "shots": {
+      "home": 8,
+      "away": 15
+    },
+    "shotsOnTarget": {
+      "home": 2,
+      "away": 4
+    },
+    "corners": {
+      "home": 3,
+      "away": 4
+    },
+    "fouls": {
+      "home": 14,
+      "away": 11
+    },
+    "yellowCards": {
+      "home": 1,
+      "away": 1
+    },
+    "redCards": {
+      "home": 0,
+      "away": 0
+    },
+    "saves": {
+      "home": 1,
+      "away": 1
+    },
+    "offsides": {
+      "home": 0,
+      "away": 3
+    },
+    "sourceId": "espn",
+    "confidence": "source_single"
+  },
+  {
+    "matchId": "portugal-vs-uzbekistan-jun23",
+    "possession": {
+      "home": 65.9,
+      "away": 34.1
+    },
+    "shots": {
+      "home": 17,
+      "away": 7
+    },
+    "shotsOnTarget": {
+      "home": 9,
+      "away": 2
+    },
+    "corners": {
+      "home": 3,
+      "away": 2
+    },
+    "fouls": {
+      "home": 14,
+      "away": 15
+    },
+    "yellowCards": {
+      "home": 1,
+      "away": 1
+    },
+    "redCards": {
+      "home": 0,
+      "away": 0
+    },
+    "saves": {
+      "home": 2,
+      "away": 4
+    },
+    "offsides": {
+      "home": 2,
+      "away": 2
+    },
+    "sourceId": "espn",
+    "confidence": "source_single"
+  },
+  {
+    "matchId": "colombia-vs-dr-congo-jun23",
+    "possession": {
+      "home": 63.5,
+      "away": 36.5
+    },
+    "shots": {
+      "home": 20,
+      "away": 7
+    },
+    "shotsOnTarget": {
+      "home": 9,
+      "away": 1
+    },
+    "corners": {
+      "home": 5,
+      "away": 4
+    },
+    "fouls": {
+      "home": 12,
+      "away": 16
+    },
+    "yellowCards": {
+      "home": 2,
+      "away": 1
+    },
+    "redCards": {
+      "home": 0,
+      "away": 0
+    },
+    "saves": {
+      "home": 1,
+      "away": 8
+    },
+    "offsides": {
+      "home": 7,
+      "away": 0
+    },
+    "sourceId": "espn",
+    "confidence": "source_single"
+  },
+  {
+    "matchId": "colombia-vs-portugal-jun27",
+    "possession": {
+      "home": 54.6,
+      "away": 45.4
+    },
+    "shots": {
+      "home": 24,
+      "away": 13
+    },
+    "shotsOnTarget": {
+      "home": 6,
+      "away": 2
+    },
+    "corners": {
+      "home": 5,
+      "away": 2
+    },
+    "fouls": {
+      "home": 12,
+      "away": 6
+    },
+    "yellowCards": {
+      "home": 1,
+      "away": 0
+    },
+    "redCards": {
+      "home": 0,
+      "away": 0
+    },
+    "saves": {
+      "home": 2,
+      "away": 6
+    },
+    "offsides": {
+      "home": 3,
+      "away": 2
+    },
+    "sourceId": "espn",
+    "confidence": "source_single"
+  },
+  {
+    "matchId": "dr-congo-vs-uzbekistan-jun27",
+    "possession": {
+      "home": 57.6,
+      "away": 42.4
+    },
+    "shots": {
+      "home": 19,
+      "away": 3
+    },
+    "shotsOnTarget": {
+      "home": 4,
+      "away": 1
+    },
+    "corners": {
+      "home": 2,
+      "away": 4
+    },
+    "fouls": {
+      "home": 6,
+      "away": 16
+    },
+    "yellowCards": {
+      "home": 3,
+      "away": 2
+    },
+    "redCards": {
+      "home": 0,
+      "away": 0
+    },
+    "saves": {
+      "home": 1,
+      "away": 1
+    },
+    "offsides": {
+      "home": 3,
+      "away": 1
+    },
+    "sourceId": "espn",
+    "confidence": "source_single"
+  },
+  {
+    "matchId": "england-vs-croatia-jun17",
+    "possession": {
+      "home": 51.7,
+      "away": 48.3
+    },
+    "shots": {
+      "home": 22,
+      "away": 10
+    },
+    "shotsOnTarget": {
+      "home": 11,
+      "away": 5
+    },
+    "corners": {
+      "home": 8,
+      "away": 2
+    },
+    "fouls": {
+      "home": 10,
+      "away": 12
+    },
+    "yellowCards": {
+      "home": 0,
+      "away": 0
+    },
+    "redCards": {
+      "home": 0,
+      "away": 0
+    },
+    "saves": {
+      "home": 3,
+      "away": 7
+    },
+    "offsides": {
+      "home": 0,
+      "away": 1
+    },
+    "sourceId": "espn",
+    "confidence": "source_single"
+  },
+  {
+    "matchId": "ghana-vs-panama-jun17",
+    "possession": {
+      "home": 38,
+      "away": 62
+    },
+    "shots": {
+      "home": 7,
+      "away": 11
+    },
+    "shotsOnTarget": {
+      "home": 2,
+      "away": 4
+    },
+    "corners": {
+      "home": 2,
+      "away": 2
+    },
+    "fouls": {
+      "home": 9,
+      "away": 11
+    },
+    "yellowCards": {
+      "home": 1,
+      "away": 2
+    },
+    "redCards": {
+      "home": 0,
+      "away": 0
+    },
+    "saves": {
+      "home": 4,
+      "away": 2
+    },
+    "offsides": {
+      "home": 4,
+      "away": 1
+    },
+    "sourceId": "espn",
+    "confidence": "source_single"
+  },
+  {
+    "matchId": "england-vs-ghana-jun23",
+    "possession": {
+      "home": 78.9,
+      "away": 21.1
+    },
+    "shots": {
+      "home": 19,
+      "away": 2
+    },
+    "shotsOnTarget": {
+      "home": 3,
+      "away": 1
+    },
+    "corners": {
+      "home": 9,
+      "away": 2
+    },
+    "fouls": {
+      "home": 14,
+      "away": 24
+    },
+    "yellowCards": {
+      "home": 1,
+      "away": 1
+    },
+    "redCards": {
+      "home": 0,
+      "away": 0
+    },
+    "saves": {
+      "home": 0,
+      "away": 3
+    },
+    "offsides": {
+      "home": 2,
+      "away": 2
+    },
+    "sourceId": "espn",
+    "confidence": "source_single"
+  },
+  {
+    "matchId": "panama-vs-croatia-jun23",
+    "possession": {
+      "home": 42,
+      "away": 58
+    },
+    "shots": {
+      "home": 8,
+      "away": 6
+    },
+    "shotsOnTarget": {
+      "home": 1,
+      "away": 2
+    },
+    "corners": {
+      "home": 7,
+      "away": 2
+    },
+    "fouls": {
+      "home": 19,
+      "away": 12
+    },
+    "yellowCards": {
+      "home": 1,
+      "away": 1
+    },
+    "redCards": {
+      "home": 0,
+      "away": 0
+    },
+    "saves": {
+      "home": 1,
+      "away": 1
+    },
+    "offsides": {
+      "home": 1,
+      "away": 2
+    },
+    "sourceId": "espn",
+    "confidence": "source_single"
+  },
+  {
+    "matchId": "panama-vs-england-jun27",
+    "possession": {
+      "home": 32.9,
+      "away": 67.1
+    },
+    "shots": {
+      "home": 13,
+      "away": 17
+    },
+    "shotsOnTarget": {
+      "home": 2,
+      "away": 6
+    },
+    "corners": {
+      "home": 3,
+      "away": 7
+    },
+    "fouls": {
+      "home": 16,
+      "away": 13
+    },
+    "yellowCards": {
+      "home": 2,
+      "away": 1
+    },
+    "redCards": {
+      "home": 0,
+      "away": 0
+    },
+    "saves": {
+      "home": 4,
+      "away": 2
+    },
+    "offsides": {
+      "home": 4,
+      "away": 4
+    },
+    "sourceId": "espn",
+    "confidence": "source_single"
+  },
+  {
+    "matchId": "croatia-vs-ghana-jun27",
+    "possession": {
+      "home": 53.3,
+      "away": 46.7
+    },
+    "shots": {
+      "home": 8,
+      "away": 6
+    },
+    "shotsOnTarget": {
+      "home": 4,
+      "away": 1
+    },
+    "corners": {
+      "home": 3,
+      "away": 2
+    },
+    "fouls": {
+      "home": 9,
+      "away": 13
+    },
+    "yellowCards": {
+      "home": 1,
+      "away": 1
+    },
+    "redCards": {
+      "home": 0,
+      "away": 0
+    },
+    "saves": {
+      "home": 0,
+      "away": 2
+    },
+    "offsides": {
+      "home": 1,
+      "away": 2
+    },
+    "sourceId": "espn",
+    "confidence": "source_single"
+  },
+  {
+    "matchId": "match-73",
+    "possession": {
+      "home": 58.4,
+      "away": 41.6
+    },
+    "shots": {
+      "home": 6,
+      "away": 12
+    },
+    "shotsOnTarget": {
+      "home": 1,
+      "away": 7
+    },
+    "corners": {
+      "home": 1,
+      "away": 4
+    },
+    "fouls": {
+      "home": 10,
+      "away": 16
+    },
+    "yellowCards": {
+      "home": 0,
+      "away": 2
+    },
+    "redCards": {
+      "home": 0,
+      "away": 0
+    },
+    "saves": {
+      "home": 5,
+      "away": 1
+    },
+    "offsides": {
+      "home": 1,
+      "away": 0
+    },
+    "sourceId": "espn",
+    "confidence": "source_single"
+  },
+  {
+    "matchId": "match-74",
+    "possession": {
+      "home": 75.6,
+      "away": 24.4
+    },
+    "shots": {
+      "home": 21,
+      "away": 7
+    },
+    "shotsOnTarget": {
+      "home": 6,
+      "away": 3
+    },
+    "corners": {
+      "home": 16,
+      "away": 6
+    },
+    "fouls": {
+      "home": 18,
+      "away": 12
+    },
+    "yellowCards": {
+      "home": 2,
+      "away": 2
+    },
+    "redCards": {
+      "home": 0,
+      "away": 0
+    },
+    "saves": {
+      "home": 2,
+      "away": 6
+    },
+    "offsides": {
+      "home": 4,
+      "away": 1
+    },
+    "sourceId": "espn",
+    "confidence": "source_single"
+  },
+  {
+    "matchId": "match-75",
+    "possession": {
+      "home": 29.9,
+      "away": 70.1
+    },
+    "shots": {
+      "home": 6,
+      "away": 11
+    },
+    "shotsOnTarget": {
+      "home": 2,
+      "away": 5
+    },
+    "corners": {
+      "home": 5,
+      "away": 8
+    },
+    "fouls": {
+      "home": 18,
+      "away": 15
+    },
+    "yellowCards": {
+      "home": 0,
+      "away": 1
+    },
+    "redCards": {
+      "home": 0,
+      "away": 0
+    },
+    "saves": {
+      "home": 5,
+      "away": 1
+    },
+    "offsides": {
+      "home": 3,
+      "away": 0
+    },
+    "sourceId": "espn",
+    "confidence": "source_single"
+  },
+  {
+    "matchId": "match-76",
+    "possession": {
+      "home": 68.6,
+      "away": 31.4
+    },
+    "shots": {
+      "home": 19,
+      "away": 5
+    },
+    "shotsOnTarget": {
+      "home": 7,
+      "away": 2
+    },
+    "corners": {
+      "home": 6,
+      "away": 2
+    },
+    "fouls": {
+      "home": 4,
+      "away": 13
+    },
+    "yellowCards": {
+      "home": 2,
+      "away": 3
+    },
+    "redCards": {
+      "home": 0,
+      "away": 0
+    },
+    "saves": {
+      "home": 1,
+      "away": 4
+    },
+    "offsides": {
+      "home": 1,
+      "away": 0
+    },
+    "sourceId": "espn",
+    "confidence": "source_single"
+  },
+  {
+    "matchId": "match-77",
+    "possession": {
+      "home": 61,
+      "away": 39
+    },
+    "shots": {
+      "home": 25,
+      "away": 8
+    },
+    "shotsOnTarget": {
+      "home": 12,
+      "away": 3
+    },
+    "corners": {
+      "home": 9,
+      "away": 1
+    },
+    "fouls": {
+      "home": 14,
+      "away": 10
+    },
+    "yellowCards": {
+      "home": 0,
+      "away": 0
+    },
+    "redCards": {
+      "home": 0,
+      "away": 0
+    },
+    "saves": {
+      "home": 3,
+      "away": 9
+    },
+    "offsides": {
+      "home": 3,
+      "away": 1
+    },
+    "sourceId": "espn",
+    "confidence": "source_single"
+  },
+  {
+    "matchId": "match-78",
+    "possession": {
+      "home": 47,
+      "away": 53
+    },
+    "shots": {
+      "home": 14,
+      "away": 9
+    },
+    "shotsOnTarget": {
+      "home": 5,
+      "away": 4
+    },
+    "corners": {
+      "home": 14,
+      "away": 3
+    },
+    "fouls": {
+      "home": 6,
+      "away": 7
+    },
+    "yellowCards": {
+      "home": 0,
+      "away": 1
+    },
+    "redCards": {
+      "home": 0,
+      "away": 0
+    },
+    "saves": {
+      "home": 1,
+      "away": 4
+    },
+    "offsides": {
+      "home": 2,
+      "away": 2
+    },
+    "sourceId": "espn",
+    "confidence": "source_single"
+  },
+  {
+    "matchId": "match-79",
+    "possession": {
+      "home": 42.8,
+      "away": 57.2
+    },
+    "shots": {
+      "home": 15,
+      "away": 7
+    },
+    "shotsOnTarget": {
+      "home": 3,
+      "away": 1
+    },
+    "corners": {
+      "home": 3,
+      "away": 8
+    },
+    "fouls": {
+      "home": 10,
+      "away": 14
+    },
+    "yellowCards": {
+      "home": 0,
+      "away": 3
+    },
+    "redCards": {
+      "home": 0,
+      "away": 1
+    },
+    "saves": {
+      "home": 1,
+      "away": 1
+    },
+    "offsides": {
+      "home": 0,
+      "away": 1
+    },
+    "sourceId": "espn",
+    "confidence": "source_single"
+  },
+  {
+    "matchId": "match-80",
+    "possession": {
+      "home": 59.7,
+      "away": 40.3
+    },
+    "shots": {
+      "home": 16,
+      "away": 7
+    },
+    "shotsOnTarget": {
+      "home": 7,
+      "away": 2
+    },
+    "corners": {
+      "home": 5,
+      "away": 3
+    },
+    "fouls": {
+      "home": 10,
+      "away": 12
+    },
+    "yellowCards": {
+      "home": 1,
+      "away": 1
+    },
+    "redCards": {
+      "home": 0,
+      "away": 0
+    },
+    "saves": {
+      "home": 1,
+      "away": 5
+    },
+    "offsides": {
+      "home": 0,
+      "away": 4
+    },
+    "sourceId": "espn",
+    "confidence": "source_single"
+  },
+  {
+    "matchId": "match-81",
+    "possession": {
+      "home": 48.4,
+      "away": 51.6
+    },
+    "shots": {
+      "home": 8,
+      "away": 10
+    },
+    "shotsOnTarget": {
+      "home": 2,
+      "away": 3
+    },
+    "corners": {
+      "home": 4,
+      "away": 3
+    },
+    "fouls": {
+      "home": 7,
+      "away": 13
+    },
+    "yellowCards": {
+      "home": 0,
+      "away": 1
+    },
+    "redCards": {
+      "home": 1,
+      "away": 0
+    },
+    "saves": {
+      "home": 3,
+      "away": 0
+    },
+    "offsides": {
+      "home": 3,
+      "away": 0
+    },
+    "sourceId": "espn",
+    "confidence": "source_single"
+  },
+  {
+    "matchId": "match-82",
+    "possession": {
+      "home": 52.3,
+      "away": 47.7
+    },
+    "shots": {
+      "home": 19,
+      "away": 19
+    },
+    "shotsOnTarget": {
+      "home": 5,
+      "away": 5
+    },
+    "corners": {
+      "home": 4,
+      "away": 2
+    },
+    "fouls": {
+      "home": 22,
+      "away": 12
+    },
+    "yellowCards": {
+      "home": 1,
+      "away": 1
+    },
+    "redCards": {
+      "home": 0,
+      "away": 0
+    },
+    "saves": {
+      "home": 3,
+      "away": 3
+    },
+    "offsides": {
+      "home": 2,
+      "away": 2
+    },
+    "sourceId": "espn",
+    "confidence": "source_single"
+  },
+  {
+    "matchId": "match-83",
+    "possession": {
+      "home": 60.4,
+      "away": 39.6
+    },
+    "shots": {
+      "home": 15,
+      "away": 13
+    },
+    "shotsOnTarget": {
+      "home": 3,
+      "away": 6
+    },
+    "corners": {
+      "home": 9,
+      "away": 5
+    },
+    "fouls": {
+      "home": 6,
+      "away": 12
+    },
+    "yellowCards": {
+      "home": 1,
+      "away": 2
+    },
+    "redCards": {
+      "home": 0,
+      "away": 0
+    },
+    "saves": {
+      "home": 5,
+      "away": 2
+    },
+    "offsides": {
+      "home": 1,
+      "away": 4
+    },
+    "sourceId": "espn",
+    "confidence": "source_single"
+  },
+  {
+    "matchId": "match-84",
+    "possession": {
+      "home": 64.4,
+      "away": 35.6
+    },
+    "shots": {
+      "home": 23,
+      "away": 5
+    },
+    "shotsOnTarget": {
+      "home": 10,
+      "away": 0
+    },
+    "corners": {
+      "home": 9,
+      "away": 0
+    },
+    "fouls": {
+      "home": 8,
+      "away": 15
+    },
+    "yellowCards": {
+      "home": 0,
+      "away": 1
+    },
+    "redCards": {
+      "home": 0,
+      "away": 0
+    },
+    "saves": {
+      "home": 0,
+      "away": 6
+    },
+    "offsides": {
+      "home": 2,
+      "away": 5
+    },
+    "sourceId": "espn",
+    "confidence": "source_single"
+  },
+  {
+    "matchId": "match-85",
+    "possession": {
+      "home": 44.5,
+      "away": 55.5
+    },
+    "shots": {
+      "home": 11,
+      "away": 8
+    },
+    "shotsOnTarget": {
+      "home": 5,
+      "away": 2
+    },
+    "corners": {
+      "home": 4,
+      "away": 2
+    },
+    "fouls": {
+      "home": 10,
+      "away": 12
+    },
+    "yellowCards": {
+      "home": 0,
+      "away": 2
+    },
+    "redCards": {
+      "home": 0,
+      "away": 0
+    },
+    "saves": {
+      "home": 2,
+      "away": 2
+    },
+    "offsides": {
+      "home": 0,
+      "away": 2
+    },
+    "sourceId": "espn",
+    "confidence": "source_single"
+  },
+  {
+    "matchId": "match-86",
+    "possession": {
+      "home": 63.6,
+      "away": 36.4
+    },
+    "shots": {
+      "home": 22,
+      "away": 16
+    },
+    "shotsOnTarget": {
+      "home": 10,
+      "away": 5
+    },
+    "corners": {
+      "home": 8,
+      "away": 8
+    },
+    "fouls": {
+      "home": 13,
+      "away": 12
+    },
+    "yellowCards": {
+      "home": 1,
+      "away": 1
+    },
+    "redCards": {
+      "home": 0,
+      "away": 0
+    },
+    "saves": {
+      "home": 3,
+      "away": 8
+    },
+    "offsides": {
+      "home": 3,
+      "away": 2
+    },
+    "sourceId": "espn",
+    "confidence": "source_single"
+  },
+  {
+    "matchId": "match-87",
+    "possession": {
+      "home": 60.7,
+      "away": 39.3
+    },
+    "shots": {
+      "home": 20,
+      "away": 8
+    },
+    "shotsOnTarget": {
+      "home": 8,
+      "away": 0
+    },
+    "corners": {
+      "home": 3,
+      "away": 2
+    },
+    "fouls": {
+      "home": 14,
+      "away": 10
+    },
+    "yellowCards": {
+      "home": 2,
+      "away": 3
+    },
+    "redCards": {
+      "home": 0,
+      "away": 0
+    },
+    "saves": {
+      "home": 0,
+      "away": 7
+    },
+    "offsides": {
+      "home": 2,
+      "away": 0
+    },
+    "sourceId": "espn",
+    "confidence": "source_single"
+  },
+  {
+    "matchId": "match-88",
+    "possession": {
+      "home": 41.7,
+      "away": 58.3
+    },
+    "shots": {
+      "home": 16,
+      "away": 14
+    },
+    "shotsOnTarget": {
+      "home": 1,
+      "away": 3
+    },
+    "corners": {
+      "home": 4,
+      "away": 7
+    },
+    "fouls": {
+      "home": 12,
+      "away": 14
+    },
+    "yellowCards": {
+      "home": 0,
+      "away": 2
+    },
+    "redCards": {
+      "home": 0,
+      "away": 0
+    },
+    "saves": {
+      "home": 3,
+      "away": 1
+    },
+    "offsides": {
+      "home": 0,
+      "away": 3
+    },
+    "sourceId": "espn",
+    "confidence": "source_single"
+  },
+  {
+    "matchId": "match-89",
+    "possession": {
+      "home": 24.1,
+      "away": 75.9
+    },
+    "shots": {
+      "home": 5,
+      "away": 15
+    },
+    "shotsOnTarget": {
+      "home": 1,
+      "away": 5
+    },
+    "corners": {
+      "home": 2,
+      "away": 12
+    },
+    "fouls": {
+      "home": 13,
+      "away": 11
+    },
+    "yellowCards": {
+      "home": 0,
+      "away": 3
+    },
+    "redCards": {
+      "home": 0,
+      "away": 0
+    },
+    "saves": {
+      "home": 4,
+      "away": 1
+    },
+    "offsides": {
+      "home": 0,
+      "away": 0
+    },
+    "sourceId": "espn",
+    "confidence": "source_single"
+  },
+  {
+    "matchId": "match-90",
+    "possession": {
+      "home": 44.7,
+      "away": 55.3
+    },
+    "shots": {
+      "home": 10,
+      "away": 5
+    },
+    "shotsOnTarget": {
+      "home": 3,
+      "away": 4
+    },
+    "corners": {
+      "home": 11,
+      "away": 1
+    },
+    "fouls": {
+      "home": 24,
+      "away": 14
+    },
+    "yellowCards": {
+      "home": 4,
+      "away": 4
+    },
+    "redCards": {
+      "home": 0,
+      "away": 0
+    },
+    "saves": {
+      "home": 1,
+      "away": 3
+    },
+    "offsides": {
+      "home": 2,
+      "away": 3
+    },
+    "sourceId": "espn",
+    "confidence": "source_single"
+  },
+  {
+    "matchId": "match-91",
+    "possession": {
+      "home": 33.6,
+      "away": 66.4
+    },
+    "shots": {
+      "home": 14,
+      "away": 9
+    },
+    "shotsOnTarget": {
+      "home": 4,
+      "away": 5
+    },
+    "corners": {
+      "home": 5,
+      "away": 5
+    },
+    "fouls": {
+      "home": 7,
+      "away": 6
+    },
+    "yellowCards": {
+      "home": 1,
+      "away": 0
+    },
+    "redCards": {
+      "home": 0,
+      "away": 0
+    },
+    "saves": {
+      "home": 3,
+      "away": 4
+    },
+    "offsides": {
+      "home": 1,
+      "away": 1
+    },
+    "sourceId": "espn",
+    "confidence": "source_single"
+  },
+  {
+    "matchId": "match-92",
+    "possession": {
+      "home": 66.9,
+      "away": 33.1
+    },
+    "shots": {
+      "home": 20,
+      "away": 6
+    },
+    "shotsOnTarget": {
+      "home": 5,
+      "away": 5
+    },
+    "corners": {
+      "home": 12,
+      "away": 2
+    },
+    "fouls": {
+      "home": 14,
+      "away": 7
+    },
+    "yellowCards": {
+      "home": 2,
+      "away": 4
+    },
+    "redCards": {
+      "home": 0,
+      "away": 1
+    },
+    "saves": {
+      "home": 2,
+      "away": 3
+    },
+    "offsides": {
+      "home": 1,
+      "away": 0
+    },
+    "sourceId": "espn",
+    "confidence": "source_single"
+  },
+  {
+    "matchId": "match-93",
+    "possession": {
+      "home": 44.6,
+      "away": 55.4
+    },
+    "shots": {
+      "home": 10,
+      "away": 15
+    },
+    "shotsOnTarget": {
+      "home": 2,
+      "away": 6
+    },
+    "corners": {
+      "home": 3,
+      "away": 7
+    },
+    "fouls": {
+      "home": 9,
+      "away": 13
+    },
+    "yellowCards": {
+      "home": 2,
+      "away": 1
+    },
+    "redCards": {
+      "home": 0,
+      "away": 0
+    },
+    "saves": {
+      "home": 5,
+      "away": 2
+    },
+    "offsides": {
+      "home": 2,
+      "away": 1
+    },
+    "sourceId": "espn",
+    "confidence": "source_single"
+  },
+  {
+    "matchId": "match-94",
+    "possession": {
+      "home": 55.9,
+      "away": 44.1
+    },
+    "shots": {
+      "home": 7,
+      "away": 15
+    },
+    "shotsOnTarget": {
+      "home": 2,
+      "away": 7
+    },
+    "corners": {
+      "home": 3,
+      "away": 5
+    },
+    "fouls": {
+      "home": 11,
+      "away": 9
+    },
+    "yellowCards": {
+      "home": 2,
+      "away": 0
+    },
+    "redCards": {
+      "home": 0,
+      "away": 0
+    },
+    "saves": {
+      "home": 3,
+      "away": 1
+    },
+    "offsides": {
+      "home": 0,
+      "away": 1
+    },
+    "sourceId": "espn",
+    "confidence": "source_single"
+  },
+  {
+    "matchId": "match-95",
+    "possession": {
+      "home": 63.6,
+      "away": 36.4
+    },
+    "shots": {
+      "home": 19,
+      "away": 5
+    },
+    "shotsOnTarget": {
+      "home": 7,
+      "away": 2
+    },
+    "corners": {
+      "home": 6,
+      "away": 1
+    },
+    "fouls": {
+      "home": 13,
+      "away": 11
+    },
+    "yellowCards": {
+      "home": 0,
+      "away": 4
+    },
+    "redCards": {
+      "home": 0,
+      "away": 0
+    },
+    "saves": {
+      "home": 0,
+      "away": 4
+    },
+    "offsides": {
+      "home": 3,
+      "away": 0
+    },
+    "sourceId": "espn",
+    "confidence": "source_single"
+  },
+  {
+    "matchId": "match-96",
+    "possession": {
+      "home": 53.4,
+      "away": 46.6
+    },
+    "shots": {
+      "home": 7,
+      "away": 15
+    },
+    "shotsOnTarget": {
+      "home": 2,
+      "away": 3
+    },
+    "corners": {
+      "home": 3,
+      "away": 7
+    },
+    "fouls": {
+      "home": 22,
+      "away": 21
+    },
+    "yellowCards": {
+      "home": 3,
+      "away": 2
+    },
+    "redCards": {
+      "home": 0,
+      "away": 0
+    },
+    "saves": {
+      "home": 3,
+      "away": 2
+    },
+    "offsides": {
+      "home": 5,
+      "away": 4
+    },
+    "sourceId": "espn",
+    "confidence": "source_single"
+  },
+  {
+    "matchId": "match-97",
+    "possession": {},
+    "shots": {},
+    "shotsOnTarget": {},
+    "corners": {},
+    "fouls": {},
+    "yellowCards": {},
+    "redCards": {},
+    "saves": {},
+    "offsides": {},
+    "sourceId": "espn",
+    "confidence": "source_single"
+  },
+  {
+    "matchId": "match-98",
+    "possession": {},
+    "shots": {},
+    "shotsOnTarget": {},
+    "corners": {},
+    "fouls": {},
+    "yellowCards": {},
+    "redCards": {},
+    "saves": {},
+    "offsides": {},
+    "sourceId": "espn",
+    "confidence": "source_single"
+  },
+  {
+    "matchId": "match-99",
+    "possession": {},
+    "shots": {},
+    "shotsOnTarget": {},
+    "corners": {},
+    "fouls": {},
+    "yellowCards": {},
+    "redCards": {},
+    "saves": {},
+    "offsides": {},
+    "sourceId": "espn",
+    "confidence": "source_single"
+  },
+  {
+    "matchId": "match-100",
+    "possession": {},
+    "shots": {},
+    "shotsOnTarget": {},
+    "corners": {},
+    "fouls": {},
+    "yellowCards": {},
+    "redCards": {},
+    "saves": {},
+    "offsides": {},
+    "sourceId": "espn",
+    "confidence": "source_single"
+  }
+]

@@ -1,0 +1,17 @@
+[
+  {
+    "matchId": "czechia-vs-south-africa-jun18",
+    "issue": "Goal count mismatch. Repo: 2, ESPN: 1",
+    "espnEventId": "760438"
+  },
+  {
+    "matchId": "switzerland-vs-bosnia-jun18",
+    "issue": "Goal count mismatch. Repo: 5, ESPN: 4",
+    "espnEventId": "760439"
+  },
+  {
+    "matchId": "austria-vs-jordan-jun16",
+    "issue": "Goal count mismatch. Repo: 4, ESPN: 3",
+    "espnEventId": "760431"
+  }
+]
