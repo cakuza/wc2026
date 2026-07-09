@@ -142,6 +142,7 @@ export const COMPLETED_KNOCKOUT_RESULTS: Readonly<Record<number, CompletedResult
     confirmedAt: "2026-07-06T12:00:00.000Z",
     penaltyShootoutScore: { home: 4, away: 3 },
   },
+  97: { homeScore: 2, awayScore: 0, winner: "HOME_TEAM", scoreDuration: "REGULAR", confirmedAt: "2026-07-09T18:00:00.000Z" },
 };
 
 function matchNumber(match: Match): number | null {

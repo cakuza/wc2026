@@ -12388,5 +12388,25 @@
     "period": "penalty_shootout",
     "sourceId": "espn",
     "confidence": "source_single"
+  },
+  {
+    "eventId": "m97-g1",
+    "matchId": "match-97",
+    "eventType": "goal",
+    "minute": 60,
+    "stoppageMinute": null,
+    "teamKey": "france",
+    "playerName": "Kylian Mbappe",
+    "assistPlayerName": null
+  },
+  {
+    "eventId": "m97-g2",
+    "matchId": "match-97",
+    "eventType": "goal",
+    "minute": 66,
+    "stoppageMinute": null,
+    "teamKey": "france",
+    "playerName": "Ousmane Dembele",
+    "assistPlayerName": null
   }
 ]
