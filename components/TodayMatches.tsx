@@ -9,7 +9,7 @@ import { TimezoneLabel } from "@/components/TimezoneLabel";
 import { FreshnessLabel } from "@/components/FreshnessLabel";
 import { useLang } from "@/components/LanguageProvider";
 import { useTimezone } from "@/components/TimezoneProvider";
-import { matchSlug, matchUtcDate, type DisplayMatchday, type Match } from "@/lib/matches";
+import { matchSlug, matchUtcDate, ARCHIVE_DEFAULT_DATE, type DisplayMatchday, type Match } from "@/lib/matches";
 import { getDisplayMatchdayForTimeZone } from "@/lib/todaySelection";
 import type { LiveMatchData } from "@/lib/liveMatchData";
 import type { GoalScorerEvent } from "@/lib/worldcup26Provider";
@@ -164,7 +164,7 @@ export function TodayMatches({
   useEffect(() => {
     setMd(
       getDisplayMatchdayForTimeZone({
-        now: new Date(),
+        now: new Date(ARCHIVE_DEFAULT_DATE),
         timeZone,
         resolvedParticipants: liveSnapshot.resolvedParticipants,
         liveDataByProviderId: liveSnapshot.liveDataByProviderId,

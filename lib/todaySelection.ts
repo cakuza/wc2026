@@ -22,7 +22,7 @@ export function getDefaultTodayDateForArchive(timeZone: string, matches: Match[]
   return getMatchCalendarDateInZone(matchUtcDate(latestMatch), timeZone);
 }
 
-export function getTodayHref(timeZone: string, now: Date = new Date(ARCHIVE_DEFAULT_DATE)): string {
+export function getTodayHref(timeZone: string, now: Date = new Date(ARCHIVE_DEFAULT_DATE )): string {
   const localDate = getMatchCalendarDateInZone(now, timeZone);
   const matchdayDates = getMatchdayDates(MATCHES, timeZone); // already sorted
 
@@ -227,7 +227,7 @@ export type ResolvedMatchday = {
 export function resolveSelectedMatchday({
   dateParam,
   timeZone,
-  now = new Date(ARCHIVE_DEFAULT_DATE),
+  now = new Date(ARCHIVE_DEFAULT_DATE ),
   matches = MATCHES,
 }: {
   dateParam: string | string[] | undefined;
@@ -268,7 +268,7 @@ export function resolveSelectedMatchday({
 }
 
 export function getDisplayMatchdayForTimeZone({
-  now = new Date(ARCHIVE_DEFAULT_DATE),
+  now = new Date(ARCHIVE_DEFAULT_DATE ),
   timeZone,
   matches = MATCHES,
   resolvedParticipants,
@@ -320,7 +320,7 @@ export function getDisplayMatchdayForTimeZone({
 }
 
 export function getTodayMatchesForTimeZone({
-  now = new Date(ARCHIVE_DEFAULT_DATE),
+  now = new Date(ARCHIVE_DEFAULT_DATE ),
   timeZone,
   matches = MATCHES,
 }: {
@@ -337,7 +337,7 @@ export function getTodayMatchesForTimeZone({
 }
 
 export function nextUpcomingMatchesForTimeZone({
-  now = new Date(ARCHIVE_DEFAULT_DATE),
+  now = new Date(ARCHIVE_DEFAULT_DATE ),
   timeZone,
   matches = MATCHES,
   daysToShow = 1,

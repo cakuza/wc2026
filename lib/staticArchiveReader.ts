@@ -48,7 +48,7 @@ export function readStaticArchiveData(): Map<number, LiveMatchData> {
           playerName: ev.playerName,
           isOwnGoal: ev.eventType === 'own_goal',
           assistName: ev.assistPlayerName,
-          providerEventId: ev.sourceId
+          // providerEventId intentionally omitted because sourceId is generic (e.g. 'espn')
         });
       } else if (ev.eventType === 'yellow_card' || ev.eventType === 'red_card') {
         bookings.push({
@@ -57,7 +57,7 @@ export function readStaticArchiveData(): Map<number, LiveMatchData> {
           stoppageTime: ev.stoppageMinute || null,
           teamName: ev.teamKey || null,
           playerName: ev.playerName,
-          providerEventId: ev.sourceId
+          // providerEventId intentionally omitted
         });
       } else if (ev.eventType === 'substitution') {
         substitutions.push({
@@ -67,7 +67,7 @@ export function readStaticArchiveData(): Map<number, LiveMatchData> {
           teamName: ev.teamKey || null,
           playerName: ev.playerName,
           detail: ev.relatedPlayerName || null,
-          providerEventId: ev.sourceId
+          // providerEventId intentionally omitted
         });
       }
     }
