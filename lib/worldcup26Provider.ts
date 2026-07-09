@@ -22,6 +22,7 @@ export type GoalScorerEvent = {
   playerName: string;
   isOwnGoal?: boolean;
   isPenalty?: boolean;
+  assistName?: string | null;
   provider: "worldcup26.ir" | "football-data.org" | "espn";
   confidence: "high" | "low";
 };

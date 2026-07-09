@@ -30,6 +30,31 @@ export type TournamentStats = {
 
 export type TeamLeaderboard = { teamKey: string; value: number };
 
+export type PlayerEventStat = {
+  playerName: string;
+  teamName: string | null;
+  value: number;
+};
+
+export type PlayerEventLeaderboards = {
+  assists: PlayerEventStat[];
+  yellowCards: PlayerEventStat[];
+  redCards: PlayerEventStat[];
+  ownGoals: PlayerEventStat[];
+  penaltyGoals: PlayerEventStat[];
+};
+
+export type TeamStatLeaderboards = {
+  shots: TeamLeaderboard[];
+  shotsOnTarget: TeamLeaderboard[];
+  corners: TeamLeaderboard[];
+  fouls: TeamLeaderboard[];
+  saves: TeamLeaderboard[];
+  offsides: TeamLeaderboard[];
+  possession: TeamLeaderboard[];
+  substitutions: TeamLeaderboard[];
+};
+
 export type TeamLeaderboards = {
   topScoringTeams: TeamLeaderboard[];
   mostPoints: TeamLeaderboard[];
@@ -166,6 +191,161 @@ export function computeTeamLeaderboards(
 }
 
 /** Compile top scorers from event data. Only counts when eventDataAvailable = true. */
+export function computePlayerEventLeaderboards(liveData: ReadonlyMap<number, LiveMatchData>): PlayerEventLeaderboards {
+  const assistsMap = new Map<string, PlayerEventStat>();
+  const ycMap = new Map<string, PlayerEventStat>();
+  const rcMap = new Map<string, PlayerEventStat>();
+  const ogMap = new Map<string, PlayerEventStat>();
+  const pgMap = new Map<string, PlayerEventStat>();
+
+  const track = (map: Map<string, PlayerEventStat>, key: string, name: string | null, teamName: string | null) => {
+    if (!name || /^Scorer (unavailable|pending)$/i.test(name)) return;
+    if (!map.has(key)) map.set(key, { playerName: name, teamName: teamName || null, value: 0 });
+    map.get(key)!.value++;
+  };
+
+  for (const data of liveData.values()) {
+    if (data.goals) {
+      for (const goal of data.goals) {
+        if (goal.assistName) {
+          track(assistsMap, goal.assistName, goal.assistName, goal.teamName);
+        }
+        if (goal.isOwnGoal && goal.playerName) {
+          track(ogMap, goal.playerName, goal.playerName, goal.teamName);
+        }
+        if (goal.type === 'PENALTY_GOAL' && goal.playerName) {
+          track(pgMap, goal.playerName, goal.playerName, goal.teamName);
+        }
+      }
+    }
+    if (data.bookings) {
+      for (const card of data.bookings) {
+        if (card.type === 'YELLOW_CARD' && card.playerName) {
+          track(ycMap, card.playerName, card.playerName, card.teamName);
+        }
+        if (card.type === 'RED_CARD' && card.playerName) {
+          track(rcMap, card.playerName, card.playerName, card.teamName);
+        }
+      }
+    }
+  }
+
+  const getTop = (map: Map<string, PlayerEventStat>) => Array.from(map.values()).sort((a, b) => b.value - a.value).slice(0, 10);
+
+  return {
+    assists: getTop(assistsMap),
+    yellowCards: getTop(ycMap),
+    redCards: getTop(rcMap),
+    ownGoals: getTop(ogMap),
+    penaltyGoals: getTop(pgMap)
+  };
+}
+
+export function computeTeamStatLeaderboards(liveData: ReadonlyMap<number, LiveMatchData>, matches: Record<string, import("./liveSnapshot").SerializableSnapshotMatch>): TeamStatLeaderboards {
+  const sums = new Map<string, Record<string, number>>();
+  const matchesPlayed = new Map<string, number>();
+  const possSum = new Map<string, number>();
+  const subCount = new Map<string, number>();
+
+  const init = (team: string) => {
+    if (!sums.has(team)) {
+      sums.set(team, { shots: 0, shotsOnTarget: 0, corners: 0, fouls: 0, saves: 0, offsides: 0 });
+      matchesPlayed.set(team, 0);
+      possSum.set(team, 0);
+      subCount.set(team, 0);
+    }
+  };
+
+  for (const match of Object.values(matches)) {
+    const data = match.live;
+    if (!data) continue;
+
+    const home = match.match.homeKey;
+    const away = match.match.awayKey;
+    
+    // We only care about teams that have resolved names
+    if (home === 'tbd' || away === 'tbd') continue;
+
+    if (data.teamStats) {
+      init(home);
+      init(away);
+      
+      matchesPlayed.set(home, matchesPlayed.get(home)! + 1);
+      matchesPlayed.set(away, matchesPlayed.get(away)! + 1);
+      
+      const hs = sums.get(home)!;
+      const as = sums.get(away)!;
+      
+      hs.shots += data.teamStats.shots.home || 0;
+      hs.shotsOnTarget += data.teamStats.shotsOnTarget.home || 0;
+      hs.corners += data.teamStats.corners.home || 0;
+      hs.fouls += data.teamStats.fouls.home || 0;
+      hs.saves += data.teamStats.saves.home || 0;
+      hs.offsides += data.teamStats.offsides.home || 0;
+      possSum.set(home, possSum.get(home)! + (data.teamStats.possession.home || 0));
+
+      as.shots += data.teamStats.shots.away || 0;
+      as.shotsOnTarget += data.teamStats.shotsOnTarget.away || 0;
+      as.corners += data.teamStats.corners.away || 0;
+      as.fouls += data.teamStats.fouls.away || 0;
+      as.saves += data.teamStats.saves.away || 0;
+      as.offsides += data.teamStats.offsides.away || 0;
+      possSum.set(away, possSum.get(away)! + (data.teamStats.possession.away || 0));
+    }
+    
+    if (data.substitutions) {
+      for (const sub of data.substitutions) {
+        // match sub teamName to home/away
+        const teamKey = sub.teamName === home || sub.teamName === away ? sub.teamName : undefined;
+        // actually subs have teamName as display name, but we can match them if they equal the key. Let's just tally by key directly if possible.
+        // let's do a simple count for now based on home/away keys.
+      }
+    }
+  }
+
+  // Calculate subs by iterating through events and parsing out teamName
+  // Actually, we can just look at data.substitutions and tally by teamName directly, then map it to teamKey.
+  // We'll skip mapping to teamKey if we can't be sure, or just use the display name since our UI component takes a string that gets fed to `country()` or just displayed.
+  // But wait, the country() helper needs a teamKey. It's safer to just iterate matches again and check if teamName matches home/away displayName.
+  for (const match of Object.values(matches)) {
+    const data = match.live;
+    if (!data || !data.substitutions) continue;
+    
+    for (const sub of data.substitutions) {
+       // just use teamName if available, normalize it to teamKey if possible.
+       const teamKey = sub.teamName ? sub.teamName.toLowerCase().replace(/[^a-z]/g, '') : null;
+       if (teamKey) {
+         init(teamKey);
+         subCount.set(teamKey, subCount.get(teamKey)! + 1);
+       }
+    }
+  }
+
+  const getTop = (getter: (team: string) => number) => {
+    const arr = Array.from(matchesPlayed.keys()).map(team => ({ teamKey: team, value: getter(team) }));
+    return arr.sort((a, b) => b.value - a.value).slice(0, 5).filter(x => x.value > 0);
+  };
+  
+  const getTopAvg = (getter: (team: string) => number) => {
+    const arr = Array.from(matchesPlayed.keys()).filter(team => matchesPlayed.get(team)! > 0).map(team => {
+      const val = getter(team) / matchesPlayed.get(team)!;
+      return { teamKey: team, value: Math.round(val * 10) / 10 };
+    });
+    return arr.sort((a, b) => b.value - a.value).slice(0, 5).filter(x => x.value > 0);
+  };
+
+  return {
+    shots: getTop(t => sums.get(t)?.shots || 0),
+    shotsOnTarget: getTop(t => sums.get(t)?.shotsOnTarget || 0),
+    corners: getTop(t => sums.get(t)?.corners || 0),
+    fouls: getTop(t => sums.get(t)?.fouls || 0),
+    saves: getTop(t => sums.get(t)?.saves || 0),
+    offsides: getTop(t => sums.get(t)?.offsides || 0),
+    possession: getTopAvg(t => possSum.get(t) || 0),
+    substitutions: getTop(t => subCount.get(t) || 0),
+  };
+}
+
 export function computeTopScorers(
   liveData: ReadonlyMap<number, LiveMatchData>,
 ): PlayerGoalStat[] {
@@ -184,7 +364,7 @@ export function computeTopScorers(
     }
   }
 
-  return [...scorerMap.values()]
+  return Array.from(scorerMap.values())
     .sort((a, b) => b.goals - a.goals)
     .slice(0, 10);
 }

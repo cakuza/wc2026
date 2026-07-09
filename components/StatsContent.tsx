@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useLang } from "@/components/LanguageProvider";
 import { useTimezone } from "@/components/TimezoneProvider";
 import { getTodayHref } from "@/lib/todaySelection";
-import type { TournamentStats, TeamLeaderboards, PlayerGoalStat } from "@/lib/tournamentStats";
+import type { TournamentStats, TeamLeaderboards, PlayerGoalStat, PlayerEventLeaderboards, TeamStatLeaderboards } from "@/lib/tournamentStats";
 import type { StandingRow } from "@/lib/groupStandings";
 
 interface Props {
@@ -12,10 +12,12 @@ interface Props {
   teamLeaderboards: TeamLeaderboards;
   standings: Record<string, StandingRow[]>;
   topScorers: PlayerGoalStat[];
+  playerEventLeaderboards: PlayerEventLeaderboards;
+  teamStatLeaderboards: TeamStatLeaderboards;
   hasEventData: boolean;
 }
 
-export default function StatsContent({ tournamentStats, teamLeaderboards, standings, topScorers, hasEventData }: Props) {
+export default function StatsContent({ tournamentStats, teamLeaderboards, standings, topScorers, playerEventLeaderboards, teamStatLeaderboards, hasEventData }: Props) {
   const { t, country } = useLang();
   const { timeZone } = useTimezone();
   const tz = timeZone || "UTC";
@@ -275,6 +277,40 @@ export default function StatsContent({ tournamentStats, teamLeaderboards, standi
               </ul>
             </div>
           </div>
+          
+          <div className="grid gap-6 sm:grid-cols-3 mt-6">
+            {[
+              { title: 'Shots', data: teamStatLeaderboards.shots },
+              { title: 'Shots on Target', data: teamStatLeaderboards.shotsOnTarget },
+              { title: 'Corners', data: teamStatLeaderboards.corners },
+              { title: 'Fouls Committed', data: teamStatLeaderboards.fouls },
+              { title: 'Saves', data: teamStatLeaderboards.saves },
+              { title: 'Offsides', data: teamStatLeaderboards.offsides },
+              { title: 'Possession (Avg %)', data: teamStatLeaderboards.possession },
+              { title: 'Substitutions Used', data: teamStatLeaderboards.substitutions }
+            ].map(lb => (
+              <div key={lb.title} className="rounded-xl border border-white/10 bg-navyCard overflow-hidden">
+                <div className="border-b border-white/10 bg-navy/50 px-4 py-3">
+                  <p className="font-heading text-xs font-extrabold uppercase tracking-widest text-white/60">
+                    {lb.title}
+                  </p>
+                </div>
+                {lb.data.length > 0 ? (
+                  <ul className="divide-y divide-white/5">
+                    {lb.data.map((stat, i) => (
+                      <li key={stat.teamKey + i} className="flex items-center gap-3 px-4 py-2.5">
+                        <span className="w-5 shrink-0 font-heading text-xs font-bold text-white/30">{i + 1}</span>
+                        <span className="flex-1 truncate font-semibold text-white text-sm">{country(stat.teamKey)}</span>
+                        <span className="font-heading text-sm font-extrabold tabular-nums text-white">{stat.value}</span>
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <div className="p-4 text-center text-xs text-white/40">No data available</div>
+                )}
+              </div>
+            ))}
+          </div>
         </section>
       )}
 
@@ -298,6 +334,7 @@ export default function StatsContent({ tournamentStats, teamLeaderboards, standi
         )}
 
         {hasEventData && topScorers.length > 0 ? (
+          <>
           <div className="rounded-xl border border-white/10 bg-navyCard overflow-hidden">
             <div className="border-b border-white/10 bg-navy/50 px-4 py-3 flex items-center justify-between">
               <p className="font-heading text-xs font-extrabold uppercase tracking-widest text-white/60">
@@ -326,6 +363,41 @@ export default function StatsContent({ tournamentStats, teamLeaderboards, standi
               ))}
             </ul>
           </div>
+
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 mt-6">
+            {[
+              { title: 'Most Assists', data: playerEventLeaderboards.assists },
+              { title: 'Yellow Cards', data: playerEventLeaderboards.yellowCards },
+              { title: 'Red Cards', data: playerEventLeaderboards.redCards },
+              { title: 'Penalty Goals', data: playerEventLeaderboards.penaltyGoals },
+              { title: 'Own Goals', data: playerEventLeaderboards.ownGoals }
+            ].map(lb => (
+              <div key={lb.title} className="rounded-xl border border-white/10 bg-navyCard overflow-hidden">
+                <div className="border-b border-white/10 bg-navy/50 px-4 py-3">
+                  <p className="font-heading text-xs font-extrabold uppercase tracking-widest text-white/60">
+                    {lb.title}
+                  </p>
+                </div>
+                {lb.data.length > 0 ? (
+                  <ul className="divide-y divide-white/5">
+                    {lb.data.map((stat, i) => (
+                      <li key={stat.playerName + i} className="flex items-center gap-3 px-4 py-2.5">
+                        <span className="w-5 shrink-0 font-heading text-xs font-bold text-white/30">{i + 1}</span>
+                        <div className="flex-1 min-w-0">
+                          <p className="truncate font-semibold text-white text-sm">{stat.playerName}</p>
+                          {stat.teamName && <p className="text-xs text-white/40">{country(stat.teamName)}</p>}
+                        </div>
+                        <span className="font-heading text-sm font-extrabold tabular-nums text-accent">{stat.value}</span>
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <div className="p-4 text-center text-xs text-white/40">No data available</div>
+                )}
+              </div>
+            ))}
+          </div>
+          </>
         ) : (
           <div className="rounded-xl border border-white/10 bg-navyCard p-6 text-center">
             <p className="font-heading text-xs font-bold uppercase tracking-widest text-white/30">

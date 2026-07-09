@@ -41,6 +41,8 @@ function emptySnapshot(snapshotId: string): TournamentLiveSnapshot {
       mostWins: [],
     },
     topScorers: [],
+    playerEventLeaderboards: { assists: [], yellowCards: [], redCards: [], ownGoals: [], penaltyGoals: [] },
+    teamStatLeaderboards: { shots: [], shotsOnTarget: [], corners: [], fouls: [], saves: [], offsides: [], possession: [], substitutions: [] },
     primaryProviderOk: true,
     secondaryProviderOk: true,
     primaryProviderFetchedAt: "2026-06-12T21:00:00.000Z",

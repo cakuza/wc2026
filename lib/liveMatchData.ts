@@ -58,6 +58,17 @@ export type LiveMatchData = {
   goals?: LiveMatchEvent[];
   bookings?: LiveMatchEvent[];
   substitutions?: LiveMatchEvent[];
+  teamStats?: {
+    possession: { home: number; away: number };
+    shots: { home: number; away: number };
+    shotsOnTarget: { home: number; away: number };
+    corners: { home: number; away: number };
+    fouls: { home: number; away: number };
+    yellowCards: { home: number; away: number };
+    redCards: { home: number; away: number };
+    saves: { home: number; away: number };
+    offsides: { home: number; away: number };
+  };
 };
 
 function mapCardType(t: unknown): LiveMatchEvent["type"] {

@@ -55,6 +55,8 @@ export default async function StatsPage() {
         teamLeaderboards={snapshot.teamLeaderboards}
         standings={snapshot.standingsByGroup}
         topScorers={snapshot.topScorers}
+        playerEventLeaderboards={snapshot.playerEventLeaderboards}
+        teamStatLeaderboards={snapshot.teamStatLeaderboards}
         hasEventData={hasEventData}
       />
     </>

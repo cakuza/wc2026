@@ -176,7 +176,7 @@ export const KICKOFF_TARGET = "2026-06-11T19:00:00Z";
 
 // Final matchday — exact kickoff time TBC, so this marks end-of-day for countdown purposes.
 export const TOURNAMENT_FINAL_DATE = new Date(Math.max(...MATCHES.map(m => matchUtcDate(m).getTime()))).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" });
-export const ARCHIVE_DEFAULT_DATE = "2026-07-20T04:00:00Z";
+export const ARCHIVE_DEFAULT_DATE = "2026-07-09T20:00:00Z";
 
 /** Convert a fixture's venue-local kickoff into an absolute UTC instant. */
 export function matchUtcDate(m: Match): Date {

@@ -595,6 +595,31 @@ export function MatchDetail({
                 <EmptyEvents note={t("match_noEvents")} />
               )}
             </EventSection>
+
+            {/* Team Stats */}
+            {live?.teamStats && (
+              <EventSection title="Team stats" icon="📊">
+                <div className="flex flex-col gap-3 text-sm">
+                  {[
+                    { label: "Possession", home: `${live.teamStats.possession.home}%`, away: `${live.teamStats.possession.away}%` },
+                    { label: "Shots", home: live.teamStats.shots.home, away: live.teamStats.shots.away },
+                    { label: "Shots on target", home: live.teamStats.shotsOnTarget.home, away: live.teamStats.shotsOnTarget.away },
+                    { label: "Corners", home: live.teamStats.corners.home, away: live.teamStats.corners.away },
+                    { label: "Fouls", home: live.teamStats.fouls.home, away: live.teamStats.fouls.away },
+                    { label: "Yellow cards", home: live.teamStats.yellowCards.home, away: live.teamStats.yellowCards.away },
+                    { label: "Red cards", home: live.teamStats.redCards.home, away: live.teamStats.redCards.away },
+                    { label: "Saves", home: live.teamStats.saves.home, away: live.teamStats.saves.away },
+                    { label: "Offsides", home: live.teamStats.offsides.home, away: live.teamStats.offsides.away },
+                  ].map((stat, i) => (
+                    <div key={i} className="flex items-center justify-between border-b border-white/5 pb-2 last:border-0 last:pb-0">
+                      <span className="w-12 text-center font-heading font-bold tabular-nums text-white">{stat.home}</span>
+                      <span className="flex-1 text-center text-xs font-semibold uppercase tracking-wider text-white/50">{stat.label}</span>
+                      <span className="w-12 text-center font-heading font-bold tabular-nums text-white">{stat.away}</span>
+                    </div>
+                  ))}
+                </div>
+              </EventSection>
+            )}
           </>
         )}
       </div>

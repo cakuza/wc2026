@@ -6,9 +6,13 @@ import {
   computeTeamLeaderboards,
   computeTopScorers,
   computeTournamentStats,
+  computePlayerEventLeaderboards,
+  computeTeamStatLeaderboards,
   type PlayerGoalStat,
   type TeamLeaderboards,
   type TournamentStats,
+  type PlayerEventLeaderboards,
+  type TeamStatLeaderboards,
 } from "./tournamentStats";
 import type { LiveMatchData, LiveMatchEvent, LiveMatchStatus } from "./liveMatchData";
 import { getGoalEventCompleteness, type GoalEventCompleteness } from "./goalEventCompleteness";
@@ -71,6 +75,8 @@ export type TournamentLiveSnapshot = {
   thirdPlaceRanking: ThirdPlaceRow[];
   tournamentStats: TournamentStats;
   teamLeaderboards: TeamLeaderboards;
+  playerEventLeaderboards: PlayerEventLeaderboards;
+  teamStatLeaderboards: TeamStatLeaderboards;
   topScorers: PlayerGoalStat[];
   /** Diagnostics — internal freshness tracking, not provider-branded for public display. */
   primaryProviderOk: boolean;
@@ -177,6 +183,7 @@ export function toLiveGoalEvent(event: GoalScorerEvent): LiveMatchEvent {
     playerTeamName: event.playerTeamName,
     playerName: event.playerName,
     isOwnGoal: event.isOwnGoal,
+    assistName: event.assistName,
   };
 }
 
@@ -368,6 +375,7 @@ function canonicalizeWorldcupScorer(
     ...event,
     teamName: scoringTeam,
     playerName,
+    assistName: event.assistName,
     confidence: playerName === "Scorer unavailable" ? "low" : event.confidence,
   };
 }
@@ -426,6 +434,7 @@ function withCanonicalMatchState({
     goals: goals.length > 0 ? goals : live?.goals,
     bookings: live?.bookings,
     substitutions: live?.substitutions,
+    teamStats: live?.teamStats,
   };
 }
 
@@ -557,6 +566,7 @@ export async function buildTournamentLiveSnapshot({
       playerName: event.playerName ?? "Scorer pending",
       isOwnGoal: event.isOwnGoal,
       isPenalty: event.type === "PENALTY_GOAL",
+      assistName: event.assistName,
       provider: event.providerEventId ? "football-data.org" : "worldcup26.ir",
       confidence: event.playerName && !/^Scorer (unavailable|pending)$/i.test(event.playerName) ? "high" : "low",
     }));
@@ -600,6 +610,8 @@ export async function buildTournamentLiveSnapshot({
   const tournamentStats = computeTournamentStats(canonicalLiveData, matches);
   const teamLeaderboards = computeTeamLeaderboards(standingsByGroup);
   const topScorers = topScorersFromSnapshot(scorerEventsByMatch, canonicalLiveData, matches);
+  const playerEventLeaderboards = computePlayerEventLeaderboards(canonicalLiveData);
+  const teamStatLeaderboards = computeTeamStatLeaderboards(canonicalLiveData, matches);
   const snapshotId = makeSnapshotId(generatedAt, matches);
 
   return {
@@ -613,6 +625,8 @@ export async function buildTournamentLiveSnapshot({
     tournamentStats,
     teamLeaderboards,
     topScorers,
+    playerEventLeaderboards,
+    teamStatLeaderboards,
     primaryProviderOk,
     secondaryProviderOk,
     primaryProviderFetchedAt,
@@ -712,8 +726,9 @@ export function monotonicMergeWorldcupGames(
 }
 
 export function getTournamentLiveSnapshot(): Promise<TournamentLiveSnapshot> {
+  const { readStaticArchiveData } = require('./staticArchiveReader');
   return buildTournamentLiveSnapshot({
-    liveData: new Map(),
+    liveData: readStaticArchiveData(),
     worldcupGames: null,
     generatedAt: new Date().toISOString(),
     primaryProviderOk: false,
