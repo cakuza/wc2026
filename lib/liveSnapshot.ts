@@ -306,11 +306,13 @@ function scorersFromWorldcupGame(
   game: WorldCup26Game | undefined,
   resolvedParticipants?: ResolvedParticipantLookup
 ): GoalScorerEvent[] {
-  if (!game) return [];
   const internalId = matchSlug(match);
+  if (!game) {
+    return applyVerifiedGoalCorrections(internalId, []);
+  }
   const homeTeam = getResolvedHomeTeam(match, resolvedParticipants);
   const awayTeam = getResolvedAwayTeam(match, resolvedParticipants);
-  if (!homeTeam || !awayTeam) return [];
+  if (!homeTeam || !awayTeam) return applyVerifiedGoalCorrections(internalId, []);
   const homeDisplay = countryName(homeTeam, "en");
   const awayDisplay = countryName(awayTeam, "en");
   return applyVerifiedGoalCorrections(internalId, dedupeScorers([
