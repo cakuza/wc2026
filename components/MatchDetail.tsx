@@ -443,7 +443,7 @@ export function MatchDetail({
                       </span>
                       <span className="font-semibold text-white/90">{g.playerName ?? "Scorer pending"}</span>
                       {g.teamName && (
-                        <span className="text-white/60 mx-1">— {countryName(g.teamName, "en")}</span>
+                        <span className="text-white/60 mx-1">— {country(g.teamName)}</span>
                       )}
                       {g.assistName && (
                         <span className="text-[11px] text-white/40">(ast: {g.assistName})</span>
@@ -583,6 +583,9 @@ export function MatchDetail({
                       <span className="w-8 shrink-0 text-right font-heading font-bold tabular-nums text-white/50">
                         {b.minute != null ? `${b.minute}'` : "—"}
                       </span>
+                      {b.teamName && (
+                        <span className="text-white/60 mr-1">{country(b.teamName)} — </span>
+                      )}
                       <span
                         className={`h-4 w-3 shrink-0 rounded-sm ${
                           b.type === "RED_CARD" ? "bg-red-500" : "bg-yellow-400"
@@ -608,7 +611,7 @@ export function MatchDetail({
                         {s.minute != null ? `${s.minute}'` : "—"}
                       </span>
                       {s.teamName && (
-                        <span className="text-white/60 mr-1">{countryName(s.teamName, "en")} — </span>
+                        <span className="text-white/60 mr-1">{country(s.teamName)} — </span>
                       )}
                       <span className="text-green-400">↑</span>
                       <span className="font-semibold text-white">{s.playerName ?? "—"}</span>
@@ -633,7 +636,7 @@ export function MatchDetail({
                       <span className="text-white mx-2 shrink-0">{s.playerName}</span>
                       {s.teamName && (
                         <span className="font-normal text-white/60 ml-1 truncate">
-                          — {countryName(s.teamName, "en")}
+                          — {country(s.teamName)}
                         </span>
                       )}
                       <span className={`ml-auto font-medium ${s.type === 'PENALTY_SHOOTOUT_SCORED' ? 'text-green-400' : 'text-red-400'}`}>

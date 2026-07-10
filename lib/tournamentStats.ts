@@ -211,9 +211,8 @@ export function computePlayerEventLeaderboards(liveData: ReadonlyMap<number, Liv
           track(assistsMap, goal.assistName, goal.assistName, goal.teamName);
         }
         if (goal.isOwnGoal && goal.playerName) {
-          track(ogMap, goal.playerName, goal.playerName, goal.teamName);
-        }
-        if (goal.type === 'PENALTY_GOAL' && goal.playerName) {
+          track(ogMap, goal.playerName, goal.playerName, goal.playerTeamName ?? null);
+        } else if (goal.type === 'PENALTY_GOAL' && goal.playerName) {
           track(pgMap, goal.playerName, goal.playerName, goal.teamName);
         }
       }
