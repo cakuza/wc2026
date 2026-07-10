@@ -4,9 +4,9 @@ import { applyVerifiedGoalCorrections } from '../../lib/verifiedMatchEventCorrec
 import { MATCHES, matchSlug } from '../../lib/matches';
 
 const RAW_DIR = path.join(process.cwd(), 'data/archive/raw/espn/2026');
-const MAP_PATH = path.join(process.cwd(), 'data/archive/provenance/espn-match-map.candidate.json');
-const OUTPUT_EVENTS = path.join(process.cwd(), 'data/archive/match-events.candidate.json');
-const REVIEW_REPORT = path.join(process.cwd(), 'data/archive/reports/espn-manual-review.candidate.json');
+const MAP_PATH = path.join(process.cwd(), 'data/archive/provenance/espn-match-map.json');
+const OUTPUT_EVENTS = path.join(process.cwd(), 'data/archive/match-events.json');
+const REVIEW_REPORT = path.join(process.cwd(), 'data/archive/reports/espn-manual-review.json');
 
 type StaticMatchEvent = {
   matchId: string;
@@ -26,14 +26,14 @@ type StaticMatchEvent = {
 function run() {
     const manifest = JSON.parse(fs.readFileSync(MAP_PATH, 'utf8'));
     const mapped = manifest.filter((m: any) => m.espnEventId && m.mappingConfidence !== 'unresolved');
-    
+
     let allEvents: StaticMatchEvent[] = [];
     let reviewItems = [];
 
     for (const m of MATCHES) {
         const internalId = matchSlug(m);
         const verifiedEvents = applyVerifiedGoalCorrections(internalId, []) as any[];
-        
+
         if (verifiedEvents.length > 0) {
             for (const ev of verifiedEvents) {
                 allEvents.push({
@@ -41,7 +41,7 @@ function run() {
                     playerName: ev.playerName,
                     eventType: ev.type?.toLowerCase() || (ev.isPenalty ? 'penalty_goal' : (ev.isOwnGoal ? 'own_goal' : 'goal')),
                     minute: ev.minute,
-                    teamKey: ev.teamName,
+                    teamKey: ev.playerTeamName || ev.teamName,
                     sourceId: 'repo_verified',
                     confidence: 'verified'
                 });
@@ -59,11 +59,11 @@ function run() {
         const verifiedExists = verifiedEvents.length > 0;
 
         const espnEvents = payload.keyEvents || [];
-        
+
         // Check goals conflict
         const espnGoals = espnEvents.filter((e: any) => e.type?.text?.toLowerCase().includes('goal'));
         const repoGoalsCount = verifiedExists ? verifiedEvents.length : 0;
-        
+
         if (verifiedExists && espnGoals.length !== repoGoalsCount) {
             reviewItems.push({
                 matchId: m.internalMatchId,
@@ -83,6 +83,8 @@ function run() {
                     playerName: e.participants?.[0]?.athlete?.displayName || 'Unknown',
                     eventType: t.includes('red') ? 'red_card' : (t.includes('yellow') ? 'yellow_card' : 'substitution'),
                     minute: e.clock?.displayValue ? parseInt(e.clock.displayValue) : undefined,
+                    teamKey: e.team?.displayName || '',
+                    relatedPlayerName: e.participants?.[1]?.athlete?.displayName,
                     sourceId: 'espn',
                     confidence: 'source_single'
                 });
@@ -104,7 +106,9 @@ function run() {
                         playerName: e.participants?.[0]?.athlete?.displayName || 'Unknown',
                         eventType: eventType,
                         minute: e.clock?.displayValue ? parseInt(e.clock.displayValue) : undefined,
-                        teamKey: e.team?.displayName || '',
+                        teamKey: isOwnGoal
+                            ? (payload.boxscore?.teams?.find((t: any) => t.team?.displayName !== e.team?.displayName)?.team?.displayName || e.team?.displayName || '')
+                            : (e.team?.displayName || ''),
                         assistPlayerName: assistPlayerName,
                         sourceId: 'espn',
                         confidence: 'source_single'
@@ -112,8 +116,8 @@ function run() {
                 } else {
                     if (assistPlayerName) {
                         const min = e.clock?.displayValue ? parseInt(e.clock.displayValue) : undefined;
-                        const targetGoal = allEvents.find(x => 
-                            x.matchId === m.internalMatchId && 
+                        const targetGoal = allEvents.find(x =>
+                            x.matchId === m.internalMatchId &&
                             x.eventType.includes('goal') &&
                             x.minute === min
                         );
@@ -124,7 +128,7 @@ function run() {
                 }
             }
         }
-        
+
         // Handle penalty shootouts
         if (payload.shootout && Array.isArray(payload.shootout)) {
             for (const teamShootout of payload.shootout) {

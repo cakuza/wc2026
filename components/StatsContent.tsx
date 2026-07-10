@@ -353,7 +353,7 @@ export default function StatsContent({ tournamentStats, teamLeaderboards, standi
                   <div className="flex-1 min-w-0">
                     <p className="truncate font-semibold text-white text-sm">{scorer.playerName}</p>
                     {scorer.teamName && (
-                      <p className="text-xs text-white/40">{scorer.teamName}</p>
+                      <p className="text-xs text-white/40">{country(scorer.teamName)}</p>
                     )}
                   </div>
                   <span className="font-heading text-sm font-extrabold tabular-nums text-accent">

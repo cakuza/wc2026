@@ -19,6 +19,7 @@ import { buildScorerSentence } from "@/lib/resultSummary";
 import { missingScorerDetailText, type GoalEventCompleteness } from "@/lib/goalEventCompleteness";
 import { type SnapshotMatchStatus } from "@/lib/liveSnapshot";
 import { reconcileGoalEvents, isMatchInReconciliationWindow } from "@/lib/scoreReconciliation";
+import matchEventsData from "@/data/archive/match-events.json";
 import { isCanonicalComplete } from "@/lib/liveRefreshPolicy";
 import type { GoalScorerEvent } from "@/lib/worldcup26Provider";
 import { slugFor } from "@/lib/teams";
@@ -269,16 +270,20 @@ export function MatchDetail({
   const homeEnglish = homeKey ? countryName(homeKey, "en") : homeName;
   const awayEnglish = awayKey ? countryName(awayKey, "en") : awayName;
 
-  const staticGoalEvents: LiveMatchEvent[] = (events?.goals || []).map(g => ({
-    type: g.type === "PENALTY" ? "PENALTY_GOAL" : g.type,
-    minute: g.minute,
-    stoppageTime: g.injuryTime,
-    minuteLabel: `${g.minute}${g.injuryTime ? `+${g.injuryTime}` : ""}'`,
-    teamName: g.team === match.homeKey ? homeEnglish : awayEnglish,
-    playerName: g.scorer,
-    assistName: g.assist,
-    isOwnGoal: g.type === "OWN_GOAL",
-  }));
+  const allStaticEvents = (matchEventsData as any[]).filter(e => e.matchId === matchSlug(match));
+
+  const staticGoalEvents: LiveMatchEvent[] = allStaticEvents
+    .filter(e => e.eventType === 'goal' || e.eventType === 'own_goal' || e.eventType === 'penalty_goal')
+    .map(e => ({
+      type: e.eventType === 'own_goal' ? 'OWN_GOAL' : e.eventType === 'penalty_goal' ? 'PENALTY_GOAL' : 'GOAL',
+      minute: e.minute,
+      stoppageTime: e.stoppageMinute || null,
+      minuteLabel: `${e.minute}${e.stoppageMinute ? `+${e.stoppageMinute}` : ""}'`,
+      teamName: e.teamKey,
+      playerName: e.playerName,
+      assistName: e.assistPlayerName,
+      isOwnGoal: e.eventType === 'own_goal',
+    }));
   const goalEventsSource = staticGoalEvents.length > 0
     ? staticGoalEvents
     : (live?.goals && live.goals.length > 0 ? live.goals : liveState.scorers);
@@ -295,19 +300,35 @@ export function MatchDetail({
   });
   const scorers = buildScorerSentence(confirmedGoals.map(toLiveGoalEvent), homeName, awayName, goalCompleteness);
 
-  const staticCards = (events?.cards || []).map(c => ({
-    minute: c.minute,
-    type: c.type === "YELLOW" ? "YELLOW_CARD" : "RED_CARD",
-    playerName: c.player,
-  }));
+  const staticCards = allStaticEvents
+    .filter(e => e.eventType === 'yellow_card' || e.eventType === 'red_card')
+    .map(e => ({
+      minute: e.minute,
+      type: e.eventType === 'yellow_card' ? 'YELLOW_CARD' : 'RED_CARD',
+      playerName: e.playerName,
+      teamName: e.teamKey,
+    }));
   const cardsSource = staticCards.length > 0 ? staticCards : (live?.bookings || []);
 
-  const staticSubs = (events?.substitutions || []).map(s => ({
-    minute: s.minute,
-    playerName: s.playerIn,
-    detail: s.playerOut,
-  }));
+  const staticSubs = allStaticEvents
+    .filter(e => e.eventType === 'substitution')
+    .map(e => ({
+      minute: e.minute,
+      playerName: e.playerName,
+      detail: e.relatedPlayerName,
+      teamName: e.teamKey,
+    }));
   const subsSource = staticSubs.length > 0 ? staticSubs : (live?.substitutions || []);
+
+  const staticShootouts = allStaticEvents
+    .filter(e => e.eventType === 'penalty_shootout_scored' || e.eventType === 'penalty_shootout_missed')
+    .map(e => ({
+      type: e.eventType === 'penalty_shootout_scored' ? 'PENALTY_SHOOTOUT_SCORED' : 'PENALTY_SHOOTOUT_MISSED',
+      minute: null,
+      teamName: e.teamKey,
+      playerName: e.playerName,
+    }));
+  const shootoutsSource = staticShootouts;
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-8">
@@ -421,6 +442,9 @@ export function MatchDetail({
                         {g.minuteLabel ?? (g.minute != null ? `${g.minute}'` : "—")}
                       </span>
                       <span className="font-semibold text-white/90">{g.playerName ?? "Scorer pending"}</span>
+                      {g.teamName && (
+                        <span className="text-white/60 mx-1">— {countryName(g.teamName, "en")}</span>
+                      )}
                       {g.assistName && (
                         <span className="text-[11px] text-white/40">(ast: {g.assistName})</span>
                       )}
@@ -583,6 +607,9 @@ export function MatchDetail({
                       <span className="w-8 shrink-0 text-right font-heading font-bold tabular-nums text-white/50">
                         {s.minute != null ? `${s.minute}'` : "—"}
                       </span>
+                      {s.teamName && (
+                        <span className="text-white/60 mr-1">{countryName(s.teamName, "en")} — </span>
+                      )}
                       <span className="text-green-400">↑</span>
                       <span className="font-semibold text-white">{s.playerName ?? "—"}</span>
                       <span className="text-white/30">/</span>
@@ -595,6 +622,28 @@ export function MatchDetail({
                 <EmptyEvents note={t("match_noEvents")} />
               )}
             </EventSection>
+
+            {/* Penalty Shootout */}
+            {shootoutsSource.length > 0 && (
+              <EventSection title="Penalty shootout" icon="🥅">
+                <ul className="space-y-2">
+                  {shootoutsSource.map((s, i) => (
+                    <li key={i} className="flex items-center text-[13px]">
+                      <span className="font-bold text-white w-8 shrink-0">{i + 1}</span>
+                      <span className="text-white mx-2 shrink-0">{s.playerName}</span>
+                      {s.teamName && (
+                        <span className="font-normal text-white/60 ml-1 truncate">
+                          — {countryName(s.teamName, "en")}
+                        </span>
+                      )}
+                      <span className={`ml-auto font-medium ${s.type === 'PENALTY_SHOOTOUT_SCORED' ? 'text-green-400' : 'text-red-400'}`}>
+                        {s.type === 'PENALTY_SHOOTOUT_SCORED' ? 'Scored' : 'Missed'}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              </EventSection>
+            )}
 
             {/* Team Stats */}
             {live?.teamStats && (

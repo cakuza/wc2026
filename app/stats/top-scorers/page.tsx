@@ -39,7 +39,7 @@ export const metadata: Metadata = {
 
 function teamKeyFromName(teamName: string | null): string | null {
   if (!teamName) return null;
-  return TEAMS.find((t) => countryName(t.key, "en") === teamName)?.key ?? null;
+  return TEAMS.find((t) => countryName(t.key, "en") === teamName || t.key === teamName)?.key ?? null;
 }
 
 function teamCodeForKey(key: string): string {
@@ -170,7 +170,7 @@ export default async function TopScorersPage() {
                 const teamKey = teamKeyFromName(scorer.teamName);
                 const teamCode = teamKey ? teamCodeForKey(teamKey) : "un";
                 const teamSlug = teamKey ? teamSlugForKey(teamKey) : null;
-                const displayName = scorer.teamName ?? "";
+                const displayName = teamKey ? countryName(teamKey, "en") : (scorer.teamName ?? "");
 
                 return (
                   <div
