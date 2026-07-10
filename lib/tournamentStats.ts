@@ -28,7 +28,7 @@ export type TournamentStats = {
   scorerTotalsComplete: boolean;
 };
 
-export type TeamLeaderboard = { teamKey: string; value: number };
+export type TeamLeaderboard = { teamKey: string; value: number; matchesCovered?: number };
 
 export type PlayerEventStat = {
   playerName: string;
@@ -42,6 +42,8 @@ export type PlayerEventLeaderboards = {
   redCards: PlayerEventStat[];
   ownGoals: PlayerEventStat[];
   penaltyGoals: PlayerEventStat[];
+  shootoutScored: PlayerEventStat[];
+  shootoutMissed: PlayerEventStat[];
 };
 
 export type TeamStatLeaderboards = {
@@ -53,11 +55,13 @@ export type TeamStatLeaderboards = {
   offsides: TeamLeaderboard[];
   possession: TeamLeaderboard[];
   substitutions: TeamLeaderboard[];
+  cleanSheets: TeamLeaderboard[];
+  goalsConceded: TeamLeaderboard[];
 };
 
 export type TeamLeaderboards = {
   topScoringTeams: TeamLeaderboard[];
-  mostPoints: TeamLeaderboard[];
+  groupStagePoints: TeamLeaderboard[];
   mostWins: TeamLeaderboard[];
 };
 
@@ -77,7 +81,7 @@ export function computeTournamentStats(
   let highestScoringMatch: TournamentStats["highestScoringMatch"] = null;
   let biggestWin: TournamentStats["biggestWin"] = null;
   let lastSyncedAt: string | null = null;
-  
+
   let unresolvedCompletedMatchGoals = 0;
   let completedMatchesWithUnresolvedScorers = 0;
   let conflictedCompletedMatches = 0;
@@ -119,28 +123,23 @@ export function computeTournamentStats(
       lastSyncedAt = live.lastSyncedAt;
     }
   }
-  
+
   if (matches) {
     for (const m of Object.values(matches)) {
       if (m.status !== "FINISHED") continue;
-      
+
       const missing = m.goalEventCompleteness.missingGoalEventCount ?? 0;
       // also check for low confidence scorers
       const hasLowConfidence = m.scorers.some(s => s.confidence === "low");
       // own goals without player attribution
       const hasUnattributedOwnGoals = m.scorers.some(s => s.isOwnGoal && !s.playerTeamName);
-      
+
       const isUnresolved = missing > 0 || hasLowConfidence || hasUnattributedOwnGoals;
-      
+
       if (isUnresolved) {
         completedMatchesWithUnresolvedScorers++;
         unresolvedCompletedMatchGoals += missing;
       }
-      
-      // If we flagged it conflicted during KickoffAPI or earlier
-      // We don't have a direct 'conflicted' boolean in SerializableSnapshotMatch yet,
-      // but if missing is very large it might be conflicted.
-      // Assuming we just track unresolved primarily for honesty.
     }
   }
 
@@ -148,7 +147,7 @@ export function computeTournamentStats(
     matchesPlayed > 0
       ? Math.round((totalGoals / matchesPlayed) * 10) / 10
       : 0;
-      
+
   const scorerTotalsComplete = completedMatchesWithUnresolvedScorers === 0 && conflictedCompletedMatches === 0;
 
   return {
@@ -177,7 +176,7 @@ export function computeTeamLeaderboards(
     .slice(0, 5)
     .map((r) => ({ teamKey: r.teamKey, value: r.goalsFor }));
 
-  const mostPoints = [...allRows]
+  const groupStagePoints = [...allRows]
     .sort((a, b) => b.points - a.points || b.goalDifference - a.goalDifference)
     .slice(0, 5)
     .map((r) => ({ teamKey: r.teamKey, value: r.points }));
@@ -187,7 +186,7 @@ export function computeTeamLeaderboards(
     .slice(0, 5)
     .map((r) => ({ teamKey: r.teamKey, value: r.wins }));
 
-  return { topScoringTeams, mostPoints, mostWins };
+  return { topScoringTeams, groupStagePoints, mostWins };
 }
 
 /** Compile top scorers from event data. Only counts when eventDataAvailable = true. */
@@ -197,6 +196,8 @@ export function computePlayerEventLeaderboards(liveData: ReadonlyMap<number, Liv
   const rcMap = new Map<string, PlayerEventStat>();
   const ogMap = new Map<string, PlayerEventStat>();
   const pgMap = new Map<string, PlayerEventStat>();
+  const ssMap = new Map<string, PlayerEventStat>();
+  const smMap = new Map<string, PlayerEventStat>();
 
   const track = (map: Map<string, PlayerEventStat>, key: string, name: string | null, teamName: string | null) => {
     if (!name || /^Scorer (unavailable|pending)$/i.test(name)) return;
@@ -227,54 +228,84 @@ export function computePlayerEventLeaderboards(liveData: ReadonlyMap<number, Liv
         }
       }
     }
+    if (data.shootoutAttempts) {
+      for (const s of data.shootoutAttempts) {
+        if (s.type === "PENALTY_SHOOTOUT_SCORED" && s.playerName) {
+          track(ssMap, s.playerName, s.playerName, s.teamName);
+        }
+        if (s.type === "PENALTY_SHOOTOUT_MISSED" && s.playerName) {
+          track(smMap, s.playerName, s.playerName, s.teamName);
+        }
+      }
+    }
   }
 
-  const getTop = (map: Map<string, PlayerEventStat>) => Array.from(map.values()).sort((a, b) => b.value - a.value).slice(0, 10);
+  const getTop = (map: Map<string, PlayerEventStat>) => Array.from(map.values()).sort((a, b) => b.value - a.value).slice(0, 100);
 
   return {
     assists: getTop(assistsMap),
     yellowCards: getTop(ycMap),
     redCards: getTop(rcMap),
     ownGoals: getTop(ogMap),
-    penaltyGoals: getTop(pgMap)
+    penaltyGoals: getTop(pgMap),
+    shootoutScored: getTop(ssMap),
+    shootoutMissed: getTop(smMap),
   };
 }
 
 export function computeTeamStatLeaderboards(liveData: ReadonlyMap<number, LiveMatchData>, matches: Record<string, import("./liveSnapshot").SerializableSnapshotMatch>): TeamStatLeaderboards {
   const sums = new Map<string, Record<string, number>>();
   const matchesPlayed = new Map<string, number>();
+  const statsCovered = new Map<string, number>();
+  const subsCovered = new Map<string, number>();
   const possSum = new Map<string, number>();
   const subCount = new Map<string, number>();
+  const cleanSheets = new Map<string, number>();
+  const goalsConceded = new Map<string, number>();
 
   const init = (team: string) => {
     if (!sums.has(team)) {
       sums.set(team, { shots: 0, shotsOnTarget: 0, corners: 0, fouls: 0, saves: 0, offsides: 0 });
       matchesPlayed.set(team, 0);
+      statsCovered.set(team, 0);
+      subsCovered.set(team, 0);
       possSum.set(team, 0);
       subCount.set(team, 0);
+      cleanSheets.set(team, 0);
+      goalsConceded.set(team, 0);
     }
   };
 
   for (const match of Object.values(matches)) {
+    if (match.status !== "FINISHED") continue;
     const data = match.live;
     if (!data) continue;
 
     const home = match.match.homeKey;
     const away = match.match.awayKey;
-    
-    // We only care about teams that have resolved names
+
     if (home === 'tbd' || away === 'tbd') continue;
+    init(home);
+    init(away);
+
+    matchesPlayed.set(home, matchesPlayed.get(home)! + 1);
+    matchesPlayed.set(away, matchesPlayed.get(away)! + 1);
+
+    if (data.homeScore !== null && data.awayScore !== null) {
+      if (data.awayScore === 0) cleanSheets.set(home, cleanSheets.get(home)! + 1);
+      if (data.homeScore === 0) cleanSheets.set(away, cleanSheets.get(away)! + 1);
+
+      goalsConceded.set(home, goalsConceded.get(home)! + data.awayScore);
+      goalsConceded.set(away, goalsConceded.get(away)! + data.homeScore);
+    }
 
     if (data.teamStats) {
-      init(home);
-      init(away);
-      
-      matchesPlayed.set(home, matchesPlayed.get(home)! + 1);
-      matchesPlayed.set(away, matchesPlayed.get(away)! + 1);
-      
+      statsCovered.set(home, statsCovered.get(home)! + 1);
+      statsCovered.set(away, statsCovered.get(away)! + 1);
+
       const hs = sums.get(home)!;
       const as = sums.get(away)!;
-      
+
       hs.shots += data.teamStats.shots.home || 0;
       hs.shotsOnTarget += data.teamStats.shotsOnTarget.home || 0;
       hs.corners += data.teamStats.corners.home || 0;
@@ -291,57 +322,68 @@ export function computeTeamStatLeaderboards(liveData: ReadonlyMap<number, LiveMa
       as.offsides += data.teamStats.offsides.away || 0;
       possSum.set(away, possSum.get(away)! + (data.teamStats.possession.away || 0));
     }
-    
-    if (data.substitutions) {
+  }
+
+  for (const match of Object.values(matches)) {
+    if (match.status !== "FINISHED") continue;
+    const data = match.live;
+    if (!data) continue;
+
+    const home = match.match.homeKey;
+    const away = match.match.awayKey;
+    if (home === 'tbd' || away === 'tbd') continue;
+
+    if (data.substitutions !== undefined) {
+      subsCovered.set(home, subsCovered.get(home)! + 1);
+      subsCovered.set(away, subsCovered.get(away)! + 1);
       for (const sub of data.substitutions) {
-        // match sub teamName to home/away
-        const teamKey = sub.teamName === home || sub.teamName === away ? sub.teamName : undefined;
-        // actually subs have teamName as display name, but we can match them if they equal the key. Let's just tally by key directly if possible.
-        // let's do a simple count for now based on home/away keys.
+        const teamKeyStr = sub.teamName ? sub.teamName.toLowerCase().replace(/[^a-z]/g, '') : null;
+        if (teamKeyStr) {
+          const actualKey = Array.from(sums.keys()).find(k => k.replace(/[^a-z]/g, '') === teamKeyStr);
+          if (actualKey) {
+            subCount.set(actualKey, subCount.get(actualKey)! + 1);
+          }
+        }
       }
     }
   }
 
-  // Calculate subs by iterating through events and parsing out teamName
-  // Actually, we can just look at data.substitutions and tally by teamName directly, then map it to teamKey.
-  // We'll skip mapping to teamKey if we can't be sure, or just use the display name since our UI component takes a string that gets fed to `country()` or just displayed.
-  // But wait, the country() helper needs a teamKey. It's safer to just iterate matches again and check if teamName matches home/away displayName.
-  for (const match of Object.values(matches)) {
-    const data = match.live;
-    if (!data || !data.substitutions) continue;
-    
-    for (const sub of data.substitutions) {
-       // just use teamName if available, normalize it to teamKey if possible.
-       const teamKey = sub.teamName ? sub.teamName.toLowerCase().replace(/[^a-z]/g, '') : null;
-       if (teamKey) {
-         init(teamKey);
-         subCount.set(teamKey, subCount.get(teamKey)! + 1);
-       }
-    }
-  }
-
-  const getTop = (getter: (team: string) => number) => {
-    const arr = Array.from(matchesPlayed.keys()).map(team => ({ teamKey: team, value: getter(team) }));
-    return arr.sort((a, b) => b.value - a.value).slice(0, 5).filter(x => x.value > 0);
+  const getAll = (getter: (team: string) => number, covGetter: (team: string) => number) => {
+    return Array.from(matchesPlayed.keys())
+      .filter(team => covGetter(team) > 0)
+      .map(team => ({
+        teamKey: team,
+        value: getter(team),
+        matchesCovered: covGetter(team)
+      }))
+      .sort((a, b) => b.value - a.value);
   };
-  
-  const getTopAvg = (getter: (team: string) => number) => {
-    const arr = Array.from(matchesPlayed.keys()).filter(team => matchesPlayed.get(team)! > 0).map(team => {
-      const val = getter(team) / matchesPlayed.get(team)!;
-      return { teamKey: team, value: Math.round(val * 10) / 10 };
-    });
-    return arr.sort((a, b) => b.value - a.value).slice(0, 5).filter(x => x.value > 0);
+
+  const getAllAvg = (getter: (team: string) => number, covGetter: (team: string) => number) => {
+    return Array.from(matchesPlayed.keys())
+      .filter(team => covGetter(team) > 0)
+      .map(team => {
+        const val = getter(team) / covGetter(team);
+        return {
+          teamKey: team,
+          value: Math.round(val * 10) / 10,
+          matchesCovered: covGetter(team)
+        };
+      })
+      .sort((a, b) => b.value - a.value);
   };
 
   return {
-    shots: getTop(t => sums.get(t)?.shots || 0),
-    shotsOnTarget: getTop(t => sums.get(t)?.shotsOnTarget || 0),
-    corners: getTop(t => sums.get(t)?.corners || 0),
-    fouls: getTop(t => sums.get(t)?.fouls || 0),
-    saves: getTop(t => sums.get(t)?.saves || 0),
-    offsides: getTop(t => sums.get(t)?.offsides || 0),
-    possession: getTopAvg(t => possSum.get(t) || 0),
-    substitutions: getTop(t => subCount.get(t) || 0),
+    shots: getAll(t => sums.get(t)?.shots || 0, t => statsCovered.get(t) || 0),
+    shotsOnTarget: getAll(t => sums.get(t)?.shotsOnTarget || 0, t => statsCovered.get(t) || 0),
+    corners: getAll(t => sums.get(t)?.corners || 0, t => statsCovered.get(t) || 0),
+    fouls: getAll(t => sums.get(t)?.fouls || 0, t => statsCovered.get(t) || 0),
+    saves: getAll(t => sums.get(t)?.saves || 0, t => statsCovered.get(t) || 0),
+    offsides: getAll(t => sums.get(t)?.offsides || 0, t => statsCovered.get(t) || 0),
+    possession: getAllAvg(t => possSum.get(t) || 0, t => statsCovered.get(t) || 0),
+    substitutions: getAll(t => subCount.get(t) || 0, t => subsCovered.get(t) || 0),
+    cleanSheets: getAll(t => cleanSheets.get(t) || 0, t => matchesPlayed.get(t) || 0),
+    goalsConceded: getAll(t => goalsConceded.get(t) || 0, t => matchesPlayed.get(t) || 0),
   };
 }
 
@@ -365,5 +407,5 @@ export function computeTopScorers(
 
   return Array.from(scorerMap.values())
     .sort((a, b) => b.goals - a.goals)
-    .slice(0, 10);
+    .slice(0, 100);
 }

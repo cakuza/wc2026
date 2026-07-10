@@ -3937,29 +3937,83 @@
   },
   {
     "matchId": "match-97",
-    "possession": {},
-    "shots": {},
-    "shotsOnTarget": {},
-    "corners": {},
-    "fouls": {},
-    "yellowCards": {},
-    "redCards": {},
-    "saves": {},
-    "offsides": {},
+    "possession": {
+      "home": 48,
+      "away": 52
+    },
+    "shots": {
+      "home": 22,
+      "away": 5
+    },
+    "shotsOnTarget": {
+      "home": 8,
+      "away": 1
+    },
+    "corners": {
+      "home": 5,
+      "away": 5
+    },
+    "fouls": {
+      "home": 10,
+      "away": 13
+    },
+    "yellowCards": {
+      "home": 0,
+      "away": 1
+    },
+    "redCards": {
+      "home": 0,
+      "away": 0
+    },
+    "saves": {
+      "home": 1,
+      "away": 6
+    },
+    "offsides": {
+      "home": 0,
+      "away": 0
+    },
     "sourceId": "espn",
     "confidence": "source_single"
   },
   {
     "matchId": "match-98",
-    "possession": {},
-    "shots": {},
-    "shotsOnTarget": {},
-    "corners": {},
-    "fouls": {},
-    "yellowCards": {},
-    "redCards": {},
-    "saves": {},
-    "offsides": {},
+    "possession": {
+      "home": 67.8,
+      "away": 32.2
+    },
+    "shots": {
+      "home": 17,
+      "away": 5
+    },
+    "shotsOnTarget": {
+      "home": 8,
+      "away": 2
+    },
+    "corners": {
+      "home": 5,
+      "away": 1
+    },
+    "fouls": {
+      "home": 13,
+      "away": 18
+    },
+    "yellowCards": {
+      "home": 2,
+      "away": 2
+    },
+    "redCards": {
+      "home": 0,
+      "away": 0
+    },
+    "saves": {
+      "home": 1,
+      "away": 6
+    },
+    "offsides": {
+      "home": 3,
+      "away": 1
+    },
     "sourceId": "espn",
     "confidence": "source_single"
   },

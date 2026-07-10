@@ -107,14 +107,14 @@ const mockStandings: Record<string, StandingRow[]> = {
 };
 
 const boards = computeTeamLeaderboards(mockStandings);
-assert(boards.mostPoints.length === 2, "mostPoints: 2 teams have played (Mexico + South Africa)");
-assert(boards.mostPoints[0].teamKey === "mexico", "mostPoints[0] is Mexico");
-assert(boards.mostPoints[0].value === 3, "Mexico has 3 points");
+assert(boards.groupStagePoints.length === 2, "groupStagePoints: 2 teams have played (Mexico + South Africa)");
+assert(boards.groupStagePoints[0].teamKey === "mexico", "groupStagePoints[0] is Mexico");
+assert(boards.groupStagePoints[0].value === 3, "Mexico has 3 points");
 assert(boards.topScoringTeams[0].teamKey === "mexico", "topScoring[0] is Mexico");
 assert(boards.topScoringTeams[0].value === 2, "Mexico scored 2");
 assert(boards.mostWins[0].teamKey === "mexico", "mostWins[0] is Mexico");
 assert(boards.mostWins[0].value === 1, "Mexico has 1 win");
-assert(!boards.mostPoints.some((r) => r.teamKey === "canada"), "teams with 0 played not included");
+assert(!boards.groupStagePoints.some((r) => r.teamKey === "canada"), "teams with 0 played not included");
 
 console.log(`\n${passed} passed, ${failed} failed`);
 if (failed > 0) process.exitCode = 1;

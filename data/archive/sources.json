@@ -102,5 +102,51 @@
     "eventsSource": null,
     "statsSource": null,
     "lineupsSource": null
+  },
+  "match-97": {
+    "finalScoreSource": {
+      "sourceName": "Trusted schedule snapshot",
+      "sourceType": "internal_verified_snapshot",
+      "sourceUrl": null,
+      "sourceRef": "WorldCupMatchDay archive pivot snapshot, 2026-07-08",
+      "providerId": null
+    },
+    "eventsSource": {
+      "sourceName": "ESPN Public API",
+      "sourceType": "espn",
+      "sourceUrl": null,
+      "sourceRef": null,
+      "providerId": null
+    },
+    "statsSource": {
+      "sourceName": "ESPN Public API",
+      "sourceType": "espn",
+      "sourceUrl": null,
+      "sourceRef": null,
+      "providerId": null
+    }
+  },
+  "match-98": {
+    "finalScoreSource": {
+      "sourceName": "Trusted schedule snapshot",
+      "sourceType": "internal_verified_snapshot",
+      "sourceUrl": null,
+      "sourceRef": "WorldCupMatchDay archive pivot snapshot, 2026-07-08",
+      "providerId": null
+    },
+    "eventsSource": {
+      "sourceName": "ESPN Public API",
+      "sourceType": "espn",
+      "sourceUrl": null,
+      "sourceRef": null,
+      "providerId": null
+    },
+    "statsSource": {
+      "sourceName": "ESPN Public API",
+      "sourceType": "espn",
+      "sourceUrl": null,
+      "sourceRef": null,
+      "providerId": null
+    }
   }
 }

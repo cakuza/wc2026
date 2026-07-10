@@ -177,5 +177,49 @@
     "lineupsComplete": false,
     "referee": null,
     "attendance": null
+  },
+  {
+    "matchNumber": 97,
+    "slug": "match-97",
+    "stage": "QUARTER_FINALS",
+    "kickoffUtc": null,
+    "venue": null,
+    "homeTeamId": "france",
+    "awayTeamId": "morocco",
+    "score": {
+      "home": 2,
+      "away": 0
+    },
+    "extraTime": false,
+    "penaltyScore": null,
+    "winnerTeamId": "france",
+    "scoreComplete": true,
+    "eventsComplete": false,
+    "statsComplete": false,
+    "lineupsComplete": false,
+    "referee": null,
+    "attendance": null
+  },
+  {
+    "matchNumber": 98,
+    "slug": "match-98",
+    "stage": "QUARTER_FINALS",
+    "kickoffUtc": null,
+    "venue": null,
+    "homeTeamId": "spain",
+    "awayTeamId": "belgium",
+    "score": {
+      "home": 2,
+      "away": 1
+    },
+    "extraTime": false,
+    "penaltyScore": null,
+    "winnerTeamId": "spain",
+    "scoreComplete": true,
+    "eventsComplete": false,
+    "statsComplete": false,
+    "lineupsComplete": false,
+    "referee": null,
+    "attendance": null
   }
 ]

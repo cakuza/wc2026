@@ -98,7 +98,7 @@
     "playerName": "Sultan Al-Brake",
     "eventType": "goal",
     "minute": 34,
-    "teamKey": "Bosnia & Herzegovina",
+    "teamKey": "Qatar",
     "sourceId": "repo_verified",
     "confidence": "verified"
   },
@@ -127,7 +127,7 @@
     "playerName": "Damian Bobadilla",
     "eventType": "goal",
     "minute": 7,
-    "teamKey": "United States",
+    "teamKey": "Paraguay",
     "sourceId": "repo_verified",
     "confidence": "verified"
   },
@@ -176,7 +176,7 @@
     "playerName": "Cameron Burgess",
     "eventType": "goal",
     "minute": 11,
-    "teamKey": "United States",
+    "teamKey": "Australia",
     "sourceId": "repo_verified",
     "confidence": "verified"
   },
@@ -242,7 +242,7 @@
     "playerName": "Ellyes Skhiri",
     "eventType": "goal",
     "minute": 3,
-    "teamKey": "Netherlands",
+    "teamKey": "Tunisia",
     "sourceId": "repo_verified",
     "confidence": "verified"
   },
@@ -311,7 +311,7 @@
     "playerName": "Hassan Altambakti",
     "eventType": "goal",
     "minute": 49,
-    "teamKey": "Spain",
+    "teamKey": "Saudi Arabia",
     "sourceId": "repo_verified",
     "confidence": "verified"
   },
@@ -338,7 +338,7 @@
     "playerName": "Yazan Al-Arab",
     "eventType": "goal",
     "minute": 76,
-    "teamKey": "Austria",
+    "teamKey": "Jordan",
     "sourceId": "repo_verified",
     "confidence": "verified"
   },
@@ -385,7 +385,7 @@
     "playerName": "Abduvohid Nematov",
     "eventType": "goal",
     "minute": 60,
-    "teamKey": "Portugal",
+    "teamKey": "Uzbekistan",
     "sourceId": "repo_verified",
     "confidence": "verified"
   },
@@ -14478,6 +14478,279 @@
     "eventType": "penalty_shootout_scored",
     "teamKey": "Switzerland",
     "period": "penalty_shootout",
+    "sourceId": "espn",
+    "confidence": "source_single"
+  },
+  {
+    "matchId": "match-97",
+    "playerName": "Kylian Mbappé",
+    "eventType": "goal",
+    "minute": 60,
+    "teamKey": "France",
+    "assistPlayerName": "Désiré Doué",
+    "sourceId": "espn",
+    "confidence": "source_single"
+  },
+  {
+    "matchId": "match-97",
+    "playerName": "Soufiane Rahimi",
+    "eventType": "substitution",
+    "minute": 62,
+    "teamKey": "Morocco",
+    "relatedPlayerName": "Bilal El Khannouss",
+    "sourceId": "espn",
+    "confidence": "source_single"
+  },
+  {
+    "matchId": "match-97",
+    "playerName": "Sofyan Amrabat",
+    "eventType": "substitution",
+    "minute": 62,
+    "teamKey": "Morocco",
+    "relatedPlayerName": "Ayyoub Bouaddi",
+    "sourceId": "espn",
+    "confidence": "source_single"
+  },
+  {
+    "matchId": "match-97",
+    "playerName": "Issa Diop",
+    "eventType": "yellow_card",
+    "minute": 63,
+    "teamKey": "Morocco",
+    "sourceId": "espn",
+    "confidence": "source_single"
+  },
+  {
+    "matchId": "match-97",
+    "playerName": "Ousmane Dembélé",
+    "eventType": "goal",
+    "minute": 66,
+    "teamKey": "France",
+    "assistPlayerName": "Kylian Mbappé",
+    "sourceId": "espn",
+    "confidence": "source_single"
+  },
+  {
+    "matchId": "match-97",
+    "playerName": "Warren Zaïre-Emery",
+    "eventType": "substitution",
+    "minute": 71,
+    "teamKey": "France",
+    "relatedPlayerName": "Manu Koné",
+    "sourceId": "espn",
+    "confidence": "source_single"
+  },
+  {
+    "matchId": "match-97",
+    "playerName": "Zakaria El Ouahdi",
+    "eventType": "substitution",
+    "minute": 74,
+    "teamKey": "Morocco",
+    "relatedPlayerName": "Anass Salah-Eddine",
+    "sourceId": "espn",
+    "confidence": "source_single"
+  },
+  {
+    "matchId": "match-97",
+    "playerName": "Gessime Yassine",
+    "eventType": "substitution",
+    "minute": 74,
+    "teamKey": "Morocco",
+    "relatedPlayerName": "Brahim Díaz",
+    "sourceId": "espn",
+    "confidence": "source_single"
+  },
+  {
+    "matchId": "match-97",
+    "playerName": "Jean-Philippe Mateta",
+    "eventType": "substitution",
+    "minute": 77,
+    "teamKey": "France",
+    "relatedPlayerName": "Kylian Mbappé",
+    "sourceId": "espn",
+    "confidence": "source_single"
+  },
+  {
+    "matchId": "match-97",
+    "playerName": "Bradley Barcola",
+    "eventType": "substitution",
+    "minute": 77,
+    "teamKey": "France",
+    "relatedPlayerName": "Désiré Doué",
+    "sourceId": "espn",
+    "confidence": "source_single"
+  },
+  {
+    "matchId": "match-97",
+    "playerName": "Amine Sbaï",
+    "eventType": "substitution",
+    "minute": 85,
+    "teamKey": "Morocco",
+    "relatedPlayerName": "Chemsdine Talbi",
+    "sourceId": "espn",
+    "confidence": "source_single"
+  },
+  {
+    "matchId": "match-97",
+    "playerName": "Malo Gusto",
+    "eventType": "substitution",
+    "minute": 87,
+    "teamKey": "France",
+    "relatedPlayerName": "Jules Koundé",
+    "sourceId": "espn",
+    "confidence": "source_single"
+  },
+  {
+    "matchId": "match-98",
+    "playerName": "Fabián Ruiz",
+    "eventType": "goal",
+    "minute": 30,
+    "teamKey": "Spain",
+    "sourceId": "espn",
+    "confidence": "source_single"
+  },
+  {
+    "matchId": "match-98",
+    "playerName": "Charles De Ketelaere",
+    "eventType": "goal",
+    "minute": 41,
+    "teamKey": "Belgium",
+    "assistPlayerName": "Timothy Castagne",
+    "sourceId": "espn",
+    "confidence": "source_single"
+  },
+  {
+    "matchId": "match-98",
+    "playerName": "Pau Cubarsí",
+    "eventType": "yellow_card",
+    "minute": 43,
+    "teamKey": "Spain",
+    "sourceId": "espn",
+    "confidence": "source_single"
+  },
+  {
+    "matchId": "match-98",
+    "playerName": "Ferran Torres",
+    "eventType": "substitution",
+    "minute": 55,
+    "teamKey": "Spain",
+    "relatedPlayerName": "Álex Baena",
+    "sourceId": "espn",
+    "confidence": "source_single"
+  },
+  {
+    "matchId": "match-98",
+    "playerName": "Pedri",
+    "eventType": "substitution",
+    "minute": 55,
+    "teamKey": "Spain",
+    "relatedPlayerName": "Fabián Ruiz",
+    "sourceId": "espn",
+    "confidence": "source_single"
+  },
+  {
+    "matchId": "match-98",
+    "playerName": "Romelu Lukaku",
+    "eventType": "substitution",
+    "minute": 60,
+    "teamKey": "Belgium",
+    "relatedPlayerName": "Hans Vanaken",
+    "sourceId": "espn",
+    "confidence": "source_single"
+  },
+  {
+    "matchId": "match-98",
+    "playerName": "Axel Witsel",
+    "eventType": "substitution",
+    "minute": 60,
+    "teamKey": "Belgium",
+    "relatedPlayerName": "Leandro Trossard",
+    "sourceId": "espn",
+    "confidence": "source_single"
+  },
+  {
+    "matchId": "match-98",
+    "playerName": "Joaquin Seys",
+    "eventType": "substitution",
+    "minute": 61,
+    "teamKey": "Belgium",
+    "relatedPlayerName": "Maxim De Cuyper",
+    "sourceId": "espn",
+    "confidence": "source_single"
+  },
+  {
+    "matchId": "match-98",
+    "playerName": "Senne Lammens",
+    "eventType": "substitution",
+    "minute": 71,
+    "teamKey": "Belgium",
+    "relatedPlayerName": "Thibaut Courtois",
+    "sourceId": "espn",
+    "confidence": "source_single"
+  },
+  {
+    "matchId": "match-98",
+    "playerName": "Nico Williams",
+    "eventType": "substitution",
+    "minute": 79,
+    "teamKey": "Spain",
+    "relatedPlayerName": "Mikel Oyarzabal",
+    "sourceId": "espn",
+    "confidence": "source_single"
+  },
+  {
+    "matchId": "match-98",
+    "playerName": "Kevin De Bruyne",
+    "eventType": "yellow_card",
+    "minute": 85,
+    "teamKey": "Belgium",
+    "sourceId": "espn",
+    "confidence": "source_single"
+  },
+  {
+    "matchId": "match-98",
+    "playerName": "Alexis Saelemaekers",
+    "eventType": "substitution",
+    "minute": 86,
+    "teamKey": "Belgium",
+    "relatedPlayerName": "Kevin De Bruyne",
+    "sourceId": "espn",
+    "confidence": "source_single"
+  },
+  {
+    "matchId": "match-98",
+    "playerName": "Mikel Merino",
+    "eventType": "substitution",
+    "minute": 86,
+    "teamKey": "Spain",
+    "relatedPlayerName": "Dani Olmo",
+    "sourceId": "espn",
+    "confidence": "source_single"
+  },
+  {
+    "matchId": "match-98",
+    "playerName": "Mikel Merino",
+    "eventType": "goal",
+    "minute": 88,
+    "teamKey": "Spain",
+    "sourceId": "espn",
+    "confidence": "source_single"
+  },
+  {
+    "matchId": "match-98",
+    "playerName": "Aymeric Laporte",
+    "eventType": "yellow_card",
+    "minute": 90,
+    "teamKey": "Spain",
+    "sourceId": "espn",
+    "confidence": "source_single"
+  },
+  {
+    "matchId": "match-98",
+    "playerName": "Axel Witsel",
+    "eventType": "yellow_card",
+    "minute": 90,
+    "teamKey": "Belgium",
     "sourceId": "espn",
     "confidence": "source_single"
   }

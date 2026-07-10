@@ -36,6 +36,7 @@ export function readStaticArchiveData(): Map<number, LiveMatchData> {
     const goals: LiveMatchEvent[] = [];
     const bookings: LiveMatchEvent[] = [];
     const substitutions: LiveMatchEvent[] = [];
+    const shootoutAttempts: LiveMatchEvent[] = [];
     
     // Construct events
     for (const ev of matchEvents) {
@@ -70,6 +71,13 @@ export function readStaticArchiveData(): Map<number, LiveMatchData> {
           detail: ev.relatedPlayerName || null,
           // providerEventId intentionally omitted
         });
+      } else if (ev.eventType === 'penalty_shootout_scored' || ev.eventType === 'penalty_shootout_missed') {
+        shootoutAttempts.push({
+          type: ev.eventType === 'penalty_shootout_scored' ? 'PENALTY_SHOOTOUT_SCORED' : 'PENALTY_SHOOTOUT_MISSED',
+          minute: ev.minute || null,
+          teamName: ev.teamKey || null,
+          playerName: ev.playerName,
+        });
       }
     }
 
@@ -85,6 +93,7 @@ export function readStaticArchiveData(): Map<number, LiveMatchData> {
       goals,
       bookings,
       substitutions,
+      shootoutAttempts,
       teamStats: matchStats ? {
         possession: matchStats.possession,
         shots: matchStats.shots,

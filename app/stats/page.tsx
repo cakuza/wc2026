@@ -53,7 +53,6 @@ export default async function StatsPage() {
       <StatsContent
         tournamentStats={snapshot.tournamentStats}
         teamLeaderboards={snapshot.teamLeaderboards}
-        standings={snapshot.standingsByGroup}
         topScorers={snapshot.topScorers}
         playerEventLeaderboards={snapshot.playerEventLeaderboards}
         teamStatLeaderboards={snapshot.teamStatLeaderboards}

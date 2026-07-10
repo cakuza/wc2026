@@ -24,7 +24,7 @@ const KNOWN_STATUSES: readonly string[] = [
 ];
 
 export type LiveMatchEvent = {
-  type: "GOAL" | "OWN_GOAL" | "PENALTY_GOAL" | "YELLOW_CARD" | "RED_CARD" | "SUBSTITUTION" | "UNKNOWN";
+  type: "GOAL" | "OWN_GOAL" | "PENALTY_GOAL" | "YELLOW_CARD" | "RED_CARD" | "SUBSTITUTION" | "PENALTY_SHOOTOUT_SCORED" | "PENALTY_SHOOTOUT_MISSED" | "UNKNOWN";
   minute: number | null;
   stoppageTime?: number | null;
   minuteLabel?: string;
@@ -58,6 +58,7 @@ export type LiveMatchData = {
   goals?: LiveMatchEvent[];
   bookings?: LiveMatchEvent[];
   substitutions?: LiveMatchEvent[];
+  shootoutAttempts?: LiveMatchEvent[];
   teamStats?: {
     possession: { home: number; away: number };
     shots: { home: number; away: number };

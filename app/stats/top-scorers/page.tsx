@@ -7,6 +7,7 @@ import { LiveDataUnavailableNotice } from "@/components/LiveDataUnavailableNotic
 import { QuickAnswer } from "@/components/QuickAnswer";
 import { LastUpdated } from "@/components/LastUpdated";
 import { BreadcrumbNav, breadcrumbLd } from "@/components/BreadcrumbNav";
+import { StatsNav } from "@/components/StatsNav";
 import { SourcesAndMethodology } from "@/components/SourcesAndMethodology";
 import { DataAvailabilityNotice } from "@/components/DataAvailabilityNotice";
 import { getTournamentLiveSnapshot } from "@/lib/liveSnapshot";
@@ -117,6 +118,8 @@ export default async function TopScorersPage() {
           19 July. If players are level on goals, tiebreakers include assists, then disciplinary record.
           Goal scorer data syncs after each completed match from our data provider.
         </p>
+
+        <StatsNav />
 
         {snapshot.isFallback && (
           <div className="mb-4">
