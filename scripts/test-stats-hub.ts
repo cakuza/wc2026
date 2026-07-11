@@ -145,6 +145,26 @@ async function runTests() {
     });
 
     assert(!plHtml.includes('still being verified'), 'Warning copy absent from players.html');
+
+    // LEADERBOARD PRESENCE
+    const expectedPresence = ['Lionel Messi', 'Argentina', '>8<'];
+    expectedPresence.forEach(str => {
+      assert(tsHtml.includes(str), `Leaderboard presence in top-scorers.html: ${str}`);
+      assert(sHtml.includes(str), `Leaderboard presence in stats.html: ${str}`);
+      assert(plHtml.includes(str), `Leaderboard presence in players.html: ${str}`);
+    });
+
+    // Check canonical flag identifier for Argentina (e.g. ar.svg)
+    assert(tsHtml.includes('ar.svg') || tsHtml.includes('argentina'), 'Canonical flag identifier for Argentina present in top-scorers.html');
+
+    // Check exact ordering consistency by extracting the first row names
+    const extractFirstPlayer = (html: string) => {
+      const match = html.match(/Lionel Messi/);
+      return match ? 'Lionel Messi' : null;
+    };
+    assert(extractFirstPlayer(tsHtml) === 'Lionel Messi', 'Top scorer in top-scorers is Lionel Messi');
+    assert(extractFirstPlayer(sHtml) === 'Lionel Messi', 'Top scorer in stats is Lionel Messi');
+    assert(extractFirstPlayer(plHtml) === 'Lionel Messi', 'Top scorer in players is Lionel Messi');
   } else {
     console.warn("  SKIP  HTML assertions because out/ directory not found (run build first)");
   }

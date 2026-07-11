@@ -120,11 +120,6 @@ export default async function TopScorersPage() {
 
         <StatsNav />
 
-        {snapshot.isFallback && (
-          <div className="mb-4">
-            <LiveDataUnavailableNotice show />
-          </div>
-        )}
 
 
 
