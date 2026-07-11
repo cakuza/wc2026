@@ -434,6 +434,7 @@ function withCanonicalMatchState({
     goals: goals.length > 0 ? goals : live?.goals,
     bookings: live?.bookings,
     substitutions: live?.substitutions,
+    shootoutAttempts: live?.shootoutAttempts,
     teamStats: live?.teamStats,
   };
 }
