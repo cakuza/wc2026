@@ -12,12 +12,12 @@ export const revalidate = 60;
 export const metadata: Metadata = {
   title: "World Cup 2026 Stats - Goals, Scores, Standings & Top Scorers",
   description:
-    "Track World Cup 2026 tournament stats, including matches played, total goals, team stats, clean sheets and top scorers when scorer data is available.",
+    "Explore World Cup 2026 tournament statistics, team records, match records and player leaders.",
   alternates: { canonical: "https://www.worldcupmatchday.com/stats" },
   openGraph: {
     title: "World Cup 2026 Stats - Goals, Scores, Standings & Top Scorers",
     description:
-      "Track World Cup 2026 tournament stats, including matches played, total goals, team stats, clean sheets and top scorers when scorer data is available.",
+      "Explore World Cup 2026 tournament statistics, team records, match records and player leaders.",
     url: "https://www.worldcupmatchday.com/stats",
     type: "website",
   },
@@ -28,7 +28,7 @@ const jsonLd = {
   "@type": "WebPage",
   name: "World Cup 2026 Statistics",
   description:
-    "World Cup 2026 tournament stats from completed synced matches.",
+    "World Cup 2026 tournament stats, including matches played, total goals, team stats, clean sheets and top scorers.",
   url: "https://www.worldcupmatchday.com/stats",
 };
 

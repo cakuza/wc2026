@@ -125,9 +125,26 @@ async function runTests() {
   if (fs.existsSync(outDir)) {
     const tsHtml = fs.readFileSync(path.join(outDir, 'top-scorers.html'), 'utf8');
     const plHtml = fs.readFileSync(path.join(outDir, 'players.html'), 'utf8');
-    assert(!tsHtml.includes('Scorer data is enriched'), '21. Removed copy is absent from top-scorers.html');
-    assert(!tsHtml.includes('SourcesAndMethodology'), '22. SourcesAndMethodology block absent from top-scorers.html');
-    assert(!plHtml.includes('still being verified'), '23. Warning copy absent from players.html');
+    const sHtml = fs.readFileSync(path.join(process.cwd(), 'out', 'stats.html'), 'utf8');
+
+    const forbidden = [
+      'Golden Boot leader',
+      'leads with',
+      'updated after each completed match',
+      'latest match',
+      'Scorer data is sourced',
+      'Goal scorer data syncs',
+      'when scorer data is available',
+      'Sources and Methodology',
+      'SourcesAndMethodology'
+    ];
+
+    forbidden.forEach(str => {
+      assert(!tsHtml.includes(str), `Removed copy is absent from top-scorers.html (${str})`);
+      assert(!sHtml.includes(str), `Removed copy is absent from stats.html (${str})`);
+    });
+
+    assert(!plHtml.includes('still being verified'), 'Warning copy absent from players.html');
   } else {
     console.warn("  SKIP  HTML assertions because out/ directory not found (run build first)");
   }

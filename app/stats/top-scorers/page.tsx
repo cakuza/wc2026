@@ -110,13 +110,12 @@ export default async function TopScorersPage() {
           Top Scorers
         </h1>
         <p className="mb-2 text-sm text-white/50">
-          Golden Boot standings — updated after each completed match.
+          Golden Boot standings.
         </p>
         <p className="mb-4 text-sm leading-relaxed text-white/60">
           The FIFA World Cup Golden Boot is awarded to the tournament&apos;s leading goal scorer.
           At the 2026 World Cup, all 104 matches count — from the group stage through to the final on
           19 July. If players are level on goals, tiebreakers include assists, then disciplinary record.
-          Goal scorer data syncs after each completed match from our data provider.
         </p>
 
         <StatsNav />
@@ -127,10 +126,6 @@ export default async function TopScorersPage() {
           </div>
         )}
 
-        <DataAvailabilityNotice
-          show={!hasData && !snapshot.isFallback}
-          message="Scorer data becomes available once matches with enriched goal events are synced. Check back during or after matches."
-        />
 
 
 
