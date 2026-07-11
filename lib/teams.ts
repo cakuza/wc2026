@@ -106,6 +106,34 @@ export function teamBySlug(slug: string): Team | undefined {
   return TEAMS.find((t) => slugFor(t.key) === slug);
 }
 
+export function teamKeyFromName(teamName: string | null): string | null {
+  if (!teamName) return null;
+  const normalized = teamName.replace(/[\s&-]/g, '').toLowerCase();
+
+  // Handle explicit aliases
+  const aliases: Record<string, string> = {
+    'bosniaherzegovina': 'bosnia',
+    'congodr': 'drCongo',
+    'curaçao': 'curacao',
+    'türkiye': 'turkey',
+    'null': 'null' // ignore string null
+  };
+  
+  if (aliases[normalized]) return aliases[normalized];
+
+  // Fallback string matching to existing localized or hardcoded names
+  return TEAMS.find((t) => {
+    // English name or raw key
+    if (t.key === teamName) return true;
+    return t.key.toLowerCase() === normalized || 
+           t.key === teamName; // Fallback
+  })?.key ?? null;
+}
+
+export function teamCodeForKey(key: string): string {
+  return TEAMS.find((t) => t.key === key)?.code ?? "un";
+}
+
 export const STRIP_GROUPS = ["A", "B", "D", "E"];
 
 // English nations that read with a definite article ("the United States play…").

@@ -14,7 +14,7 @@ export function topScorerRows(topScorers: PlayerGoalStat[]): PlayerGoalStat[] {
 export function hasTrustedTopScorerData(
   snapshot: Pick<TournamentLiveSnapshot, "topScorers" | "isFallback">,
 ): boolean {
-  return topScorerRows(snapshot.topScorers).length > 0;
+  return !snapshot.isFallback && topScorerRows(snapshot.topScorers).length > 0;
 }
 
 export function buildTopScorersItemListLd(topScorers: PlayerGoalStat[]) {

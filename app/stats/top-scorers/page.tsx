@@ -8,7 +8,7 @@ import { QuickAnswer } from "@/components/QuickAnswer";
 import { LastUpdated } from "@/components/LastUpdated";
 import { BreadcrumbNav, breadcrumbLd } from "@/components/BreadcrumbNav";
 import { StatsNav } from "@/components/StatsNav";
-import { SourcesAndMethodology } from "@/components/SourcesAndMethodology";
+
 import { DataAvailabilityNotice } from "@/components/DataAvailabilityNotice";
 import { getTournamentLiveSnapshot } from "@/lib/liveSnapshot";
 import { getLiveRefreshPolicy } from "@/lib/liveRefreshPolicy";
@@ -132,13 +132,7 @@ export default async function TopScorersPage() {
           message="Scorer data becomes available once matches with enriched goal events are synced. Check back during or after matches."
         />
 
-        {hasData && leader && (
-          <QuickAnswer label="Golden Boot leader">
-            {leader.playerName}{leader.teamName ? ` (${leader.teamName})` : ""} leads with {leader.goals}{" "}
-            goal{leader.goals !== 1 ? "s" : ""}. Scorer data is sourced from completed,
-            synced matches and may not yet include the latest match.
-          </QuickAnswer>
-        )}
+
 
         {hasData ? (
           <section className="mb-6">
@@ -170,7 +164,7 @@ export default async function TopScorersPage() {
                       ? topScorers.findIndex((s) => s.goals === scorer.goals) + 1
                       : i + 1)
                   : i + 1;
-                const teamKey = teamKeyFromName(scorer.teamName);
+                const teamKey = scorer.teamKey;
                 const teamCode = teamKey ? teamCodeForKey(teamKey) : "un";
                 const teamSlug = teamKey ? teamSlugForKey(teamKey) : null;
                 const displayName = teamKey ? countryName(teamKey, "en") : (scorer.teamName ?? "");
@@ -183,14 +177,16 @@ export default async function TopScorersPage() {
                     <span className="font-heading text-sm font-extrabold text-white/40 self-center">
                       {rank}
                     </span>
-                    <div className="min-w-0">
-                      <p className="truncate text-sm font-bold text-white">{scorer.playerName}</p>
+                    <div className="min-w-0 flex flex-col">
+                      <div className="flex items-center gap-2">
+                        {teamCode !== "un" && <Flag code={teamCode} width={18} height={13} className="shrink-0" alt="" />}
+                        <p className="truncate text-sm font-bold text-white">{scorer.playerName}</p>
+                      </div>
                       {teamSlug ? (
                         <Link
                           href={`/teams/${teamSlug}`}
                           className="flex items-center gap-1.5 mt-0.5"
                         >
-                          <Flag code={teamCode} width={20} height={14} />
                           <span className="font-heading text-[10px] font-bold uppercase tracking-wide text-white/40 hover:text-white/70 transition-colors">
                             {displayName}
                           </span>
@@ -214,11 +210,7 @@ export default async function TopScorersPage() {
 
             <LastUpdated isoTimestamp={snapshot.updatedAt} label="Scorer data last synced" />
 
-            <p className="mt-2 text-xs text-white/35">
-              Own goals are not counted. Penalties are shown in brackets where available.
-              Scorer data is sourced from completed, synced matches — new goals appear after
-              the provider confirms them.
-            </p>
+
           </section>
         ) : (
           !snapshot.isFallback && (
@@ -247,18 +239,7 @@ export default async function TopScorersPage() {
           ))}
         </div>
 
-        <SourcesAndMethodology>
-          <p>
-            Scorer data is enriched from secondary match reports and synced after each completed
-            match. Goals scored in extra time or on penalties may be attributed differently across
-            sources.
-          </p>
-          <p>
-            Own goals are excluded from the Golden Boot calculation. Penalty goals are identified
-            where available and displayed in brackets.
-          </p>
-          <p>WorldCupMatchDay is not affiliated with FIFA.</p>
-        </SourcesAndMethodology>
+
       </div>
     </>
   );

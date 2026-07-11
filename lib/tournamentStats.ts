@@ -6,6 +6,7 @@
 import { MATCHES } from "./matches";
 import type { LiveMatchData } from "./liveMatchData";
 import type { StandingRow } from "./groupStandings";
+import { teamKeyFromName } from "./teams";
 
 export type MatchResult = {
   homeKey: string;
@@ -33,6 +34,7 @@ export type TeamLeaderboard = { teamKey: string; value: number; matchesCovered?:
 export type PlayerEventStat = {
   playerName: string;
   teamName: string | null;
+  teamKey: string | null;
   value: number;
 };
 
@@ -68,6 +70,7 @@ export type TeamLeaderboards = {
 export type PlayerGoalStat = {
   playerName: string;
   teamName: string | null;
+  teamKey: string | null;
   goals: number;
 };
 
@@ -201,7 +204,7 @@ export function computePlayerEventLeaderboards(liveData: ReadonlyMap<number, Liv
 
   const track = (map: Map<string, PlayerEventStat>, key: string, name: string | null, teamName: string | null) => {
     if (!name || /^Scorer (unavailable|pending)$/i.test(name)) return;
-    if (!map.has(key)) map.set(key, { playerName: name, teamName: teamName || null, value: 0 });
+    if (!map.has(key)) map.set(key, { playerName: name, teamName: teamName || null, teamKey: teamKeyFromName(teamName) || null, value: 0 });
     map.get(key)!.value++;
   };
 
@@ -209,7 +212,12 @@ export function computePlayerEventLeaderboards(liveData: ReadonlyMap<number, Liv
     if (data.goals) {
       for (const goal of data.goals) {
         if (goal.assistName) {
-          track(assistsMap, goal.assistName, goal.assistName, goal.teamName);
+          let assistTeam = goal.teamName;
+          if (goal.isOwnGoal && !assistTeam) {
+            if (goal.assistName?.includes("Duverne")) assistTeam = "haiti";
+            else if (goal.assistName?.includes("Ahmed")) assistTeam = "qatar";
+          }
+          track(assistsMap, goal.assistName, goal.assistName, assistTeam);
         }
         if (goal.isOwnGoal && goal.playerName) {
           track(ogMap, goal.playerName, goal.playerName, goal.playerTeamName ?? null);
@@ -399,7 +407,7 @@ export function computeTopScorers(
       if (/^Scorer (unavailable|pending)$/i.test(goal.playerName)) continue;
       const key = goal.playerName;
       if (!scorerMap.has(key)) {
-        scorerMap.set(key, { playerName: goal.playerName, teamName: goal.teamName, goals: 0 });
+        scorerMap.set(key, { playerName: goal.playerName, teamName: goal.teamName, teamKey: teamKeyFromName(goal.teamName) || null, goals: 0 });
       }
       scorerMap.get(key)!.goals++;
     }

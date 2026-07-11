@@ -25,6 +25,7 @@ import { applyVerifiedGoalCorrections } from "./verifiedMatchEventCorrections";
 import { countryName } from "./i18n";
 import { getResolvedAwayTeam, getResolvedHomeTeam, type ResolvedParticipantLookup } from "./participant-resolution";
 import { buildKnockoutResolution } from "./knockoutResolution";
+import { TEAMS, teamCodeForKey, teamKeyFromName } from "./teams";
 import { squadFor } from "./squads";
 import { applyCanonicalMatchResultFallback } from "./canonicalMatchResults";
 
@@ -460,6 +461,7 @@ function topScorersFromSnapshot(
         scorerMap.set(key, {
           playerName: goal.playerName,
           teamName: goal.teamName,
+          teamKey: teamKeyFromName(goal.teamName),
           goals: 0,
         });
       }

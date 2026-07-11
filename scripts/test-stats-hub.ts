@@ -1,5 +1,6 @@
 import { getTournamentLiveSnapshot } from "../lib/liveSnapshot";
 import { readStaticArchiveData } from "../lib/staticArchiveReader";
+import { teamCodeForKey, TEAMS } from "../lib/teams";
 
 async function runTests() {
   console.log("=== Running Stats Hub Targeted Tests & Measurements ===");
@@ -82,6 +83,54 @@ async function runTests() {
     return value;
   });
   assert(snapshotStr.length > 0, "14. no generated values are NaN or Infinity");
+
+  // Flag and Canonical Identity Tests
+  const allStats = [
+    ...(playerEventLeaderboards.assists || []),
+    ...(playerEventLeaderboards.yellowCards || []),
+    ...(playerEventLeaderboards.redCards || []),
+    ...(playerEventLeaderboards.ownGoals || []),
+    ...(playerEventLeaderboards.penaltyGoals || []),
+    ...(playerEventLeaderboards.shootoutScored || []),
+    ...(playerEventLeaderboards.shootoutMissed || []),
+    ...(topScorers || [])
+  ];
+
+  const hasMissingKey = allStats.some(s => s.teamKey === null || s.teamKey === undefined);
+  assert(!hasMissingKey, "15. Every player-stat row has a canonical team identity");
+
+  const hasInvalidCode = allStats.some(s => {
+    if (!s.teamKey) return true;
+    const code = teamCodeForKey(s.teamKey);
+    return code === "un" || !code;
+  });
+  assert(!hasInvalidCode, "16. Every flag identifier resolves through the canonical team registry (no broken/empty flag produced)");
+
+  const muheim = playerEventLeaderboards.ownGoals.find(s => s.playerName.includes("Muheim"));
+  assert(!!muheim && muheim.teamKey === "switzerland" && teamCodeForKey(muheim.teamKey) === "ch", "17. Own-goal flags use the player's actual team: Miro Muheim -> Switzerland");
+
+  const bounou = playerEventLeaderboards.ownGoals.find(s => s.playerName.includes("Bounou"));
+  assert(!!bounou && bounou.teamKey === "morocco" && teamCodeForKey(bounou.teamKey) === "ma", "18. Own-goal flags use the player's actual team: Yassine Bounou -> Morocco");
+
+  const cucho = sMissed.find(s => s.playerName.includes("Cucho"));
+  assert(!!cucho && cucho.teamKey === "colombia" && teamCodeForKey(cucho.teamKey) === "co", "19. Shootout flags use the taker's team: Cucho Hernandez -> Colombia");
+
+  const akanji = sMissed.find(s => s.playerName.includes("Akanji"));
+  assert(!!akanji && akanji.teamKey === "switzerland" && teamCodeForKey(akanji.teamKey) === "ch", "20. Shootout flags use the taker's team: Manuel Akanji -> Switzerland");
+
+
+  const fs = require('fs');
+  const path = require('path');
+  const outDir = path.join(process.cwd(), 'out', 'stats');
+  if (fs.existsSync(outDir)) {
+    const tsHtml = fs.readFileSync(path.join(outDir, 'top-scorers.html'), 'utf8');
+    const plHtml = fs.readFileSync(path.join(outDir, 'players.html'), 'utf8');
+    assert(!tsHtml.includes('Scorer data is enriched'), '21. Removed copy is absent from top-scorers.html');
+    assert(!tsHtml.includes('SourcesAndMethodology'), '22. SourcesAndMethodology block absent from top-scorers.html');
+    assert(!plHtml.includes('still being verified'), '23. Warning copy absent from players.html');
+  } else {
+    console.warn("  SKIP  HTML assertions because out/ directory not found (run build first)");
+  }
 
   if (failCount > 0) {
     console.error(`\nFAILED ${failCount} assertions`);

@@ -5,6 +5,8 @@ import { StatsNav } from "@/components/StatsNav";
 import { BreadcrumbNav } from "@/components/BreadcrumbNav";
 import { countryName } from "@/lib/i18n";
 import { LiveDataUnavailableNotice } from "@/components/LiveDataUnavailableNotice";
+import { Flag } from "@/components/Flag";
+import { teamKeyFromName, teamCodeForKey } from "@/lib/teams";
 
 export const revalidate = 60;
 
@@ -61,13 +63,7 @@ export default async function PlayersStatsPage() {
         </div>
       ) : null}
 
-      {!snapshot.tournamentStats.scorerTotalsComplete && (
-        <div className="mb-8 rounded-lg bg-white/5 px-4 py-3 border border-white/10 max-w-5xl">
-          <p className="text-sm text-white/70">
-            Some player details are still being verified. Totals include confirmed events only.
-          </p>
-        </div>
-      )}
+
 
       {hasEventData ? (
         <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
@@ -85,20 +81,27 @@ export default async function PlayersStatsPage() {
               </div>
               {list.data.length > 0 ? (
                 <ul className="divide-y divide-white/5">
-                  {list.data.slice(0, 10).map((stat, i) => (
-                    <li key={stat.playerName + i} className="flex items-center gap-3 px-4 py-3">
-                      <span className="w-5 shrink-0 font-heading text-xs font-bold text-white/30">{i + 1}</span>
-                      <div className="flex-1 min-w-0">
-                        <p className="truncate font-semibold text-white text-sm">{stat.playerName}</p>
-                        {stat.teamName && (
-                          <p className="text-xs text-white/40">{countryName(stat.teamName, "en") || stat.teamName}</p>
-                        )}
-                      </div>
-                      <span className="font-heading text-base font-extrabold tabular-nums text-white">
-                        {stat.value}
-                      </span>
-                    </li>
-                  ))}
+                  {list.data.slice(0, 10).map((stat, i) => {
+                    const teamKey = stat.teamKey;
+                    const teamCode = teamKey ? teamCodeForKey(teamKey) : null;
+                    return (
+                      <li key={stat.playerName + i} className="flex items-center gap-3 px-4 py-3">
+                        <span className="w-5 shrink-0 font-heading text-xs font-bold text-white/30">{i + 1}</span>
+                        <div className="flex-1 min-w-0 flex flex-col">
+                          <div className="flex items-center gap-2">
+                            {teamCode && <Flag code={teamCode} width={18} height={13} className="shrink-0" alt="" />}
+                            <p className="truncate font-semibold text-white text-sm">{stat.playerName}</p>
+                          </div>
+                          {stat.teamName && (
+                            <p className="text-xs text-white/40 mt-0.5">{teamKey ? countryName(teamKey, "en") : stat.teamName}</p>
+                          )}
+                        </div>
+                        <span className="font-heading text-base font-extrabold tabular-nums text-white">
+                          {stat.value}
+                        </span>
+                      </li>
+                    );
+                  })}
                 </ul>
               ) : (
                 <div className="p-6 text-center text-xs text-white/40">No data available</div>

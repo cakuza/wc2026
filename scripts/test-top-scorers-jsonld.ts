@@ -22,9 +22,9 @@ console.log("=== Top Scorers JSON-LD deterministic tests ===\n");
 const healthy = {
   isFallback: false,
   topScorers: [
-    { playerName: "Barış Alper Yılmaz", teamName: "Turkey", goals: 3 },
-    { playerName: "Folarin Balogun", teamName: "United States", goals: 2 },
-    { playerName: "Scorer unavailable", teamName: "Austria", goals: 1 },
+    { playerName: "Barış Alper Yılmaz", teamName: "Turkey", teamKey: "turkey", goals: 3 },
+    { playerName: "Folarin Balogun", teamName: "United States", teamKey: "unitedStates", goals: 2 },
+    { playerName: "Scorer unavailable", teamName: "Austria", teamKey: "austria", goals: 1 },
   ],
 };
 

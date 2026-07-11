@@ -5,6 +5,8 @@ import { useLang } from "@/components/LanguageProvider";
 import type { TournamentStats, TeamLeaderboards, PlayerGoalStat, PlayerEventLeaderboards, TeamStatLeaderboards } from "@/lib/tournamentStats";
 import { StatsNav } from "./StatsNav";
 import { countryName } from "@/lib/i18n";
+import { Flag } from "@/components/Flag";
+import { teamKeyFromName, teamCodeForKey } from "@/lib/teams";
 
 interface Props {
   tournamentStats: TournamentStats;
@@ -115,20 +117,27 @@ export default function StatsContent({ tournamentStats, teamLeaderboards, topSco
             <div className="rounded-xl border border-white/10 bg-navyCard overflow-hidden">
               <div className="border-b border-white/10 bg-navy/50 px-4 py-2">
                 <p className="font-heading text-[10px] font-extrabold uppercase tracking-widest text-white/60">
-                  Golden Boot Leader
+                  Top Scorer
                 </p>
               </div>
-              {hasEventData && topScorers.length > 0 ? (
-                <div className="p-4 flex items-center gap-4">
-                  <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-accent/20 text-accent font-heading text-2xl font-black">
-                    {topScorers[0].goals}
+              {hasEventData && topScorers.length > 0 ? (() => {
+                const teamKey = topScorers[0].teamKey;
+                const teamCode = teamKey ? teamCodeForKey(teamKey) : null;
+                return (
+                  <div className="p-4 flex items-center gap-4">
+                    <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-accent/20 text-accent font-heading text-2xl font-black">
+                      {topScorers[0].goals}
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-2">
+                        {teamCode && <Flag code={teamCode} width={20} height={14} className="shrink-0" alt="" />}
+                        <p className="font-bold text-white">{topScorers[0].playerName}</p>
+                      </div>
+                      <p className="text-sm text-white/50 mt-0.5">{teamKey ? country(teamKey) : (topScorers[0].teamName ?? "")}</p>
+                    </div>
                   </div>
-                  <div>
-                    <p className="font-bold text-white">{topScorers[0].playerName}</p>
-                    <p className="text-sm text-white/50">{topScorers[0].teamName ? country(topScorers[0].teamName) : ""}</p>
-                  </div>
-                </div>
-              ) : (
+                );
+              })() : (
                 <div className="p-4 text-xs text-white/40">Data unavailable</div>
               )}
             </div>
@@ -139,17 +148,24 @@ export default function StatsContent({ tournamentStats, teamLeaderboards, topSco
                   Most Assists
                 </p>
               </div>
-              {hasEventData && playerEventLeaderboards.assists.length > 0 ? (
-                <div className="p-4 flex items-center gap-4">
-                  <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-white/10 text-white font-heading text-2xl font-black">
-                    {playerEventLeaderboards.assists[0].value}
+              {hasEventData && playerEventLeaderboards.assists.length > 0 ? (() => {
+                const teamKey = playerEventLeaderboards.assists[0].teamKey;
+                const teamCode = teamKey ? teamCodeForKey(teamKey) : null;
+                return (
+                  <div className="p-4 flex items-center gap-4">
+                    <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-white/10 text-white font-heading text-2xl font-black">
+                      {playerEventLeaderboards.assists[0].value}
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-2">
+                        {teamCode && <Flag code={teamCode} width={20} height={14} className="shrink-0" alt="" />}
+                        <p className="font-bold text-white">{playerEventLeaderboards.assists[0].playerName}</p>
+                      </div>
+                      <p className="text-sm text-white/50 mt-0.5">{teamKey ? country(teamKey) : (playerEventLeaderboards.assists[0].teamName ?? "")}</p>
+                    </div>
                   </div>
-                  <div>
-                    <p className="font-bold text-white">{playerEventLeaderboards.assists[0].playerName}</p>
-                    <p className="text-sm text-white/50">{playerEventLeaderboards.assists[0].teamName ? country(playerEventLeaderboards.assists[0].teamName) : ""}</p>
-                  </div>
-                </div>
-              ) : (
+                );
+              })() : (
                 <div className="p-4 text-xs text-white/40">Data unavailable</div>
               )}
             </div>
@@ -276,7 +292,7 @@ export default function StatsContent({ tournamentStats, teamLeaderboards, topSco
 
       {/* SECTION E — Methodology & Coverage */}
       <section className="mt-12 rounded-xl border border-white/10 bg-navyCard/50 p-6 text-sm text-white/60">
-        <h3 className="font-heading text-xs font-bold uppercase tracking-widest text-white mb-3">Data Coverage & Methodology</h3>
+        <h3 className="font-heading text-xs font-bold uppercase tracking-widest text-white mb-3">Data Coverage</h3>
         <div className="grid gap-4 sm:grid-cols-2">
           <div>
             <ul className="space-y-1">
@@ -285,14 +301,7 @@ export default function StatsContent({ tournamentStats, teamLeaderboards, topSco
               <li>• <strong className="text-white">Team Stat Coverage:</strong> {tournamentStats.matchesPlayed} matches</li>
             </ul>
           </div>
-          <div>
-            <p className="mb-1"><strong>Known Limitations:</strong></p>
-            <ul className="space-y-1 text-xs">
-              <li>• No xG or algorithmic ratings.</li>
-              <li>• Incomplete metrics are omitted rather than fabricated.</li>
-              <li>• Assists may rely on source-single archive data.</li>
-            </ul>
-          </div>
+
         </div>
       </section>
     </div>
