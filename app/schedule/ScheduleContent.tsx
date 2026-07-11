@@ -1,24 +1,32 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Flag } from "@/components/Flag";
 import { MatchTime } from "@/components/MatchTime";
-import { TimezonePicker } from "@/components/TimezoneLabel";
-import { useTimezone } from "@/components/TimezoneProvider";
 import { useLang } from "@/components/LanguageProvider";
-import { matchSlug, Match, MATCHES } from "@/lib/matches";
-import { getResolvedHomeTeam, getResolvedAwayTeam, getResolvedHomeCode, getResolvedAwayCode, knockoutSlotLabel, isKnockoutMatch, type ResolvedParticipantLookup } from "@/lib/participant-resolution";
+import { useTimezone } from "@/components/TimezoneProvider";
+import {
+  matchSlug,
+  MATCHES,
+  type Match,
+  ARCHIVE_DEFAULT_DATE,
+} from "@/lib/matches";
 import { groupMatchesByCalendarDate } from "@/lib/todaySelection";
+import type { LiveMatchData } from "@/lib/liveMatchData";
+import {
+  type ResolvedParticipantLookup,
+  getParticipantDisplay,
+} from "@/lib/participant-resolution";
 import type { GoalScorerEvent } from "@/lib/worldcup26Provider";
-import type { ScheduleMatchScore } from "./page";
+import { getMatchPresentation } from "@/lib/matchPresentation";
 
 interface Props {
-  liveScores?: Record<number, ScheduleMatchScore>;
+  liveScores?: Record<string | number, Pick<LiveMatchData, "status" | "homeScore" | "awayScore" | "penaltyShootoutScore">>;
   scorerLines?: Record<string, GoalScorerEvent[]>;
   resolvedParticipants?: ResolvedParticipantLookup;
 }
 
-/** Small status pill — sits where the kickoff time used to be, never louder than the score. */
 function StatusPill({ status }: { status: "FT" | "LIVE" | "HT" | "SYNCING" }) {
   if (status === "LIVE") {
     return (
@@ -48,56 +56,72 @@ function StatusPill({ status }: { status: "FT" | "LIVE" | "HT" | "SYNCING" }) {
   );
 }
 
-/** Just the score — "2–0". The score is always the strongest element on the row. */
-function ScoreRow({ score }: { score: ScheduleMatchScore }) {
-  const { homeScore, awayScore } = score;
-  return (
-    <span className="shrink-0 font-heading text-base font-extrabold tabular-nums text-white">
-      {homeScore}–{awayScore}
-    </span>
-  );
-}
-
 function shortScorerName(playerName: string) {
   if (playerName.includes(".")) return playerName;
   const parts = playerName.trim().split(/\s+/);
   return parts[parts.length - 1] ?? playerName;
 }
 
-/** Compact "9' J. Quiñones · 67' R. Jiménez" scorer text, used below the score cluster. */
 function ScorerText({ events }: { events: GoalScorerEvent[] }) {
   const parts = events.map((e) => {
     const minute = e.minuteLabel ?? (e.minute != null ? `${e.minute}'` : "");
     const name = shortScorerName(e.playerName);
     return `${minute ? `${minute} ` : ""}${name}${e.isOwnGoal ? " (OG)" : e.isPenalty || e.type === "PENALTY_GOAL" ? " (P)" : ""}`;
   });
-  return <>{parts.join(" · ")}</>;
+  return <>{parts.join(" ï¿½ ")}</>;
 }
 
 export function ScheduleContent({ liveScores, scorerLines, resolvedParticipants }: Props) {
   const { t, country, formatDate, locale, lang } = useLang();
   const { timeZone } = useTimezone();
+  const tz = timeZone || "UTC";
+
+  const [now, setNow] = useState(new Date(ARCHIVE_DEFAULT_DATE));
+  const [hydrated, setHydrated] = useState(false);
+  useEffect(() => {
+    setNow(new Date());
+    setHydrated(true);
+  }, []);
+
+  const evalNow = hydrated ? now : new Date(ARCHIVE_DEFAULT_DATE);
+
+  const live = MATCHES.filter((m) => {
+    const pid = m.providerIds?.footballData;
+    const score = pid ? liveScores?.[pid] : undefined;
+    const pres = getMatchPresentation({ match: m, liveData: score as LiveMatchData, timeZone: tz, now: evalNow });
+    return pres.state === "live" || pres.state === "halftime";
+  });
+  const syncing = MATCHES.filter((m) => {
+    const pid = m.providerIds?.footballData;
+    const score = pid ? liveScores?.[pid] : undefined;
+    const pres = getMatchPresentation({ match: m, liveData: score as LiveMatchData, timeZone: tz, now: evalNow });
+    return pres.state === "syncing";
+  });
   const completed = MATCHES.filter((m) => {
     const pid = m.providerIds?.footballData;
     const score = pid ? liveScores?.[pid] : undefined;
-    return score?.status === "FINISHED";
+    const pres = getMatchPresentation({ match: m, liveData: score as LiveMatchData, timeZone: tz, now: evalNow });
+    return pres.state === "final";
   });
   const upcoming = MATCHES.filter((m) => {
     const pid = m.providerIds?.footballData;
     const score = pid ? liveScores?.[pid] : undefined;
-    return score?.status !== "FINISHED";
+    const pres = getMatchPresentation({ match: m, liveData: score as LiveMatchData, timeZone: tz, now: evalNow });
+    return pres.state === "scheduled" || pres.state === "postponed" || pres.state === "cancelled";
   });
 
-  const completedDays = groupMatchesByCalendarDate(completed, timeZone).reverse();
+  const liveDays = groupMatchesByCalendarDate(live, tz);
+  const syncingDays = groupMatchesByCalendarDate(syncing, tz);
+  const completedDays = groupMatchesByCalendarDate(completed, tz).reverse();
   completedDays.forEach(day => day.matches.reverse());
-  const upcomingDays = groupMatchesByCalendarDate(upcoming, timeZone);
+  const upcomingDays = groupMatchesByCalendarDate(upcoming, tz);
 
   const longDate = (iso: string) =>
     new Intl.DateTimeFormat(locale, {
       weekday: "long",
       month: "long",
       day: "numeric",
-      timeZone,
+      timeZone: tz,
     }).format(new Date(`${iso}T12:00:00Z`));
 
   const renderMatches = (matches: Match[]) => (
@@ -105,21 +129,20 @@ export function ScheduleContent({ liveScores, scorerLines, resolvedParticipants 
       {matches.map((m, i) => {
         const pid = m.providerIds?.footballData;
         const score = pid ? liveScores?.[pid] : undefined;
-        const hasScore = !!score && score.homeScore !== null && score.awayScore !== null;
-        const isFinishedOrLive =
-          !!score && (score.status === "FINISHED" || score.status === "IN_PLAY" || score.status === "PAUSED");
-        const isSyncing = !!score && isFinishedOrLive && !hasScore;
-        const isFinished = score?.status === "FINISHED";
-        const isLive = score?.status === "IN_PLAY" || score?.status === "PAUSED";
+        const pres = getMatchPresentation({ match: m, liveData: score as LiveMatchData, timeZone: tz, now: evalNow });
+
+        const homeDisplay = getParticipantDisplay(m, "home", resolvedParticipants, lang);
+        const awayDisplay = getParticipantDisplay(m, "away", resolvedParticipants, lang);
+
         const events = scorerLines?.[matchSlug(m)];
         const hasGoals = !!events && events.length > 0;
 
         let statusPill: React.ReactNode = null;
-        if (hasScore && isFinished) {
+        if (pres.state === "final") {
           statusPill = <StatusPill status="FT" />;
-        } else if (hasScore && isLive) {
-          statusPill = <StatusPill status={score!.status === "PAUSED" ? "HT" : "LIVE"} />;
-        } else if (isSyncing) {
+        } else if (pres.state === "live" || pres.state === "halftime") {
+          statusPill = <StatusPill status={pres.state === "halftime" ? "HT" : "LIVE"} />;
+        } else if (pres.state === "syncing") {
           statusPill = <StatusPill status="SYNCING" />;
         }
 
@@ -135,11 +158,11 @@ export function ScheduleContent({ liveScores, scorerLines, resolvedParticipants 
                 <div className="flex items-center gap-3">
                   <div className="flex min-w-0 flex-1 items-center justify-end gap-2 text-end">
                     <span className="truncate font-semibold text-white">
-                      {getResolvedHomeTeam(m, resolvedParticipants) ? country(getResolvedHomeTeam(m, resolvedParticipants)!) : (isKnockoutMatch(m) ? knockoutSlotLabel(m.homeSlot, lang, resolvedParticipants) : m.homeKey)}
+                      {homeDisplay.label}
                     </span>
-                    {getResolvedHomeTeam(m, resolvedParticipants) && (
+                    {homeDisplay.teamCode && (
                       <Flag
-                        code={getResolvedHomeCode(m, resolvedParticipants) ?? ""}
+                        code={homeDisplay.teamCode}
                         alt=""
                         width={30}
                         height={22}
@@ -148,8 +171,10 @@ export function ScheduleContent({ liveScores, scorerLines, resolvedParticipants 
                     )}
                   </div>
 
-                  {hasScore && score ? (
-                    <ScoreRow score={score} />
+                  {pres.showScore ? (
+                    <span className="shrink-0 font-heading text-base font-extrabold tabular-nums text-white">
+                      {pres.homeScore}ï¿½{pres.awayScore}
+                    </span>
                   ) : (
                     <span className="shrink-0 rounded bg-navy px-2 py-1 font-heading text-xs font-bold uppercase text-white/50">
                       {t("vs")}
@@ -157,9 +182,9 @@ export function ScheduleContent({ liveScores, scorerLines, resolvedParticipants 
                   )}
 
                   <div className="flex min-w-0 flex-1 items-center gap-2">
-                    {getResolvedAwayTeam(m, resolvedParticipants) && (
+                    {awayDisplay.teamCode && (
                       <Flag
-                        code={getResolvedAwayCode(m, resolvedParticipants) ?? ""}
+                        code={awayDisplay.teamCode}
                         alt=""
                         width={30}
                         height={22}
@@ -167,7 +192,7 @@ export function ScheduleContent({ liveScores, scorerLines, resolvedParticipants 
                       />
                     )}
                     <span className="truncate font-semibold text-white">
-                      {getResolvedAwayTeam(m, resolvedParticipants) ? country(getResolvedAwayTeam(m, resolvedParticipants)!) : (isKnockoutMatch(m) ? knockoutSlotLabel(m.awaySlot, lang, resolvedParticipants) : m.awayKey)}
+                      {awayDisplay.label}
                     </span>
                   </div>
                 </div>
@@ -188,7 +213,9 @@ export function ScheduleContent({ liveScores, scorerLines, resolvedParticipants 
                 {statusPill ? (
                   <div className="flex justify-end">{statusPill}</div>
                 ) : (
-                  <MatchTime match={m} className="font-semibold text-white/80" />
+                  <span className="font-semibold text-white/80" suppressHydrationWarning>
+                    {pres.displayKickoffTime}
+                  </span>
                 )}
                 <div>{m.venue ?? formatDate(m.date)}</div>
               </div>
@@ -199,6 +226,14 @@ export function ScheduleContent({ liveScores, scorerLines, resolvedParticipants 
                 <span className="truncate text-[11px] text-white/40">{m.venue}</span>
               </div>
             )}
+            {!statusPill && (
+              <div className="mt-1.5 flex items-center gap-1.5 sm:hidden">
+                <span className="font-semibold text-white/80" suppressHydrationWarning>
+                  {pres.displayKickoffTime}
+                </span>
+                <span className="truncate text-[11px] text-white/40">{m.venue}</span>
+              </div>
+            )}
           </Link>
         );
       })}
@@ -206,66 +241,98 @@ export function ScheduleContent({ liveScores, scorerLines, resolvedParticipants 
   );
 
   return (
-    <div className="mx-auto max-w-4xl px-4 py-8">
-      <h1 className="mb-2 font-heading text-4xl font-extrabold uppercase tracking-wide text-white">
-        {t("sched_title")}
-      </h1>
-      <p className="mb-2 max-w-3xl text-sm text-white/50">
-        {t("sched_intro")}{" "}
-        <Link href="/today" className="font-semibold text-accent underline underline-offset-2 hover:text-white">
-          {t("nav_today")} →
-        </Link>
-      </p>
-      <p className="mb-6 text-sm">
-        <Link href="/world-cup-schedule-local-time" className="font-semibold text-accent underline underline-offset-2 hover:text-white">
-          {t("sched_viewByZone")} →
-        </Link>
-        <span className="text-white/30"> · </span>
-        <Link href="/groups" className="font-semibold text-accent underline underline-offset-2 hover:text-white">
-          {t("nav_groups")} →
-        </Link>
-        <span className="text-white/30"> · </span>
-        <Link href="/stats" className="font-semibold text-accent underline underline-offset-2 hover:text-white">
-          Stats →
-        </Link>
-        <span className="text-white/30"> · </span>
-        <Link href="/world-cup-third-place-qualification" className="font-semibold text-accent underline underline-offset-2 hover:text-white">
-          Third-place ranking →
-        </Link>
-      </p>
-      <TimezonePicker className="mb-6 flex flex-wrap items-center gap-2 text-[11px] text-white/55" />
+    <div>
+      {/* TABS */}
+      <div className="mb-6 flex gap-4 border-b border-white/10">
+        <a href="#upcoming" className="border-b-2 border-accent pb-2 font-heading text-sm font-bold uppercase tracking-wide text-white transition hover:text-accent">
+          Upcoming Matches
+        </a>
+        <a href="#completed" className="border-b-2 border-transparent pb-2 font-heading text-sm font-bold uppercase tracking-wide text-white/50 transition hover:border-white/30">
+          Completed Results
+        </a>
+      </div>
 
-      {completedDays.length > 0 && (
-        <div className="mb-12">
-          <h2 className="mb-4 font-heading text-2xl font-extrabold uppercase text-white">Latest Results</h2>
-          <div className="space-y-8">
-            {completedDays.map(({ date, matches }) => (
-              <section key={date}>
-                <h3 className="mb-3 border-b-2 border-accent pb-2 font-heading text-xl font-extrabold uppercase tracking-wide text-white">
-                  {longDate(date)}
-                </h3>
-                {renderMatches(matches)}
-              </section>
-            ))}
-          </div>
-        </div>
-      )}
+      <div className="space-y-12">
+        {liveDays.length > 0 && (
+          <section id="live" className="scroll-mt-24">
+            <h2 className="mb-6 font-heading text-xl font-extrabold uppercase tracking-widest text-red-400">
+              Live Now
+            </h2>
+            <div className="space-y-8">
+              {liveDays.map((group) => (
+                <div key={group.date}>
+                  <h3 className="mb-3 border-b border-white/10 pb-2 font-heading text-lg font-bold uppercase tracking-wide text-accent">
+                    {longDate(group.date)}
+                  </h3>
+                  {renderMatches(group.matches)}
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
 
-      {upcomingDays.length > 0 && (
-        <div>
-          <h2 className="mb-4 font-heading text-2xl font-extrabold uppercase text-white">Upcoming Fixtures</h2>
-          <div className="space-y-8">
-            {upcomingDays.map(({ date, matches }) => (
-              <section key={date}>
-                <h3 className="mb-3 border-b-2 border-accent pb-2 font-heading text-xl font-extrabold uppercase tracking-wide text-white">
-                  {longDate(date)}
-                </h3>
-                {renderMatches(matches)}
-              </section>
-            ))}
-          </div>
-        </div>
-      )}
+        {syncingDays.length > 0 && (
+          <section id="syncing" className="scroll-mt-24">
+            <h2 className="mb-6 font-heading text-xl font-extrabold uppercase tracking-widest text-[#f5a623]">
+              {t("sec_awaitingUpdate") || "Awaiting Update"}
+            </h2>
+            <div className="space-y-8">
+              {syncingDays.map((group) => (
+                <div key={group.date}>
+                  <h3 className="mb-3 border-b border-white/10 pb-2 font-heading text-lg font-bold uppercase tracking-wide text-accent">
+                    {longDate(group.date)}
+                  </h3>
+                  {renderMatches(group.matches)}
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
+
+        <section id="upcoming" className="scroll-mt-24">
+          <h2 className="mb-6 font-heading text-xl font-extrabold uppercase tracking-widest text-white/40">
+            Upcoming Matches
+          </h2>
+          {upcomingDays.length > 0 ? (
+            <div className="space-y-8">
+              {upcomingDays.map((group) => (
+                <div key={group.date}>
+                  <h3 className="mb-3 border-b border-white/10 pb-2 font-heading text-lg font-bold uppercase tracking-wide text-accent">
+                    {longDate(group.date)}
+                  </h3>
+                  {renderMatches(group.matches)}
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="rounded-xl border border-white/10 bg-navyCard p-8 text-center text-white/60">
+              <p>No upcoming matches.</p>
+            </div>
+          )}
+        </section>
+
+        <section id="completed" className="scroll-mt-24">
+          <h2 className="mb-6 font-heading text-xl font-extrabold uppercase tracking-widest text-white/40">
+            Completed Results
+          </h2>
+          {completedDays.length > 0 ? (
+            <div className="space-y-8">
+              {completedDays.map((group) => (
+                <div key={group.date}>
+                  <h3 className="mb-3 border-b border-white/10 pb-2 font-heading text-lg font-bold uppercase tracking-wide text-white/60">
+                    {longDate(group.date)}
+                  </h3>
+                  {renderMatches(group.matches)}
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="rounded-xl border border-white/10 bg-navyCard p-8 text-center text-white/60">
+              <p>No matches have finished yet.</p>
+            </div>
+          )}
+        </section>
+      </div>
     </div>
   );
 }

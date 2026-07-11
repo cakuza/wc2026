@@ -2,14 +2,14 @@
 
 import { Flag } from "@/components/Flag";
 import { CountdownClient } from "@/components/CountdownClient";
-import { TodayMatches, type TodayLiveSnapshot } from "@/components/TodayMatches";
+import { MatchCenterContent, type MatchCenterLiveSnapshot } from "@/components/MatchCenterContent";
 import { useLang } from "@/components/LanguageProvider";
 import { type DisplayMatchday } from "@/lib/matches";
 import type { TournamentLiveSnapshot } from "@/lib/liveSnapshot";
 import type { ResolvedParticipantLookup } from "@/lib/participant-resolution";
 
-function toTodayLiveSnapshot(snapshot: TournamentLiveSnapshot, resolvedParticipants: ResolvedParticipantLookup): TodayLiveSnapshot {
-  const scorersByMatchId: Record<string, TodayLiveSnapshot["scorersByMatchId"][string]> = {};
+function toMatchCenterLiveSnapshot(snapshot: TournamentLiveSnapshot, resolvedParticipants: ResolvedParticipantLookup): MatchCenterLiveSnapshot {
+  const scorersByMatchId: Record<string, MatchCenterLiveSnapshot["scorersByMatchId"][string]> = {};
   for (const [id, entry] of Object.entries(snapshot.matches)) {
     if (entry.scorers.length > 0) scorersByMatchId[id] = entry.scorers;
   }
@@ -103,7 +103,7 @@ export function Hero({
         </div>
 
         {/* Right: dynamic today's / next matches (client component) */}
-        <TodayMatches initialMatchday={initialMatchday} liveSnapshot={toTodayLiveSnapshot(snapshot, resolvedParticipants)} />
+        <MatchCenterContent liveSnapshot={toMatchCenterLiveSnapshot(snapshot, resolvedParticipants)} />
       </div>
     </section>
   );

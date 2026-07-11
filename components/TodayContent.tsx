@@ -4,15 +4,15 @@ import { FreshnessLabel } from "@/components/FreshnessLabel";
 import { MatchdayDateNav } from "@/components/MatchdayDateNav";
 import { LiveDataUnavailableNotice } from "@/components/LiveDataUnavailableNotice";
 import { TodayPageLiveSection } from "@/components/TodayPageLiveSection";
+import { MatchCenterContent } from "@/components/MatchCenterContent";
 import {
   resolveSelectedMatchday,
   getMatchesForDateInZone,
   localHourInTimeZone,
   previousMatchdayWithMatches,
-  nextUpcomingMatchesForTimeZone,
 } from "@/lib/todaySelection";
 import { ARCHIVE_DEFAULT_DATE } from "@/lib/matches";
-import type { TodayLiveSnapshot } from "@/components/TodayMatches";
+import type { MatchCenterLiveSnapshot } from "@/components/MatchCenterContent";
 
 const MIDNIGHT_CONTINUITY_END_HOUR = 3;
 
@@ -32,7 +32,7 @@ export function TodayContent({
   dateParam,
   selectedTimeZone,
 }: {
-  snapshot: TodayLiveSnapshot;
+  snapshot: MatchCenterLiveSnapshot;
   isFallbackSnapshot: boolean;
   liveDataUnavailableByMatchId: Record<string, boolean>;
   dateParam?: string;
@@ -42,13 +42,6 @@ export function TodayContent({
   const selectedMatches = getMatchesForDateInZone({ date: resolved.date, timeZone: selectedTimeZone });
   const hasSelectedMatches = selectedMatches.length > 0;
 
-  const showUpcomingFallback = !resolved.isExplicitDate && !hasSelectedMatches;
-  const fallbackDays = showUpcomingFallback
-    ? nextUpcomingMatchesForTimeZone({ now: new Date(ARCHIVE_DEFAULT_DATE), timeZone: selectedTimeZone })
-    : [];
-
-  const days = hasSelectedMatches ? [{ date: resolved.date, matches: selectedMatches }] : fallbackDays;
-  const summaryMatches = hasSelectedMatches ? selectedMatches : (fallbackDays[0]?.matches ?? []);
   const isToday = resolved.isToday;
 
   const localHour = localHourInTimeZone(new Date(ARCHIVE_DEFAULT_DATE), selectedTimeZone);
@@ -58,28 +51,34 @@ export function TodayContent({
       ? previousMatchdayWithMatches({ fromDate: resolved.todayDate, timeZone: selectedTimeZone })
       : null;
 
-  const longDateLabels = Object.fromEntries(days.map(({ date }) => [date, longDate(date)]));
-
   return (
     <div className="mx-auto max-w-4xl px-4 py-8">
       <h1 className="mb-2 font-heading text-4xl font-extrabold uppercase tracking-wide text-white">
-        {hasSelectedMatches
-          ? isToday
-            ? "World Cup Matches Today"
-            : "World Cup Matches"
-          : "Latest World Cup Results"}
+        {resolved.isExplicitDate
+          ? `World Cup Matches ï¿½ ${longDate(resolved.date)}`
+          : "World Cup Match Center"}
       </h1>
       <p className="mb-2 max-w-3xl text-sm text-white/50">
         Follow World Cup matches with scores, kickoff times in your selected timezone,
         venues and match status. Finished matches include final scores and goal scorers when available.
       </p>
-      <div className="mb-6 flex flex-wrap items-center justify-between gap-2">
-        <TimezonePicker className="flex flex-wrap items-center gap-2 text-[11px] text-white/55" />
-        <FreshnessLabel
-          primaryProviderFetchedAt={snapshot.primaryProviderFetchedAt}
-          primaryProviderOk={snapshot.primaryProviderOk}
-        />
-      </div>
+
+      {!resolved.isExplicitDate && (
+        <div className="mb-6 flex flex-wrap items-center justify-between gap-2">
+          {/* MatchCenterContent has its own timezone and freshness label, but we can keep the picker here */}
+          <TimezonePicker className="flex flex-wrap items-center gap-2 text-[11px] text-white/55" />
+        </div>
+      )}
+
+      {resolved.isExplicitDate && (
+        <div className="mb-6 flex flex-wrap items-center justify-between gap-2">
+          <TimezonePicker className="flex flex-wrap items-center gap-2 text-[11px] text-white/55" />
+          <FreshnessLabel
+            primaryProviderFetchedAt={snapshot.primaryProviderFetchedAt}
+            primaryProviderOk={snapshot.primaryProviderOk}
+          />
+        </div>
+      )}
 
       <MatchdayDateNav
         selectedDate={resolved.date}
@@ -100,39 +99,37 @@ export function TodayContent({
             Just after midnight — view the previous matchday&apos;s completed matches.
           </span>
           <span className="shrink-0 font-heading text-xs font-bold uppercase tracking-wide text-accent">
-            {longDate(previousMatchday)} →
+            {longDate(previousMatchday)} ?
           </span>
         </Link>
       )}
 
-      {showUpcomingFallback && (
-        <div className="mb-6 rounded-xl border border-white/10 bg-navyCard px-4 py-4 text-sm text-white/60">
-          <p className="font-semibold text-white/80">Latest Results</p>
-          <p className="mt-1">The World Cup matches have concluded. See the full {" "}
-            <Link href="/schedule" className="font-semibold text-accent underline underline-offset-2 hover:text-white">match schedule</Link>{" "}
-            for complete results.
-          </p>
+      {!resolved.isExplicitDate ? (
+        <div className="mt-8">
+          <MatchCenterContent liveSnapshot={snapshot} />
         </div>
+      ) : (
+        <>
+          {hasSelectedMatches ? (
+            <TodayPageLiveSection
+              days={[{ date: resolved.date, matches: selectedMatches }]}
+              summaryMatches={selectedMatches}
+              isToday={isToday}
+              showUpcomingFallback={false}
+              initialSnapshot={snapshot}
+              initialLiveDataUnavailableByMatchId={liveDataUnavailableByMatchId}
+              longDate={{ [resolved.date]: longDate(resolved.date) }}
+            />
+          ) : (
+            <div className="mb-6 rounded-xl border border-white/10 bg-navyCard px-4 py-4 text-sm text-white/60">
+              <p className="font-semibold text-white/80">No World Cup matches on this date.</p>
+              <p className="mt-1">Use the date controls above to find another matchday, or see the full {" "}
+                <Link href="/schedule" className="font-semibold text-accent underline underline-offset-2 hover:text-white">match schedule</Link>.
+              </p>
+            </div>
+          )}
+        </>
       )}
-
-      {resolved.isExplicitDate && !hasSelectedMatches && (
-        <div className="mb-6 rounded-xl border border-white/10 bg-navyCard px-4 py-4 text-sm text-white/60">
-          <p className="font-semibold text-white/80">No World Cup matches on this date.</p>
-          <p className="mt-1">Use the date controls above to find another matchday, or see the full {" "}
-            <Link href="/schedule" className="font-semibold text-accent underline underline-offset-2 hover:text-white">match schedule</Link>.
-          </p>
-        </div>
-      )}
-
-      <TodayPageLiveSection
-        days={days}
-        summaryMatches={summaryMatches}
-        isToday={isToday}
-        showUpcomingFallback={showUpcomingFallback}
-        initialSnapshot={snapshot}
-        initialLiveDataUnavailableByMatchId={liveDataUnavailableByMatchId}
-        longDate={longDateLabels}
-      />
 
       {/* Quick links */}
       <div className="mt-8 flex flex-wrap gap-3 text-sm">

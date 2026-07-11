@@ -4,14 +4,14 @@ import { useSearchParams } from "next/navigation";
 import { useTimezone } from "@/components/TimezoneProvider";
 import { TodayContent } from "@/components/TodayContent";
 import { DEFAULT_TIMEZONE } from "@/lib/timezone";
-import type { TodayLiveSnapshot } from "@/components/TodayMatches";
+import type { MatchCenterLiveSnapshot } from "@/components/MatchCenterContent";
 
 export function TodayClientWrapper({
   snapshot,
   isFallbackSnapshot,
   liveDataUnavailableByMatchId,
 }: {
-  snapshot: TodayLiveSnapshot;
+  snapshot: MatchCenterLiveSnapshot;
   isFallbackSnapshot: boolean;
   liveDataUnavailableByMatchId: Record<string, boolean>;
 }) {

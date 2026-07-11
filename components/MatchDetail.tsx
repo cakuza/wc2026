@@ -737,7 +737,7 @@ export function MatchDetail({
               ] : [
                 { href: "/bracket", label: "View knockout bracket" },
               ]),
-              { href: todayHref, label: "See today's matches" },
+              { href: todayHref, label: "View Match Center" },
               { href: "/stats", label: "See tournament stats" },
             ].map((l) => (
               <Link

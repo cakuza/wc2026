@@ -1,19 +1,17 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import Link from "next/link";
 import { Flag } from "@/components/Flag";
 import { MatchTime } from "@/components/MatchTime";
-import { type TodayLiveSnapshot } from "@/components/TodayMatches";
+import { type MatchCenterLiveSnapshot } from "@/components/MatchCenterContent";
 import { getParticipantDisplay } from "@/lib/participant-resolution";
-import { matchSlug, matchUtcDate, type Match } from "@/lib/matches";
+import { matchSlug, ARCHIVE_DEFAULT_DATE, type Match } from "@/lib/matches";
 import type { LiveMatchData } from "@/lib/liveMatchData";
 import type { GoalScorerEvent } from "@/lib/worldcup26Provider";
-
-function scoreText(live: LiveMatchData) {
-  if (live.homeScore === null || live.awayScore === null) return null;
-  return `${live.homeScore}-${live.awayScore}`;
-}
+import { getMatchPresentation } from "@/lib/matchPresentation";
+import { reconcileGoalEvents } from "@/lib/scoreReconciliation";
+import { useTimezone } from "@/components/TimezoneProvider";
 
 function shortScorerName(playerName: string) {
   if (playerName.includes(".")) return playerName;
@@ -29,18 +27,7 @@ function scorerText(events: GoalScorerEvent[] | undefined) {
       const name = shortScorerName(e.playerName);
       return `${minute ? `${minute} ` : ""}${name}${e.isOwnGoal ? " (OG)" : e.isPenalty || e.type === "PENALTY_GOAL" ? " (P)" : ""}`;
     })
-    .join(" · ");
-}
-
-function teamLabel(match: Match, side: "home" | "away", snapshot: TodayLiveSnapshot): string {
-  return getParticipantDisplay(match, side, snapshot.resolvedParticipants).label;
-}
-
-export function getTodayPageLabels(match: Match, snapshot: TodayLiveSnapshot) {
-  return {
-    home: teamLabel(match, "home", snapshot),
-    away: teamLabel(match, "away", snapshot),
-  };
+    .join(" ï¿½ ");
 }
 
 function TodaySummary({
@@ -48,97 +35,54 @@ function TodaySummary({
   snapshot,
 }: {
   matches: Match[];
-  snapshot: TodayLiveSnapshot;
+  snapshot: MatchCenterLiveSnapshot;
 }) {
-  const rows = matches
-    .map((match) => {
-      const live = match.providerIds?.footballData
-        ? snapshot.liveDataByProviderId[String(match.providerIds.footballData)]
-        : undefined;
-      return { match, live };
-    })
-    .filter(({ live }) => !!live);
+  const [now, setNow] = useState(new Date(ARCHIVE_DEFAULT_DATE));
+  const [hydrated, setHydrated] = useState(false);
+  useEffect(() => {
+    setNow(new Date());
+    setHydrated(true);
+  }, []);
+  const tz = useTimezone().timeZone || "UTC";
 
-  const finished = rows.filter(
-    ({ live }) => live?.status === "FINISHED" && live.homeScore !== null && live.awayScore !== null,
-  );
-  const syncing = rows.filter(
-    ({ live }) =>
-      (live?.status === "IN_PLAY" || live?.status === "PAUSED") &&
-      (live.homeScore === null || live.awayScore === null),
-  );
-  const inProgress = rows.filter(
-    ({ live }) =>
-      (live?.status === "IN_PLAY" || live?.status === "PAUSED") &&
-      live.homeScore !== null &&
-      live.awayScore !== null,
-  );
-  const upcoming = matches
-    .filter((match) => {
-      const isResolved = getParticipantDisplay(match, "home", snapshot.resolvedParticipants).isResolved &&
-                         getParticipantDisplay(match, "away", snapshot.resolvedParticipants).isResolved;
-      if (!isResolved) return false;
+  let next: Match | null = null;
+  const liveMatches: Match[] = [];
 
-      const live = match.providerIds?.footballData
-        ? snapshot.liveDataByProviderId[String(match.providerIds.footballData)]
-        : undefined;
-      return !live || live.status === "SCHEDULED" || live.status === "TIMED";
-    })
-    .sort((a, b) => matchUtcDate(a).getTime() - matchUtcDate(b).getTime());
-
-  if (finished.length === 0 && syncing.length === 0 && inProgress.length === 0 && upcoming.length === 0) {
-    return null;
+  for (const m of matches) {
+    const live = m.providerIds?.footballData ? snapshot.liveDataByProviderId[String(m.providerIds.footballData)] : undefined;
+    const pres = getMatchPresentation({ match: m, liveData: live, timeZone: tz, now: hydrated ? now : new Date(ARCHIVE_DEFAULT_DATE) });
+    if (pres.state === "live" || pres.state === "halftime") {
+      liveMatches.push(m);
+    } else if (pres.state === "scheduled") {
+      if (!next) next = m;
+    }
   }
 
-  const next = upcoming[0];
+  if (liveMatches.length === 0 && !next) return null;
 
   return (
-    <section className="mb-6 rounded-xl border border-white/10 bg-navyCard px-4 py-4">
-      <h2 className="font-heading text-sm font-extrabold uppercase tracking-wide text-white">
-        Today&apos;s matchday summary
-      </h2>
-      <div className="mt-3 space-y-3 text-sm text-white/70">
-        {finished.length > 0 && (
+    <section className="mb-8 rounded-xl border border-white/10 bg-navyCard px-5 py-4">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        {liveMatches.length > 0 && (
           <div>
-            <p className="font-heading text-[11px] font-bold uppercase tracking-widest text-white/35">
-              Finished
+            <p className="font-heading text-[11px] font-bold uppercase tracking-widest text-red-400">
+              <span className="mr-2 inline-block h-2 w-2 animate-pulse rounded-full bg-red-500" />
+              Live Now
             </p>
             <div className="mt-1 space-y-1">
-              {finished.map(({ match, live }) => {
-                const goals = scorerText(snapshot.scorersByMatchId[matchSlug(match)]);
+              {liveMatches.map((match) => {
+                const homeDisplay = getParticipantDisplay(match, "home", snapshot.resolvedParticipants);
+                const awayDisplay = getParticipantDisplay(match, "away", snapshot.resolvedParticipants);
+                const live = match.providerIds?.footballData ? snapshot.liveDataByProviderId[String(match.providerIds.footballData)] : undefined;
+                const pres = getMatchPresentation({ match, liveData: live, timeZone: tz, now: hydrated ? now : new Date(ARCHIVE_DEFAULT_DATE) });
                 return (
                   <p key={matchSlug(match)}>
                     <Link href={`/matches/${matchSlug(match)}`} className="font-semibold text-white hover:text-accent">
-                      {teamLabel(match, "home", snapshot)} {scoreText(live!)} {teamLabel(match, "away", snapshot)}
+                      {homeDisplay.label} vs {awayDisplay.label} - {pres.showScore ? `${pres.homeScore}-${pres.awayScore}` : "score syncing"}
                     </Link>
-                    {goals ? <span className="text-white/45"> · Goals: {goals}</span> : null}
                   </p>
                 );
               })}
-            </div>
-          </div>
-        )}
-
-        {(inProgress.length > 0 || syncing.length > 0) && (
-          <div>
-            <p className="font-heading text-[11px] font-bold uppercase tracking-widest text-white/35">
-              Score syncing
-            </p>
-            <div className="mt-1 space-y-1">
-              {inProgress.map(({ match, live }) => (
-                <p key={matchSlug(match)}>
-                  <Link href={`/matches/${matchSlug(match)}`} className="font-semibold text-white hover:text-accent">
-                    {teamLabel(match, "home", snapshot)} {scoreText(live!)} {teamLabel(match, "away", snapshot)} - LIVE
-                  </Link>
-                </p>
-              ))}
-              {syncing.map(({ match }) => (
-                <p key={matchSlug(match)}>
-                  <Link href={`/matches/${matchSlug(match)}`} className="font-semibold text-white hover:text-accent">
-                    {teamLabel(match, "home", snapshot)} vs {teamLabel(match, "away", snapshot)} - score syncing
-                  </Link>
-                </p>
-              ))}
             </div>
           </div>
         )}
@@ -150,9 +94,11 @@ function TodaySummary({
             </p>
             <p className="mt-1">
               <Link href={`/matches/${matchSlug(next)}`} className="font-semibold text-white hover:text-accent">
-                {teamLabel(next, "home", snapshot)} vs {teamLabel(next, "away", snapshot)}
+                {getParticipantDisplay(next, "home", snapshot.resolvedParticipants).label} vs {getParticipantDisplay(next, "away", snapshot.resolvedParticipants).label}
               </Link>{" "}
-              - <MatchTime match={next} withZone className="font-semibold text-white/80" />
+              - <span className="font-semibold text-white/80" suppressHydrationWarning>
+                {getMatchPresentation({ match: next, liveData: next.providerIds?.footballData ? snapshot.liveDataByProviderId[String(next.providerIds.footballData)] : undefined, timeZone: tz, now: hydrated ? now : new Date(ARCHIVE_DEFAULT_DATE) }).displayKickoffTime}
+              </span>
             </p>
           </div>
         )}
@@ -167,18 +113,38 @@ function MatchRow({
   liveDataUnavailable,
 }: {
   m: Match;
-  snapshot: TodayLiveSnapshot;
+  snapshot: MatchCenterLiveSnapshot;
   liveDataUnavailable?: boolean;
 }) {
+  const { timeZone } = useTimezone();
+  const tz = timeZone || "UTC";
+
+  const [now, setNow] = useState(new Date(ARCHIVE_DEFAULT_DATE));
+  const [hydrated, setHydrated] = useState(false);
+  useEffect(() => {
+    setNow(new Date());
+    setHydrated(true);
+  }, []);
+
   const live = m.providerIds?.footballData ? snapshot.liveDataByProviderId[String(m.providerIds.footballData)] : undefined;
-  const home = teamLabel(m, "home", snapshot);
-  const away = teamLabel(m, "away", snapshot);
   const homeDisplay = getParticipantDisplay(m, "home", snapshot.resolvedParticipants);
   const awayDisplay = getParticipantDisplay(m, "away", snapshot.resolvedParticipants);
-  const hasScore = !liveDataUnavailable && live && live.homeScore !== null && live.awayScore !== null;
-  const isLive = !liveDataUnavailable && (live?.status === "IN_PLAY" || live?.status === "PAUSED");
-  const isFinished = !liveDataUnavailable && live?.status === "FINISHED";
-  const goals = liveDataUnavailable ? null : scorerText(snapshot.scorersByMatchId[matchSlug(m)]);
+
+  const pres = getMatchPresentation({
+    match: m,
+    liveData: liveDataUnavailable ? undefined : live,
+    timeZone: tz,
+    now: hydrated ? now : new Date(ARCHIVE_DEFAULT_DATE)
+  });
+
+  const { confirmedEvents, scorerDetailsIncomplete } = reconcileGoalEvents({
+    homeScore: pres.homeScore,
+    awayScore: pres.awayScore,
+    homeTeamName: homeDisplay.label,
+    awayTeamName: awayDisplay.label,
+    events: snapshot.scorersByMatchId[matchSlug(m)] ?? [],
+  });
+  const goals = liveDataUnavailable ? null : scorerText(confirmedEvents);
 
   const isUnresolved = !homeDisplay.isResolved || !awayDisplay.isResolved;
 
@@ -191,11 +157,21 @@ function MatchRow({
         : "Match";
     return (
       <div className="flex flex-col gap-2 rounded-lg border border-white/10 bg-navyCard px-4 py-3 text-center transition hover:border-white/20 hover:bg-white/5">
-        <p className="text-sm font-semibold text-white/70">{stageName} — teams to be decided</p>
+        <p className="text-sm font-semibold text-white/70">{stageName} ï¿½ teams to be decided</p>
         <p className="text-xs text-white/40">Participants will be confirmed once previous matches conclude.</p>
       </div>
     );
   }
+
+  const statusMap: Record<string, string> = {
+    scheduled: "Scheduled",
+    live: "Live",
+    halftime: "HT",
+    final: "FT",
+    syncing: "Syncing",
+    postponed: "Postponed",
+    cancelled: "Cancelled",
+  };
 
   return (
     <Link
@@ -206,12 +182,12 @@ function MatchRow({
         <div data-today-score-cluster className="min-w-0 flex-1">
           <div className="flex items-center gap-3">
             <div className="flex min-w-0 flex-1 items-center justify-end gap-2 text-end">
-              <span className="truncate font-semibold text-white">{home}</span>
+              <span className="truncate font-semibold text-white">{homeDisplay.label}</span>
               {homeDisplay.teamCode ? <Flag code={homeDisplay.teamCode} alt="" width={30} height={22} /> : null}
             </div>
-            {hasScore ? (
+            {pres.showScore ? (
               <span className="shrink-0 font-heading text-sm font-extrabold tabular-nums text-white">
-                {live!.homeScore}-{live!.awayScore}
+                {pres.homeScore}-{pres.awayScore}
               </span>
             ) : (
               <span className="shrink-0 rounded bg-navy px-2 py-1 font-heading text-xs font-bold uppercase text-white/50">
@@ -220,45 +196,41 @@ function MatchRow({
             )}
             <div className="flex min-w-0 flex-1 items-center gap-2">
               {awayDisplay.teamCode ? <Flag code={awayDisplay.teamCode} alt="" width={30} height={22} /> : null}
-              <span className="truncate font-semibold text-white">{away}</span>
+              <span className="truncate font-semibold text-white">{awayDisplay.label}</span>
             </div>
           </div>
           {goals ? <p className="mt-1.5 truncate text-center text-[11px] text-white/40">Goals: {goals}</p> : null}
+          {scorerDetailsIncomplete && (pres.state === "live" || pres.state === "syncing") ? (
+            <p className="mt-1.5 text-center text-[11px] text-white/40">Scorer details are still syncing.</p>
+          ) : null}
         </div>
         <div data-today-right-meta className="flex shrink-0 items-center justify-between gap-3 text-xs text-white/50 sm:w-36 sm:flex-col sm:items-end sm:text-end">
           <div className="flex items-center gap-2 sm:justify-end">
-            {!hasScore && !isLive && !isFinished && !liveDataUnavailable ? (
-              <MatchTime match={m} withZone className="font-semibold text-white/80" />
+            {pres.showStatus === false && !liveDataUnavailable ? (
+              <span className="font-semibold text-white/80" suppressHydrationWarning>
+                {pres.displayKickoffTime}
+              </span>
             ) : null}
             {liveDataUnavailable && (
               <span className="rounded bg-amber-400/15 px-1.5 py-0.5 font-heading text-[10px] font-extrabold uppercase tracking-widest text-amber-300">
                 Live data unavailable
               </span>
             )}
-            {isLive && hasScore && (
-              <span className="rounded bg-red-600 px-1.5 py-0.5 font-heading text-[10px] font-extrabold uppercase tracking-widest text-white">
-                {live?.status === "PAUSED" ? "HT" : "Live"}
-              </span>
-            )}
-            {isLive && !hasScore && (
-              <span className="rounded bg-white/5 px-1.5 py-0.5 font-heading text-[10px] font-extrabold uppercase tracking-widest text-white/30">
-                Syncing
-              </span>
-            )}
-            {isFinished && (
-              <span className="rounded bg-white/10 px-1.5 py-0.5 font-heading text-[10px] font-extrabold uppercase tracking-widest text-white/60">
-                FT
-              </span>
-            )}
-            {!hasScore && !isLive && !isFinished && !liveDataUnavailable && (
-              <span className="rounded bg-white/5 px-1.5 py-0.5 font-heading text-[10px] font-extrabold uppercase tracking-widest text-white/30">
-                Scheduled
+            {pres.showStatus && !liveDataUnavailable && (
+              <span className={`rounded px-1.5 py-0.5 font-heading text-[10px] font-extrabold uppercase tracking-widest ${
+                pres.state === "live" || pres.state === "halftime"
+                  ? "bg-red-600 text-white"
+                  : pres.state === "final"
+                  ? "bg-white/10 text-white/60"
+                  : "bg-white/5 text-white/30"
+              }`}>
+                {statusMap[pres.state]}
               </span>
             )}
           </div>
           <div>
             {m.group ? `Group ${m.group}` : ""}
-            {m.group && m.venue ? " · " : ""}
+            {m.group && m.venue ? " ï¿½ " : ""}
             {m.venue ?? ""}
           </div>
         </div>
@@ -282,19 +254,12 @@ export function TodayPageLiveSection({
   summaryMatches: Match[];
   isToday: boolean;
   showUpcomingFallback: boolean;
-  initialSnapshot: TodayLiveSnapshot;
+  initialSnapshot: MatchCenterLiveSnapshot;
   initialLiveDataUnavailableByMatchId: Record<string, boolean>;
   longDate: Record<string, string>;
 }) {
   const [snapshot, setSnapshot] = useState(initialSnapshot);
   const [liveDataUnavailableByMatchId, setLiveDataUnavailableByMatchId] = useState(initialLiveDataUnavailableByMatchId);
-  const allMatches = useMemo(() => {
-    const map = new Map<string, Match>();
-    for (const match of [...summaryMatches, ...days.flatMap((day) => day.matches)]) {
-      map.set(matchSlug(match), match);
-    }
-    return [...map.values()];
-  }, [days, summaryMatches]);
 
   // Containment mode: client-side fetch loop removed. Snapshot is served from
   // server props only. Scores update on ISR revalidation (hourly), not polling.
@@ -309,7 +274,7 @@ export function TodayPageLiveSection({
         {days.map(({ date, matches }) => (
           <section key={date}>
             <h2 className="mb-3 border-b-2 border-accent pb-2 font-heading text-xl font-extrabold uppercase tracking-wide text-white">
-              {showUpcomingFallback ? "Next" : isToday ? "Today" : "Matches"} · {longDate[date]}
+              {showUpcomingFallback ? "Next" : isToday ? "Today" : "Matches"} ï¿½ {longDate[date]}
             </h2>
             <div className="space-y-2">
               {matches.map((m, i) => (

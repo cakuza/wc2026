@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 import { LiveSnapshotDebug } from "@/components/LiveSnapshotDebug";
 import type { GoalScorerEvent } from "@/lib/worldcup26Provider";
-import type { TodayLiveSnapshot } from "@/components/TodayMatches";
+import type { MatchCenterLiveSnapshot } from "@/components/MatchCenterContent";
 import { getTournamentLiveSnapshot } from "@/lib/liveSnapshot";
 import { buildKnockoutResolution } from "@/lib/knockoutResolution";
 import { TodayContent } from "@/components/TodayContent";
@@ -19,17 +19,17 @@ export const revalidate = 3600;
 export async function generateMetadata(): Promise<Metadata> {
   const hasDateParam = false;
   return {
-    title: "World Cup Matches Today — Scores, Fixtures & Kickoff Times",
+    title: "World Cup Match Center ï¿½ Scores, Fixtures & Kickoff Times",
     description:
-      "See today's World Cup matches with scores, kickoff times, venues, goal scorers and timezone support.",
+      "Follow the World Cup Match Center with live scores, upcoming fixtures, latest results, and goal scorers.",
     // A single canonical /today regardless of ?date=/?tz= avoids duplicate
     // indexable URLs; dated views are explicitly de-indexed.
     alternates: { canonical: `${BASE_URL}/today` },
     robots: hasDateParam ? { index: false, follow: true } : undefined,
     openGraph: {
-      title: "World Cup Matches Today — Scores, Fixtures & Kickoff Times",
+      title: "World Cup Match Center ï¿½ Scores, Fixtures & Kickoff Times",
       description:
-        "See today's World Cup matches with scores, kickoff times, venues, goal scorers and timezone support.",
+        "Follow the World Cup Match Center with live scores, upcoming fixtures, latest results, and goal scorers.",
       url: `${BASE_URL}/today`,
       type: "website",
     },
@@ -38,11 +38,11 @@ export async function generateMetadata(): Promise<Metadata> {
 
 const FAQS: { q: string; a: string }[] = [
   {
-    q: "Who plays today in the World Cup?",
-    a: "When games are scheduled, today's fixtures are listed above with their kickoff times, groups and venues. If there are no matches today, the next upcoming matchday is shown instead.",
+    q: "What matches are happening in the World Cup?",
+    a: "When games are scheduled, the Match Center lists upcoming matches with their kickoff times, groups and venues.",
   },
   {
-    q: "What time are today's World Cup matches?",
+    q: "What time are the World Cup matches?",
     a: "Kickoff times are shown in your selected timezone (defaults to your device's timezone, with US Eastern as the fallback, and can be changed using the timezone selector). The tournament's opening match kicked off at 3:00 PM ET / 1:00 PM Mexico City time on 11 June 2026.",
   },
   {
@@ -74,7 +74,7 @@ export default async function TodayPage() {
   for (const [id, entry] of Object.entries(snapshot.matches)) {
     if (entry.scorers.length > 0) scorerLines[id] = entry.scorers;
   }
-  const todayLiveSnapshot: TodayLiveSnapshot = {
+  const matchCenterSnapshot: MatchCenterLiveSnapshot = {
     snapshotId: snapshot.snapshotId,
     generatedAt: snapshot.generatedAt,
     liveDataByProviderId: liveData,
@@ -97,7 +97,7 @@ export default async function TodayPage() {
 
       <Suspense fallback={
         <TodayContent
-          snapshot={todayLiveSnapshot}
+          snapshot={matchCenterSnapshot}
           isFallbackSnapshot={isFallbackSnapshot}
           liveDataUnavailableByMatchId={liveDataUnavailableByMatchId}
           dateParam={undefined}
@@ -105,7 +105,7 @@ export default async function TodayPage() {
         />
       }>
         <TodayClientWrapper
-          snapshot={todayLiveSnapshot}
+          snapshot={matchCenterSnapshot}
           isFallbackSnapshot={isFallbackSnapshot}
           liveDataUnavailableByMatchId={liveDataUnavailableByMatchId}
         />
