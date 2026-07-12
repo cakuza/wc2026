@@ -40,7 +40,7 @@ function scorerText(events: GoalScorerEvent[] | undefined) {
       const name = shortScorerName(e.playerName);
       return `${minute ? `${minute} ` : ""}${name}${e.isOwnGoal ? " (OG)" : e.isPenalty || e.type === "PENALTY_GOAL" ? " (P)" : ""}`;
     })
-    .join(" ï¿½ ");
+    .join(" • ");
 }
 
 function MatchRow({
@@ -99,7 +99,7 @@ function MatchRow({
 
         {pres.showScore ? (
           <span className="shrink-0 px-1 font-heading text-base font-extrabold tabular-nums text-white">
-            {pres.homeScore}ï¿½{pres.awayScore}
+            {pres.homeScore} - {pres.awayScore}
           </span>
         ) : (
           <span className="shrink-0 px-1 font-heading text-[11px] font-bold uppercase text-white/55">{t("vs")}</span>
@@ -123,7 +123,7 @@ function MatchRow({
           </span>
         )}
         <span className="font-semibold text-white/75" suppressHydrationWarning>
-          {pres.displayKickoffDate} ï¿½ {pres.displayKickoffTime}
+          {pres.displayKickoffDate} • {pres.displayKickoffTime}
         </span>
         {m.venue ? <span className="truncate">{m.venue}</span> : null}
       </div>

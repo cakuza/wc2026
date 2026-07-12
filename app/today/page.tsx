@@ -19,7 +19,7 @@ export const revalidate = 3600;
 export async function generateMetadata(): Promise<Metadata> {
   const hasDateParam = false;
   return {
-    title: "World Cup Match Center ï¿½ Scores, Fixtures & Kickoff Times",
+    title: "World Cup Match Center — Scores, Fixtures & Kickoff Times",
     description:
       "Follow the World Cup Match Center with live scores, upcoming fixtures, latest results, and goal scorers.",
     // A single canonical /today regardless of ?date=/?tz= avoids duplicate
@@ -27,7 +27,7 @@ export async function generateMetadata(): Promise<Metadata> {
     alternates: { canonical: `${BASE_URL}/today` },
     robots: hasDateParam ? { index: false, follow: true } : undefined,
     openGraph: {
-      title: "World Cup Match Center ï¿½ Scores, Fixtures & Kickoff Times",
+      title: "World Cup Match Center — Scores, Fixtures & Kickoff Times",
       description:
         "Follow the World Cup Match Center with live scores, upcoming fixtures, latest results, and goal scorers.",
       url: `${BASE_URL}/today`,

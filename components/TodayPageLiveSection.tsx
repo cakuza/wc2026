@@ -27,7 +27,7 @@ function scorerText(events: GoalScorerEvent[] | undefined) {
       const name = shortScorerName(e.playerName);
       return `${minute ? `${minute} ` : ""}${name}${e.isOwnGoal ? " (OG)" : e.isPenalty || e.type === "PENALTY_GOAL" ? " (P)" : ""}`;
     })
-    .join(" ï¿½ ");
+    .join(" • ");
 }
 
 function TodaySummary({
@@ -157,7 +157,7 @@ function MatchRow({
         : "Match";
     return (
       <div className="flex flex-col gap-2 rounded-lg border border-white/10 bg-navyCard px-4 py-3 text-center transition hover:border-white/20 hover:bg-white/5">
-        <p className="text-sm font-semibold text-white/70">{stageName} ï¿½ teams to be decided</p>
+        <p className="text-sm font-semibold text-white/70">{stageName} — teams to be decided</p>
         <p className="text-xs text-white/40">Participants will be confirmed once previous matches conclude.</p>
       </div>
     );
@@ -230,7 +230,7 @@ function MatchRow({
           </div>
           <div>
             {m.group ? `Group ${m.group}` : ""}
-            {m.group && m.venue ? " ï¿½ " : ""}
+            {m.group && m.venue ? " • " : ""}
             {m.venue ?? ""}
           </div>
         </div>
@@ -274,7 +274,7 @@ export function TodayPageLiveSection({
         {days.map(({ date, matches }) => (
           <section key={date}>
             <h2 className="mb-3 border-b-2 border-accent pb-2 font-heading text-xl font-extrabold uppercase tracking-wide text-white">
-              {showUpcomingFallback ? "Next" : isToday ? "Today" : "Matches"} ï¿½ {longDate[date]}
+              {showUpcomingFallback ? "Next" : isToday ? "Today" : "Matches"} — {longDate[date]}
             </h2>
             <div className="space-y-2">
               {matches.map((m, i) => (

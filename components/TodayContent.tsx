@@ -55,7 +55,7 @@ export function TodayContent({
     <div className="mx-auto max-w-4xl px-4 py-8">
       <h1 className="mb-2 font-heading text-4xl font-extrabold uppercase tracking-wide text-white">
         {resolved.isExplicitDate
-          ? `World Cup Matches ï¿½ ${longDate(resolved.date)}`
+          ? `World Cup Matches — ${longDate(resolved.date)}`
           : "World Cup Match Center"}
       </h1>
       <p className="mb-2 max-w-3xl text-sm text-white/50">
@@ -80,13 +80,15 @@ export function TodayContent({
         </div>
       )}
 
-      <MatchdayDateNav
-        selectedDate={resolved.date}
-        todayDate={resolved.todayDate}
-        isToday={resolved.isToday}
-        prevDate={resolved.prevDate}
-        nextDate={resolved.nextDate}
-      />
+      {resolved.isExplicitDate && (
+        <MatchdayDateNav
+          selectedDate={resolved.date}
+          todayDate={resolved.todayDate}
+          isToday={resolved.isToday}
+          prevDate={resolved.prevDate}
+          nextDate={resolved.nextDate}
+        />
+      )}
 
       <LiveDataUnavailableNotice show={isFallbackSnapshot} />
 

@@ -68,7 +68,7 @@ function ScorerText({ events }: { events: GoalScorerEvent[] }) {
     const name = shortScorerName(e.playerName);
     return `${minute ? `${minute} ` : ""}${name}${e.isOwnGoal ? " (OG)" : e.isPenalty || e.type === "PENALTY_GOAL" ? " (P)" : ""}`;
   });
-  return <>{parts.join(" ï¿½ ")}</>;
+  return <>{parts.join(" • ")}</>;
 }
 
 export function ScheduleContent({ liveScores, scorerLines, resolvedParticipants }: Props) {
@@ -173,7 +173,7 @@ export function ScheduleContent({ liveScores, scorerLines, resolvedParticipants 
 
                   {pres.showScore ? (
                     <span className="shrink-0 font-heading text-base font-extrabold tabular-nums text-white">
-                      {pres.homeScore}ï¿½{pres.awayScore}
+                      {pres.homeScore} - {pres.awayScore}
                     </span>
                   ) : (
                     <span className="shrink-0 rounded bg-navy px-2 py-1 font-heading text-xs font-bold uppercase text-white/50">
