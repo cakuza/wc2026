@@ -143,7 +143,7 @@ export function ScheduleContent({ liveScores, scorerLines, resolvedParticipants 
         } else if (pres.state === "live" || pres.state === "halftime") {
           statusPill = <StatusPill status={pres.state === "halftime" ? "HT" : "LIVE"} />;
         } else if (pres.state === "syncing") {
-          statusPill = <StatusPill status="SYNCING" label={t("sec_awaitingUpdate") || "Awaiting update"} />;
+          statusPill = <StatusPill status="SYNCING" label={t("state_syncing") || "Awaiting update"} />;
         }
 
         return (
@@ -263,10 +263,11 @@ export function ScheduleContent({ liveScores, scorerLines, resolvedParticipants 
           </section>
         )}
 
+        {/* SYNCING */}
         {syncingDays.length > 0 && (
           <section id="syncing" className="scroll-mt-24">
             <h2 className="mb-6 font-heading text-xl font-extrabold uppercase tracking-widest text-[#f5a623]">
-              {t("sec_awaitingUpdate") || "Awaiting Update"}
+              {t("state_syncing") || "Awaiting update"}
             </h2>
             <div className="space-y-8">
               {syncingDays.map((group) => (
