@@ -4,22 +4,22 @@ import type { LiveMatchData } from "./liveMatchData";
 
 export function hasCompleteTournamentInventory(matches: Match[]): boolean {
   if (!Array.isArray(matches)) return false;
-  
+
   const seenNumbers = new Set<number>();
   const idToNumber = new Map<string, number>();
 
   for (const match of matches) {
     let mn: number | undefined;
     const internalId = 'matchNumber' in match ? `match-${match.matchNumber}` : `group-${match.group}-${match.homeKey}-${match.awayKey}`;
-    
+
     if ('matchNumber' in match) {
       mn = match.matchNumber;
     } else {
-      const idx = MATCHES.findIndex(m => 
-        !('matchNumber' in m) && 
-        'group' in match && 
-        m.homeKey === match.homeKey && 
-        m.awayKey === match.awayKey && 
+      const idx = MATCHES.findIndex(m =>
+        !('matchNumber' in m) &&
+        'group' in match &&
+        m.homeKey === match.homeKey &&
+        m.awayKey === match.awayKey &&
         m.group === match.group
       );
       if (idx !== -1) mn = idx + 1;
@@ -28,17 +28,17 @@ export function hasCompleteTournamentInventory(matches: Match[]): boolean {
     if (mn === undefined || mn === null) return false;
     if (typeof mn !== 'number' || !Number.isInteger(mn)) return false;
     if (mn < 1 || mn > 104) return false;
-    
+
     if (seenNumbers.has(mn)) return false;
     if (idToNumber.has(internalId) && idToNumber.get(internalId) !== mn) return false;
-    
+
     seenNumbers.add(mn);
     idToNumber.set(internalId, mn);
   }
 
   if (!seenNumbers.has(104)) return false;
   if (seenNumbers.size !== 104) return false;
-  
+
   for (let i = 1; i <= 104; i++) {
     if (!seenNumbers.has(i)) return false;
   }
@@ -118,7 +118,7 @@ export function getTournamentPhase({
 
     const isStarted = state !== "scheduled" && state !== "postponed" && state !== "cancelled";
     const isUnresolved = state !== "final" && state !== "cancelled";
-    
+
     if (isStarted) {
       hasStarted = true;
     }
@@ -191,7 +191,7 @@ export function getTournamentPhase({
   if (hasUnresolvedR16 || (!anyQFStarted && anyR16Started)) return "round_of_16";
   if (hasUnresolvedQF || (!anySFStarted && anyQFStarted)) return "quarterfinals";
   if (hasUnresolvedSF || (!thirdStarted && !finalStarted && anySFStarted)) return "semifinals";
-  
+
   if (hasUnresolvedThird && !finalStarted) {
     return "third_place";
   }
