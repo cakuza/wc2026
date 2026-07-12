@@ -3,10 +3,11 @@ import { Ticker } from "@/components/Ticker";
 import { Hero } from "@/components/Hero";
 import { HomeTrivia } from "@/components/HomeTrivia";
 import { TeamsByConfederationPreview } from "@/components/TeamsByConfederation";
-import { getTickerMatches, ARCHIVE_DEFAULT_DATE } from "@/lib/matches";
+import { ARCHIVE_DEFAULT_DATE, MATCHES } from "@/lib/matches";
 import { getDisplayMatchdayForTimeZone } from "@/lib/todaySelection";
 import { DEFAULT_TIMEZONE } from "@/lib/timezone";
 import { getTournamentLiveSnapshot } from "@/lib/liveSnapshot";
+import { selectUpcomingMatches, getTournamentPhase } from "@/lib/matchCenterSelection";
 import { LiveDataUnavailableNotice } from "@/components/LiveDataUnavailableNotice";
 import { buildKnockoutResolution } from "@/lib/knockoutResolution";
 
@@ -38,12 +39,33 @@ export default async function TodayPage() {
   const now = new Date(ARCHIVE_DEFAULT_DATE);
   const snapshot = await getTournamentLiveSnapshot();
   const resolvedParticipants = buildKnockoutResolution(snapshot.matches);
-  const tickerMatches = getTickerMatches(now);
+
+  const upcoming = selectUpcomingMatches({
+    matches: MATCHES,
+    liveData: snapshot.liveDataByProviderId,
+    now
+  });
+  const todayStart = new Date(now);
+  todayStart.setHours(0, 0, 0, 0);
+  const sevenDaysLater = new Date(todayStart);
+  sevenDaysLater.setDate(sevenDaysLater.getDate() + 7);
+  const nextSevenDays = upcoming.filter((m) => {
+    const d = new Date(m.date);
+    return d >= todayStart && d <= sevenDaysLater;
+  });
+  const tickerMatches = nextSevenDays.length >= 5 ? nextSevenDays : upcoming.slice(0, 10);
+
   const initialMatchday = getDisplayMatchdayForTimeZone({
     now,
     timeZone: selectedTimeZone,
     resolvedParticipants,
     liveDataByProviderId: snapshot.liveDataByProviderId,
+  });
+
+  const tournamentPhase = getTournamentPhase({
+    matches: MATCHES,
+    liveData: snapshot.liveDataByProviderId,
+    now,
   });
 
   return (
@@ -54,7 +76,7 @@ export default async function TodayPage() {
           <LiveDataUnavailableNotice show />
         </div>
       ) : null}
-      <Hero initialMatchday={initialMatchday} snapshot={snapshot} resolvedParticipants={resolvedParticipants} />
+      <Hero initialMatchday={initialMatchday} snapshot={snapshot} resolvedParticipants={resolvedParticipants} tournamentPhase={tournamentPhase} />
       <HomeTrivia />
       <TeamsByConfederationPreview />
     </>

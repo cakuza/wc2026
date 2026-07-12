@@ -4,21 +4,16 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useCountdown, CountdownTimer } from "@/components/Countdown";
 import { useLang } from "@/components/LanguageProvider";
-import { TOURNAMENT_FINAL_DATE } from "@/lib/matches";
+import { getTournamentPhaseLabel, type TournamentPhase } from "@/lib/matchCenterSelection";
 
 /**
  * Client-only countdown island. Computed from Date.now() on both server and client (see
  * useCountdown), so the correct phase is shown immediately — no placeholder/zero state.
- *
- * Phases:
- *  - before kickoff: "Kickoff in / N DAYS"
- *  - tournament live: "World Cup ends in / N DAYS" + "Final matchday · 19 July 2026"
- *  - after the final: "Tournament complete" + links to results/standings
  */
-export function CountdownClient() {
+export function CountdownClient({ tournamentPhase }: { tournamentPhase: TournamentPhase }) {
   const { t } = useLang();
   const [mounted, setMounted] = useState(false);
-  const { phase, parts } = useCountdown();
+  const { parts } = useCountdown();
 
   useEffect(() => {
     setMounted(true);
@@ -26,7 +21,7 @@ export function CountdownClient() {
 
   if (!mounted) return null;
 
-  if (phase === "after") {
+  if (tournamentPhase === "tournament_complete") {
     return (
       <div className="mt-1">
         <h1 className="font-heading font-extrabold uppercase leading-[0.85] text-white">
@@ -56,16 +51,16 @@ export function CountdownClient() {
     <div className="mt-1" suppressHydrationWarning>
       <h1 className="font-heading font-extrabold uppercase leading-[0.85] text-white">
         <span className="block text-2xl tracking-wide text-white/80">
-          {phase === "before" ? t("hero_kickoffIn") : "World Cup ends in"}
+          {tournamentPhase === "pre_tournament" ? t("hero_kickoffIn") : "World Cup ends in"}
         </span>
         <span className="block text-[52px] leading-none tracking-tight sm:text-7xl">
           {parts.days}{" "}
           <span className="text-accent">{t("hero_days")}</span>
         </span>
       </h1>
-      {phase === "during" && (
+      {tournamentPhase !== "pre_tournament" && (
         <p className="mt-2 font-heading text-xs font-bold uppercase tracking-widest text-white/50">
-          Final matchday · {TOURNAMENT_FINAL_DATE}
+          Current phase · {getTournamentPhaseLabel(tournamentPhase)}
         </p>
       )}
       <div className="mt-6">
