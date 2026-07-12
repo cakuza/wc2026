@@ -27,7 +27,7 @@ interface Props {
   resolvedParticipants?: ResolvedParticipantLookup;
 }
 
-function StatusPill({ status }: { status: "FT" | "LIVE" | "HT" | "SYNCING" }) {
+function StatusPill({ status, label }: { status: "FT" | "LIVE" | "HT" | "SYNCING"; label?: string }) {
   if (status === "LIVE") {
     return (
       <span className="animate-pulse rounded bg-red-600/20 px-1.5 py-0.5 font-heading text-[10px] font-bold uppercase tracking-wider text-red-400">
@@ -44,8 +44,8 @@ function StatusPill({ status }: { status: "FT" | "LIVE" | "HT" | "SYNCING" }) {
   }
   if (status === "SYNCING") {
     return (
-      <span className="rounded bg-white/5 px-1.5 py-0.5 font-heading text-[10px] font-bold uppercase tracking-wider text-white/40">
-        Syncing
+      <span className="rounded bg-white/5 px-1.5 py-0.5 font-heading text-[10px] font-bold uppercase tracking-wider text-[#f5a623]">
+        {label || "Awaiting update"}
       </span>
     );
   }
@@ -143,7 +143,7 @@ export function ScheduleContent({ liveScores, scorerLines, resolvedParticipants 
         } else if (pres.state === "live" || pres.state === "halftime") {
           statusPill = <StatusPill status={pres.state === "halftime" ? "HT" : "LIVE"} />;
         } else if (pres.state === "syncing") {
-          statusPill = <StatusPill status="SYNCING" />;
+          statusPill = <StatusPill status="SYNCING" label={t("sec_awaitingUpdate") || "Awaiting update"} />;
         }
 
         return (
@@ -209,31 +209,23 @@ export function ScheduleContent({ liveScores, scorerLines, resolvedParticipants 
                 )}
               </div>
 
-              <div data-schedule-right-meta className="hidden w-28 shrink-0 text-end text-xs text-white/50 sm:block">
-                {statusPill ? (
-                  <div className="flex justify-end">{statusPill}</div>
-                ) : (
-                  <span className="font-semibold text-white/80" suppressHydrationWarning>
-                    {pres.displayKickoffTime}
-                  </span>
-                )}
-                <div>{m.venue ?? formatDate(m.date)}</div>
-              </div>
-            </div>
-            {statusPill && (
-              <div className="mt-1.5 flex items-center gap-1.5 sm:hidden">
-                {statusPill}
-                <span className="truncate text-[11px] text-white/40">{m.venue}</span>
-              </div>
-            )}
-            {!statusPill && (
-              <div className="mt-1.5 flex items-center gap-1.5 sm:hidden">
+              <div data-schedule-right-meta className="hidden w-32 shrink-0 text-end text-xs text-white/50 sm:flex sm:flex-col sm:items-end sm:gap-1.5">
                 <span className="font-semibold text-white/80" suppressHydrationWarning>
                   {pres.displayKickoffTime}
                 </span>
-                <span className="truncate text-[11px] text-white/40">{m.venue}</span>
+                {statusPill && <div>{statusPill}</div>}
+                <div className="truncate max-w-full">{m.venue ?? formatDate(m.date)}</div>
               </div>
-            )}
+            </div>
+            
+            {/* Mobile Layout */}
+            <div className="mt-2 flex items-center gap-2 sm:hidden text-xs text-white/50">
+              <span className="font-semibold text-white/80" suppressHydrationWarning>
+                {pres.displayKickoffTime}
+              </span>
+              {statusPill}
+              <span className="truncate text-[11px] text-white/40">{m.venue}</span>
+            </div>
           </Link>
         );
       })}
@@ -241,7 +233,7 @@ export function ScheduleContent({ liveScores, scorerLines, resolvedParticipants 
   );
 
   return (
-    <div>
+    <div className="mx-auto w-full max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
       {/* TABS */}
       <div className="mb-6 flex gap-4 border-b border-white/10">
         <a href="#upcoming" className="border-b-2 border-accent pb-2 font-heading text-sm font-bold uppercase tracking-wide text-white transition hover:text-accent">

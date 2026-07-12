@@ -7,6 +7,7 @@ import { useLang } from "@/components/LanguageProvider";
 import { type DisplayMatchday } from "@/lib/matches";
 import type { TournamentLiveSnapshot } from "@/lib/liveSnapshot";
 import type { ResolvedParticipantLookup } from "@/lib/participant-resolution";
+import type { TournamentPhase } from "@/lib/matchCenterSelection";
 
 function toMatchCenterLiveSnapshot(snapshot: TournamentLiveSnapshot, resolvedParticipants: ResolvedParticipantLookup): MatchCenterLiveSnapshot {
   const scorersByMatchId: Record<string, MatchCenterLiveSnapshot["scorersByMatchId"][string]> = {};
@@ -28,10 +29,12 @@ export function Hero({
   initialMatchday,
   snapshot,
   resolvedParticipants,
+  tournamentPhase,
 }: {
   initialMatchday: DisplayMatchday;
   snapshot: TournamentLiveSnapshot;
   resolvedParticipants: ResolvedParticipantLookup;
+  tournamentPhase: TournamentPhase;
 }) {
   const { t } = useLang();
   return (
@@ -43,7 +46,7 @@ export function Hero({
             "radial-gradient(60% 70% at 20% 0%, rgba(232,0,28,0.22), transparent 60%), radial-gradient(50% 60% at 90% 100%, rgba(232,0,28,0.14), transparent 60%)",
         }}
       />
-      <div className="relative mx-auto grid max-w-7xl gap-10 px-4 py-12 lg:grid-cols-[1.1fr_.9fr] lg:items-center lg:py-16">
+      <div className="relative mx-auto grid max-w-7xl gap-12 px-4 py-12 lg:grid-cols-2 lg:items-start lg:py-20 lg:px-8">
         {/* Left: static date + countdown island */}
         <div>
           <p className="font-heading text-sm font-bold uppercase tracking-[0.3em] text-accent">
@@ -53,9 +56,9 @@ export function Hero({
           {/*
            * STATIC — always in SSR HTML, indexed by Google.
            * CountdownClient (below) renders the live countdown on top of this
-           * once JS is loaded.  Without JS this is the primary heading.
+           * once JS is loaded.           * no-JS fallback and permanent SEO anchor.
            */}
-          <h1 className="mt-3 font-heading text-[44px] font-extrabold uppercase leading-tight tracking-tight text-white sm:text-[56px]">
+          <h1 className="mt-3 font-heading text-[48px] font-extrabold uppercase leading-[1.05] tracking-tight text-white sm:text-[64px]">
             {t("hero_kickoff_heading")}
           </h1>
 
@@ -69,8 +72,8 @@ export function Hero({
            * content fills reserved space instead of pushing the host-nations
            * block down (eliminating this client island as a layout-shift source).
            */}
-          <div className="min-h-[208px] sm:min-h-[268px]">
-            <CountdownClient />
+          <div className="min-h-[180px] sm:min-h-[200px]">
+            <CountdownClient tournamentPhase={tournamentPhase} />
           </div>
 
           {/* Host nations */}
