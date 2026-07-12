@@ -248,7 +248,7 @@ export function resolveSelectedMatchday({
       : dateParam
     : null;
   const inRange = candidate !== null && candidate >= min && candidate <= max;
-  const isExplicitDate = inRange && candidate !== todayDate;
+  const isExplicitDate = inRange;
   let date = inRange ? (candidate as string) : todayDate;
 
   if (!inRange && date > max) {
@@ -258,7 +258,7 @@ export function resolveSelectedMatchday({
   return {
     date,
     todayDate,
-    isToday: date === todayDate,
+    isToday: date === todayDate && !isExplicitDate,
     isExplicitDate,
     min,
     max,

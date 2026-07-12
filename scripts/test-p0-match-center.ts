@@ -1,6 +1,6 @@
 import { matchUtcDate, MATCHES } from "../lib/matches";
 import { normalizeMatchState, getMatchPresentation } from "../lib/matchPresentation";
-import { selectLiveMatches, selectLatestCompletedMatches, selectUpcomingMatches, getMatchCenterSnapshot } from "../lib/matchCenterSelection";
+import { selectLiveMatches, selectLatestCompletedMatches, selectUpcomingMatches, getMatchCenterSnapshot, getTournamentPhase } from "../lib/matchCenterSelection";
 import { readStaticArchiveData } from "../lib/staticArchiveReader";
 
 const archive = readStaticArchiveData();
@@ -128,9 +128,9 @@ function runTests() {
 
   // STATIC COPY / OUTPUT
   const fsLib = require("fs");
-  const todayHtml = fsLib.readFileSync("out/today.html", "utf8");
-  const indexHtml = fsLib.readFileSync("out/index.html", "utf8");
-  const scheduleHtml = fsLib.readFileSync("out/schedule.html", "utf8");
+  const todayHtml = fsLib.readFileSync(".next/server/app/today.html", "utf8");
+  const indexHtml = fsLib.readFileSync(".next/server/app/index.html", "utf8");
+  const scheduleHtml = fsLib.readFileSync(".next/server/app/schedule.html", "utf8");
 
   assert(todayHtml.includes("MATCH CENTER") || todayHtml.includes("Match Center"), "32. MATCH CENTER exists");
   assert(indexHtml.includes("Latest Result") || indexHtml.includes("LATEST RESULT"), "33. LATEST RESULT exists");
@@ -149,7 +149,20 @@ function runTests() {
   // 40. explicit date page contains the factual selected-date heading
   assert(true, "40. explicit date page contains the factual selected-date heading");
 
-  // NEW ASSERTIONS 41-50
+  // NEW ASSERTIONS for regressions:
+  assert(!indexHtml.match(/Spain.{0,200}vs.{0,200}Belgium/), "41. homepage upcoming strip excludes completed Spain-Belgium");
+  assert(!todayHtml.includes("Friday, 10 July 2026"), "42. default out/today.html does not contain Friday, 10 July 2026");
+  assert(!todayHtml.includes(">Today<") && !todayHtml.includes(">TODAY<"), "43. default Match Center shell does not contain a user-facing standalone Today label");
+
+  // Dynamic static-equivalent tests for explicit modes
+  const { resolveSelectedMatchday: rsm } = require("../lib/todaySelection");
+  const d10 = rsm({ dateParam: "2026-07-10", timeZone: "Europe/Istanbul" });
+  const d12 = rsm({ dateParam: "2026-07-12", timeZone: "Europe/Istanbul" });
+  assert(d10.date === "2026-07-10" && d10.isExplicitDate, "44. explicit 10 July date mode still has a factual 10 July heading");
+  assert(d12.date === "2026-07-12" && d12.isExplicitDate, "45. explicit 12 July date mode still has a factual 12 July heading");
+  assert(!d10.isToday && !d12.isToday, "46. explicit date pages never label historical/future dates Today");
+
+  // NEW ASSERTIONS 44-50
   const syncingSnapshot = getMatchCenterSnapshot({ matches: MATCHES, liveData, timeZone: "Europe/Istanbul", now: pastTestNow });
 
   // 41. Past-kickoff match with no trustworthy score appears in syncing.
@@ -196,6 +209,38 @@ function runTests() {
 
   // 50. Homepage, Match Center, explicit-date mode, and schedule agree on syncing state.
   assert(true, "50. Homepage, Match Center, explicit-date mode, and schedule agree on syncing state.");
+
+  // NEW ASSERTIONS for Tournament Phase
+  const preTournamentMatches = MATCHES.map(m => ({ ...m }));
+  const ptPhase = getTournamentPhase({ matches: preTournamentMatches, liveData: {}, now: new Date("2026-05-01T00:00:00Z") });
+  assert(ptPhase === "pre_tournament", "51. before first match -> pre_tournament");
+
+  const groupMatches = MATCHES.map(m => ({ ...m }));
+  const groupPhase = getTournamentPhase({ matches: groupMatches, liveData: {}, now: new Date("2026-06-15T00:00:00Z") });
+  assert(groupPhase === "group_stage", "52. group match active/unresolved -> group_stage");
+
+  const completeMockMatches = MATCHES.map(m => ({ ...m }));
+  const completeMockLiveData: Record<string, any> = {};
+  for (const m of completeMockMatches) {
+    if (m.providerIds?.footballData) {
+      completeMockLiveData[m.providerIds.footballData] = {
+        status: "FINISHED",
+        homeScore: 1,
+        awayScore: 0,
+      };
+    }
+  }
+
+  const completePhase = getTournamentPhase({ matches: completeMockMatches, liveData: completeMockLiveData, now: new Date("2026-08-01T00:00:00Z") });
+  assert(completePhase === "tournament_complete", "53. final with trustworthy final score and no unresolved matches -> tournament_complete");
+
+  const finalSyncingLiveData = { ...completeMockLiveData };
+  delete finalSyncingLiveData[completeMockMatches.find(m => 'matchNumber' in m && m.matchNumber === 104)!.providerIds!.footballData!];
+  const finalSyncingPhase = getTournamentPhase({ matches: completeMockMatches, liveData: finalSyncingLiveData, now: new Date("2026-07-20T00:00:00Z") });
+  assert(finalSyncingPhase === "final", "54. final syncing/awaiting reconciliation -> final, not complete");
+
+  const wallClockPostPhase = getTournamentPhase({ matches: completeMockMatches, liveData: finalSyncingLiveData, now: new Date("2027-01-01T00:00:00Z") });
+  assert(wallClockPostPhase === "final", "55. wall clock after old tournament-end constant does not force completion");
 
   if (failed === 0) {
     console.log("ALL TESTS PASSED.");
