@@ -2,6 +2,15 @@ import { matchUtcDate, type Match } from "./matches";
 import { normalizeMatchState } from "./matchPresentation";
 import type { LiveMatchData } from "./liveMatchData";
 
+export function hasCompleteTournamentInventory(matches: Match[]): boolean {
+  const seen = new Set<string>();
+  for (const match of matches) {
+    const internalId = 'matchNumber' in match ? `match-${match.matchNumber}` : `group-${match.group}-${match.homeKey}-${match.awayKey}`;
+    seen.add(internalId);
+  }
+  return seen.size === 104;
+}
+
 export type TournamentPhase =
   | "pre_tournament"
   | "group_stage"
@@ -37,6 +46,7 @@ export function getTournamentPhase({
   liveData: Record<string, LiveMatchData>;
   now: Date;
 }): TournamentPhase {
+  const isInventoryComplete = hasCompleteTournamentInventory(matches);
   let hasStarted = false;
   let hasUnresolvedGroup = false;
   let hasUnresolvedR32 = false;
@@ -107,7 +117,7 @@ export function getTournamentPhase({
     }
   }
 
-  if (finalTrustworthy && !hasUnresolvedMatches) {
+  if (finalTrustworthy && !hasUnresolvedMatches && isInventoryComplete) {
     return "tournament_complete";
   }
 
@@ -128,7 +138,7 @@ export function getTournamentPhase({
     return "third_place";
   }
 
-  if (hasUnresolvedFinal || (finalTrustworthy && hasUnresolvedMatches)) {
+  if (hasUnresolvedFinal || (finalTrustworthy && hasUnresolvedMatches) || !isInventoryComplete) {
     return "final";
   }
 
