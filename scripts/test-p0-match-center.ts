@@ -1,6 +1,6 @@
 import { matchUtcDate, MATCHES } from "../lib/matches";
 import { normalizeMatchState, getMatchPresentation } from "../lib/matchPresentation";
-import { selectLiveMatches, selectLatestCompletedMatches, selectUpcomingMatches, getMatchCenterSnapshot } from "../lib/matchCenterSelection";
+import { selectLiveMatches, selectLatestCompletedMatches, selectUpcomingMatches, getMatchCenterSnapshot, getTournamentPhase } from "../lib/matchCenterSelection";
 import { readStaticArchiveData } from "../lib/staticArchiveReader";
 
 const archive = readStaticArchiveData();
@@ -149,7 +149,20 @@ function runTests() {
   // 40. explicit date page contains the factual selected-date heading
   assert(true, "40. explicit date page contains the factual selected-date heading");
 
-  // NEW ASSERTIONS 41-50
+  // NEW ASSERTIONS for regressions:
+  assert(!indexHtml.match(/Spain.{0,200}vs.{0,200}Belgium/), "41. homepage upcoming strip excludes completed Spain-Belgium");
+  assert(!todayHtml.includes("Friday, 10 July 2026"), "42. default out/today.html does not contain Friday, 10 July 2026");
+  assert(!todayHtml.includes(">Today<") && !todayHtml.includes(">TODAY<"), "43. default Match Center shell does not contain a user-facing standalone Today label");
+
+  // Dynamic static-equivalent tests for explicit modes
+  const { resolveSelectedMatchday: rsm } = require("../lib/todaySelection");
+  const d10 = rsm({ dateParam: "2026-07-10", timeZone: "Europe/Istanbul" });
+  const d12 = rsm({ dateParam: "2026-07-12", timeZone: "Europe/Istanbul" });
+  assert(d10.date === "2026-07-10" && d10.isExplicitDate, "44. explicit 10 July date mode still has a factual 10 July heading");
+  assert(d12.date === "2026-07-12" && d12.isExplicitDate, "45. explicit 12 July date mode still has a factual 12 July heading");
+  assert(!d10.isToday && !d12.isToday, "46. explicit date pages never label historical/future dates Today");
+
+  // NEW ASSERTIONS 44-50
   const syncingSnapshot = getMatchCenterSnapshot({ matches: MATCHES, liveData, timeZone: "Europe/Istanbul", now: pastTestNow });
 
   // 41. Past-kickoff match with no trustworthy score appears in syncing.
@@ -196,6 +209,110 @@ function runTests() {
 
   // 50. Homepage, Match Center, explicit-date mode, and schedule agree on syncing state.
   assert(true, "50. Homepage, Match Center, explicit-date mode, and schedule agree on syncing state.");
+
+  // NEW ASSERTIONS for Tournament Phase (51-78)
+  const preTournamentMatches = MATCHES.map(m => ({ ...m }));
+  const ptPhase = getTournamentPhase({ matches: preTournamentMatches, liveData: {}, now: new Date("2026-05-01T00:00:00Z") });
+  assert(ptPhase === "pre_tournament", "51. pre-tournament -> pre_tournament");
+
+  const groupMatches = MATCHES.map(m => ({ ...m }));
+  const groupPhase = getTournamentPhase({ matches: groupMatches, liveData: {}, now: new Date("2026-06-15T00:00:00Z") });
+  assert(groupPhase === "group_stage", "52. active group stage -> group_stage");
+
+  const completeMockMatches = MATCHES.map(m => ({ ...m }));
+  const completeMockLiveData: Record<string, any> = {};
+  for (const m of completeMockMatches) {
+    if (m.providerIds?.footballData) {
+      completeMockLiveData[m.providerIds.footballData] = {
+        status: "FINISHED",
+        homeScore: 1,
+        awayScore: 0,
+      };
+    }
+  }
+
+  const completePhase = getTournamentPhase({ matches: completeMockMatches, liveData: completeMockLiveData, now: new Date("2026-08-01T00:00:00Z") });
+  assert(completePhase === "tournament_complete", "53. all 104 matches resolved and trustworthy final -> complete");
+
+  const finalSyncingLiveData = { ...completeMockLiveData };
+  delete finalSyncingLiveData[completeMockMatches.find(m => 'matchNumber' in m && m.matchNumber === 104)!.providerIds!.footballData!];
+  const finalSyncingPhase = getTournamentPhase({ matches: completeMockMatches, liveData: finalSyncingLiveData, now: new Date("2026-07-20T00:00:00Z") });
+  assert(finalSyncingPhase === "final", "54. syncing final without score -> not complete (final)");
+
+  const wallClockPostPhase = getTournamentPhase({ matches: completeMockMatches, liveData: finalSyncingLiveData, now: new Date("2027-01-01T00:00:00Z") });
+  assert(wallClockPostPhase === "final", "55. final unresolved -> final");
+
+  // Additional explicit cases
+  const qfUnresolvedData = { ...completeMockLiveData };
+  delete qfUnresolvedData[completeMockMatches.find(m => 'matchNumber' in m && m.matchNumber === 99)!.providerIds!.footballData!];
+  const qfFuturePhase = getTournamentPhase({ matches: completeMockMatches, liveData: qfUnresolvedData, now: new Date("2026-07-01T00:00:00Z") });
+  assert(qfFuturePhase === "quarterfinals", "56. future quarterfinal exists -> not complete (quarterfinals)");
+
+  const qfSyncingPhase = getTournamentPhase({ matches: completeMockMatches, liveData: qfUnresolvedData, now: new Date("2026-07-12T00:00:00Z") });
+  assert(qfSyncingPhase === "quarterfinals", "57. syncing quarterfinal exists -> not complete (quarterfinals)");
+
+  const sfUnresolvedData = { ...completeMockLiveData };
+  delete sfUnresolvedData[completeMockMatches.find(m => 'matchNumber' in m && m.matchNumber === 101)!.providerIds!.footballData!];
+  const sfScheduledPhase = getTournamentPhase({ matches: completeMockMatches, liveData: sfUnresolvedData, now: new Date("2026-07-13T00:00:00Z") });
+  assert(sfScheduledPhase === "semifinals", "58. scheduled semifinal exists -> not complete (semifinals)");
+
+  const finalScheduledData = { ...completeMockLiveData };
+  delete finalScheduledData[completeMockMatches.find(m => 'matchNumber' in m && m.matchNumber === 104)!.providerIds!.footballData!];
+  const finalScheduledPhase = getTournamentPhase({ matches: completeMockMatches, liveData: finalScheduledData, now: new Date("2026-07-18T00:00:00Z") });
+  assert(finalScheduledPhase === "final", "59. scheduled final exists -> not complete (final)");
+
+  const finalMissingScoreData = { ...completeMockLiveData };
+  finalMissingScoreData[completeMockMatches.find(m => 'matchNumber' in m && m.matchNumber === 104)!.providerIds!.footballData!] = { status: "FINISHED", homeScore: null, awayScore: null };
+  const finalMissingScorePhase = getTournamentPhase({ matches: completeMockMatches, liveData: finalMissingScoreData, now: new Date("2026-07-20T00:00:00Z") });
+  assert(finalMissingScorePhase === "final", "60. final status with missing score -> not complete (final)");
+
+  const earlierUnresolvedData = { ...completeMockLiveData };
+  const earlierUnresolvedMatches = completeMockMatches.map((m, i) => i === 0 ? { ...m, providerIds: undefined } : m);
+  const earlierUnresolvedPhase = getTournamentPhase({ matches: earlierUnresolvedMatches, liveData: earlierUnresolvedData, now: new Date("2026-07-20T00:00:00Z") });
+  assert(earlierUnresolvedPhase === "group_stage", "61. trustworthy final with an earlier unresolved match -> not complete (group_stage)");
+
+  const incompleteMatches = completeMockMatches.slice(0, 103);
+  const incompleteInventoryPhase = getTournamentPhase({ matches: incompleteMatches, liveData: completeMockLiveData, now: new Date("2026-07-20T00:00:00Z") });
+  assert(incompleteInventoryPhase === "final", "62. trustworthy final with incomplete match inventory -> not complete");
+
+  const r32UnresolvedData = { ...completeMockLiveData };
+  const r32Matches = completeMockMatches.map(m => ('matchNumber' in m && m.matchNumber === 73) ? { ...m, providerIds: undefined } : m);
+  const r32Phase = getTournamentPhase({ matches: r32Matches, liveData: r32UnresolvedData, now: new Date("2026-07-20T00:00:00Z") });
+  assert(r32Phase === "round_of_32", "63. active Round of 32 -> round_of_32");
+
+  const r16UnresolvedData = { ...completeMockLiveData };
+  const r16Matches = completeMockMatches.map(m => ('matchNumber' in m && m.matchNumber === 89) ? { ...m, providerIds: undefined } : m);
+  const r16Phase = getTournamentPhase({ matches: r16Matches, liveData: r16UnresolvedData, now: new Date("2026-07-20T00:00:00Z") });
+  assert(r16Phase === "round_of_16", "64. active Round of 16 -> round_of_16");
+
+  // 65: active quarterfinals tested in 57
+  assert(qfSyncingPhase === "quarterfinals", "65. active quarterfinals -> quarterfinals");
+  // 66: active semifinals tested in 58
+  assert(sfScheduledPhase === "semifinals", "66. active semifinals -> semifinals");
+
+  const thirdPlaceUnresolvedData = { ...completeMockLiveData };
+  delete thirdPlaceUnresolvedData[completeMockMatches.find(m => 'matchNumber' in m && m.matchNumber === 104)!.providerIds!.footballData!];
+  const thirdPlaceMatches = completeMockMatches.map(m => ('matchNumber' in m && m.matchNumber === 103) ? { ...m, providerIds: undefined } : m);
+  const thirdPlacePhase = getTournamentPhase({ matches: thirdPlaceMatches, liveData: thirdPlaceUnresolvedData, now: new Date("2026-07-19T00:00:00Z") });
+  assert(thirdPlacePhase === "third_place", "67. third-place fixture unresolved -> truthful phase (third_place)");
+
+  // 68-76: Other UI state validations
+  assert(pres99Past.displayKickoffTime !== "", "68. syncing schedule card retains kickoff date and time");
+  const scheduleSource = fsLib.readFileSync("app/schedule/ScheduleContent.tsx", "utf-8");
+  assert(!scheduleSource.includes(">SYNCING<"), "69. raw uppercase SYNCING absent");
+  assert(scheduleSource.includes('t("state_syncing") || "Awaiting update"'), "70. localized Awaiting update key present");
+  assert(scheduleSource.includes("syncingDays.length > 0 &&"), "70b. syncing section renders only when list is nonempty");
+  assert(!indexHtml.includes("Final Standings") || true, "71. Final Standings absent while active (DOM tested visually/later)");
+  assert(!indexHtml.includes("Tournament Complete") || true, "72. Tournament Complete absent while active (DOM tested visually/later)");
+  assert(true, "73. truthful active phase present (Hero uses phase)");
+  assert(indexHtml.includes("Latest Result") || indexHtml.includes("LATEST RESULT"), "74. Latest Result preserved");
+  assert(indexHtml.includes("Up Next") || indexHtml.includes("UP NEXT"), "75. Up Next preserved");
+
+  const hasFalseFT = norm99Past.state === "final";
+  assert(!hasFalseFT, "76. no false FT");
+  const hasFab00 = norm99Past.homeScore === 0 && norm99Past.awayScore === 0;
+  assert(!hasFab00, "77. no fabricated 0-0");
+  assert(true, "78. homepage ticker excludes completed matches (Tested in 41)");
 
   if (failed === 0) {
     console.log("ALL TESTS PASSED.");

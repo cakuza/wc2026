@@ -79,7 +79,7 @@ function MatchRow({
     live: "Live",
     halftime: "HT",
     final: "FT",
-    syncing: t("state_syncing") || "Awaiting Update",
+    syncing: t("state_syncing") || "Awaiting update",
     postponed: "Postponed",
     cancelled: "Cancelled",
   };
@@ -116,7 +116,9 @@ function MatchRow({
           <span className={`rounded px-1.5 py-0.5 font-heading text-[10px] font-extrabold uppercase tracking-widest ${
             pres.state === 'live' || pres.state === 'halftime'
               ? 'bg-red-600 text-white flex items-center gap-1'
-              : 'bg-white/10 text-white/60'
+              : pres.state === 'syncing'
+                ? 'bg-white/5 text-[#f5a623]'
+                : 'bg-white/10 text-white/60'
           }`}>
             {pres.state === 'live' && <span className="inline-block h-1.5 w-1.5 animate-pulse rounded-full bg-white" />}
             {statusLabel}
@@ -219,7 +221,7 @@ export function MatchCenterContent({
 
         {snapshot.syncing && snapshot.syncing.length > 0 && (
           <div>
-            <h3 className="mb-3 font-heading text-[11px] font-bold uppercase tracking-widest text-[#f5a623]">{t("sec_awaitingUpdate") || "Awaiting Update"}</h3>
+            <h3 className="mb-3 font-heading text-[11px] font-bold uppercase tracking-widest text-[#f5a623]">{t("sec_awaitingUpdate") || "Awaiting update"}</h3>
             <div className="flex flex-col gap-2">
               {snapshot.syncing.map(renderRow)}
             </div>

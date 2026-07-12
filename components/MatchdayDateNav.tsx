@@ -84,6 +84,7 @@ function DisabledArrow({ label, direction }: { label: string; direction: "prev" 
 export function MatchdayDateNav({
   selectedDate,
   todayDate,
+  isToday,
   prevDate,
   nextDate,
 }: {
@@ -131,7 +132,7 @@ export function MatchdayDateNav({
             <p className="truncate font-heading text-sm font-extrabold uppercase tracking-wide text-white sm:text-base">
               {formatLongDate(displayDate)}
             </p>
-            {displayDate === todayDate ? (
+            {isToday ? (
               <span className="mt-0.5 inline-block rounded bg-accent/20 px-2 py-0.5 font-heading text-[10px] font-bold uppercase tracking-widest text-accent">
                 {t("today_jumpToToday")}
               </span>
