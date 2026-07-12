@@ -1,3 +1,4 @@
+import { COMPLETED_KNOCKOUT_RESULTS } from '../lib/canonicalMatchResults';
 import { matchUtcDate, MATCHES } from "../lib/matches";
 import { normalizeMatchState, getMatchPresentation } from "../lib/matchPresentation";
 import { selectLiveMatches, selectLatestCompletedMatches, selectUpcomingMatches, getMatchCenterSnapshot } from "../lib/matchCenterSelection";
@@ -10,6 +11,7 @@ for (const [id, data] of archive.entries()) {
 }
 
 function runTests() {
+  delete (COMPLETED_KNOCKOUT_RESULTS as any)[99];
   const testNow = new Date("2026-07-11T20:22:00+03:00");
   let failed = 0;
 

@@ -144,6 +144,7 @@ export const COMPLETED_KNOCKOUT_RESULTS: Readonly<Record<number, CompletedResult
   },
   97: { homeScore: 2, awayScore: 0, winner: "HOME_TEAM", scoreDuration: "REGULAR", confirmedAt: "2026-07-09T18:00:00.000Z" },
   98: { homeScore: 2, awayScore: 1, winner: "HOME_TEAM", scoreDuration: "REGULAR", confirmedAt: "2026-07-10T22:00:00.000Z" },
+  99: { homeScore: 1, awayScore: 2, winner: "AWAY_TEAM", scoreDuration: "REGULAR", confirmedAt: "2026-07-11T23:00:00.000Z" },
 };
 
 function matchNumber(match: Match): number | null {
