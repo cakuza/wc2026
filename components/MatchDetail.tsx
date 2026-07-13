@@ -301,7 +301,7 @@ export function MatchDetail({
   const scorers = buildScorerSentence(confirmedGoals.map(toLiveGoalEvent), homeName, awayName, goalCompleteness);
 
   const staticCards = allStaticEvents
-    .filter(e => e.eventType === 'yellow_card' || e.eventType === 'red_card')
+    .filter(e => e.eventType === 'yellow_card' || e.eventType === 'red_card' || e.eventType === 'second_yellow')
     .map(e => ({
       minute: e.minute,
       type: e.eventType === 'yellow_card' ? 'YELLOW_CARD' : 'RED_CARD',
@@ -389,6 +389,9 @@ export function MatchDetail({
                     {awayScore}
                   </span>
                 </div>
+                {liveState.scoreDuration === "EXTRA_TIME" && (
+                  <span className="mt-1 rounded bg-white/10 px-2 py-1 font-heading text-[10px] font-extrabold uppercase tracking-widest text-white/70">AET</span>
+                )}
                 {hasShootout && (
                   <span className="font-heading text-[10px] font-bold uppercase tracking-widest text-white/45">
                     Pens {shootout!.home}-{shootout!.away}

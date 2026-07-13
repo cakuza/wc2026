@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { useLang } from "@/components/LanguageProvider";
-import { KICKOFF_TARGET, ARCHIVE_DEFAULT_DATE } from "@/lib/matches";
 
 export type CountdownPhase = "before" | "during" | "after";
 type Parts = { days: number; hours: number; minutes: number; seconds: number };
@@ -18,14 +17,9 @@ function diff(target: number): Parts {
   };
 }
 
-const KICKOFF = new Date(KICKOFF_TARGET).getTime();
-const TOURNAMENT_END = new Date(ARCHIVE_DEFAULT_DATE).getTime();
-
-function computeState(): CountdownState {
-  const now = Date.now();
-  if (now < KICKOFF) return { phase: "before", parts: diff(KICKOFF) };
-  if (now < TOURNAMENT_END) return { phase: "during", parts: diff(TOURNAMENT_END) };
-  return { phase: "after", parts: diff(TOURNAMENT_END) };
+function computeState(target: number | null): CountdownState {
+  if (target === null || !Number.isFinite(target)) return { phase: "after", parts: diff(Date.now()) };
+  return Date.now() < target ? { phase: "during", parts: diff(target) } : { phase: "after", parts: diff(target) };
 }
 
 /**
@@ -37,12 +31,14 @@ function computeState(): CountdownState {
  * Computed from Date.now() on both server and client, so the initial render already
  * reflects the correct phase (no placeholder/zero state).
  */
-export function useCountdown(): CountdownState {
-  const [state, setState] = useState<CountdownState>(computeState);
+export function useCountdown(targetIso: string | null): CountdownState {
+  const target = targetIso ? Date.parse(targetIso) : null;
+  const [state, setState] = useState<CountdownState>(() => computeState(target));
   useEffect(() => {
-    const id = setInterval(() => setState(computeState()), 1000);
+    setState(computeState(target));
+    const id = setInterval(() => setState(computeState(target)), 1000);
     return () => clearInterval(id);
-  }, []);
+  }, [target]);
   return state;
 }
 
@@ -50,9 +46,9 @@ function pad(n: number) {
   return String(n).padStart(2, "0");
 }
 
-export function CountdownTimer() {
+export function CountdownTimer({ target }: { target: string | null }) {
   const { t } = useLang();
-  const { parts } = useCountdown();
+  const { parts } = useCountdown(target);
   const cells: { value: string; label: string }[] = [
     { value: pad(parts.days), label: t("cd_days") },
     { value: pad(parts.hours), label: t("cd_hrs") },

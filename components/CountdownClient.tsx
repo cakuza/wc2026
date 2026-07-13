@@ -10,10 +10,10 @@ import { getTournamentPhaseLabel, type TournamentPhase } from "@/lib/matchCenter
  * Client-only countdown island. Computed from Date.now() on both server and client (see
  * useCountdown), so the correct phase is shown immediately — no placeholder/zero state.
  */
-export function CountdownClient({ tournamentPhase }: { tournamentPhase: TournamentPhase }) {
+export function CountdownClient({ tournamentPhase, target }: { tournamentPhase: TournamentPhase; target: string | null }) {
   const { t } = useLang();
   const [mounted, setMounted] = useState(false);
-  const { parts } = useCountdown();
+  const { parts } = useCountdown(target);
 
   useEffect(() => {
     setMounted(true);
@@ -21,7 +21,7 @@ export function CountdownClient({ tournamentPhase }: { tournamentPhase: Tourname
 
   if (!mounted) return null;
 
-  if (tournamentPhase === "tournament_complete") {
+  if (tournamentPhase === "tournament_complete" || !target) {
     return (
       <div className="mt-1">
         <h1 className="font-heading font-extrabold uppercase leading-[0.85] text-white">
@@ -51,7 +51,7 @@ export function CountdownClient({ tournamentPhase }: { tournamentPhase: Tourname
     <div className="mt-1" suppressHydrationWarning>
       <h1 className="font-heading font-extrabold uppercase leading-[0.85] text-white">
         <span className="block text-2xl tracking-wide text-white/80">
-          {tournamentPhase === "pre_tournament" ? t("hero_kickoffIn") : "World Cup ends in"}
+          {tournamentPhase === "pre_tournament" ? t("hero_kickoffIn") : "Next match in"}
         </span>
         <span className="block text-[52px] leading-none tracking-tight sm:text-7xl">
           {parts.days}{" "}
@@ -64,7 +64,7 @@ export function CountdownClient({ tournamentPhase }: { tournamentPhase: Tourname
         </p>
       )}
       <div className="mt-6">
-        <CountdownTimer />
+        <CountdownTimer target={target} />
       </div>
     </div>
   );

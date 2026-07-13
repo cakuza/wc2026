@@ -189,7 +189,7 @@ export function getTournamentPhase({
 
   if (hasUnresolvedR32 || (!anyR16Started && anyR32Started)) return "round_of_32";
   if (hasUnresolvedR16 || (!anyQFStarted && anyR16Started)) return "round_of_16";
-  if (hasUnresolvedQF || (!anySFStarted && anyQFStarted)) return "quarterfinals";
+  if (hasUnresolvedQF) return "quarterfinals";
   if (hasUnresolvedSF || (!thirdStarted && !finalStarted && anySFStarted)) return "semifinals";
 
   if (hasUnresolvedThird && !finalStarted) {
@@ -346,6 +346,67 @@ export interface MatchCenterSnapshot {
   syncing: Match[];
   latestResult: Match | null;
   upNext: Match[];
+}
+
+export interface HomepageMatchCenterSnapshot {
+  completedPreviousRound: Match[];
+  upcomingCurrentRound: Match[];
+}
+
+const PREVIOUS_KNOCKOUT_STAGE: Partial<Record<TournamentPhase, Match["stage"]>> = {
+  round_of_32: undefined,
+  round_of_16: "R32",
+  quarterfinals: "R16",
+  semifinals: "QF",
+  third_place: "SF",
+  final: "SF",
+};
+
+const CURRENT_KNOCKOUT_STAGE: Partial<Record<TournamentPhase, Match["stage"]>> = {
+  round_of_32: "R32",
+  round_of_16: "R16",
+  quarterfinals: "QF",
+  semifinals: "SF",
+  third_place: "3P",
+  final: "F",
+};
+
+/**
+ * Homepage-only, phase-aware selection: completed fixtures from the immediately
+ * preceding knockout round and upcoming fixtures from the current round.
+ */
+export function getHomepageMatchCenterSnapshot({
+  matches,
+  liveData,
+  now,
+  phase,
+}: {
+  matches: Match[];
+  liveData: Record<string, LiveMatchData>;
+  now: Date;
+  phase: TournamentPhase;
+}): HomepageMatchCenterSnapshot {
+  const previousStage = PREVIOUS_KNOCKOUT_STAGE[phase];
+  const currentStage = CURRENT_KNOCKOUT_STAGE[phase];
+  const knockoutMatches = matches.filter((match) => "stage" in match);
+
+  const completedPreviousRound = previousStage
+    ? knockoutMatches.filter((match) => {
+        if (match.stage !== previousStage) return false;
+        const live = match.providerIds?.footballData ? liveData[String(match.providerIds.footballData)] : undefined;
+        return normalizeMatchState({ match, liveData: live, now }).state === "final";
+      }).sort((a, b) => ("matchNumber" in a && "matchNumber" in b ? a.matchNumber - b.matchNumber : 0))
+    : [];
+
+  const upcomingCurrentRound = currentStage
+    ? knockoutMatches.filter((match) => {
+        if (match.stage !== currentStage) return false;
+        const live = match.providerIds?.footballData ? liveData[String(match.providerIds.footballData)] : undefined;
+        return normalizeMatchState({ match, liveData: live, now }).state === "scheduled" && matchUtcDate(match).getTime() > now.getTime();
+      }).sort((a, b) => matchUtcDate(a).getTime() - matchUtcDate(b).getTime())
+    : [];
+
+  return { completedPreviousRound, upcomingCurrentRound };
 }
 
 export function getMatchCenterSnapshot({

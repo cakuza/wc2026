@@ -30,11 +30,13 @@ export function Hero({
   snapshot,
   resolvedParticipants,
   tournamentPhase,
+  countdownTarget,
 }: {
   initialMatchday: DisplayMatchday;
   snapshot: TournamentLiveSnapshot;
   resolvedParticipants: ResolvedParticipantLookup;
   tournamentPhase: TournamentPhase;
+  countdownTarget: string | null;
 }) {
   const { t } = useLang();
   return (
@@ -73,7 +75,7 @@ export function Hero({
            * block down (eliminating this client island as a layout-shift source).
            */}
           <div className="min-h-[180px] sm:min-h-[200px]">
-            <CountdownClient tournamentPhase={tournamentPhase} />
+            <CountdownClient tournamentPhase={tournamentPhase} target={countdownTarget} />
           </div>
 
           {/* Host nations */}
@@ -106,7 +108,7 @@ export function Hero({
         </div>
 
         {/* Right: dynamic today's / next matches (client component) */}
-        <MatchCenterContent liveSnapshot={toMatchCenterLiveSnapshot(snapshot, resolvedParticipants)} />
+        <MatchCenterContent liveSnapshot={toMatchCenterLiveSnapshot(snapshot, resolvedParticipants)} mode="homepage" tournamentPhase={tournamentPhase} />
       </div>
     </section>
   );
