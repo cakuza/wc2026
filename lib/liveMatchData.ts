@@ -24,7 +24,7 @@ const KNOWN_STATUSES: readonly string[] = [
 ];
 
 export type LiveMatchEvent = {
-  type: "GOAL" | "OWN_GOAL" | "PENALTY_GOAL" | "YELLOW_CARD" | "RED_CARD" | "SUBSTITUTION" | "PENALTY_SHOOTOUT_SCORED" | "PENALTY_SHOOTOUT_MISSED" | "UNKNOWN";
+  type: "GOAL" | "OWN_GOAL" | "PENALTY_GOAL" | "YELLOW_CARD" | "RED_CARD" | "SECOND_YELLOW" | "SUBSTITUTION" | "PENALTY_SHOOTOUT_SCORED" | "PENALTY_SHOOTOUT_MISSED" | "UNKNOWN";
   minute: number | null;
   stoppageTime?: number | null;
   minuteLabel?: string;

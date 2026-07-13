@@ -5,6 +5,7 @@ import { computeThirdPlaceRanking, type ThirdPlaceRow } from "./thirdPlaceRankin
 import {
   computeTeamLeaderboards,
   computeTopScorers,
+  resolveCanonicalPlayerIdentity,
   computeTournamentStats,
   computePlayerEventLeaderboards,
   computeTeamStatLeaderboards,
@@ -25,7 +26,7 @@ import { applyVerifiedGoalCorrections } from "./verifiedMatchEventCorrections";
 import { countryName } from "./i18n";
 import { getResolvedAwayTeam, getResolvedHomeTeam, type ResolvedParticipantLookup } from "./participant-resolution";
 import { buildKnockoutResolution } from "./knockoutResolution";
-import { TEAMS, teamCodeForKey, teamKeyFromName } from "./teams";
+import { TEAMS, teamCodeForKey } from "./teams";
 import { squadFor } from "./squads";
 import { applyCanonicalMatchResultFallback } from "./canonicalMatchResults";
 
@@ -316,11 +317,14 @@ function scorersFromWorldcupGame(
 ): GoalScorerEvent[] {
   const internalId = matchSlug(match);
   if (!game) {
-    return applyVerifiedGoalCorrections(internalId, []);
+    // A completed archive-backed match already has its canonical goals in the
+    // primary static data. Do not inject a correction overlay without an
+    // actual secondary-provider event payload.
+    return [];
   }
   const homeTeam = getResolvedHomeTeam(match, resolvedParticipants);
   const awayTeam = getResolvedAwayTeam(match, resolvedParticipants);
-  if (!homeTeam || !awayTeam) return applyVerifiedGoalCorrections(internalId, []);
+  if (!homeTeam || !awayTeam) return [];
   const homeDisplay = countryName(homeTeam, "en");
   const awayDisplay = countryName(awayTeam, "en");
   return applyVerifiedGoalCorrections(internalId, dedupeScorers([
@@ -456,20 +460,21 @@ function topScorersFromSnapshot(
     for (const goal of match.scorers) {
       if (goal.isOwnGoal) continue;
       if (/^Scorer (unavailable|pending)$/i.test(goal.playerName)) continue;
-      const key = goal.playerName;
-      if (!scorerMap.has(key)) {
-        scorerMap.set(key, {
-          playerName: goal.playerName,
+      const identity = resolveCanonicalPlayerIdentity(goal.playerName, goal.teamName);
+      if (!identity) continue;
+      if (!scorerMap.has(identity.key)) {
+        scorerMap.set(identity.key, {
+          playerName: identity.playerName,
           teamName: goal.teamName,
-          teamKey: teamKeyFromName(goal.teamName),
+          teamKey: identity.teamKey,
           goals: 0,
         });
       }
-      scorerMap.get(key)!.goals++;
+      scorerMap.get(identity.key)!.goals++;
     }
   }
 
-  return [...scorerMap.values()].sort((a, b) => b.goals - a.goals).slice(0, 10);
+  return [...scorerMap.values()].sort((a, b) => b.goals - a.goals);
 }
 
 function makeSnapshotId(_generatedAt: string, matches: Record<string, SerializableSnapshotMatch>): string {

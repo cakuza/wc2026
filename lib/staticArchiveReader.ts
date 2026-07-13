@@ -1,5 +1,6 @@
 import fs from 'fs';
 import path from 'path';
+import { getCanonicalArchiveEventsForMatch } from './canonicalArchiveEvents';
 import type { LiveMatchData, LiveMatchEvent } from './liveMatchData';
 import { MATCHES, matchSlug } from './matches';
 
@@ -28,7 +29,10 @@ export function readStaticArchiveData(): Map<number, LiveMatchData> {
     const providerId = match.providerIds?.footballData;
     if (!providerId) continue;
 
-    const matchEvents = events.filter((e) => e.matchId === internalId);
+    // Archive events are the final event authority for archived matches. Project
+    // only the validated canonical records into the static live-data shape so
+    // downstream snapshot and statistics consumers see the same event source.
+    const matchEvents = getCanonicalArchiveEventsForMatch(events, internalId);
     const matchStats = stats.find((s) => s.matchId === internalId);
 
     if (matchEvents.length === 0 && !matchStats) continue;
@@ -52,9 +56,9 @@ export function readStaticArchiveData(): Map<number, LiveMatchData> {
           assistName: ev.assistPlayerName,
           // providerEventId intentionally omitted because sourceId is generic (e.g. 'espn')
         });
-      } else if (ev.eventType === 'yellow_card' || ev.eventType === 'red_card') {
+      } else if (ev.eventType === 'yellow_card' || ev.eventType === 'red_card' || ev.eventType === 'second_yellow') {
         bookings.push({
-          type: ev.eventType === 'yellow_card' ? 'YELLOW_CARD' : 'RED_CARD',
+          type: ev.eventType === 'yellow_card' ? 'YELLOW_CARD' : ev.eventType === 'second_yellow' ? 'SECOND_YELLOW' : 'RED_CARD',
           minute: ev.minute || null,
           stoppageTime: ev.stoppageMinute || null,
           teamName: ev.teamKey || null,
