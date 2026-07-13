@@ -3,12 +3,15 @@ import { notFound } from "next/navigation";
 import { TeamDetail } from "@/components/TeamDetail";
 import { LiveDataUnavailableNotice } from "@/components/LiveDataUnavailableNotice";
 import { TEAMS, slugFor, teamBySlug, teamsInGroup, withArticle } from "@/lib/teams";
-import { matchesInGroup } from "@/lib/matches";
+import { MATCHES, matchesInGroup } from "@/lib/matches";
 import { squadFor } from "@/lib/squads";
 import { countryName } from "@/lib/i18n";
 import { getTournamentLiveSnapshot } from "@/lib/liveSnapshot";
 import { matchSlug } from "@/lib/matches";
 import { firstMatchResultSentence } from "@/lib/teamCopy";
+import matchEventsData from "@/data/archive/match-events.json";
+import { buildKnockoutResolution } from "@/lib/knockoutResolution";
+import { getResolvedAwayTeam, getResolvedHomeTeam } from "@/lib/participant-resolution";
 
 export function generateStaticParams() {
   return TEAMS.map((t) => ({ slug: slugFor(t.key) }));
@@ -102,6 +105,13 @@ export default async function TeamPage({ params }: { params: Promise<{ slug: str
   const groupTeams = teamsInGroup(team.group);
   const groupMatches = matchesInGroup(team.group);
   const snapshot = await getTournamentLiveSnapshot();
+  const resolvedParticipants = buildKnockoutResolution(snapshot.matches);
+  const teamMatches = MATCHES.filter((match) =>
+    match.homeKey === team.key ||
+    match.awayKey === team.key ||
+    getResolvedHomeTeam(match, resolvedParticipants) === team.key ||
+    getResolvedAwayTeam(match, resolvedParticipants) === team.key,
+  );
   const name = countryName(team.key, "en");
 
   // Team's first match (sorted ascending → first entry)
@@ -206,8 +216,11 @@ export default async function TeamPage({ params }: { params: Promise<{ slug: str
         team={team}
         groupTeams={groupTeams}
         groupMatches={groupMatches}
+        teamMatches={teamMatches}
         standingsRows={snapshot.standingsByGroup[team.group]}
         snapshotMatches={snapshot.matches}
+        eventsArchive={matchEventsData}
+        resolvedParticipants={resolvedParticipants}
       />
     </>
   );

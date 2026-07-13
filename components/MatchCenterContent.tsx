@@ -78,7 +78,7 @@ function MatchRow({
     scheduled: "Upcoming",
     live: "Live",
     halftime: "HT",
-    final: "FT",
+    final: pres.scoreDuration === "PENALTY_SHOOTOUT" ? "PEN" : pres.scoreDuration === "EXTRA_TIME" ? "AET" : "FT",
     syncing: t("state_syncing") || "Awaiting update",
     postponed: "Postponed",
     cancelled: "Cancelled",
@@ -124,9 +124,6 @@ function MatchRow({
             {statusLabel}
           </span>
         )}
-        {pres.scoreDuration === "EXTRA_TIME" ? (
-          <span className="rounded bg-white/10 px-1.5 py-0.5 font-heading text-[10px] font-extrabold uppercase tracking-widest text-white/60">AET</span>
-        ) : null}
         <span className="font-semibold text-white/75" suppressHydrationWarning>
           {pres.displayKickoffDate} • {pres.displayKickoffTime}
         </span>

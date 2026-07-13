@@ -20,6 +20,7 @@ import { missingScorerDetailText, type GoalEventCompleteness } from "@/lib/goalE
 import { type SnapshotMatchStatus } from "@/lib/liveSnapshot";
 import { reconcileGoalEvents, isMatchInReconciliationWindow } from "@/lib/scoreReconciliation";
 import matchEventsData from "@/data/archive/match-events.json";
+import { getCanonicalArchiveEventsForMatch } from "@/lib/canonicalArchiveEvents";
 import { isCanonicalComplete } from "@/lib/liveRefreshPolicy";
 import type { GoalScorerEvent } from "@/lib/worldcup26Provider";
 import { slugFor } from "@/lib/teams";
@@ -270,16 +271,16 @@ export function MatchDetail({
   const homeEnglish = homeKey ? countryName(homeKey, "en") : homeName;
   const awayEnglish = awayKey ? countryName(awayKey, "en") : awayName;
 
-  const allStaticEvents = (matchEventsData as any[]).filter(e => e.matchId === matchSlug(match));
+  const allStaticEvents = getCanonicalArchiveEventsForMatch(matchEventsData, matchSlug(match));
 
   const staticGoalEvents: LiveMatchEvent[] = allStaticEvents
     .filter(e => e.eventType === 'goal' || e.eventType === 'own_goal' || e.eventType === 'penalty_goal')
     .map(e => ({
       type: e.eventType === 'own_goal' ? 'OWN_GOAL' : e.eventType === 'penalty_goal' ? 'PENALTY_GOAL' : 'GOAL',
-      minute: e.minute,
+      minute: e.minute ?? null,
       stoppageTime: e.stoppageMinute || null,
       minuteLabel: `${e.minute}${e.stoppageMinute ? `+${e.stoppageMinute}` : ""}'`,
-      teamName: e.teamKey,
+      teamName: e.teamKey ?? null,
       playerName: e.playerName,
       assistName: e.assistPlayerName,
       isOwnGoal: e.eventType === 'own_goal',
@@ -304,7 +305,7 @@ export function MatchDetail({
     .filter(e => e.eventType === 'yellow_card' || e.eventType === 'red_card' || e.eventType === 'second_yellow')
     .map(e => ({
       minute: e.minute,
-      type: e.eventType === 'yellow_card' ? 'YELLOW_CARD' : 'RED_CARD',
+      type: e.eventType === 'yellow_card' ? 'YELLOW_CARD' : e.eventType === 'second_yellow' ? 'SECOND_YELLOW' : 'RED_CARD',
       playerName: e.playerName,
       teamName: e.teamKey,
     }));
@@ -591,11 +592,16 @@ export function MatchDetail({
                       )}
                       <span
                         className={`h-4 w-3 shrink-0 rounded-sm ${
-                          b.type === "RED_CARD" ? "bg-red-500" : "bg-yellow-400"
+                          b.type === "RED_CARD" || b.type === "SECOND_YELLOW" || b.type === "RED" || b.type === "YELLOW_RED" ? "bg-red-500" : "bg-yellow-400"
                         }`}
-                        aria-label={b.type}
+                        aria-hidden="true"
                       />
                       <span className="font-semibold text-white">{b.playerName ?? "—"}</span>
+                      {(b.type === "SECOND_YELLOW" || b.type === "YELLOW_RED") && (
+                        <span className="ml-2 text-[10px] font-bold uppercase tracking-widest text-red-400">
+                          {t("lbl_second_yellow")}
+                        </span>
+                      )}
                     </li>
                   ))}
                 </ul>

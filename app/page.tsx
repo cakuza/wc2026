@@ -7,7 +7,7 @@ import { ARCHIVE_DEFAULT_DATE, matchUtcDate, MATCHES } from "@/lib/matches";
 import { getDisplayMatchdayForTimeZone } from "@/lib/todaySelection";
 import { DEFAULT_TIMEZONE } from "@/lib/timezone";
 import { getTournamentLiveSnapshot } from "@/lib/liveSnapshot";
-import { selectUpcomingMatches, getHomepageMatchCenterSnapshot, getTournamentPhase } from "@/lib/matchCenterSelection";
+import { selectHomepageTickerMatches, getHomepageMatchCenterSnapshot, getTournamentPhase } from "@/lib/matchCenterSelection";
 import { LiveDataUnavailableNotice } from "@/components/LiveDataUnavailableNotice";
 import { buildKnockoutResolution } from "@/lib/knockoutResolution";
 
@@ -40,20 +40,12 @@ export default async function TodayPage() {
   const snapshot = await getTournamentLiveSnapshot();
   const resolvedParticipants = buildKnockoutResolution(snapshot.matches);
 
-  const upcoming = selectUpcomingMatches({
+  const tickerMatches = selectHomepageTickerMatches({
     matches: MATCHES,
     liveData: snapshot.liveDataByProviderId,
-    now
+    now,
+    resolvedParticipants,
   });
-  const todayStart = new Date(now);
-  todayStart.setHours(0, 0, 0, 0);
-  const sevenDaysLater = new Date(todayStart);
-  sevenDaysLater.setDate(sevenDaysLater.getDate() + 7);
-  const nextSevenDays = upcoming.filter((m) => {
-    const d = new Date(m.date);
-    return d >= todayStart && d <= sevenDaysLater;
-  });
-  const tickerMatches = nextSevenDays.length >= 5 ? nextSevenDays : upcoming.slice(0, 10);
 
   const initialMatchday = getDisplayMatchdayForTimeZone({
     now,

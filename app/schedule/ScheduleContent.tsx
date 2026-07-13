@@ -27,7 +27,7 @@ interface Props {
   resolvedParticipants?: ResolvedParticipantLookup;
 }
 
-function StatusPill({ status, label }: { status: "FT" | "LIVE" | "HT" | "SYNCING"; label?: string }) {
+function StatusPill({ status, label }: { status: "FT" | "LIVE" | "HT" | "SYNCING" | "AET" | "PEN"; label?: string }) {
   if (status === "LIVE") {
     return (
       <span className="animate-pulse rounded bg-red-600/20 px-1.5 py-0.5 font-heading text-[10px] font-bold uppercase tracking-wider text-red-400">
@@ -46,6 +46,13 @@ function StatusPill({ status, label }: { status: "FT" | "LIVE" | "HT" | "SYNCING
     return (
       <span className="rounded bg-white/5 px-1.5 py-0.5 font-heading text-[10px] font-bold uppercase tracking-wider text-[#f5a623]">
         {label || "Awaiting update"}
+      </span>
+    );
+  }
+  if (status === "AET" || status === "PEN") {
+    return (
+      <span className="rounded bg-white/10 px-1.5 py-0.5 font-heading text-[10px] font-bold uppercase tracking-wider text-white/60">
+        {label ?? status}
       </span>
     );
   }
@@ -139,7 +146,10 @@ export function ScheduleContent({ liveScores, scorerLines, resolvedParticipants 
 
         let statusPill: React.ReactNode = null;
         if (pres.state === "final") {
-          statusPill = <StatusPill status="FT" />;
+          statusPill = <StatusPill
+            status={pres.scoreDuration === "EXTRA_TIME" ? "AET" : pres.scoreDuration === "PENALTY_SHOOTOUT" ? "PEN" : "FT"}
+            label={pres.scoreDuration === "EXTRA_TIME" ? t("match_status_aet") : pres.scoreDuration === "PENALTY_SHOOTOUT" ? t("match_status_pen") : undefined}
+          />;
         } else if (pres.state === "live" || pres.state === "halftime") {
           statusPill = <StatusPill status={pres.state === "halftime" ? "HT" : "LIVE"} />;
         } else if (pres.state === "syncing") {
