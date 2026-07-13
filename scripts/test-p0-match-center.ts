@@ -1,6 +1,6 @@
 import { matchUtcDate, MATCHES } from "../lib/matches";
 import { normalizeMatchState, getMatchPresentation } from "../lib/matchPresentation";
-import { selectLiveMatches, selectLatestCompletedMatches, selectUpcomingMatches, getMatchCenterSnapshot, getTournamentPhase } from "../lib/matchCenterSelection";
+import { selectLiveMatches, selectLatestCompletedMatches, selectUpcomingMatches, getHomepageMatchCenterSnapshot, getMatchCenterSnapshot, getTournamentPhase } from "../lib/matchCenterSelection";
 import { readStaticArchiveData } from "../lib/staticArchiveReader";
 
 const archive = readStaticArchiveData();
@@ -10,7 +10,7 @@ for (const [id, data] of archive.entries()) {
 }
 
 function runTests() {
-  const testNow = new Date("2026-07-11T20:22:00+03:00");
+  const testNow = new Date("2026-07-12T12:00:00Z");
   let failed = 0;
 
   function assert(condition: boolean, msg: string) {
@@ -24,6 +24,7 @@ function runTests() {
 
   const match99 = MATCHES.find(m => 'matchNumber' in m && m.matchNumber === 99)!; // Norway-England
   const match100 = MATCHES.find(m => 'matchNumber' in m && m.matchNumber === 100)!; // Argentina-Switzerland
+  const match101 = MATCHES.find(m => 'matchNumber' in m && m.matchNumber === 101)!; // France-Spain
   const match91 = MATCHES.find(m => 'matchNumber' in m && m.matchNumber === 91)!; // Spain-Belgium
   const match85 = MATCHES.find(m => 'matchNumber' in m && m.matchNumber === 85)!; // Final mock
 
@@ -31,28 +32,33 @@ function runTests() {
   const norm100 = normalizeMatchState({ match: match100, liveData: liveData[match100.providerIds!.footballData!], now: testNow });
   const norm91 = normalizeMatchState({ match: match91, liveData: liveData[match91.providerIds!.footballData!], now: testNow });
 
-  // STATUS
-  assert(norm99.state === "scheduled", "1. Norway-England is scheduled/upcoming");
-  assert(norm100.state === "scheduled", "2. Argentina-Switzerland is scheduled/upcoming");
-  assert(norm100.state !== "final" && norm99.state !== "final", "3. Neither state is final");
+  // STATUS: completed quarterfinals are canonical finals.
+  assert(norm99.state === "final" && norm99.homeScore === 1 && norm99.awayScore === 2, "1. Norway-England is a final 1-2");
+  assert(norm100.state === "final" && norm100.homeScore === 3 && norm100.awayScore === 1, "2. Argentina-Switzerland is a final 3-1");
+  assert(norm99.scoreDuration === "EXTRA_TIME" && norm100.scoreDuration === "EXTRA_TIME", "3. Both completed quarterfinals are AET");
 
   const pres100 = getMatchPresentation({ match: match100, liveData: liveData[match100.providerIds!.footballData!], timeZone: "Europe/Istanbul", now: testNow });
   const pres99 = getMatchPresentation({ match: match99, liveData: liveData[match99.providerIds!.footballData!], timeZone: "Europe/Istanbul", now: testNow });
-  assert(pres100.state !== "final" && pres99.state !== "final", "4. Neither displays FT");
+  assert(pres100.state === "final" && pres99.state === "final", "4. Completed quarterfinal presentations are final");
+
+  const syncingFixture = { ...match101, date: "2026-07-01", time: "12:00", providerIds: { footballData: 999999 } };
+  const syncingLive: any = { status: "FINISHED", homeScore: null, awayScore: null, winner: null };
+  const syncingNow = new Date("2026-07-02T12:00:00Z");
+  const syncNorm = normalizeMatchState({ match: syncingFixture, liveData: syncingLive, now: syncingNow });
 
   // 5. Provider FINISHED with null scores before kickoff normalizes to scheduled
-  assert(norm99.state === "scheduled", "5. Provider FINISHED with null scores before kickoff normalizes to scheduled");
+  assert(normalizeMatchState({ match: syncingFixture, liveData: syncingLive, now: new Date("2026-06-30T12:00:00Z") }).state === "scheduled", "5. Provider FINISHED with null scores before kickoff normalizes to scheduled");
 
   // 6. Provider FINISHED with null scores after kickoff normalizes to syncing
-  const pastTestNow = new Date("2026-07-12T05:00:00+03:00"); // Past match 99 & 100 kickoff
-  const norm99Past = normalizeMatchState({ match: match99, liveData: liveData[match99.providerIds!.footballData!], now: pastTestNow });
+  const pastTestNow = syncingNow;
+  const norm99Past = syncNorm;
   assert(norm99Past.state === "syncing", "6. Provider FINISHED with null scores after kickoff normalizes to syncing");
 
   // 7. A past kickoff with no score never normalizes to final
   assert(norm99Past.state !== "final", "7. A past kickoff with no score never normalizes to final");
 
   // 8. Missing scores never become 0-0
-  assert(norm100.homeScore === null && norm100.awayScore === null, "8. Missing scores never become 0-0");
+  assert(syncNorm.homeScore === null && syncNorm.awayScore === null, "8. Missing scores never become 0-0");
 
   // 9. A genuine final 2-1 score remains final
   assert(norm91.state === "final", "9. A genuine final 2-1 score remains final");
@@ -72,31 +78,30 @@ function runTests() {
   assert(pres100NY.displayKickoffDate === "11 Jul" && pres100NY.displayKickoffTime === "21:00", "14. Argentina-Switzerland correct local time");
 
   assert(pres100.displayKickoffTime !== "", "15. Kickoff time remains present for scheduled");
-  const pres99Past = getMatchPresentation({ match: match99, liveData: liveData[match99.providerIds!.footballData!], timeZone: "Europe/Istanbul", now: pastTestNow });
+  const pres99Past = getMatchPresentation({ match: syncingFixture, liveData: syncingLive, timeZone: "Europe/Istanbul", now: pastTestNow });
   assert(pres99Past.displayKickoffTime !== "", "16. Kickoff time remains present for syncing");
   const pres91 = getMatchPresentation({ match: match91, liveData: liveData[match91.providerIds!.footballData!], timeZone: "Europe/Istanbul", now: testNow });
   assert(pres91.displayKickoffTime !== "", "17. Kickoff time remains present for final");
 
   // SELECTION
   const latest = selectLatestCompletedMatches({ matches: MATCHES, liveData, now: testNow });
-  assert(latest[0] && ('matchNumber' in latest[0]) && latest[0].matchNumber === 98, "18. Spain-Belgium (match 98) is the latest completed result");
+  assert(latest[0] && ('matchNumber' in latest[0]) && latest[0].matchNumber === 100, "18. Argentina-Switzerland is the latest completed result");
 
   const upcoming = selectUpcomingMatches({ matches: MATCHES, liveData, now: testNow });
-  assert(upcoming[0] && ('matchNumber' in upcoming[0]) && upcoming[0].matchNumber === 99, "19. Norway-England is first upcoming");
-  assert(upcoming[1] && ('matchNumber' in upcoming[1]) && upcoming[1].matchNumber === 100, "20. Argentina-Switzerland is second upcoming");
+  assert(upcoming[0] && ('matchNumber' in upcoming[0]) && upcoming[0].matchNumber === 101, "19. France-Spain is first upcoming");
+  assert(upcoming[1] && ('matchNumber' in upcoming[1]) && upcoming[1].matchNumber === 102, "20. England-Argentina is second upcoming");
 
   const live = selectLiveMatches({ matches: MATCHES, liveData, now: testNow });
   const allSections = new Set([...latest, ...upcoming, ...live].map(m => 'matchNumber' in m ? `m${m.matchNumber}` : `g${m.homeKey}${m.awayKey}`));
   assert(allSections.size === (latest.length + upcoming.length + live.length), "21. No match exists in multiple sections");
 
   // Syncing match exclusion
-  const latestPast = selectLatestCompletedMatches({ matches: MATCHES, liveData, now: pastTestNow });
-  assert(!latestPast.find(m => 'matchNumber' in m && m.matchNumber === 99), "22. Syncing match is excluded from Latest Results");
-  const upcomingPast = selectUpcomingMatches({ matches: MATCHES, liveData, now: pastTestNow });
-  assert(!upcomingPast.find(m => 'matchNumber' in m && m.matchNumber === 99), "23. Syncing match is excluded from future Up Next after kickoff");
+  const syncingOnlySnapshot = getMatchCenterSnapshot({ matches: [syncingFixture], liveData: { 999999: syncingLive }, timeZone: "Europe/Istanbul", now: pastTestNow });
+  assert(syncingOnlySnapshot.latestResult === null, "22. Syncing match is excluded from Latest Results");
+  assert(syncingOnlySnapshot.upNext.length === 0, "23. Syncing match is excluded from future Up Next after kickoff");
 
   const snapshot = getMatchCenterSnapshot({ matches: MATCHES, liveData, timeZone: "Europe/Istanbul", now: testNow });
-  assert(snapshot.latestResult !== null && ('matchNumber' in snapshot.latestResult) && snapshot.latestResult.matchNumber === 98, "24. Homepage and Match Center consume identical selection output");
+  assert(snapshot.latestResult !== null && ('matchNumber' in snapshot.latestResult) && snapshot.latestResult.matchNumber === 100, "24. Standard Match Center consumes normalized final selection output");
 
   // Post-final upcoming list is empty
   const postFinalNow = new Date("2026-07-20T00:00:00+03:00");
@@ -133,8 +138,8 @@ function runTests() {
   const scheduleHtml = fsLib.readFileSync("out/schedule.html", "utf8");
 
   assert(todayHtml.includes("MATCH CENTER") || todayHtml.includes("Match Center"), "32. MATCH CENTER exists");
-  assert(indexHtml.includes("Latest Result") || indexHtml.includes("LATEST RESULT"), "33. LATEST RESULT exists");
-  assert(indexHtml.includes("Up Next") || indexHtml.includes("UP NEXT"), "34. UP NEXT exists");
+  assert(indexHtml.includes("Quarterfinal Results"), "33. QUARTERFINAL RESULTS heading exists");
+  assert(indexHtml.includes("Semifinals"), "34. SEMIFINALS heading exists");
   assert(!indexHtml.includes("Today&#x27;s Matches") && !todayHtml.includes("Today&#x27;s Matches") && !indexHtml.includes("Today's Matches"), "35. stale Today's Matches copy absent");
   assert(!indexHtml.includes("See today&#x27;s matches") && !indexHtml.includes("See today's matches"), "36. stale See today's matches copy absent");
   assert(!todayHtml.includes("Who plays today"), "37. stale Who plays today FAQ absent");
@@ -142,15 +147,15 @@ function runTests() {
   const hasBadStrings = ["null", "undefined", "NaN", "Invalid Date"].some(s => todayHtml.includes(">" + s + "<") || indexHtml.includes(">" + s + "<"));
   assert(!hasBadStrings, "38. no null, undefined, NaN, Invalid Date");
 
-  // 39. homepage includes two upcoming matches in the regression scenario
-  // Spain-Belgium is Latest, Norway-England and Argentina-Switzerland are Upcoming
-  assert(indexHtml.includes("Norway") && indexHtml.includes("England") && indexHtml.includes("Argentina") && indexHtml.includes("Switzerland"), "39. homepage includes two upcoming matches in the regression scenario");
+  const phase = getTournamentPhase({ matches: MATCHES, liveData, now: testNow });
+  const homepage = getHomepageMatchCenterSnapshot({ matches: MATCHES, liveData, now: testNow, phase });
+  assert(phase === "semifinals" && homepage.completedPreviousRound.map(m => 'matchNumber' in m ? m.matchNumber : null).join(",") === "97,98,99,100" && homepage.upcomingCurrentRound.map(m => 'matchNumber' in m ? m.matchNumber : null).join(",") === "101,102", "39. homepage selector returns exactly four quarterfinals and two semifinals");
 
   // 40. explicit date page contains the factual selected-date heading
   assert(true, "40. explicit date page contains the factual selected-date heading");
 
   // NEW ASSERTIONS for regressions:
-  assert(!indexHtml.match(/Spain.{0,200}vs.{0,200}Belgium/), "41. homepage upcoming strip excludes completed Spain-Belgium");
+  assert(!indexHtml.includes("Awaiting Update") && !indexHtml.includes("Latest Result") && !indexHtml.includes("Up Next"), "41. homepage excludes stale Match Center sections");
   assert(!todayHtml.includes("Friday, 10 July 2026"), "42. default out/today.html does not contain Friday, 10 July 2026");
   assert(!todayHtml.includes(">Today<") && !todayHtml.includes(">TODAY<"), "43. default Match Center shell does not contain a user-facing standalone Today label");
 
@@ -163,16 +168,16 @@ function runTests() {
   assert(!d10.isToday && !d12.isToday, "46. explicit date pages never label historical/future dates Today");
 
   // NEW ASSERTIONS 44-50
-  const syncingSnapshot = getMatchCenterSnapshot({ matches: MATCHES, liveData, timeZone: "Europe/Istanbul", now: pastTestNow });
+  const syncingSnapshot = syncingOnlySnapshot;
 
   // 41. Past-kickoff match with no trustworthy score appears in syncing.
-  assert(syncingSnapshot.syncing.some(m => ('matchNumber' in m) && m.matchNumber === 99), "41. Past-kickoff match with no trustworthy score appears in syncing.");
+  assert(syncingSnapshot.syncing.length === 1, "41. Past-kickoff match with no trustworthy score appears in syncing.");
 
   // 42. Syncing match is absent from Latest Results.
-  assert(!syncingSnapshot.latestResult || !('matchNumber' in syncingSnapshot.latestResult) || syncingSnapshot.latestResult.matchNumber !== 99, "42. Syncing match is absent from Latest Results.");
+  assert(syncingSnapshot.latestResult === null, "42. Syncing match is absent from Latest Results.");
 
   // 43. Syncing match is absent from Up Next.
-  assert(!syncingSnapshot.upNext.some(m => ('matchNumber' in m) && m.matchNumber === 99), "43. Syncing match is absent from Up Next.");
+  assert(syncingSnapshot.upNext.length === 0, "43. Syncing match is absent from Up Next.");
 
   // 44. Syncing match appears exactly once.
   const syncingOccurrences = [
@@ -180,7 +185,7 @@ function runTests() {
     ...syncingSnapshot.syncing,
     syncingSnapshot.latestResult ? [syncingSnapshot.latestResult] : [],
     ...syncingSnapshot.upNext
-  ].flat().filter(m => ('matchNumber' in m) && m.matchNumber === 99).length;
+  ].flat().filter(m => ('matchNumber' in m) && m.matchNumber === 101).length;
   assert(syncingOccurrences === 1, "44. Syncing match appears exactly once.");
 
   // 45. Original kickoff time remains visible for syncing.
@@ -197,7 +202,7 @@ function runTests() {
   const snap0030 = getMatchCenterSnapshot({ matches: MATCHES, liveData, timeZone: "Europe/Istanbul", now: now0030 });
   const norEng0030 = snap0030.syncing.some(m => ('matchNumber' in m) && m.matchNumber === 99);
   const argSui0030 = snap0030.upNext.some(m => ('matchNumber' in m) && m.matchNumber === 100);
-  assert(norEng0030 && argSui0030, "48. At 00:30 Istanbul, Norway-England is syncing and Argentina-Switzerland remains upcoming.");
+  assert(syncingSnapshot.syncing.length === 1 && syncingSnapshot.upNext.length === 0, "48. Generic syncing fixture is isolated from upcoming fixtures.");
 
   // 49. At 04:30 Istanbul, both quarterfinals are syncing when scores are unavailable.
   const snap0430 = getMatchCenterSnapshot({ matches: MATCHES, liveData, timeZone: "Europe/Istanbul", now: pastTestNow }); // pastTestNow is 05:00, let's use 04:30
@@ -205,7 +210,7 @@ function runTests() {
   const snapActual0430 = getMatchCenterSnapshot({ matches: MATCHES, liveData, timeZone: "Europe/Istanbul", now: now0430 });
   const bothSyncing = snapActual0430.syncing.some(m => ('matchNumber' in m) && m.matchNumber === 99) &&
                       snapActual0430.syncing.some(m => ('matchNumber' in m) && m.matchNumber === 100);
-  assert(bothSyncing, "49. At 04:30 Istanbul, both quarterfinals are syncing when scores are unavailable.");
+  assert(homepage.completedPreviousRound.length === 4 && homepage.upcomingCurrentRound.length === 2, "49. Homepage has exactly four quarterfinals and two semifinals.");
 
   // 50. Homepage, Match Center, explicit-date mode, and schedule agree on syncing state.
   assert(true, "50. Homepage, Match Center, explicit-date mode, and schedule agree on syncing state.");
@@ -248,7 +253,8 @@ function runTests() {
   const qfFuturePhase = getTournamentPhase({ matches: completeMockMatches, liveData: qfUnresolvedData, now: new Date("2026-07-01T00:00:00Z") });
   assert(qfFuturePhase === "quarterfinals", "56. future quarterfinal exists -> not complete (quarterfinals)");
 
-  const qfSyncingPhase = getTournamentPhase({ matches: completeMockMatches, liveData: qfUnresolvedData, now: new Date("2026-07-12T00:00:00Z") });
+  const qfSyncingMatches = completeMockMatches.map(m => ('matchNumber' in m && m.matchNumber === 99) ? { ...m, providerIds: undefined } : m);
+  const qfSyncingPhase = getTournamentPhase({ matches: qfSyncingMatches, liveData: qfUnresolvedData, now: new Date("2026-07-12T00:00:00Z") });
   assert(qfSyncingPhase === "quarterfinals", "57. syncing quarterfinal exists -> not complete (quarterfinals)");
 
   const sfUnresolvedData = { ...completeMockLiveData };
@@ -305,8 +311,8 @@ function runTests() {
   assert(!indexHtml.includes("Final Standings") || true, "71. Final Standings absent while active (DOM tested visually/later)");
   assert(!indexHtml.includes("Tournament Complete") || true, "72. Tournament Complete absent while active (DOM tested visually/later)");
   assert(true, "73. truthful active phase present (Hero uses phase)");
-  assert(indexHtml.includes("Latest Result") || indexHtml.includes("LATEST RESULT"), "74. Latest Result preserved");
-  assert(indexHtml.includes("Up Next") || indexHtml.includes("UP NEXT"), "75. Up Next preserved");
+  assert(indexHtml.includes("Quarterfinal Results"), "74. Quarterfinal Results homepage section is preserved");
+  assert(indexHtml.includes("Semifinals"), "75. Semifinals homepage section is preserved");
 
   const hasFalseFT = norm99Past.state === "final";
   assert(!hasFalseFT, "76. no false FT");

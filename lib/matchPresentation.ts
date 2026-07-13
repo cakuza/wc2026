@@ -19,6 +19,7 @@ export interface NormalizedMatchState {
   awayScore: number | null;
   penaltyHome: number | null;
   penaltyAway: number | null;
+  scoreDuration: string | null;
 }
 
 export function normalizeMatchState({
@@ -43,6 +44,7 @@ export function normalizeMatchState({
   const hasTrustworthyScore = homeScore !== null && awayScore !== null;
   const penaltyHome = canonicalOrLive?.penaltyShootoutScore?.home ?? null;
   const penaltyAway = canonicalOrLive?.penaltyShootoutScore?.away ?? null;
+  const scoreDuration = canonicalOrLive?.scoreDuration ?? null;
 
   const kickoffMs = matchUtcDate(match).getTime();
   const isPostKickoff = now.getTime() >= kickoffMs;
@@ -79,6 +81,7 @@ export function normalizeMatchState({
     awayScore,
     penaltyHome,
     penaltyAway,
+    scoreDuration,
   };
 }
 
@@ -89,6 +92,7 @@ export interface MatchPresentation {
   awayScore: number | null;
   penaltyHome: number | null;
   penaltyAway: number | null;
+  scoreDuration: string | null;
   displayKickoffDate: string;
   displayKickoffTime: string;
   showStatus: boolean;

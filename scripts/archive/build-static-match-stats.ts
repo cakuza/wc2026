@@ -2,8 +2,8 @@ import fs from 'fs';
 import path from 'path';
 
 const RAW_DIR = path.join(process.cwd(), 'data/archive/raw/espn/2026');
-const MAP_PATH = path.join(process.cwd(), 'data/archive/provenance/espn-match-map.candidate.json');
-const OUTPUT_STATS = path.join(process.cwd(), 'data/archive/match-stats.candidate.json');
+const MAP_PATH = path.join(process.cwd(), 'data/archive/provenance/espn-match-map.json');
+const OUTPUT_STATS = path.join(process.cwd(), 'data/archive/match-stats.json');
 
 function parseStat(teamStats: any[], statName: string) {
     const stat = teamStats.find(s => s.name === statName);
@@ -13,9 +13,17 @@ function parseStat(teamStats: any[], statName: string) {
 
 function run() {
     const manifest = JSON.parse(fs.readFileSync(MAP_PATH, 'utf8'));
-    const mapped = manifest.filter((m: any) => m.espnEventId && m.mappingConfidence !== 'unresolved');
+    const requestedMatchIds = new Set(process.argv.slice(2));
+    const mapped = manifest.filter((m: any) =>
+        m.espnEventId &&
+        m.mappingConfidence !== 'unresolved' &&
+        (requestedMatchIds.size === 0 || requestedMatchIds.has(m.internalMatchId))
+    );
     
-    let allStats: any[] = [];
+    const isIncremental = requestedMatchIds.size > 0;
+    let allStats: any[] = isIncremental && fs.existsSync(OUTPUT_STATS)
+        ? JSON.parse(fs.readFileSync(OUTPUT_STATS, 'utf8')).filter((stat: any) => !requestedMatchIds.has(stat.matchId))
+        : [];
 
     for (const m of mapped) {
         const rawPath = path.join(RAW_DIR, `${m.espnEventId}.json`);

@@ -7,8 +7,10 @@ type CompletedResult = {
   homeScore: number;
   awayScore: number;
   winner: NonNullable<LiveMatchData["winner"]>;
-  scoreDuration: "REGULAR" | "PENALTY_SHOOTOUT";
+  scoreDuration: "REGULAR" | "EXTRA_TIME" | "PENALTY_SHOOTOUT";
   confirmedAt: string;
+  regularTimeScore?: PeriodScore;
+  extraTimeScore?: PeriodScore;
   penaltyShootoutScore?: PeriodScore;
 };
 
@@ -144,6 +146,24 @@ export const COMPLETED_KNOCKOUT_RESULTS: Readonly<Record<number, CompletedResult
   },
   97: { homeScore: 2, awayScore: 0, winner: "HOME_TEAM", scoreDuration: "REGULAR", confirmedAt: "2026-07-09T18:00:00.000Z" },
   98: { homeScore: 2, awayScore: 1, winner: "HOME_TEAM", scoreDuration: "REGULAR", confirmedAt: "2026-07-10T22:00:00.000Z" },
+  99: {
+    homeScore: 1,
+    awayScore: 2,
+    winner: "AWAY_TEAM",
+    scoreDuration: "EXTRA_TIME",
+    regularTimeScore: { home: 1, away: 1 },
+    extraTimeScore: { home: 0, away: 1 },
+    confirmedAt: "2026-07-12T00:00:00.000Z",
+  },
+  100: {
+    homeScore: 3,
+    awayScore: 1,
+    winner: "HOME_TEAM",
+    scoreDuration: "EXTRA_TIME",
+    regularTimeScore: { home: 1, away: 1 },
+    extraTimeScore: { home: 2, away: 0 },
+    confirmedAt: "2026-07-12T00:00:00.000Z",
+  },
 };
 
 function matchNumber(match: Match): number | null {
@@ -160,6 +180,9 @@ function shouldUseCompletedFallback(live: LiveMatchData | undefined, result: Com
   if (live.status !== "FINISHED") return true;
   if (live.homeScore !== result.homeScore || live.awayScore !== result.awayScore) return true;
   if (live.winner !== result.winner) return true;
+  if (live.scoreDuration !== result.scoreDuration) return true;
+  if (result.regularTimeScore && (live.regularTimeScore?.home !== result.regularTimeScore.home || live.regularTimeScore?.away !== result.regularTimeScore.away)) return true;
+  if (result.extraTimeScore && (live.extraTimeScore?.home !== result.extraTimeScore.home || live.extraTimeScore?.away !== result.extraTimeScore.away)) return true;
   if (result.scoreDuration === "PENALTY_SHOOTOUT" && !live.penaltyShootoutScore) return true;
   return false;
 }
@@ -228,6 +251,8 @@ export function applyCanonicalMatchResultFallback(
       awayScore: completed.awayScore,
       winner: completed.winner,
       scoreDuration: completed.scoreDuration,
+      regularTimeScore: completed.regularTimeScore ?? live?.regularTimeScore,
+      extraTimeScore: completed.extraTimeScore ?? live?.extraTimeScore,
       penaltyShootoutScore: completed.penaltyShootoutScore ?? live?.penaltyShootoutScore,
       lastSyncedAt: live?.lastSyncedAt ?? generatedAt,
       goalEventCompleteness: getGoalEventCompleteness({

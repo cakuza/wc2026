@@ -9,6 +9,7 @@ const OUTPUT_EVENTS = path.join(process.cwd(), 'data/archive/match-events.json')
 const REVIEW_REPORT = path.join(process.cwd(), 'data/archive/reports/espn-manual-review.json');
 
 type StaticMatchEvent = {
+  id?: string;
   matchId: string;
   minute?: number;
   stoppageMinute?: number;
@@ -23,20 +24,52 @@ type StaticMatchEvent = {
   confidence: "verified" | "source_single" | "manual_review";
 };
 
+type ParsedClock = Pick<StaticMatchEvent, "minute" | "stoppageMinute" | "period">;
+
+function parseClock(displayValue: unknown): ParsedClock {
+    const text = typeof displayValue === 'string' ? displayValue : '';
+    const match = text.match(/^(\d+)'(?:\+(\d+)')?$/);
+    if (!match) return {};
+
+    const minute = Number.parseInt(match[1], 10);
+    const stoppageMinute = match[2] ? Number.parseInt(match[2], 10) : undefined;
+    return {
+        minute,
+        ...(stoppageMinute !== undefined ? { stoppageMinute } : {}),
+        ...(minute > 90 ? { period: 'extra_time' as const } : minute > 45 ? { period: 'second_half' as const } : { period: 'first_half' as const }),
+    };
+}
+
+function stableEventId(matchId: string, sourceId: string, providerEventId: unknown, fallback: string): string {
+    return providerEventId ? `${sourceId}:${providerEventId}` : `${sourceId}:${matchId}:${fallback}`;
+}
+
 function run() {
     const manifest = JSON.parse(fs.readFileSync(MAP_PATH, 'utf8'));
-    const mapped = manifest.filter((m: any) => m.espnEventId && m.mappingConfidence !== 'unresolved');
+    const requestedMatchIds = new Set(process.argv.slice(2));
+    const mapped = manifest.filter((m: any) =>
+        m.espnEventId &&
+        m.mappingConfidence !== 'unresolved' &&
+        (requestedMatchIds.size === 0 || requestedMatchIds.has(m.internalMatchId))
+    );
 
-    let allEvents: StaticMatchEvent[] = [];
-    let reviewItems = [];
+    const isIncremental = requestedMatchIds.size > 0;
+    let allEvents: StaticMatchEvent[] = isIncremental && fs.existsSync(OUTPUT_EVENTS)
+        ? JSON.parse(fs.readFileSync(OUTPUT_EVENTS, 'utf8')).filter((event: StaticMatchEvent) => !requestedMatchIds.has(event.matchId))
+        : [];
+    let reviewItems = isIncremental && fs.existsSync(REVIEW_REPORT)
+        ? JSON.parse(fs.readFileSync(REVIEW_REPORT, 'utf8')).filter((item: any) => !requestedMatchIds.has(item.matchId))
+        : [];
 
     for (const m of MATCHES) {
         const internalId = matchSlug(m);
+        if (isIncremental && !requestedMatchIds.has(internalId)) continue;
         const verifiedEvents = applyVerifiedGoalCorrections(internalId, []) as any[];
 
         if (verifiedEvents.length > 0) {
             for (const ev of verifiedEvents) {
                 allEvents.push({
+                    id: stableEventId(internalId, 'repo_verified', undefined, `${ev.type}:${ev.minute ?? ''}:${ev.stoppageTime ?? ''}:${ev.playerName}`),
                     matchId: internalId,
                     playerName: ev.playerName,
                     eventType: ev.type?.toLowerCase() || (ev.isPenalty ? 'penalty_goal' : (ev.isOwnGoal ? 'own_goal' : 'goal')),
@@ -75,14 +108,16 @@ function run() {
         for (const e of espnEvents) {
             const t = e.type?.text?.toLowerCase() || '';
             const txt = e.text?.toLowerCase() || '';
+            const clock = parseClock(e.clock?.displayValue);
 
             // Add non-goal events
             if (t.includes('card') || t.includes('substitution')) {
                 allEvents.push({
+                    id: stableEventId(m.internalMatchId, 'espn', e.id, `${t}:${clock.minute ?? ''}:${e.participants?.[0]?.athlete?.displayName ?? ''}`),
                     matchId: m.internalMatchId,
                     playerName: e.participants?.[0]?.athlete?.displayName || 'Unknown',
-                    eventType: t.includes('red') ? 'red_card' : (t.includes('yellow') ? 'yellow_card' : 'substitution'),
-                    minute: e.clock?.displayValue ? parseInt(e.clock.displayValue) : undefined,
+                    eventType: txt.includes('second yellow') ? 'second_yellow' : (t.includes('red') ? 'red_card' : (t.includes('yellow') ? 'yellow_card' : 'substitution')),
+                    ...clock,
                     teamKey: e.team?.displayName || '',
                     relatedPlayerName: e.participants?.[1]?.athlete?.displayName,
                     sourceId: 'espn',
@@ -102,10 +137,11 @@ function run() {
 
                 if (!verifiedExists) {
                     allEvents.push({
+                        id: stableEventId(m.internalMatchId, 'espn', e.id, `${eventType}:${clock.minute ?? ''}:${e.participants?.[0]?.athlete?.displayName ?? ''}`),
                         matchId: m.internalMatchId,
                         playerName: e.participants?.[0]?.athlete?.displayName || 'Unknown',
                         eventType: eventType,
-                        minute: e.clock?.displayValue ? parseInt(e.clock.displayValue) : undefined,
+                        ...clock,
                         teamKey: isOwnGoal
                             ? (payload.boxscore?.teams?.find((t: any) => t.team?.displayName !== e.team?.displayName)?.team?.displayName || e.team?.displayName || '')
                             : (e.team?.displayName || ''),
@@ -135,6 +171,7 @@ function run() {
                 if (teamShootout.shots && Array.isArray(teamShootout.shots)) {
                     for (const kick of teamShootout.shots) {
                         allEvents.push({
+                            id: stableEventId(m.internalMatchId, 'espn', undefined, `shootout:${teamShootout.team ?? ''}:${kick.player ?? ''}:${kick.didScore ? 'scored' : 'missed'}`),
                             matchId: m.internalMatchId,
                             playerName: kick.player || 'Unknown',
                             eventType: kick.didScore ? 'penalty_shootout_scored' : 'penalty_shootout_missed',

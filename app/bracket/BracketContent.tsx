@@ -7,6 +7,7 @@ import { FINAL_MATCH, QUARTER_FINAL_MATCHES, ROUND_OF_16_MATCHES, ROUND_OF_32_MA
 import { type Lang } from "@/lib/i18n";
 import { MATCHES, matchUtcDate, type Match } from "@/lib/matches";
 import { RESOLVED_PARTICIPANTS } from "@/lib/resolvedParticipants";
+import { COMPLETED_KNOCKOUT_RESULTS } from "@/lib/canonicalMatchResults";
 import { getParticipantDisplay, knockoutSlotLabel, isKnockoutMatch, type ResolvedParticipantLookup } from "@/lib/participant-resolution";
 import { isMatchPollingActive } from "@/lib/scoreReconciliation";
 
@@ -51,7 +52,7 @@ function matchDateStr(matchNumber: number): string | undefined {
 // --- Bracket slot data ---
 // flagCode: flagcdn 2-letter code, present only for resolved participants
 type Slot = { label: string; flagCode?: string };
-type BMatch = { id: string; dateLabel?: string; home: Slot; away: Slot };
+type BMatch = { id: string; dateLabel?: string; home: Slot; away: Slot; score?: { home: number; away: number; aet: boolean } };
 
 // --- Sub-components ---
 
@@ -81,9 +82,16 @@ function MatchCard({ m, isFinal = false }: { m: BMatch; isFinal?: boolean }) {
       style={{ width: CARD_W, height: CARD_H }}
     >
       <div className="flex h-full flex-col justify-center gap-1.5 px-3">
-        <ParticipantRow slot={m.home} isFinal={isFinal} />
+        <div className="flex items-center gap-1">
+          <div className="min-w-0 flex-1"><ParticipantRow slot={m.home} isFinal={isFinal} /></div>
+          {m.score ? <span className="font-heading text-[11px] font-extrabold tabular-nums text-white">{m.score.home}</span> : null}
+        </div>
         <div className="h-px bg-white/10" />
-        <ParticipantRow slot={m.away} isFinal={isFinal} />
+        <div className="flex items-center gap-1">
+          <div className="min-w-0 flex-1"><ParticipantRow slot={m.away} isFinal={isFinal} /></div>
+          {m.score ? <span className="font-heading text-[11px] font-extrabold tabular-nums text-white">{m.score.away}</span> : null}
+        </div>
+        {m.score?.aet ? <span className="text-[8px] font-bold uppercase tracking-widest text-white/50">AET</span> : null}
       </div>
     </div>
   );
@@ -119,6 +127,7 @@ export function buildBracketMatchModel({
     const homeDisplay = scheduleMatch ? getParticipantDisplay(scheduleMatch, "home", resolvedParticipants, lang) : null;
     const awayDisplay = scheduleMatch ? getParticipantDisplay(scheduleMatch, "away", resolvedParticipants, lang) : null;
     const resolved = resolvedParticipants?.[match.matchNumber] ?? RESOLVED_PARTICIPANTS[match.matchNumber];
+    const result = COMPLETED_KNOCKOUT_RESULTS[match.matchNumber];
     return {
       id: `M${match.matchNumber}`,
       dateLabel: matchDateStr(match.matchNumber),
@@ -130,6 +139,7 @@ export function buildBracketMatchModel({
         label: awayDisplay?.isResolved ? awayDisplay.label : (isR32 ? slotLabel(match.away) : (scheduleMatch && isKnockoutMatch(scheduleMatch) ? knockoutSlotLabel(scheduleMatch.awaySlot, lang, resolvedParticipants) : "TBD")),
         flagCode: awayDisplay?.teamCode ?? resolved?.away?.teamCode ?? undefined,
       },
+      ...(result ? { score: { home: result.homeScore, away: result.awayScore, aet: result.scoreDuration === "EXTRA_TIME" } } : {}),
     };
 }
 

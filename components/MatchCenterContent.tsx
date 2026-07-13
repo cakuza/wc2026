@@ -9,7 +9,7 @@ import { FreshnessLabel } from "@/components/FreshnessLabel";
 import { useLang } from "@/components/LanguageProvider";
 import { useTimezone } from "@/components/TimezoneProvider";
 import { matchSlug, ARCHIVE_DEFAULT_DATE, MATCHES, type Match } from "@/lib/matches";
-import { getMatchCenterSnapshot } from "@/lib/matchCenterSelection";
+import { getHomepageMatchCenterSnapshot, getMatchCenterSnapshot, type TournamentPhase } from "@/lib/matchCenterSelection";
 import { getMatchPresentation } from "@/lib/matchPresentation";
 import { getParticipantDisplay, type ResolvedParticipantLookup } from "@/lib/participant-resolution";
 import type { LiveMatchData } from "@/lib/liveMatchData";
@@ -124,6 +124,9 @@ function MatchRow({
             {statusLabel}
           </span>
         )}
+        {pres.scoreDuration === "EXTRA_TIME" ? (
+          <span className="rounded bg-white/10 px-1.5 py-0.5 font-heading text-[10px] font-extrabold uppercase tracking-widest text-white/60">AET</span>
+        ) : null}
         <span className="font-semibold text-white/75" suppressHydrationWarning>
           {pres.displayKickoffDate} • {pres.displayKickoffTime}
         </span>
@@ -140,45 +143,22 @@ function MatchRow({
 
 export function MatchCenterContent({
   liveSnapshot,
+  mode = "standard",
+  tournamentPhase,
 }: {
   liveSnapshot: MatchCenterLiveSnapshot;
+  mode?: "standard" | "homepage";
+  tournamentPhase?: TournamentPhase;
 }) {
   const { t } = useLang();
   const { timeZone } = useTimezone();
   const tz = timeZone || "UTC";
 
   // Client-side clock state
-  const [now, setNow] = useState<Date | null>(null);
+  const [now, setNow] = useState<Date>(() => new Date(ARCHIVE_DEFAULT_DATE));
   useEffect(() => {
     setNow(new Date());
   }, []);
-
-  if (!now) {
-    return (
-      <div className="rounded-xl border border-white/10 bg-navyCard p-5 shadow-2xl sm:p-6 min-h-[300px]">
-        <div className="mb-2 flex items-center justify-between">
-          <p className="font-heading text-sm font-extrabold uppercase tracking-[0.2em] text-accent">Match Center</p>
-        </div>
-        <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
-          <TimezoneLabel className="text-[11px] text-white/55" />
-          <FreshnessLabel primaryProviderFetchedAt={liveSnapshot.primaryProviderFetchedAt} primaryProviderOk={liveSnapshot.primaryProviderOk} />
-        </div>
-        <div className="space-y-6">
-          <div>
-            <h3 className="mb-3 font-heading text-[11px] font-bold uppercase tracking-widest text-white/40">{t("sec_latestResults") || "Latest Result"}</h3>
-            <div className="h-16 w-full rounded-lg bg-white/5 animate-pulse"></div>
-          </div>
-          <div>
-            <h3 className="mb-3 font-heading text-[11px] font-bold uppercase tracking-widest text-white/40">Up Next</h3>
-            <div className="flex flex-col gap-2">
-              <div className="h-16 w-full rounded-lg bg-white/5 animate-pulse"></div>
-              <div className="h-16 w-full rounded-lg bg-white/5 animate-pulse"></div>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
 
   const snapshot = getMatchCenterSnapshot({
     matches: MATCHES,
@@ -186,6 +166,14 @@ export function MatchCenterContent({
     timeZone: tz,
     now: now
   });
+  const homepageSnapshot = mode === "homepage" && tournamentPhase
+    ? getHomepageMatchCenterSnapshot({
+        matches: MATCHES,
+        liveData: liveSnapshot.liveDataByProviderId,
+        now,
+        phase: tournamentPhase,
+      })
+    : null;
 
   const renderRow = (m: Match) => (
     <MatchRow
@@ -197,6 +185,27 @@ export function MatchCenterContent({
       now={now}
     />
   );
+
+  if (homepageSnapshot) {
+    return (
+      <div className="rounded-xl border border-white/10 bg-navyCard p-5 shadow-2xl sm:p-6">
+        <div className="space-y-6">
+          <section>
+            <h2 className="mb-3 font-heading text-[11px] font-bold uppercase tracking-widest text-white/40">Quarterfinal Results</h2>
+            <div className="flex flex-col gap-2">
+              {homepageSnapshot.completedPreviousRound.map(renderRow)}
+            </div>
+          </section>
+          <section>
+            <h2 className="mb-3 font-heading text-[11px] font-bold uppercase tracking-widest text-white/40">Semifinals</h2>
+            <div className="flex flex-col gap-2">
+              {homepageSnapshot.upcomingCurrentRound.map(renderRow)}
+            </div>
+          </section>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="rounded-xl border border-white/10 bg-navyCard p-5 shadow-2xl sm:p-6">

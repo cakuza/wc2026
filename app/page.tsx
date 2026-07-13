@@ -3,11 +3,11 @@ import { Ticker } from "@/components/Ticker";
 import { Hero } from "@/components/Hero";
 import { HomeTrivia } from "@/components/HomeTrivia";
 import { TeamsByConfederationPreview } from "@/components/TeamsByConfederation";
-import { ARCHIVE_DEFAULT_DATE, MATCHES } from "@/lib/matches";
+import { ARCHIVE_DEFAULT_DATE, matchUtcDate, MATCHES } from "@/lib/matches";
 import { getDisplayMatchdayForTimeZone } from "@/lib/todaySelection";
 import { DEFAULT_TIMEZONE } from "@/lib/timezone";
 import { getTournamentLiveSnapshot } from "@/lib/liveSnapshot";
-import { selectUpcomingMatches, getTournamentPhase } from "@/lib/matchCenterSelection";
+import { selectUpcomingMatches, getHomepageMatchCenterSnapshot, getTournamentPhase } from "@/lib/matchCenterSelection";
 import { LiveDataUnavailableNotice } from "@/components/LiveDataUnavailableNotice";
 import { buildKnockoutResolution } from "@/lib/knockoutResolution";
 
@@ -67,6 +67,15 @@ export default async function TodayPage() {
     liveData: snapshot.liveDataByProviderId,
     now,
   });
+  const homepageMatches = getHomepageMatchCenterSnapshot({
+    matches: MATCHES,
+    liveData: snapshot.liveDataByProviderId,
+    now,
+    phase: tournamentPhase,
+  });
+  const countdownTarget = homepageMatches.upcomingCurrentRound[0]
+    ? matchUtcDate(homepageMatches.upcomingCurrentRound[0]).toISOString()
+    : null;
 
   return (
     <>
@@ -76,7 +85,7 @@ export default async function TodayPage() {
           <LiveDataUnavailableNotice show />
         </div>
       ) : null}
-      <Hero initialMatchday={initialMatchday} snapshot={snapshot} resolvedParticipants={resolvedParticipants} tournamentPhase={tournamentPhase} />
+      <Hero initialMatchday={initialMatchday} snapshot={snapshot} resolvedParticipants={resolvedParticipants} tournamentPhase={tournamentPhase} countdownTarget={countdownTarget} />
       <HomeTrivia />
       <TeamsByConfederationPreview />
     </>
