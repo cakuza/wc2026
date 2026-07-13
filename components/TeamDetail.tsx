@@ -7,7 +7,7 @@ import { TimezoneLabel } from "@/components/TimezoneLabel";
 import { useLang } from "@/components/LanguageProvider";
 import { slugFor, withArticle, TEAMS, type Team } from "@/lib/teams";
 import type { Match } from "@/lib/matches";
-import { matchSlug, matchUtcDate } from "@/lib/matches";
+import { ARCHIVE_DEFAULT_DATE, matchSlug, matchUtcDate } from "@/lib/matches";
 import { squadByPosition } from "@/lib/squads";
 import { StandingsTable } from "@/components/StandingsTable";
 import type { SerializableSnapshotMatch } from "@/lib/liveSnapshot";
@@ -16,6 +16,7 @@ import { pathSlotsForGroup, slotLabel } from "@/lib/knockoutBracket2026";
 import { firstMatchResultSentence, playedGroupSummary } from "@/lib/teamCopy";
 import { formatCanonicalGoalEvents, getCanonicalArchiveEventsForMatch } from "@/lib/canonicalArchiveEvents";
 import { getResolvedAwayTeam, getResolvedHomeTeam, type ResolvedParticipantLookup } from "@/lib/participant-resolution";
+import { getMatchPresentation, getMatchStatusLabel } from "@/lib/matchPresentation";
 
 function formatSquadValue(millions: number): string {
   return millions >= 1000 ? `€${(millions / 1000).toFixed(2)}B` : `€${millions}M`;
@@ -91,11 +92,12 @@ export function TeamDetail({
   const statusText = (m: Match) => {
     const snap = snapshotMatches[matchSlug(m)];
     if (!snap) return null;
-    if (snap.status === "FINISHED") return "FT";
-    if (snap.status === "LIVE") return "Live";
-    if (snap.status === "HALFTIME") return "HT";
-    if (snap.status === "SYNCING") return "Syncing";
-    return null;
+    return getMatchStatusLabel(getMatchPresentation({
+      match: m,
+      liveData: snap.live ?? undefined,
+      timeZone: "UTC",
+      now: new Date(ARCHIVE_DEFAULT_DATE),
+    }));
   };
 
   const scoreOrVs = (m: Match) => {

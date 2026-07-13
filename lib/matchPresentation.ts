@@ -99,6 +99,19 @@ export interface MatchPresentation {
   showScore: boolean;
 }
 
+/** Compact result status shared by cards that present a canonical match state. */
+export function getMatchStatusLabel(presentation: Pick<MatchPresentation, "state" | "scoreDuration">): "FT" | "AET" | "PEN" | "Live" | "HT" | "Syncing" | null {
+  if (presentation.state === "final") {
+    if (presentation.scoreDuration === "PENALTY_SHOOTOUT") return "PEN";
+    if (presentation.scoreDuration === "EXTRA_TIME") return "AET";
+    return "FT";
+  }
+  if (presentation.state === "live") return "Live";
+  if (presentation.state === "halftime") return "HT";
+  if (presentation.state === "syncing") return "Syncing";
+  return null;
+}
+
 export function getMatchPresentation({
   match,
   liveData,

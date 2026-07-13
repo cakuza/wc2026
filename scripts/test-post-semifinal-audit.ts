@@ -4,7 +4,7 @@ import matchEventsData from "../data/archive/match-events.json";
 import { formatCanonicalGoalEvents, getCanonicalArchiveEventsForMatch } from "../lib/canonicalArchiveEvents";
 import { T } from "../lib/i18n";
 import type { LiveMatchData, LiveMatchEvent } from "../lib/liveMatchData";
-import { getMatchPresentation } from "../lib/matchPresentation";
+import { getMatchPresentation, getMatchStatusLabel } from "../lib/matchPresentation";
 import { selectHomepageTickerMatches } from "../lib/matchCenterSelection";
 import { ARCHIVE_DEFAULT_DATE, MATCHES, matchSlug } from "../lib/matches";
 import { buildKnockoutResolution } from "../lib/knockoutResolution";
@@ -123,9 +123,12 @@ async function run() {
   });
   assert.equal(presentation(match99).scoreDuration, "EXTRA_TIME");
   assert.equal(presentation(match100).scoreDuration, "EXTRA_TIME");
+  assert.equal(getMatchStatusLabel(presentation(match99)), "AET");
+  assert.equal(getMatchStatusLabel(presentation(match100)), "AET");
   const shootout = MATCHES.find((match) => presentation(match as typeof match99).scoreDuration === "PENALTY_SHOOTOUT");
   assert.ok(shootout, "a canonical shootout fixture is required");
   assert.equal(presentation(shootout).scoreDuration, "PENALTY_SHOOTOUT");
+  assert.equal(getMatchStatusLabel(presentation(shootout)), "PEN");
 
   for (const match of [match99, match100]) {
     const events = getCanonicalArchiveEventsForMatch(matchEventsData, matchSlug(match));
@@ -155,6 +158,7 @@ async function run() {
   const matchDetailSource = fs.readFileSync("components/MatchDetail.tsx", "utf8");
   assert.ok(teamDetailSource.includes("getCanonicalArchiveEventsForMatch(eventsArchive, matchSlug(m))"));
   assert.ok(teamDetailSource.includes("formatCanonicalGoalEvents(archiveEvents)"));
+  assert.ok(teamDetailSource.includes("getMatchStatusLabel(getMatchPresentation({"));
   assert.ok(teamPageSource.includes("teamMatches={teamMatches}"));
   assert.ok(teamPageSource.includes("eventsArchive={matchEventsData}"));
   assert.ok(teamPageSource.includes("getResolvedHomeTeam(match, resolvedParticipants)"));
