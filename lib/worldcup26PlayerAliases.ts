@@ -199,6 +199,85 @@ export const PLAYER_ALIASES: PlayerAliasEntry[] = [
     reason: "RC2: Jaminton→Khamintvn (J→Kh in ج rendering, a preserved, i/n/t preserved, o→v), Campaz→Kampaz (C→K)",
   },
 
+  // ── Argentina ─────────────────────────────────────────────────────────────
+  {
+    rawValue: "ALVAREZ Julian",
+    canonical: "Julián Álvarez",
+    provider: "worldcup26.ir",
+    providerAthleteId: null,
+    matchIds: [],
+    scoringTeam: "Argentina",
+    source: "Verified provider name-order variant",
+    confidence: "high",
+    reason: "Provider surname-first rendering resolved to the Argentina canonical identity.",
+  },
+  {
+    rawValue: "Julian Alvarez",
+    canonical: "Julián Álvarez",
+    provider: "worldcup26.ir",
+    providerAthleteId: null,
+    matchIds: [], // Globally valid for Argentina
+    scoringTeam: "Argentina",
+    source: "Verified correction for missing diacritics",
+    confidence: "high",
+    reason: "Accent stripping: Julian Alvarez -> Julián Álvarez",
+  },
+  {
+    rawValue: "Lautaro Martinez",
+    canonical: "Lautaro Martínez",
+    provider: "worldcup26.ir",
+    providerAthleteId: null,
+    matchIds: [],
+    scoringTeam: "Argentina",
+    source: "Verified correction for missing diacritics",
+    confidence: "high",
+    reason: "Accent stripping: Lautaro Martinez -> Lautaro Martínez",
+  },
+  {
+    rawValue: "MAC ALLISTER Alexis",
+    canonical: "Alexis Mac Allister",
+    provider: "worldcup26.ir",
+    providerAthleteId: null,
+    matchIds: [],
+    scoringTeam: "Argentina",
+    source: "Verified provider name-order variant",
+    confidence: "high",
+    reason: "Provider surname-first rendering resolved to the Argentina canonical identity.",
+  },
+  {
+    rawValue: "Alexis Mac Allister",
+    canonical: "Alexis Mac Allister",
+    provider: "worldcup26.ir",
+    providerAthleteId: null,
+    matchIds: [],
+    scoringTeam: "Argentina",
+    source: "Canonical Argentina squad spelling",
+    confidence: "high",
+    reason: "Keeps the already-canonical spelling in the same identity family.",
+  },
+  {
+    rawValue: "Alexis MacAllister",
+    canonical: "Alexis Mac Allister",
+    provider: "worldcup26.ir",
+    providerAthleteId: null,
+    matchIds: [],
+    scoringTeam: "Argentina",
+    source: "Verified correction for missing spaces",
+    confidence: "high",
+    reason: "Space stripping: Alexis MacAllister -> Alexis Mac Allister",
+  },
+  {
+    rawValue: "Alexis Macallister",
+    canonical: "Alexis Mac Allister",
+    provider: "worldcup26.ir",
+    providerAthleteId: null,
+    matchIds: [],
+    scoringTeam: "Argentina",
+    source: "Verified correction for missing spaces",
+    confidence: "high",
+    reason: "Space stripping: Alexis Macallister -> Alexis Mac Allister",
+  },
+
   // ── Mexico ────────────────────────────────────────────────────────────────
   {
     rawValue: "Jvlian Kviinvnz",
@@ -637,7 +716,7 @@ function findPlayerAliasLegacy(
  * Resolve a raw scorer name to its canonical form.
  * Returns the canonical string, or the original rawValue if no alias found.
  */
-function resolvePlayerNameLegacy(rawValue: string, teamName?: string): string {
+export function resolvePlayerNameLegacy(rawValue: string, teamName?: string): string {
   return findPlayerAliasLegacy(rawValue, teamName)?.canonical ?? rawValue;
 }
 

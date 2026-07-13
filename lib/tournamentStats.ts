@@ -7,6 +7,7 @@ import { MATCHES } from "./matches";
 import type { LiveMatchData } from "./liveMatchData";
 import type { StandingRow } from "./groupStandings";
 import { teamKeyFromName } from "./teams";
+import { resolvePlayerNameLegacy } from "./worldcup26PlayerAliases";
 
 export type MatchResult = {
   homeKey: string;
@@ -37,6 +38,23 @@ export type PlayerEventStat = {
   teamKey: string | null;
   value: number;
 };
+
+function normalizePlayerName(name: string): string {
+  return name.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
+}
+
+export type CanonicalPlayerIdentity = {
+  key: string;
+  playerName: string;
+  teamKey: string;
+};
+
+export function resolveCanonicalPlayerIdentity(name: string, teamName: string | null | undefined): CanonicalPlayerIdentity | null {
+  const teamKey = teamKeyFromName(teamName ?? null);
+  if (!teamKey) return null;
+  const playerName = resolvePlayerNameLegacy(name, teamName ?? undefined);
+  return { key: `${teamKey}:${normalizePlayerName(playerName)}`, playerName, teamKey };
+}
 
 export type PlayerEventLeaderboards = {
   assists: PlayerEventStat[];
@@ -202,10 +220,14 @@ export function computePlayerEventLeaderboards(liveData: ReadonlyMap<number, Liv
   const ssMap = new Map<string, PlayerEventStat>();
   const smMap = new Map<string, PlayerEventStat>();
 
-  const track = (map: Map<string, PlayerEventStat>, key: string, name: string | null, teamName: string | null) => {
+  const track = (map: Map<string, PlayerEventStat>, name: string | null, teamName: string | null) => {
     if (!name || /^Scorer (unavailable|pending)$/i.test(name)) return;
-    if (!map.has(key)) map.set(key, { playerName: name, teamName: teamName || null, teamKey: teamKeyFromName(teamName) || null, value: 0 });
-    map.get(key)!.value++;
+    const identity = resolveCanonicalPlayerIdentity(name, teamName);
+    if (!identity) return;
+    if (!map.has(identity.key)) {
+      map.set(identity.key, { playerName: identity.playerName, teamName: teamName || null, teamKey: identity.teamKey, value: 0 });
+    }
+    map.get(identity.key)!.value++;
   };
 
   for (const data of liveData.values()) {
@@ -217,32 +239,32 @@ export function computePlayerEventLeaderboards(liveData: ReadonlyMap<number, Liv
             if (goal.assistName?.includes("Duverne")) assistTeam = "haiti";
             else if (goal.assistName?.includes("Ahmed")) assistTeam = "qatar";
           }
-          track(assistsMap, goal.assistName, goal.assistName, assistTeam);
+          track(assistsMap, goal.assistName, assistTeam);
         }
         if (goal.isOwnGoal && goal.playerName) {
-          track(ogMap, goal.playerName, goal.playerName, goal.playerTeamName ?? null);
+          track(ogMap, goal.playerName, goal.playerTeamName ?? null);
         } else if (goal.type === 'PENALTY_GOAL' && goal.playerName) {
-          track(pgMap, goal.playerName, goal.playerName, goal.teamName);
+          track(pgMap, goal.playerName, goal.teamName);
         }
       }
     }
     if (data.bookings) {
       for (const card of data.bookings) {
         if (card.type === 'YELLOW_CARD' && card.playerName) {
-          track(ycMap, card.playerName, card.playerName, card.teamName);
+          track(ycMap, card.playerName, card.teamName);
         }
-        if (card.type === 'RED_CARD' && card.playerName) {
-          track(rcMap, card.playerName, card.playerName, card.teamName);
+        if ((card.type === 'RED_CARD' || card.type === 'SECOND_YELLOW') && card.playerName) {
+          track(rcMap, card.playerName, card.teamName);
         }
       }
     }
     if (data.shootoutAttempts) {
       for (const s of data.shootoutAttempts) {
         if (s.type === "PENALTY_SHOOTOUT_SCORED" && s.playerName) {
-          track(ssMap, s.playerName, s.playerName, s.teamName);
+          track(ssMap, s.playerName, s.teamName);
         }
         if (s.type === "PENALTY_SHOOTOUT_MISSED" && s.playerName) {
-          track(smMap, s.playerName, s.playerName, s.teamName);
+          track(smMap, s.playerName, s.teamName);
         }
       }
     }
@@ -405,15 +427,15 @@ export function computeTopScorers(
     for (const goal of data.goals) {
       if (!goal.playerName || goal.type === "OWN_GOAL") continue;
       if (/^Scorer (unavailable|pending)$/i.test(goal.playerName)) continue;
-      const key = goal.playerName;
-      if (!scorerMap.has(key)) {
-        scorerMap.set(key, { playerName: goal.playerName, teamName: goal.teamName, teamKey: teamKeyFromName(goal.teamName) || null, goals: 0 });
+      const identity = resolveCanonicalPlayerIdentity(goal.playerName, goal.teamName);
+      if (!identity) continue;
+      if (!scorerMap.has(identity.key)) {
+        scorerMap.set(identity.key, { playerName: identity.playerName, teamName: goal.teamName, teamKey: identity.teamKey, goals: 0 });
       }
-      scorerMap.get(key)!.goals++;
+      scorerMap.get(identity.key)!.goals++;
     }
   }
 
   return Array.from(scorerMap.values())
-    .sort((a, b) => b.goals - a.goals)
-    .slice(0, 100);
+    .sort((a, b) => b.goals - a.goals);
 }

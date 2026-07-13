@@ -1,6 +1,7 @@
 import { matchUtcDate, type Match, MATCHES } from "./matches";
 import { normalizeMatchState } from "./matchPresentation";
 import type { LiveMatchData } from "./liveMatchData";
+import { getResolvedHomeTeam, getResolvedAwayTeam, type ResolvedParticipantLookup } from "./participant-resolution";
 
 export function hasCompleteTournamentInventory(matches: Match[]): boolean {
   if (!Array.isArray(matches)) return false;
@@ -431,4 +432,29 @@ export function getMatchCenterSnapshot({
     latestResult: latestCompleted.length > 0 ? latestCompleted[0] : null,
     upNext: upNext.slice(0, 4), // The UI wants "next one or two", but can be up to 4 for Match Center
   };
+}
+
+/**
+ * Returns exactly the two upcoming semifinals (matches 101 and 102) for the homepage ticker,
+ * but only if both participants are resolved.
+ */
+export function selectHomepageTickerMatches({
+  matches,
+  liveData,
+  now,
+  resolvedParticipants,
+}: {
+  matches: Match[];
+  liveData: Record<string, LiveMatchData>;
+  now: Date;
+  resolvedParticipants: ResolvedParticipantLookup;
+}): Match[] {
+  const upcoming = selectUpcomingMatches({ matches, liveData, now });
+  return upcoming.filter((match) => {
+    if (!("matchNumber" in match)) return false;
+    if (match.matchNumber !== 101 && match.matchNumber !== 102) return false;
+    const homeTeam = getResolvedHomeTeam(match, resolvedParticipants);
+    const awayTeam = getResolvedAwayTeam(match, resolvedParticipants);
+    return homeTeam !== null && awayTeam !== null;
+  });
 }

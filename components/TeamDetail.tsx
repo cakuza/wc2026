@@ -5,15 +5,18 @@ import { Flag } from "@/components/Flag";
 import { MatchTime } from "@/components/MatchTime";
 import { TimezoneLabel } from "@/components/TimezoneLabel";
 import { useLang } from "@/components/LanguageProvider";
-import { slugFor, withArticle, type Team } from "@/lib/teams";
+import { slugFor, withArticle, TEAMS, type Team } from "@/lib/teams";
 import type { Match } from "@/lib/matches";
-import { matchSlug, matchUtcDate } from "@/lib/matches";
+import { ARCHIVE_DEFAULT_DATE, matchSlug, matchUtcDate } from "@/lib/matches";
 import { squadByPosition } from "@/lib/squads";
 import { StandingsTable } from "@/components/StandingsTable";
 import type { SerializableSnapshotMatch } from "@/lib/liveSnapshot";
 import type { StandingRow } from "@/lib/groupStandings";
 import { pathSlotsForGroup, slotLabel } from "@/lib/knockoutBracket2026";
 import { firstMatchResultSentence, playedGroupSummary } from "@/lib/teamCopy";
+import { formatCanonicalGoalEvents, getCanonicalArchiveEventsForMatch } from "@/lib/canonicalArchiveEvents";
+import { getResolvedAwayTeam, getResolvedHomeTeam, type ResolvedParticipantLookup } from "@/lib/participant-resolution";
+import { getMatchPresentation, getMatchStatusLabel } from "@/lib/matchPresentation";
 
 function formatSquadValue(millions: number): string {
   return millions >= 1000 ? `€${(millions / 1000).toFixed(2)}B` : `€${millions}M`;
@@ -31,26 +34,36 @@ export function TeamDetail({
   team,
   groupTeams,
   groupMatches,
+  teamMatches,
   standingsRows,
   snapshotMatches = {},
+  eventsArchive = {},
+  resolvedParticipants,
 }: {
   team: Team;
   groupTeams: Team[];
   groupMatches: Match[];
+  teamMatches: Match[];
   standingsRows?: StandingRow[];
   snapshotMatches?: Record<string, SerializableSnapshotMatch>;
+  eventsArchive?: unknown;
+  resolvedParticipants?: ResolvedParticipantLookup;
 }) {
   const { t, country, formatDate } = useLang();
   const squad = squadByPosition(team.key);
   const pathSlots = pathSlotsForGroup(team.group);
 
-  // This team's 3 matches, sorted by date (MD1 → MD2 → MD3).
-  const teamMatches = groupMatches
-    .filter((m) => m.homeKey === team.key || m.awayKey === team.key)
+  const listedMatches = teamMatches
+    .filter((m) =>
+      m.homeKey === team.key ||
+      m.awayKey === team.key ||
+      getResolvedHomeTeam(m, resolvedParticipants) === team.key ||
+      getResolvedAwayTeam(m, resolvedParticipants) === team.key,
+    )
     .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
   const nextListedMatch =
-    teamMatches.find((m) => snapshotMatches[matchSlug(m)]?.status !== "FINISHED" && matchUtcDate(m).getTime() >= Date.now()) ??
-    teamMatches.find((m) => snapshotMatches[matchSlug(m)]?.status !== "FINISHED") ??
+    listedMatches.find((m) => snapshotMatches[matchSlug(m)]?.status !== "FINISHED" && matchUtcDate(m).getTime() >= Date.now()) ??
+    listedMatches.find((m) => snapshotMatches[matchSlug(m)]?.status !== "FINISHED") ??
     null;
   const teamRow = standingsRows?.find((row) => row.teamKey === team.key);
   const hasPlayed = Boolean(teamRow && teamRow.played > 0);
@@ -65,21 +78,26 @@ export function TeamDetail({
       })
     : null;
 
-  const scorerText = (snap: SerializableSnapshotMatch | undefined) =>
-    snap?.scorers?.length
+  const scorerText = (m: Match) => {
+    const archiveEvents = getCanonicalArchiveEventsForMatch(eventsArchive, matchSlug(m));
+    if (archiveEvents.length > 0) return formatCanonicalGoalEvents(archiveEvents);
+    const snap = snapshotMatches?.[matchSlug(m)];
+    return snap?.scorers?.length
       ? snap.scorers
           .map((event) => `${event.minuteLabel ?? (event.minute != null ? `${event.minute}'` : "")} ${event.playerName}${event.isOwnGoal ? " (OG)" : event.isPenalty || event.type === "PENALTY_GOAL" ? " (P)" : ""}`.trim())
           .join(" · ")
       : null;
+  };
 
   const statusText = (m: Match) => {
     const snap = snapshotMatches[matchSlug(m)];
     if (!snap) return null;
-    if (snap.status === "FINISHED") return "FT";
-    if (snap.status === "LIVE") return "Live";
-    if (snap.status === "HALFTIME") return "HT";
-    if (snap.status === "SYNCING") return "Syncing";
-    return null;
+    return getMatchStatusLabel(getMatchPresentation({
+      match: m,
+      liveData: snap.live ?? undefined,
+      timeZone: "UTC",
+      now: new Date(ARCHIVE_DEFAULT_DATE),
+    }));
   };
 
   const scoreOrVs = (m: Match) => {
@@ -162,12 +180,14 @@ export function TeamDetail({
       </div>
 
       {/* ── 3 MATCHDAY CARDS ────────────────────────────────────────────── */}
-      {teamMatches.length > 0 && (
+      {listedMatches.length > 0 && (
         <div className="mt-3 grid grid-cols-3 gap-2 sm:gap-3">
-          {teamMatches.map((m, idx) => {
-            const isHome = m.homeKey === team.key;
-            const opponentKey = isHome ? m.awayKey : m.homeKey;
-            const opponentCode = isHome ? m.awayCode : m.homeCode;
+          {listedMatches.map((m, idx) => {
+            const resolvedHome = getResolvedHomeTeam(m, resolvedParticipants) ?? m.homeKey;
+            const resolvedAway = getResolvedAwayTeam(m, resolvedParticipants) ?? m.awayKey;
+            const isHome = resolvedHome === team.key;
+            const opponentKey = isHome ? resolvedAway : resolvedHome;
+            const opponentCode = TEAMS.find((candidate) => candidate.key === opponentKey)?.code ?? (isHome ? m.awayCode : m.homeCode);
             return (
               <Link
                 key={idx}
@@ -211,9 +231,9 @@ export function TeamDetail({
                     <MatchTime match={m} className="ml-1 font-semibold text-white/60" />
                   )}
                 </div>
-                {scorerText(snapshotMatches[matchSlug(m)]) ? (
+                {scorerText(m) ? (
                   <div className="mt-1 truncate text-[10px] text-white/40">
-                    Goals: {scorerText(snapshotMatches[matchSlug(m)])}
+                    Goals: {scorerText(m)}
                   </div>
                 ) : null}
               </Link>
@@ -221,7 +241,7 @@ export function TeamDetail({
           })}
         </div>
       )}
-      {teamMatches.length > 0 && <TimezoneLabel className="mt-2 text-[11px] text-white/45" />}
+      {listedMatches.length > 0 && <TimezoneLabel className="mt-2 text-[11px] text-white/45" />}
 
       {hasPlayed ? (
         <div className="mt-3 rounded-lg border border-white/10 bg-navyCard/70 px-4 py-3 text-sm text-white/70">
