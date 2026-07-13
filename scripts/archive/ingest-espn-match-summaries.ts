@@ -3,10 +3,10 @@ import path from 'path';
 import https from 'https';
 import crypto from 'crypto';
 
-const MAP_PATH = path.join(process.cwd(), 'data/archive/provenance/espn-match-map.candidate.json');
+const MAP_PATH = path.join(process.cwd(), 'data/archive/provenance/espn-match-map.json');
 const RAW_DIR = path.join(process.cwd(), 'data/archive/raw/espn/2026');
-const CHECKSUMS_PATH = path.join(process.cwd(), 'data/archive/provenance/checksums.candidate.json');
-const SOURCES_PATH = path.join(process.cwd(), 'data/archive/provenance/sources.candidate.json');
+const CHECKSUMS_PATH = path.join(process.cwd(), 'data/archive/provenance/checksums.json');
+const SOURCES_PATH = path.join(process.cwd(), 'data/archive/provenance/sources.json');
 
 const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
@@ -25,7 +25,12 @@ async function fetchSummary(eventId: string) {
 
 async function run() {
     const manifest = JSON.parse(fs.readFileSync(MAP_PATH, 'utf8'));
-    const mapped = manifest.filter((m: any) => m.espnEventId && m.mappingConfidence !== 'unresolved');
+    const requestedEventIds = new Set(process.argv.slice(2));
+    const mapped = manifest.filter((m: any) =>
+        m.espnEventId &&
+        m.mappingConfidence !== 'unresolved' &&
+        (requestedEventIds.size === 0 || requestedEventIds.has(String(m.espnEventId)))
+    );
 
     fs.mkdirSync(RAW_DIR, { recursive: true });
     

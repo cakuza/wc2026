@@ -20,5 +20,27 @@
     "rawSha256": "f6a817f7b26c9f53c84017c1633b4dbc156ecef9d8c14f62d9fad0f6257eefae",
     "parserVersion": "1.0",
     "notes": "Mapped via exact date/team match for match-98"
+  },
+  "760512": {
+    "sourceId": "espn",
+    "name": "ESPN Public API",
+    "endpointPattern": "https://site.api.espn.com/apis/site/v2/sports/soccer/fifa.world/summary?event={eventId}",
+    "accessMethod": "public_json",
+    "fetchedAt": "2026-07-12T18:54:37.844Z",
+    "rawPath": "data/archive/raw/espn/2026/760512.json",
+    "rawSha256": "1ca09e70089450acb365bf8aa88455c5539d1531447326e64907cef4f1d7416c",
+    "parserVersion": "1.0",
+    "notes": "Mapped via exact date/team match for match-99"
+  },
+  "760513": {
+    "sourceId": "espn",
+    "name": "ESPN Public API",
+    "endpointPattern": "https://site.api.espn.com/apis/site/v2/sports/soccer/fifa.world/summary?event={eventId}",
+    "accessMethod": "public_json",
+    "fetchedAt": "2026-07-12T18:54:39.154Z",
+    "rawPath": "data/archive/raw/espn/2026/760513.json",
+    "rawSha256": "d171cf933d32a2d98a9ba9966c42bc3838526a485fd10fd5535e15901c1c8b85",
+    "parserVersion": "1.0",
+    "notes": "Mapped via exact date/team match for match-100"
   }
 }
