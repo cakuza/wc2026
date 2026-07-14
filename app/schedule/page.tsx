@@ -33,6 +33,7 @@ export type ScheduleMatchScore = {
   status: LiveMatchStatus;
   homeScore: number | null;
   awayScore: number | null;
+  scoreDuration?: string | null;
   penaltyShootoutScore?: { home: number | null; away: number | null };
 };
 
@@ -44,6 +45,7 @@ export default async function SchedulePage() {
       status: data.status,
       homeScore: data.homeScore,
       awayScore: data.awayScore,
+      scoreDuration: data.scoreDuration,
       penaltyShootoutScore: data.penaltyShootoutScore ?? undefined,
     };
   }

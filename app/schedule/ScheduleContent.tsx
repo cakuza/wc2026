@@ -22,7 +22,7 @@ import { getMatchPresentation } from "@/lib/matchPresentation";
 import { formatGoalEventDisplay } from "@/lib/canonicalArchiveEvents";
 
 interface Props {
-  liveScores?: Record<string | number, Pick<LiveMatchData, "status" | "homeScore" | "awayScore" | "penaltyShootoutScore">>;
+  liveScores?: Record<string | number, Pick<LiveMatchData, "status" | "homeScore" | "awayScore" | "scoreDuration" | "penaltyShootoutScore">>;
   scorerLines?: Record<string, GoalScorerEvent[]>;
   resolvedParticipants?: ResolvedParticipantLookup;
   /** Route-owned timezone for static timezone schedule pages. */

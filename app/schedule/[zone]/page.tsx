@@ -50,12 +50,13 @@ export default async function TimezoneSchedulePage({
 
   const fixtureCount = MATCHES.length;
   const snapshot = await getTournamentLiveSnapshot();
-  const liveScores: Record<number, Pick<LiveMatchData, "status" | "homeScore" | "awayScore" | "penaltyShootoutScore">> = {};
+  const liveScores: Record<number, Pick<LiveMatchData, "status" | "homeScore" | "awayScore" | "scoreDuration" | "penaltyShootoutScore">> = {};
   for (const [id, data] of Object.entries(snapshot.liveDataByProviderId)) {
     liveScores[Number(id)] = {
       status: data.status,
       homeScore: data.homeScore,
       awayScore: data.awayScore,
+      scoreDuration: data.scoreDuration,
       penaltyShootoutScore: data.penaltyShootoutScore ?? undefined,
     };
   }

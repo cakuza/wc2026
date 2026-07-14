@@ -20,7 +20,11 @@ import { missingScorerDetailText, type GoalEventCompleteness } from "@/lib/goalE
 import { type SnapshotMatchStatus } from "@/lib/liveSnapshot";
 import { reconcileGoalEvents, isMatchInReconciliationWindow } from "@/lib/scoreReconciliation";
 import matchEventsData from "@/data/archive/match-events.json";
-import { getCanonicalArchiveEventsForMatch } from "@/lib/canonicalArchiveEvents";
+import {
+  formatEventDisplayMinute,
+  getCanonicalArchiveEventsForMatch,
+  getCanonicalGoalScoringTeam,
+} from "@/lib/canonicalArchiveEvents";
 import { isCanonicalComplete } from "@/lib/liveRefreshPolicy";
 import type { GoalScorerEvent } from "@/lib/worldcup26Provider";
 import { slugFor } from "@/lib/teams";
@@ -269,8 +273,10 @@ export function MatchDetail({
       type: e.eventType === 'own_goal' ? 'OWN_GOAL' : e.eventType === 'penalty_goal' ? 'PENALTY_GOAL' : 'GOAL',
       minute: e.minute ?? null,
       stoppageTime: e.stoppageMinute || null,
-      minuteLabel: `${e.minute}${e.stoppageMinute ? `+${e.stoppageMinute}` : ""}'`,
-      teamName: e.teamKey ?? null,
+      displayMinute: formatEventDisplayMinute(e),
+      minuteLabel: formatEventDisplayMinute(e),
+      teamName: getCanonicalGoalScoringTeam(e, homeKey, awayKey),
+      playerTeamName: e.eventType === 'own_goal' ? e.teamKey ?? null : undefined,
       playerName: e.playerName,
       assistName: e.assistPlayerName,
       isOwnGoal: e.eventType === 'own_goal',
