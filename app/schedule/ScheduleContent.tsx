@@ -1,6 +1,5 @@
 "use client";
 
-import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Flag } from "@/components/Flag";
 import { MatchTime } from "@/components/MatchTime";
@@ -63,17 +62,10 @@ function StatusPill({ status, label }: { status: "FT" | "LIVE" | "HT" | "SYNCING
   );
 }
 
-function shortScorerName(playerName: string) {
-  if (playerName.includes(".")) return playerName;
-  const parts = playerName.trim().split(/\s+/);
-  return parts[parts.length - 1] ?? playerName;
-}
-
 function ScorerText({ events }: { events: GoalScorerEvent[] }) {
   const parts = events.map((e) => {
     const minute = e.minuteLabel ?? (e.minute != null ? `${e.minute}'` : "");
-    const name = shortScorerName(e.playerName);
-    return `${minute ? `${minute} ` : ""}${name}${e.isOwnGoal ? " (OG)" : e.isPenalty || e.type === "PENALTY_GOAL" ? " (P)" : ""}`;
+    return `${minute ? `${minute} ` : ""}${e.playerName}${e.isOwnGoal ? " (OG)" : e.isPenalty || e.type === "PENALTY_GOAL" ? " (P)" : ""}`;
   });
   return <>{parts.join(" • ")}</>;
 }
@@ -83,14 +75,9 @@ export function ScheduleContent({ liveScores, scorerLines, resolvedParticipants 
   const { timeZone } = useTimezone();
   const tz = timeZone || "UTC";
 
-  const [now, setNow] = useState(new Date(ARCHIVE_DEFAULT_DATE));
-  const [hydrated, setHydrated] = useState(false);
-  useEffect(() => {
-    setNow(new Date());
-    setHydrated(true);
-  }, []);
-
-  const evalNow = hydrated ? now : new Date(ARCHIVE_DEFAULT_DATE);
+  // Keep static markup and hydrated content on the same archive snapshot.
+  // A refreshed snapshot, not the visitor's wall clock, advances this view.
+  const evalNow = new Date(ARCHIVE_DEFAULT_DATE);
 
   const live = MATCHES.filter((m) => {
     const pid = m.providerIds?.footballData;
@@ -229,12 +216,12 @@ export function ScheduleContent({ liveScores, scorerLines, resolvedParticipants 
             </div>
             
             {/* Mobile Layout */}
-            <div className="mt-2 flex items-center gap-2 sm:hidden text-xs text-white/50">
+            <div className="mt-2 flex items-center gap-2 sm:hidden text-xs text-white/50" aria-label={`Kickoff ${pres.displayKickoffTime}; ${m.venue ?? formatDate(m.date)}`}>
               <span className="font-semibold text-white/80" suppressHydrationWarning>
                 {pres.displayKickoffTime}
               </span>
               {statusPill}
-              <span className="truncate text-[11px] text-white/40">{m.venue}</span>
+              <span className="truncate text-[11px] text-white/40">{m.venue ?? formatDate(m.date)}</span>
             </div>
           </Link>
         );
