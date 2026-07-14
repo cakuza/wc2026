@@ -13,6 +13,7 @@ import {
 } from "@/lib/todaySelection";
 import { ARCHIVE_DEFAULT_DATE } from "@/lib/matches";
 import type { MatchCenterLiveSnapshot } from "@/components/MatchCenterContent";
+import type { TournamentPhase } from "@/lib/matchCenterSelection";
 
 const MIDNIGHT_CONTINUITY_END_HOUR = 3;
 
@@ -31,12 +32,14 @@ export function TodayContent({
   liveDataUnavailableByMatchId,
   dateParam,
   selectedTimeZone,
+  tournamentPhase,
 }: {
   snapshot: MatchCenterLiveSnapshot;
   isFallbackSnapshot: boolean;
   liveDataUnavailableByMatchId: Record<string, boolean>;
   dateParam?: string;
   selectedTimeZone: string;
+  tournamentPhase: TournamentPhase;
 }) {
   const resolved = resolveSelectedMatchday({ dateParam, timeZone: selectedTimeZone });
   const selectedMatches = getMatchesForDateInZone({ date: resolved.date, timeZone: selectedTimeZone });
@@ -108,7 +111,7 @@ export function TodayContent({
 
       {!resolved.isExplicitDate ? (
         <div className="mt-8">
-          <MatchCenterContent liveSnapshot={snapshot} />
+          <MatchCenterContent liveSnapshot={snapshot} mode="current" tournamentPhase={tournamentPhase} />
         </div>
       ) : (
         <>

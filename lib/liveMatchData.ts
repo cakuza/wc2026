@@ -28,6 +28,7 @@ export type LiveMatchEvent = {
   minute: number | null;
   stoppageTime?: number | null;
   minuteLabel?: string;
+  displayMinute?: string;
   teamName: string | null;
   playerTeamName?: string | null;
   playerName: string | null;

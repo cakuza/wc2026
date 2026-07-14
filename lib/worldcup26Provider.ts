@@ -17,6 +17,7 @@ export type GoalScorerEvent = {
   minute: number | null;
   stoppageTime?: number | null;
   minuteLabel?: string;
+  displayMinute?: string;
   teamName: string;
   playerTeamName?: string;
   playerName: string;

@@ -19,6 +19,7 @@ import {
 } from "@/lib/participant-resolution";
 import type { GoalScorerEvent } from "@/lib/worldcup26Provider";
 import { getMatchPresentation } from "@/lib/matchPresentation";
+import { formatGoalEventDisplay } from "@/lib/canonicalArchiveEvents";
 
 interface Props {
   liveScores?: Record<string | number, Pick<LiveMatchData, "status" | "homeScore" | "awayScore" | "penaltyShootoutScore">>;
@@ -63,11 +64,7 @@ function StatusPill({ status, label }: { status: "FT" | "LIVE" | "HT" | "SYNCING
 }
 
 function ScorerText({ events }: { events: GoalScorerEvent[] }) {
-  const parts = events.map((e) => {
-    const minute = e.minuteLabel ?? (e.minute != null ? `${e.minute}'` : "");
-    return `${minute ? `${minute} ` : ""}${e.playerName}${e.isOwnGoal ? " (OG)" : e.isPenalty || e.type === "PENALTY_GOAL" ? " (P)" : ""}`;
-  });
-  return <>{parts.join(" • ")}</>;
+  return <>{events.map(formatGoalEventDisplay).join(" • ")}</>;
 }
 
 export function ScheduleContent({ liveScores, scorerLines, resolvedParticipants }: Props) {
@@ -206,22 +203,13 @@ export function ScheduleContent({ liveScores, scorerLines, resolvedParticipants 
                 )}
               </div>
 
-              <div data-schedule-right-meta className="hidden w-32 shrink-0 text-end text-xs text-white/50 sm:flex sm:flex-col sm:items-end sm:gap-1.5">
+              <div data-schedule-meta className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1 text-xs text-white/50 sm:w-32 sm:shrink-0 sm:flex-col sm:items-end sm:gap-1.5 sm:text-end">
                 <span className="font-semibold text-white/80" suppressHydrationWarning>
                   {pres.displayKickoffTime}
                 </span>
-                {statusPill && <div>{statusPill}</div>}
-                <div className="truncate max-w-full">{m.venue ?? formatDate(m.date)}</div>
+                {statusPill}
+                <span className="min-w-0 truncate sm:max-w-full">{m.venue ?? formatDate(m.date)}</span>
               </div>
-            </div>
-            
-            {/* Mobile Layout */}
-            <div className="mt-2 flex items-center gap-2 sm:hidden text-xs text-white/50" aria-label={`Kickoff ${pres.displayKickoffTime}; ${m.venue ?? formatDate(m.date)}`}>
-              <span className="font-semibold text-white/80" suppressHydrationWarning>
-                {pres.displayKickoffTime}
-              </span>
-              {statusPill}
-              <span className="truncate text-[11px] text-white/40">{m.venue ?? formatDate(m.date)}</span>
             </div>
           </Link>
         );

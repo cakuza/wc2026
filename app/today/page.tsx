@@ -8,6 +8,8 @@ import { buildKnockoutResolution } from "@/lib/knockoutResolution";
 import { TodayContent } from "@/components/TodayContent";
 import { TodayClientWrapper } from "@/components/TodayClientWrapper";
 import { DEFAULT_TIMEZONE } from "@/lib/timezone";
+import { ARCHIVE_DEFAULT_DATE, MATCHES } from "@/lib/matches";
+import { getTournamentPhase } from "@/lib/matchCenterSelection";
 
 const BASE_URL = "https://www.worldcupmatchday.com";
 
@@ -86,6 +88,11 @@ export default async function TodayPage() {
   const liveDataUnavailableByMatchId = Object.fromEntries(
     Object.entries(snapshot.matches).map(([id, entry]) => [id, Boolean(entry.liveDataUnavailable)]),
   );
+  const tournamentPhase = getTournamentPhase({
+    matches: MATCHES,
+    liveData,
+    now: new Date(ARCHIVE_DEFAULT_DATE),
+  });
 
   return (
     <>
@@ -102,12 +109,14 @@ export default async function TodayPage() {
           liveDataUnavailableByMatchId={liveDataUnavailableByMatchId}
           dateParam={undefined}
           selectedTimeZone={DEFAULT_TIMEZONE}
+          tournamentPhase={tournamentPhase}
         />
       }>
         <TodayClientWrapper
           snapshot={matchCenterSnapshot}
           isFallbackSnapshot={isFallbackSnapshot}
           liveDataUnavailableByMatchId={liveDataUnavailableByMatchId}
+          tournamentPhase={tournamentPhase}
         />
       </Suspense>
 

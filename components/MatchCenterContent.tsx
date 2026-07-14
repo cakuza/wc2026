@@ -14,6 +14,7 @@ import { getParticipantDisplay, type ResolvedParticipantLookup } from "@/lib/par
 import type { LiveMatchData } from "@/lib/liveMatchData";
 import type { GoalScorerEvent } from "@/lib/worldcup26Provider";
 import { reconcileGoalEvents } from "@/lib/scoreReconciliation";
+import { formatGoalEventDisplay } from "@/lib/canonicalArchiveEvents";
 
 export type MatchCenterLiveSnapshot = {
   snapshotId: string;
@@ -27,12 +28,7 @@ export type MatchCenterLiveSnapshot = {
 
 function scorerText(events: GoalScorerEvent[] | undefined) {
   if (!events || events.length === 0) return null;
-  return events
-    .map((e) => {
-      const minute = e.minuteLabel ?? (e.minute != null ? `${e.minute}'` : "");
-      return `${minute ? `${minute} ` : ""}${e.playerName}${e.isOwnGoal ? " (OG)" : e.isPenalty || e.type === "PENALTY_GOAL" ? " (P)" : ""}`;
-    })
-    .join(" • ");
+  return events.map(formatGoalEventDisplay).join(" • ");
 }
 
 function MatchRow({
@@ -136,7 +132,7 @@ export function MatchCenterContent({
   tournamentPhase,
 }: {
   liveSnapshot: MatchCenterLiveSnapshot;
-  mode?: "standard" | "homepage";
+  mode?: "standard" | "homepage" | "current";
   tournamentPhase?: TournamentPhase;
 }) {
   const { t } = useLang();
@@ -154,7 +150,7 @@ export function MatchCenterContent({
     timeZone: tz,
     now: now
   });
-  const homepageSnapshot = mode === "homepage" && tournamentPhase
+  const phaseSnapshot = (mode === "homepage" || mode === "current") && tournamentPhase
     ? getHomepageMatchCenterSnapshot({
         matches: MATCHES,
         liveData: liveSnapshot.liveDataByProviderId,
@@ -174,20 +170,20 @@ export function MatchCenterContent({
     />
   );
 
-  if (homepageSnapshot) {
+  if (phaseSnapshot) {
     return (
       <div className="rounded-xl border border-white/10 bg-navyCard p-5 shadow-2xl sm:p-6">
         <div className="space-y-6">
           <section>
             <h2 className="mb-3 font-heading text-[11px] font-bold uppercase tracking-widest text-white/40">Quarterfinal Results</h2>
             <div className="flex flex-col gap-2">
-              {homepageSnapshot.completedPreviousRound.map(renderRow)}
+              {phaseSnapshot.completedPreviousRound.map(renderRow)}
             </div>
           </section>
           <section>
             <h2 className="mb-3 font-heading text-[11px] font-bold uppercase tracking-widest text-white/40">Semifinals</h2>
             <div className="flex flex-col gap-2">
-              {homepageSnapshot.upcomingCurrentRound.map(renderRow)}
+              {phaseSnapshot.upcomingCurrentRound.map(renderRow)}
             </div>
           </section>
         </div>
