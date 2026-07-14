@@ -155,13 +155,15 @@ async function run() {
 
   const teamDetailSource = fs.readFileSync("components/TeamDetail.tsx", "utf8");
   const teamPageSource = fs.readFileSync("app/teams/[slug]/page.tsx", "utf8");
+  const teamTournamentStatusSource = fs.readFileSync("lib/teamTournamentStatus.ts", "utf8");
   const matchDetailSource = fs.readFileSync("components/MatchDetail.tsx", "utf8");
   assert.ok(teamDetailSource.includes("getCanonicalArchiveEventsForMatch(eventsArchive, matchSlug(m))"));
   assert.ok(teamDetailSource.includes("formatCanonicalGoalEvents(archiveEvents)"));
   assert.ok(teamDetailSource.includes("getMatchStatusLabel(getMatchPresentation({"));
   assert.ok(teamPageSource.includes("teamMatches={teamMatches}"));
   assert.ok(teamPageSource.includes("eventsArchive={matchEventsData}"));
-  assert.ok(teamPageSource.includes("getResolvedHomeTeam(match, resolvedParticipants)"));
+  assert.ok(teamPageSource.includes("getTeamTournamentStatus("));
+  assert.ok(teamTournamentStatusSource.includes("getResolvedHomeTeam(match, resolvedParticipants)"));
   assert.ok(matchDetailSource.includes("getCanonicalArchiveEventsForMatch(matchEventsData, matchSlug(match))"));
   assert.ok(matchDetailSource.includes("eventType === 'second_yellow' ? 'SECOND_YELLOW'"));
   assert.ok(matchDetailSource.includes('t("lbl_second_yellow")'));
