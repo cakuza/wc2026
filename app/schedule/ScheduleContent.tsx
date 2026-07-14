@@ -25,6 +25,8 @@ interface Props {
   liveScores?: Record<string | number, Pick<LiveMatchData, "status" | "homeScore" | "awayScore" | "penaltyShootoutScore">>;
   scorerLines?: Record<string, GoalScorerEvent[]>;
   resolvedParticipants?: ResolvedParticipantLookup;
+  /** Route-owned timezone for static timezone schedule pages. */
+  timeZone?: string;
 }
 
 function StatusPill({ status, label }: { status: "FT" | "LIVE" | "HT" | "SYNCING" | "AET" | "PEN"; label?: string }) {
@@ -67,10 +69,10 @@ function ScorerText({ events }: { events: GoalScorerEvent[] }) {
   return <>{events.map(formatGoalEventDisplay).join(" • ")}</>;
 }
 
-export function ScheduleContent({ liveScores, scorerLines, resolvedParticipants }: Props) {
+export function ScheduleContent({ liveScores, scorerLines, resolvedParticipants, timeZone: fixedTimeZone }: Props) {
   const { t, country, formatDate, locale, lang } = useLang();
   const { timeZone } = useTimezone();
-  const tz = timeZone || "UTC";
+  const tz = fixedTimeZone ?? timeZone ?? "UTC";
 
   // Keep static markup and hydrated content on the same archive snapshot.
   // A refreshed snapshot, not the visitor's wall clock, advances this view.

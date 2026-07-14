@@ -2,7 +2,7 @@
 
 import { useTimezone } from "@/components/TimezoneProvider";
 import { COMMON_TIMEZONES, formatTimeZoneLabel } from "@/lib/timezone";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 
 /**
  * Compact "Times shown in <timezone>" label, reflecting the shared TimezoneProvider state.
@@ -22,20 +22,17 @@ export function TimezoneLabel({ className }: { className?: string }) {
  * "Times shown in <timezone>" label + a small <select> letting the viewer override the
  * detected/saved timezone. Selection is persisted via TimezoneProvider (localStorage).
  */
-import { Suspense } from "react";
-
 function TimezonePickerInner({ className }: { className?: string }) {
   const { timeZone, setTimeZone } = useTimezone();
   const pathname = usePathname();
   const router = useRouter();
-  const searchParams = useSearchParams();
   const options = COMMON_TIMEZONES.includes(timeZone)
     ? COMMON_TIMEZONES
     : [timeZone, ...COMMON_TIMEZONES];
 
   function handleTimezoneChange(nextTimeZone: string) {
     setTimeZone(nextTimeZone);
-    const params = new URLSearchParams(searchParams.toString());
+    const params = new URLSearchParams(window.location.search);
     params.set("tz", nextTimeZone);
     router.replace(`${pathname}?${params.toString()}`, { scroll: false });
   }
@@ -61,9 +58,5 @@ function TimezonePickerInner({ className }: { className?: string }) {
 }
 
 export function TimezonePicker({ className }: { className?: string }) {
-  return (
-    <Suspense fallback={<div className={className ?? "flex flex-wrap items-center gap-2 text-[11px] text-white/55"}><span suppressHydrationWarning>Loading timezone...</span></div>}>
-      <TimezonePickerInner className={className} />
-    </Suspense>
-  );
+  return <TimezonePickerInner className={className} />;
 }
