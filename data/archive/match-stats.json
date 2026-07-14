@@ -4098,5 +4098,46 @@
     },
     "sourceId": "espn",
     "confidence": "source_single"
+  },
+  {
+    "matchId": "match-101",
+    "possession": {
+      "home": 49.1,
+      "away": 50.9
+    },
+    "shots": {
+      "home": 10,
+      "away": 10
+    },
+    "shotsOnTarget": {
+      "home": 3,
+      "away": 2
+    },
+    "corners": {
+      "home": 7,
+      "away": 1
+    },
+    "fouls": {
+      "home": 11,
+      "away": 12
+    },
+    "yellowCards": {
+      "home": 2,
+      "away": 1
+    },
+    "redCards": {
+      "home": 0,
+      "away": 0
+    },
+    "saves": {
+      "home": 0,
+      "away": 3
+    },
+    "offsides": {
+      "home": 4,
+      "away": 5
+    },
+    "sourceId": "espn",
+    "confidence": "source_single"
   }
 ]
