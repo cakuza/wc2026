@@ -193,6 +193,31 @@ function resultIsConfirmed(result: CompletedResult, generatedAt: string): boolea
   return Number.isFinite(generatedAtMs) && Number.isFinite(confirmedAtMs) && generatedAtMs >= confirmedAtMs;
 }
 
+/**
+ * Archive events use 90+N for stoppage time but continue from 91 in extra
+ * time. Preserve that stronger event-timeline evidence when an older result
+ * record only says "regular"; this remains data-driven for every match.
+ */
+function resultWithArchiveDurationEvidence(
+  result: CompletedResult,
+  live: LiveMatchData | undefined,
+): CompletedResult {
+  // Explicit non-regular durations remain authoritative. A regular duration
+  // may be an older fallback record, so a canonical 91+ archive event can
+  // still correct it; normal-time stoppage remains minute 90 with stoppage.
+  if (result.scoreDuration === "PENALTY_SHOOTOUT") return result;
+  if (live?.scoreDuration === "EXTRA_TIME") {
+    return { ...result, scoreDuration: "EXTRA_TIME" };
+  }
+  if (live?.scoreDuration === "PENALTY_SHOOTOUT") {
+    return { ...result, scoreDuration: "PENALTY_SHOOTOUT" };
+  }
+  const archiveShowsExtraTime =
+    (live?.goals ?? []).some((event) => (event.minute ?? 0) > 90);
+  if (result.scoreDuration !== "REGULAR" || !archiveShowsExtraTime) return result;
+  return { ...result, scoreDuration: "EXTRA_TIME" };
+}
+
 function isNonScoreBearingStatus(status: LiveMatchData["status"]): boolean {
   return (
     status === "SCHEDULED" ||
@@ -236,7 +261,9 @@ export function applyCanonicalMatchResultFallback(
   const groupCompleted = providerId !== null ? COMPLETED_GROUP_RESULTS[providerId] : undefined;
   const completed = knockoutCompleted ?? groupCompleted;
   
-  if (completed && resultIsConfirmed(completed, generatedAt) && shouldUseCompletedFallback(live, completed)) {
+  const presentationResult = completed ? resultWithArchiveDurationEvidence(completed, live) : undefined;
+
+  if (presentationResult && resultIsConfirmed(presentationResult, generatedAt) && shouldUseCompletedFallback(live, presentationResult)) {
     const goals = live?.goals ?? [];
     return {
       ...(live ?? {
@@ -247,17 +274,17 @@ export function applyCanonicalMatchResultFallback(
       provider: "football-data.org",
       providerMatchId: providerId,
       status: "FINISHED",
-      homeScore: completed.homeScore,
-      awayScore: completed.awayScore,
-      winner: completed.winner,
-      scoreDuration: completed.scoreDuration,
-      regularTimeScore: completed.regularTimeScore ?? live?.regularTimeScore,
-      extraTimeScore: completed.extraTimeScore ?? live?.extraTimeScore,
-      penaltyShootoutScore: completed.penaltyShootoutScore ?? live?.penaltyShootoutScore,
+      homeScore: presentationResult.homeScore,
+      awayScore: presentationResult.awayScore,
+      winner: presentationResult.winner,
+      scoreDuration: presentationResult.scoreDuration,
+      regularTimeScore: presentationResult.regularTimeScore ?? live?.regularTimeScore,
+      extraTimeScore: presentationResult.extraTimeScore ?? live?.extraTimeScore,
+      penaltyShootoutScore: presentationResult.penaltyShootoutScore ?? live?.penaltyShootoutScore,
       lastSyncedAt: live?.lastSyncedAt ?? generatedAt,
       goalEventCompleteness: getGoalEventCompleteness({
-        homeScore: completed.homeScore,
-        awayScore: completed.awayScore,
+        homeScore: presentationResult.homeScore,
+        awayScore: presentationResult.awayScore,
         goals,
         eventDataAvailable: Boolean(live?.eventDataAvailable),
       }),

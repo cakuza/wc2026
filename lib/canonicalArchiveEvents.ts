@@ -1,3 +1,5 @@
+import { normalizeTeamName } from "./scoreReconciliation";
+
 type CanonicalArchiveEvent = {
   matchId: string;
   eventType: string;
@@ -8,6 +10,24 @@ type CanonicalArchiveEvent = {
   assistPlayerName?: string;
   relatedPlayerName?: string;
 };
+
+/**
+ * Archive own-goal rows name the player's team, not the team credited with
+ * the goal. Resolve the credited side only when both canonical participants
+ * are known; otherwise leave it unknown instead of guessing.
+ */
+export function getCanonicalGoalScoringTeam(
+  event: Pick<CanonicalArchiveEvent, "eventType" | "teamKey">,
+  homeTeamKey: string | null | undefined,
+  awayTeamKey: string | null | undefined,
+): string | null {
+  if (event.eventType !== "own_goal") return event.teamKey ?? null;
+  if (!event.teamKey || !homeTeamKey || !awayTeamKey) return null;
+  const eventTeam = normalizeTeamName(event.teamKey);
+  if (eventTeam === normalizeTeamName(homeTeamKey)) return awayTeamKey;
+  if (eventTeam === normalizeTeamName(awayTeamKey)) return homeTeamKey;
+  return null;
+}
 
 type DisplayableGoalEvent = {
   playerName: string;
