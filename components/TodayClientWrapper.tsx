@@ -1,6 +1,5 @@
 "use client";
 
-import { useSearchParams } from "next/navigation";
 import { useTimezone } from "@/components/TimezoneProvider";
 import { TodayContent } from "@/components/TodayContent";
 import { DEFAULT_TIMEZONE } from "@/lib/timezone";
@@ -18,8 +17,6 @@ export function TodayClientWrapper({
   liveDataUnavailableByMatchId: Record<string, boolean>;
   tournamentPhase: TournamentPhase;
 }) {
-  const searchParams = useSearchParams();
-  const dateParam = searchParams.get("date") || undefined;
   const { timeZone } = useTimezone();
   const selectedTimeZone = timeZone || DEFAULT_TIMEZONE;
 
@@ -28,7 +25,7 @@ export function TodayClientWrapper({
       snapshot={snapshot}
       isFallbackSnapshot={isFallbackSnapshot}
       liveDataUnavailableByMatchId={liveDataUnavailableByMatchId}
-      dateParam={dateParam}
+      dateParam={undefined}
       selectedTimeZone={selectedTimeZone}
       tournamentPhase={tournamentPhase}
     />

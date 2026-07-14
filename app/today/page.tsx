@@ -1,13 +1,10 @@
 import type { Metadata } from "next";
-import { Suspense } from "react";
 import { LiveSnapshotDebug } from "@/components/LiveSnapshotDebug";
 import type { GoalScorerEvent } from "@/lib/worldcup26Provider";
 import type { MatchCenterLiveSnapshot } from "@/components/MatchCenterContent";
 import { getTournamentLiveSnapshot } from "@/lib/liveSnapshot";
 import { buildKnockoutResolution } from "@/lib/knockoutResolution";
-import { TodayContent } from "@/components/TodayContent";
 import { TodayClientWrapper } from "@/components/TodayClientWrapper";
-import { DEFAULT_TIMEZONE } from "@/lib/timezone";
 import { ARCHIVE_DEFAULT_DATE, MATCHES } from "@/lib/matches";
 import { getTournamentPhase } from "@/lib/matchCenterSelection";
 
@@ -102,23 +99,12 @@ export default async function TodayPage() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(faqLd) }}
       />
 
-      <Suspense fallback={
-        <TodayContent
-          snapshot={matchCenterSnapshot}
-          isFallbackSnapshot={isFallbackSnapshot}
-          liveDataUnavailableByMatchId={liveDataUnavailableByMatchId}
-          dateParam={undefined}
-          selectedTimeZone={DEFAULT_TIMEZONE}
-          tournamentPhase={tournamentPhase}
-        />
-      }>
-        <TodayClientWrapper
-          snapshot={matchCenterSnapshot}
-          isFallbackSnapshot={isFallbackSnapshot}
-          liveDataUnavailableByMatchId={liveDataUnavailableByMatchId}
-          tournamentPhase={tournamentPhase}
-        />
-      </Suspense>
+      <TodayClientWrapper
+        snapshot={matchCenterSnapshot}
+        isFallbackSnapshot={isFallbackSnapshot}
+        liveDataUnavailableByMatchId={liveDataUnavailableByMatchId}
+        tournamentPhase={tournamentPhase}
+      />
 
       {/* FAQ */}
       <div className="mx-auto max-w-4xl px-4 pb-8">

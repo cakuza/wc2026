@@ -4,8 +4,9 @@ import { TimezoneSchedulePageContent } from "@/components/TimezoneSchedulePageCo
 import { TIMEZONE_SLUGS, timezoneBySlug } from "@/lib/timezones";
 import { MATCHES } from "@/lib/matches";
 import { getTournamentLiveSnapshot } from "@/lib/liveSnapshot";
-import type { LiveMatchStatus } from "@/lib/liveMatchData";
+import type { LiveMatchData } from "@/lib/liveMatchData";
 import type { GoalScorerEvent } from "@/lib/worldcup26Provider";
+import { buildKnockoutResolution } from "@/lib/knockoutResolution";
 
 const BASE_URL = "https://www.worldcupmatchday.com";
 
@@ -49,9 +50,14 @@ export default async function TimezoneSchedulePage({
 
   const fixtureCount = MATCHES.length;
   const snapshot = await getTournamentLiveSnapshot();
-  const liveScores: Record<number, { status: LiveMatchStatus; homeScore: number | null; awayScore: number | null }> = {};
+  const liveScores: Record<number, Pick<LiveMatchData, "status" | "homeScore" | "awayScore" | "penaltyShootoutScore">> = {};
   for (const [id, data] of Object.entries(snapshot.liveDataByProviderId)) {
-    liveScores[Number(id)] = { status: data.status, homeScore: data.homeScore, awayScore: data.awayScore };
+    liveScores[Number(id)] = {
+      status: data.status,
+      homeScore: data.homeScore,
+      awayScore: data.awayScore,
+      penaltyShootoutScore: data.penaltyShootoutScore ?? undefined,
+    };
   }
   const scorerLines: Record<string, GoalScorerEvent[]> = {};
   for (const [id, entry] of Object.entries(snapshot.matches)) {
@@ -98,7 +104,13 @@ export default async function TimezoneSchedulePage({
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(faqLd) }}
       />
-      <TimezoneSchedulePageContent zone={z} fixtureCount={fixtureCount} liveScores={liveScores} scorerLines={scorerLines} />
+      <TimezoneSchedulePageContent
+        zone={z}
+        fixtureCount={fixtureCount}
+        liveScores={liveScores}
+        scorerLines={scorerLines}
+        resolvedParticipants={buildKnockoutResolution(snapshot.matches)}
+      />
     </>
   );
 }

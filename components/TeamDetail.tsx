@@ -7,7 +7,7 @@ import { TimezoneLabel } from "@/components/TimezoneLabel";
 import { useLang } from "@/components/LanguageProvider";
 import { slugFor, withArticle, TEAMS, type Team } from "@/lib/teams";
 import type { Match } from "@/lib/matches";
-import { ARCHIVE_DEFAULT_DATE, matchSlug, matchUtcDate } from "@/lib/matches";
+import { ARCHIVE_DEFAULT_DATE, matchSlug } from "@/lib/matches";
 import { squadByPosition } from "@/lib/squads";
 import { StandingsTable } from "@/components/StandingsTable";
 import type { SerializableSnapshotMatch } from "@/lib/liveSnapshot";
@@ -17,6 +17,7 @@ import { firstMatchResultSentence, playedGroupSummary } from "@/lib/teamCopy";
 import { formatCanonicalGoalEvents, getCanonicalArchiveEventsForMatch } from "@/lib/canonicalArchiveEvents";
 import { getResolvedAwayTeam, getResolvedHomeTeam, type ResolvedParticipantLookup } from "@/lib/participant-resolution";
 import { getMatchPresentation, getMatchStatusLabel } from "@/lib/matchPresentation";
+import { getTeamTournamentStatus } from "@/lib/teamTournamentStatus";
 
 function formatSquadValue(millions: number): string {
   return millions >= 1000 ? `€${(millions / 1000).toFixed(2)}B` : `€${millions}M`;
@@ -53,22 +54,19 @@ export function TeamDetail({
   const squad = squadByPosition(team.key);
   const pathSlots = pathSlotsForGroup(team.group);
 
-  const listedMatches = teamMatches
-    .filter((m) =>
-      m.homeKey === team.key ||
-      m.awayKey === team.key ||
-      getResolvedHomeTeam(m, resolvedParticipants) === team.key ||
-      getResolvedAwayTeam(m, resolvedParticipants) === team.key,
-    )
-    .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
-  const hasKnockoutJourney = listedMatches.some((match) => "matchNumber" in match);
-  const nextListedMatch =
-    listedMatches.find((m) => snapshotMatches[matchSlug(m)]?.status !== "FINISHED" && matchUtcDate(m).getTime() >= new Date(ARCHIVE_DEFAULT_DATE).getTime()) ??
-    listedMatches.find((m) => snapshotMatches[matchSlug(m)]?.status !== "FINISHED") ??
-    null;
+  const tournamentStatus = getTeamTournamentStatus({
+    teamKey: team.key,
+    matches: teamMatches,
+    snapshotMatches,
+    resolvedParticipants,
+  });
+  const { listedMatches, hasKnockoutJourney, nextMatch: nextListedMatch } = tournamentStatus;
   const teamRow = standingsRows?.find((row) => row.teamKey === team.key);
   const hasPlayed = Boolean(teamRow && teamRow.played > 0);
   const teamDisplayName = country(team.key);
+  const nextFixtureLabel = nextListedMatch
+    ? `${country(getResolvedHomeTeam(nextListedMatch, resolvedParticipants) ?? nextListedMatch.homeKey)} ${t("vs")} ${country(getResolvedAwayTeam(nextListedMatch, resolvedParticipants) ?? nextListedMatch.awayKey)}`
+    : null;
   const playedSummary = teamRow
     ? playedGroupSummary({
         teamName: teamDisplayName,
@@ -160,13 +158,15 @@ export function TeamDetail({
         <div className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-4 px-6 pb-6 sm:px-8 sm:pb-7">
           <div>
             <p className="mb-1 font-heading text-[11px] font-extrabold uppercase tracking-[0.28em] text-accent">
-              {t("team_road_to")}
+              {hasKnockoutJourney
+                ? `${teamDisplayName} · ${tournamentStatus.currentStageLabel ?? "Knockout stage"}`
+                : t("team_road_to")}
             </p>
             <h1 className="font-heading text-[60px] font-black uppercase leading-none text-white sm:text-[80px]">
               {country(team.key)}
             </h1>
             <p className="mt-1.5 font-heading text-xs font-bold uppercase tracking-[0.18em] text-white/50">
-              {t("lbl_group")} {team.group} · {t("team_matchdays")}
+              {hasKnockoutJourney ? "2026 Tournament Run" : `${t("lbl_group")} ${team.group} · ${t("team_matchdays")}`}
             </p>
           </div>
 
@@ -188,10 +188,10 @@ export function TeamDetail({
       <section className="mt-6" aria-labelledby="team-journey-heading">
         <div className="mb-3 flex flex-wrap items-end justify-between gap-3">
           <div>
-            <h2 id="team-journey-heading" className="font-heading text-2xl font-extrabold uppercase tracking-wide text-white">Tournament journey</h2>
+            <h2 id="team-journey-heading" className="font-heading text-2xl font-extrabold uppercase tracking-wide text-white">{hasKnockoutJourney ? "2026 Tournament Run" : "Tournament journey"}</h2>
             <p className="mt-1 text-sm text-white/55">{hasKnockoutJourney ? "Group stage and knockout fixtures" : "Group-stage fixtures and results"}</p>
           </div>
-          {nextListedMatch ? <span className="rounded bg-accent/15 px-2 py-1 font-heading text-[10px] font-extrabold uppercase tracking-wider text-accent">Next: {fixtureStage(nextListedMatch)}</span> : null}
+          {nextListedMatch && nextFixtureLabel ? <span className="rounded bg-accent/15 px-2 py-1 font-heading text-[10px] font-extrabold uppercase tracking-wider text-accent">Next: {nextFixtureLabel}</span> : null}
         </div>
       {listedMatches.length > 0 && (
         <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
@@ -442,7 +442,7 @@ export function TeamDetail({
       {/* ── STANDINGS ───────────────────────────────────────────────────── */}
       <section className="mt-8">
         <h2 className="mb-4 font-heading text-2xl font-extrabold uppercase tracking-wide text-white">
-          {t("sec_standings")} · {t("lbl_group")} {team.group}
+          {hasKnockoutJourney ? "Group-stage history" : t("sec_standings")} · {t("lbl_group")} {team.group}
         </h2>
         <div className="overflow-hidden rounded-xl border border-white/10 bg-navyCard">
           <StandingsTable teams={groupTeams} rows={standingsRows} currentTeamKey={team.key} />

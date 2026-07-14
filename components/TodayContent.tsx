@@ -3,11 +3,9 @@ import { TimezonePicker } from "@/components/TimezoneLabel";
 import { FreshnessLabel } from "@/components/FreshnessLabel";
 import { MatchdayDateNav } from "@/components/MatchdayDateNav";
 import { LiveDataUnavailableNotice } from "@/components/LiveDataUnavailableNotice";
-import { TodayPageLiveSection } from "@/components/TodayPageLiveSection";
 import { MatchCenterContent } from "@/components/MatchCenterContent";
 import {
   resolveSelectedMatchday,
-  getMatchesForDateInZone,
   localHourInTimeZone,
   previousMatchdayWithMatches,
 } from "@/lib/todaySelection";
@@ -42,10 +40,6 @@ export function TodayContent({
   tournamentPhase: TournamentPhase;
 }) {
   const resolved = resolveSelectedMatchday({ dateParam, timeZone: selectedTimeZone });
-  const selectedMatches = getMatchesForDateInZone({ date: resolved.date, timeZone: selectedTimeZone });
-  const hasSelectedMatches = selectedMatches.length > 0;
-
-  const isToday = resolved.isToday;
 
   const localHour = localHourInTimeZone(new Date(ARCHIVE_DEFAULT_DATE), selectedTimeZone);
   const inMidnightWindow = localHour >= 0 && localHour < MIDNIGHT_CONTINUITY_END_HOUR;
@@ -109,32 +103,9 @@ export function TodayContent({
         </Link>
       )}
 
-      {!resolved.isExplicitDate ? (
-        <div className="mt-8">
-          <MatchCenterContent liveSnapshot={snapshot} mode="current" tournamentPhase={tournamentPhase} />
-        </div>
-      ) : (
-        <>
-          {hasSelectedMatches ? (
-            <TodayPageLiveSection
-              days={[{ date: resolved.date, matches: selectedMatches }]}
-              summaryMatches={selectedMatches}
-              isToday={isToday}
-              showUpcomingFallback={false}
-              initialSnapshot={snapshot}
-              initialLiveDataUnavailableByMatchId={liveDataUnavailableByMatchId}
-              longDate={{ [resolved.date]: longDate(resolved.date) }}
-            />
-          ) : (
-            <div className="mb-6 rounded-xl border border-white/10 bg-navyCard px-4 py-4 text-sm text-white/60">
-              <p className="font-semibold text-white/80">No World Cup matches on this date.</p>
-              <p className="mt-1">Use the date controls above to find another matchday, or see the full {" "}
-                <Link href="/schedule" className="font-semibold text-accent underline underline-offset-2 hover:text-white">match schedule</Link>.
-              </p>
-            </div>
-          )}
-        </>
-      )}
+      <div className="mt-8">
+        <MatchCenterContent liveSnapshot={snapshot} mode="current" tournamentPhase={tournamentPhase} />
+      </div>
 
       {/* Quick links */}
       <div className="mt-8 flex flex-wrap gap-3 text-sm">

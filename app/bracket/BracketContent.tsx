@@ -27,7 +27,7 @@ function firstTop(r: number): number {
   return firstTop(r - 1) + slotH(r - 1) / 2;
 }
 
-const NUM_ROUNDS = 5;                                   // R32 · R16 · QF · SF · Final
+const NUM_ROUNDS = 4;                                   // R32 · R16 · QF · SF
 const LABEL_H  = 28;                                    // height reserved for round label above bracket
 const CANVAS_H = 16 * BASE_SLOT + LABEL_H;             // 16 R32 slots + label row
 const CANVAS_W = NUM_ROUNDS * CARD_W + (NUM_ROUNDS - 1) * CON_W; // total canvas width
@@ -153,7 +153,6 @@ export function BracketContent({ resolvedParticipants, tournamentPhase }: { reso
     ROUND_OF_16_MATCHES.map((m) => mapMatch(m, false)),
     QUARTER_FINAL_MATCHES.map((m) => mapMatch(m, false)),
     SEMI_FINAL_MATCHES.map((m) => mapMatch(m, false)),
-    [mapMatch(FINAL_MATCH, false)],
   ];
 
   const ROUND_LABELS = [
@@ -161,7 +160,6 @@ export function BracketContent({ resolvedParticipants, tournamentPhase }: { reso
     t("bracket_r16"),
     t("bracket_qf"),
     t("bracket_sf"),
-    t("bracket_final"),
   ];
 
   return (
@@ -185,7 +183,6 @@ export function BracketContent({ resolvedParticipants, tournamentPhase }: { reso
           style={{ width: CANVAS_W, height: CANVAS_H }}
         >
           {ROUND_MATCHES.map((matches, ri) => {
-            const isFinal = ri === NUM_ROUNDS - 1;
             const rx = roundX(ri);
             const ft = firstTop(ri) + LABEL_H;
             const sh = slotH(ri);
@@ -197,7 +194,7 @@ export function BracketContent({ resolvedParticipants, tournamentPhase }: { reso
                   className="absolute text-center"
                   style={{ left: rx, width: CARD_W, top: 0 }}
                 >
-                  <span className={`font-heading text-[10px] font-bold uppercase tracking-widest ${isFinal ? "text-accent" : "text-white/50"}`}>
+                  <span className="font-heading text-[10px] font-bold uppercase tracking-widest text-white/50">
                     {ROUND_LABELS[ri]}
                   </span>
                 </div>
@@ -214,7 +211,7 @@ export function BracketContent({ resolvedParticipants, tournamentPhase }: { reso
                         {m.dateLabel}
                       </div>
                     )}
-                    <MatchCard m={m} isFinal={isFinal} />
+                    <MatchCard m={m} />
                   </div>
                 ))}
 
@@ -268,21 +265,15 @@ export function BracketContent({ resolvedParticipants, tournamentPhase }: { reso
                 {match.matchNumber === 103 ? "Third-place playoff" : t("bracket_final")}
               </p>
               <MatchCard m={model} isFinal={match.matchNumber === 104} />
+              {match.matchNumber === 104 && (
+                <p className="mt-3 text-sm text-white/60">
+                  New York New Jersey Stadium (MetLife Stadium) · East Rutherford, NJ · <strong className="text-white/80">{FINAL_DATE[lang] ?? FINAL_DATE.en}</strong>
+                </p>
+              )}
             </div>
           );
         })}
       </section>
-
-      {/* Legend */}
-      <div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-2 text-[11px] text-white/55">
-        <div><span className="font-bold text-white">{t("bracket_3rd")}</span> · {t("bracket_legend_best3rd")}</div>
-      </div>
-
-      {/* Final info */}
-      <div className="mt-5 rounded-xl border border-accent/20 bg-accent/5 p-4 text-sm text-white/60">
-        <span className="font-heading text-xs font-bold uppercase tracking-widest text-accent">{t("bracket_final")}</span>
-        <p className="mt-1">New York New Jersey Stadium (MetLife Stadium) · East Rutherford, NJ · <strong className="text-white/80">{FINAL_DATE[lang] ?? FINAL_DATE["en"]}</strong></p>
-      </div>
 
       {/* Format note */}
       <div className="mt-4 rounded-xl border border-white/10 bg-navyCard p-4 text-sm text-white/50">

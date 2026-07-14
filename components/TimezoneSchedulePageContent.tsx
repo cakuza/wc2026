@@ -2,11 +2,12 @@
 
 import Link from "next/link";
 import { useLang } from "@/components/LanguageProvider";
-import { TimezoneSchedule } from "@/components/TimezoneSchedule";
+import { ScheduleContent } from "@/app/schedule/ScheduleContent";
 import { TIMEZONES, type TimezoneConfig } from "@/lib/timezones";
 import { getTodayHref } from "@/lib/todaySelection";
-import type { LiveMatchStatus } from "@/lib/liveMatchData";
+import type { LiveMatchData } from "@/lib/liveMatchData";
 import type { GoalScorerEvent } from "@/lib/worldcup26Provider";
+import type { ResolvedParticipantLookup } from "@/lib/participant-resolution";
 
 // Client-rendered visible chrome for /schedule/[zone]. The server page keeps metadata, static
 // params and the English FAQ JSON-LD (for SEO); this component localizes everything the user sees
@@ -20,11 +21,13 @@ export function TimezoneSchedulePageContent({
   fixtureCount,
   liveScores,
   scorerLines,
+  resolvedParticipants,
 }: {
   zone: TimezoneConfig;
   fixtureCount: number;
-  liveScores?: Record<number, { status: LiveMatchStatus; homeScore: number | null; awayScore: number | null }>;
+  liveScores?: Record<number, Pick<LiveMatchData, "status" | "homeScore" | "awayScore" | "penaltyShootoutScore">>;
   scorerLines?: Record<string, GoalScorerEvent[]>;
+  resolvedParticipants?: ResolvedParticipantLookup;
 }) {
   const { t } = useLang();
 
@@ -79,7 +82,12 @@ export function TimezoneSchedulePageContent({
         ))}
       </div>
 
-      <TimezoneSchedule iana={z.iana} liveScores={liveScores} scorerLines={scorerLines} />
+      <ScheduleContent
+        liveScores={liveScores}
+        scorerLines={scorerLines}
+        resolvedParticipants={resolvedParticipants}
+        timeZone={z.iana}
+      />
 
       {/* Internal links */}
       <div className="mt-8 flex flex-wrap gap-3 text-sm">

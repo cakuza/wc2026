@@ -1,6 +1,46 @@
 import type { LiveMatchEvent } from "./liveMatchData";
 import type { GoalEventCompleteness } from "./goalEventCompleteness";
 
+/** Natural-language result summary derived from the canonical match presentation state. */
+export function formatCanonicalResultSummary({
+  homeName,
+  awayName,
+  homeScore,
+  awayScore,
+  scoreDuration,
+  winner,
+  penaltyShootoutScore,
+}: {
+  homeName: string;
+  awayName: string;
+  homeScore: number | null;
+  awayScore: number | null;
+  scoreDuration?: string | null;
+  winner?: "HOME_TEAM" | "AWAY_TEAM" | "DRAW" | null;
+  penaltyShootoutScore?: { home: number | null; away: number | null } | null;
+}): string {
+  if (homeScore === null || awayScore === null) return "";
+
+  const homeWon = winner === "HOME_TEAM" || (winner !== "AWAY_TEAM" && homeScore > awayScore);
+  const awayWon = winner === "AWAY_TEAM" || (winner !== "HOME_TEAM" && awayScore > homeScore);
+  const winnerName = homeWon ? homeName : awayWon ? awayName : null;
+  const loserName = homeWon ? awayName : awayWon ? homeName : null;
+  const winnerScore = homeWon ? homeScore : awayScore;
+  const loserScore = homeWon ? awayScore : homeScore;
+
+  if (scoreDuration === "PENALTY_SHOOTOUT") {
+    const penalties = penaltyShootoutScore?.home !== null && penaltyShootoutScore?.home !== undefined && penaltyShootoutScore?.away !== null && penaltyShootoutScore?.away !== undefined
+      ? ` ${penaltyShootoutScore.home}-${penaltyShootoutScore.away} on penalties`
+      : " on penalties";
+    return `${homeName} and ${awayName} drew ${homeScore}–${awayScore}; ${winnerName ?? "The winner"} advanced${penalties}`;
+  }
+  if (scoreDuration === "EXTRA_TIME" && winnerName && loserName) {
+    return `${winnerName} won after extra time, ${winnerScore}–${loserScore} against ${loserName}`;
+  }
+  if (winnerName && loserName) return `${winnerName} beat ${loserName} ${winnerScore}–${loserScore}`;
+  return `${homeName} and ${awayName} drew ${homeScore}–${awayScore}`;
+}
+
 function ordinal(n: number) {
   const suffix = n % 10 === 1 && n % 100 !== 11 ? "st" : n % 10 === 2 && n % 100 !== 12 ? "nd" : n % 10 === 3 && n % 100 !== 13 ? "rd" : "th";
   return `${n}${suffix}`;
