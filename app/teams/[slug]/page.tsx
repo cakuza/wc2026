@@ -12,6 +12,7 @@ import { firstMatchResultSentence } from "@/lib/teamCopy";
 import matchEventsData from "@/data/archive/match-events.json";
 import { buildKnockoutResolution } from "@/lib/knockoutResolution";
 import { getResolvedAwayTeam, getResolvedHomeTeam } from "@/lib/participant-resolution";
+import { getTeamTournamentStatus } from "@/lib/teamTournamentStatus";
 
 export function generateStaticParams() {
   return TEAMS.map((t) => ({ slug: slugFor(t.key) }));
@@ -43,6 +44,14 @@ export async function generateMetadata({
   if (!team) return {};
 
   const name = countryName(team.key, "en");
+  const snapshot = await getTournamentLiveSnapshot();
+  const resolvedParticipants = buildKnockoutResolution(snapshot.matches);
+  const tournamentStatus = getTeamTournamentStatus({
+    teamKey: team.key,
+    matches: MATCHES,
+    snapshotMatches: snapshot.matches,
+    resolvedParticipants,
+  });
   const squad = squadFor(team.key);
   const playerCount = squad?.length ?? 0;
   const BASE = "https://www.worldcupmatchday.com";
@@ -55,12 +64,19 @@ export async function generateMetadata({
     .map((t) => countryName(t.key, "en"));
   const opponentStr = opponents.join(", ");
 
-  const title =
-    team.key === "turkey"
+  const nextMatch = tournamentStatus.nextMatch;
+  const nextFixture = nextMatch
+    ? `${countryName(getResolvedHomeTeam(nextMatch, resolvedParticipants) ?? nextMatch.homeKey, "en")} vs ${countryName(getResolvedAwayTeam(nextMatch, resolvedParticipants) ?? nextMatch.awayKey, "en")}`
+    : null;
+
+  const title = tournamentStatus.hasKnockoutJourney && tournamentStatus.currentStageLabel
+    ? `${name} · ${tournamentStatus.currentStageLabel} | World Cup 2026 Tournament Run`
+    : team.key === "turkey"
       ? "Turkey World Cup 2026 Fixtures, Group, Scores & Squad"
       : `${name} World Cup 2026 — Schedule, Squad & Group ${team.group}`;
-  const description =
-    team.key === "turkey"
+  const description = tournamentStatus.hasKnockoutJourney && tournamentStatus.currentStageLabel
+    ? `${name} are ${tournamentStatus.currentStageLabel} at the 2026 World Cup.${nextFixture ? ` Next: ${nextFixture}.` : ""} Group ${team.group} results and squad remain available as tournament history.`
+    : team.key === "turkey"
       ? "See Turkey's World Cup 2026 fixtures, group path, kickoff times, scores, squad notes and qualification outlook."
       : `${name} World Cup 2026: Group ${team.group} fixtures vs ${opponentStr}. ` +
         (playerCount > 0 ? `Squad of ${playerCount} players. ` : "") +
@@ -106,13 +122,14 @@ export default async function TeamPage({ params }: { params: Promise<{ slug: str
   const groupMatches = matchesInGroup(team.group);
   const snapshot = await getTournamentLiveSnapshot();
   const resolvedParticipants = buildKnockoutResolution(snapshot.matches);
-  const teamMatches = MATCHES.filter((match) =>
-    match.homeKey === team.key ||
-    match.awayKey === team.key ||
-    getResolvedHomeTeam(match, resolvedParticipants) === team.key ||
-    getResolvedAwayTeam(match, resolvedParticipants) === team.key,
-  );
-  const hasReachedKnockoutStage = teamMatches.some((match) => "matchNumber" in match);
+  const tournamentStatus = getTeamTournamentStatus({
+    teamKey: team.key,
+    matches: MATCHES,
+    snapshotMatches: snapshot.matches,
+    resolvedParticipants,
+  });
+  const teamMatches = tournamentStatus.listedMatches;
+  const hasReachedKnockoutStage = tournamentStatus.hasKnockoutJourney;
   const name = countryName(team.key, "en");
 
   // Team's first match (sorted ascending → first entry)
