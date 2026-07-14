@@ -51,11 +51,11 @@ export default function TeamsByConfederationPage() {
         <TeamsByConfederation />
 
         <div className="mt-8 flex flex-wrap gap-3 text-sm">
-          {[
-            { href: "/teams", label: "All Teams" },
-            { href: "/groups", label: "Groups" },
-            { href: "/schedule", label: "Schedule" },
-            { href: getTodayHref(DEFAULT_TIMEZONE), label: "Today" },
+        {[
+          { href: getTodayHref(DEFAULT_TIMEZONE), label: "Match Center" },
+          { href: "/schedule", label: "Schedule" },
+          { href: "/bracket", label: "Bracket" },
+          { href: "/teams", label: "Teams" },
           ].map((l) => (
             <Link key={l.href} href={l.href} className="rounded-lg border border-white/15 bg-navyCard px-4 py-2 font-heading text-xs font-bold uppercase tracking-wide text-white/70 transition hover:border-white/30 hover:text-white">
               {l.label}

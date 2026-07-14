@@ -33,10 +33,9 @@ export const PRIMARY_LINKS: NavLink[] = [
 // Hamburger drawer = secondary destinations only. Must not duplicate any
 // PRIMARY_LINKS href (enforced by tests).
 export const SECONDARY_LINKS: NavLink[] = [
-  { href: "/groups", key: "nav_standings" },
+  { href: "/groups", key: "nav_groups" },
   { href: "/stats", key: "nav_stats" },
   { href: "/world-cup-schedule-local-time", key: "nav_localTime" },
-  { href: "/world-cup-third-place-qualification", key: "nav_thirdPlace" },
   { href: "/matchday-hub", key: "nav_matchdayHub" },
   { href: "/quiz", key: "nav_quiz" },
   { href: "/about", key: "nav_about" },

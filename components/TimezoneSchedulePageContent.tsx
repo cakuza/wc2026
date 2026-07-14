@@ -25,7 +25,7 @@ export function TimezoneSchedulePageContent({
 }: {
   zone: TimezoneConfig;
   fixtureCount: number;
-  liveScores?: Record<number, Pick<LiveMatchData, "status" | "homeScore" | "awayScore" | "penaltyShootoutScore">>;
+  liveScores?: Record<number, Pick<LiveMatchData, "status" | "homeScore" | "awayScore" | "scoreDuration" | "penaltyShootoutScore">>;
   scorerLines?: Record<string, GoalScorerEvent[]>;
   resolvedParticipants?: ResolvedParticipantLookup;
 }) {

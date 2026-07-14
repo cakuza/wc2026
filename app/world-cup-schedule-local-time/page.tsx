@@ -77,9 +77,9 @@ export default function LocalTimeHubPage() {
       {/* Core links */}
       <div className="mt-8 flex flex-wrap gap-3 text-sm">
         {[
-          { href: getTodayHref(DEFAULT_TIMEZONE), label: "Today" },
-          { href: "/schedule", label: "Full Schedule" },
-          { href: "/groups", label: "Groups" },
+          { href: getTodayHref(DEFAULT_TIMEZONE), label: "Match Center" },
+          { href: "/schedule", label: "Schedule" },
+          { href: "/bracket", label: "Bracket" },
           { href: "/teams", label: "Teams" },
         ].map((l) => (
           <Link
