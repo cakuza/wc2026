@@ -1,15 +1,14 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { useLang } from "@/components/LanguageProvider";
 import { Flag } from "@/components/Flag";
-import { FINAL_MATCH, QUARTER_FINAL_MATCHES, ROUND_OF_16_MATCHES, ROUND_OF_32_MATCHES, SEMI_FINAL_MATCHES, slotLabel } from "@/lib/knockoutBracket2026";
+import { FINAL_MATCH, QUARTER_FINAL_MATCHES, ROUND_OF_16_MATCHES, ROUND_OF_32_MATCHES, SEMI_FINAL_MATCHES, THIRD_PLACE_MATCH, slotLabel } from "@/lib/knockoutBracket2026";
 import { type Lang } from "@/lib/i18n";
 import { MATCHES, matchUtcDate, type Match } from "@/lib/matches";
 import { RESOLVED_PARTICIPANTS } from "@/lib/resolvedParticipants";
 import { COMPLETED_KNOCKOUT_RESULTS } from "@/lib/canonicalMatchResults";
 import { getParticipantDisplay, knockoutSlotLabel, isKnockoutMatch, type ResolvedParticipantLookup } from "@/lib/participant-resolution";
-import { isMatchPollingActive } from "@/lib/scoreReconciliation";
+import { getTournamentPhaseLabel, type TournamentPhase } from "@/lib/matchCenterSelection";
 
 // --- Layout constants ---
 const CARD_H = 62;   // card height in px
@@ -143,14 +142,8 @@ export function buildBracketMatchModel({
     };
 }
 
-export function BracketContent({ resolvedParticipants }: { resolvedParticipants?: ResolvedParticipantLookup }) {
+export function BracketContent({ resolvedParticipants, tournamentPhase }: { resolvedParticipants?: ResolvedParticipantLookup; tournamentPhase: TournamentPhase }) {
   const { t, lang } = useLang();
-  const [now, setNow] = useState(() => Date.now());
-
-  useEffect(() => {
-    const interval = setInterval(() => setNow(Date.now()), 30_000);
-    return () => clearInterval(interval);
-  }, []);
 
   const mapMatch = (match: any, isR32: boolean) =>
     buildBracketMatchModel({ match, isR32, resolvedParticipants, t, lang });
@@ -183,7 +176,7 @@ export function BracketContent({ resolvedParticipants }: { resolvedParticipants?
         </span>
       </div>
       <p className="mb-1 max-w-3xl text-sm text-white/50">{t("bracket_intro")}</p>
-      <p className="mb-6 text-sm text-white/40">{t("bracket_note")}</p>
+      <p className="mb-6 text-sm text-white/40">Current phase · {getTournamentPhaseLabel(tournamentPhase)}</p>
 
       {/* Scrollable bracket canvas */}
       <div className="overflow-x-auto rounded-xl border border-white/10 bg-navy p-5">
@@ -265,6 +258,20 @@ export function BracketContent({ resolvedParticipants }: { resolvedParticipants?
           })}
         </div>
       </div>
+
+      <section className="mt-5 grid gap-3 sm:grid-cols-2" aria-label="Deciding matches">
+        {[THIRD_PLACE_MATCH, FINAL_MATCH].map((match) => {
+          const model = mapMatch(match, false);
+          return (
+            <div key={model.id} className="rounded-xl border border-white/10 bg-navyCard p-4">
+              <p className="mb-2 font-heading text-[10px] font-bold uppercase tracking-widest text-white/45">
+                {match.matchNumber === 103 ? "Third-place playoff" : t("bracket_final")}
+              </p>
+              <MatchCard m={model} isFinal={match.matchNumber === 104} />
+            </div>
+          );
+        })}
+      </section>
 
       {/* Legend */}
       <div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-2 text-[11px] text-white/55">

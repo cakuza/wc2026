@@ -1,6 +1,5 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Flag } from "@/components/Flag";
 import { MatchTime } from "@/components/MatchTime";
@@ -10,7 +9,7 @@ import { useLang } from "@/components/LanguageProvider";
 import { useTimezone } from "@/components/TimezoneProvider";
 import { matchSlug, ARCHIVE_DEFAULT_DATE, MATCHES, type Match } from "@/lib/matches";
 import { getHomepageMatchCenterSnapshot, getMatchCenterSnapshot, type TournamentPhase } from "@/lib/matchCenterSelection";
-import { getMatchPresentation } from "@/lib/matchPresentation";
+import { getMatchPresentation, getMatchStatusLabel } from "@/lib/matchPresentation";
 import { getParticipantDisplay, type ResolvedParticipantLookup } from "@/lib/participant-resolution";
 import type { LiveMatchData } from "@/lib/liveMatchData";
 import type { GoalScorerEvent } from "@/lib/worldcup26Provider";
@@ -26,19 +25,12 @@ export type MatchCenterLiveSnapshot = {
   primaryProviderOk: boolean;
 };
 
-function shortScorerName(playerName: string) {
-  if (playerName.includes(".")) return playerName;
-  const parts = playerName.trim().split(/\s+/);
-  return parts[parts.length - 1] ?? playerName;
-}
-
 function scorerText(events: GoalScorerEvent[] | undefined) {
   if (!events || events.length === 0) return null;
   return events
     .map((e) => {
       const minute = e.minuteLabel ?? (e.minute != null ? `${e.minute}'` : "");
-      const name = shortScorerName(e.playerName);
-      return `${minute ? `${minute} ` : ""}${name}${e.isOwnGoal ? " (OG)" : e.isPenalty || e.type === "PENALTY_GOAL" ? " (P)" : ""}`;
+      return `${minute ? `${minute} ` : ""}${e.playerName}${e.isOwnGoal ? " (OG)" : e.isPenalty || e.type === "PENALTY_GOAL" ? " (P)" : ""}`;
     })
     .join(" • ");
 }
@@ -78,7 +70,7 @@ function MatchRow({
     scheduled: "Upcoming",
     live: "Live",
     halftime: "HT",
-    final: pres.scoreDuration === "PENALTY_SHOOTOUT" ? "PEN" : pres.scoreDuration === "EXTRA_TIME" ? "AET" : "FT",
+    final: getMatchStatusLabel(pres) ?? "FT",
     syncing: t("state_syncing") || "Awaiting update",
     postponed: "Postponed",
     cancelled: "Cancelled",
@@ -151,11 +143,10 @@ export function MatchCenterContent({
   const { timeZone } = useTimezone();
   const tz = timeZone || "UTC";
 
-  // Client-side clock state
-  const [now, setNow] = useState<Date>(() => new Date(ARCHIVE_DEFAULT_DATE));
-  useEffect(() => {
-    setNow(new Date());
-  }, []);
+  // Archive-backed pages must use the same instant in static HTML and after
+  // hydration. Live refresh replaces the snapshot rather than changing the
+  // selector clock underneath an unchanged snapshot.
+  const now = new Date(ARCHIVE_DEFAULT_DATE);
 
   const snapshot = getMatchCenterSnapshot({
     matches: MATCHES,

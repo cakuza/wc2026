@@ -61,8 +61,9 @@ export function TeamDetail({
       getResolvedAwayTeam(m, resolvedParticipants) === team.key,
     )
     .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+  const hasKnockoutJourney = listedMatches.some((match) => "matchNumber" in match);
   const nextListedMatch =
-    listedMatches.find((m) => snapshotMatches[matchSlug(m)]?.status !== "FINISHED" && matchUtcDate(m).getTime() >= Date.now()) ??
+    listedMatches.find((m) => snapshotMatches[matchSlug(m)]?.status !== "FINISHED" && matchUtcDate(m).getTime() >= new Date(ARCHIVE_DEFAULT_DATE).getTime()) ??
     listedMatches.find((m) => snapshotMatches[matchSlug(m)]?.status !== "FINISHED") ??
     null;
   const teamRow = standingsRows?.find((row) => row.teamKey === team.key);
@@ -104,6 +105,10 @@ export function TeamDetail({
     const snap = snapshotMatches[matchSlug(m)];
     if (snap && snap.homeScore !== null && snap.awayScore !== null) return `${snap.homeScore}–${snap.awayScore}`;
     return t("vs");
+  };
+  const fixtureStage = (m: Match) => {
+    if (!("matchNumber" in m)) return `Group ${team.group}`;
+    return ({ R32: "Round of 32", R16: "Round of 16", QF: "Quarter-final", SF: "Semi-final", "3P": "Third-place playoff", F: "Final" } as const)[m.stage];
   };
 
   return (
@@ -180,8 +185,16 @@ export function TeamDetail({
       </div>
 
       {/* ── 3 MATCHDAY CARDS ────────────────────────────────────────────── */}
+      <section className="mt-6" aria-labelledby="team-journey-heading">
+        <div className="mb-3 flex flex-wrap items-end justify-between gap-3">
+          <div>
+            <h2 id="team-journey-heading" className="font-heading text-2xl font-extrabold uppercase tracking-wide text-white">Tournament journey</h2>
+            <p className="mt-1 text-sm text-white/55">{hasKnockoutJourney ? "Group stage and knockout fixtures" : "Group-stage fixtures and results"}</p>
+          </div>
+          {nextListedMatch ? <span className="rounded bg-accent/15 px-2 py-1 font-heading text-[10px] font-extrabold uppercase tracking-wider text-accent">Next: {fixtureStage(nextListedMatch)}</span> : null}
+        </div>
       {listedMatches.length > 0 && (
-        <div className="mt-3 grid grid-cols-3 gap-2 sm:gap-3">
+        <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
           {listedMatches.map((m, idx) => {
             const resolvedHome = getResolvedHomeTeam(m, resolvedParticipants) ?? m.homeKey;
             const resolvedAway = getResolvedAwayTeam(m, resolvedParticipants) ?? m.awayKey;
@@ -201,7 +214,7 @@ export function TeamDetail({
                 {/* MD badge + H/A */}
                 <div className="mb-2 flex items-center justify-between">
                   <span className="rounded bg-accent/20 px-1.5 py-0.5 font-heading text-[10px] font-extrabold uppercase tracking-wider text-accent">
-                    MD{idx + 1}
+                    {fixtureStage(m)}
                   </span>
                   <span className="font-heading text-[10px] font-bold uppercase tracking-wider text-white/35">
                     {isHome ? "H" : "A"}
@@ -242,6 +255,7 @@ export function TeamDetail({
         </div>
       )}
       {listedMatches.length > 0 && <TimezoneLabel className="mt-2 text-[11px] text-white/45" />}
+      </section>
 
       {hasPlayed ? (
         <div className="mt-3 rounded-lg border border-white/10 bg-navyCard/70 px-4 py-3 text-sm text-white/70">
@@ -331,8 +345,8 @@ export function TeamDetail({
             );
           })()}
 
-          {/* Q3: Qualification */}
-          {(() => {
+          {/* Qualification remains relevant only before a team reaches the knockouts. */}
+          {!hasKnockoutJourney && (() => {
             const teamName = country(team.key);
             return (
               <div className="rounded-lg border border-white/8 bg-navyCard/60 px-4 py-3">
@@ -436,7 +450,7 @@ export function TeamDetail({
       </section>
 
       {/* ── PATH TO KNOCKOUT ────────────────────────────────────────────── */}
-      <section className="mt-8">
+      {!hasKnockoutJourney && <section className="mt-8">
         <h2 className="mb-4 font-heading text-2xl font-extrabold uppercase tracking-wide text-white">
           {t("path_section")}
         </h2>
@@ -513,9 +527,10 @@ export function TeamDetail({
             {fill(t("path_opener_note"), { team: withArticle(country(team.key)) })}
           </p>
         )}
-      </section>
+      </section>}
 
       {/* ── SQUAD ───────────────────────────────────────────────────────── */}
+
       {squad && (
         <section className="mt-8">
           <h2 className="mb-4 font-heading text-2xl font-extrabold uppercase tracking-wide text-white">

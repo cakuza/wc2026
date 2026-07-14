@@ -112,6 +112,7 @@ export default async function TeamPage({ params }: { params: Promise<{ slug: str
     getResolvedHomeTeam(match, resolvedParticipants) === team.key ||
     getResolvedAwayTeam(match, resolvedParticipants) === team.key,
   );
+  const hasReachedKnockoutStage = teamMatches.some((match) => "matchNumber" in match);
   const name = countryName(team.key, "en");
 
   // Team's first match (sorted ascending → first entry)
@@ -180,16 +181,18 @@ export default async function TeamPage({ params }: { params: Promise<{ slug: str
     },
   });
 
-  faqEntities.push({
-    "@type": "Question",
-    name: `How can ${withArticle(name)} qualify for the knockout stage at World Cup 2026?`,
-    acceptedAnswer: {
-      "@type": "Answer",
-      text:
-        `${withArticle(name, true)} qualify automatically by finishing 1st or 2nd in Group ${team.group}. ` +
-        `They may also advance as one of the 8 best third-placed teams across all groups.`,
-    },
-  });
+  if (!hasReachedKnockoutStage) {
+    faqEntities.push({
+      "@type": "Question",
+      name: `How can ${withArticle(name)} qualify for the knockout stage at World Cup 2026?`,
+      acceptedAnswer: {
+        "@type": "Answer",
+        text:
+          `${withArticle(name, true)} qualify automatically by finishing 1st or 2nd in Group ${team.group}. ` +
+          `They may also advance as one of the 8 best third-placed teams across all groups.`,
+      },
+    });
+  }
 
   const faqLd = {
     "@context": "https://schema.org",
