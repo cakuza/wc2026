@@ -1,6 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import { getCanonicalArchiveEventsForMatch } from './canonicalArchiveEvents';
+import { formatEventDisplayMinute, getCanonicalArchiveEventsForMatch } from './canonicalArchiveEvents';
 import type { LiveMatchData, LiveMatchEvent } from './liveMatchData';
 import { MATCHES, matchSlug } from './matches';
 
@@ -49,6 +49,8 @@ export function readStaticArchiveData(): Map<number, LiveMatchData> {
           type: ev.eventType === 'own_goal' ? 'OWN_GOAL' : ev.eventType === 'penalty_goal' ? 'PENALTY_GOAL' : 'GOAL',
           minute: ev.minute || null,
           stoppageTime: ev.stoppageMinute || null,
+          displayMinute: formatEventDisplayMinute(ev),
+          minuteLabel: formatEventDisplayMinute(ev),
           teamName: ev.eventType === 'own_goal' ? null : (ev.teamKey || null),
           playerTeamName: ev.eventType === 'own_goal' ? (ev.teamKey || null) : undefined,
           playerName: ev.playerName,
