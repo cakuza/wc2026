@@ -15,7 +15,7 @@ import type { LiveMatchData, LiveMatchEvent } from "@/lib/liveMatchData";
 import type { StandingRow } from "@/lib/groupStandings";
 import type { ThirdPlaceRow } from "@/lib/thirdPlaceRanking";
 import { countryName } from "@/lib/i18n";
-import { buildScorerSentence } from "@/lib/resultSummary";
+import { buildScorerSentence, formatCanonicalResultSummary } from "@/lib/resultSummary";
 import { missingScorerDetailText, type GoalEventCompleteness } from "@/lib/goalEventCompleteness";
 import { type SnapshotMatchStatus } from "@/lib/liveSnapshot";
 import { reconcileGoalEvents, isMatchInReconciliationWindow } from "@/lib/scoreReconciliation";
@@ -244,25 +244,15 @@ export function MatchDetail({
   const groupThirdPlace = thirdPlaceRows?.find((row) => row.group === match.group);
   const shootout = liveState.penaltyShootoutScore;
   const hasShootout = shootout?.home !== null && shootout?.home !== undefined && shootout?.away !== null && shootout?.away !== undefined;
-  const shootoutWinnerName =
-    live?.winner === "HOME_TEAM" ? homeName :
-    live?.winner === "AWAY_TEAM" ? awayName :
-    hasShootout && shootout!.home! > shootout!.away! ? homeName :
-    hasShootout && shootout!.away! > shootout!.home! ? awayName :
-    null;
-  const shootoutText = hasShootout
-    ? `${shootoutWinnerName ?? "Winner"} advanced ${shootout!.home}-${shootout!.away} on penalties`
-    : null;
-  const winnerText =
-    shootoutText && hasScore
-      ? `${homeName} and ${awayName} drew ${homeScore}-${awayScore}; ${shootoutText}`
-      : hasScore && homeScore! > awayScore!
-      ? `${homeName} beat ${awayName} ${homeScore}–${awayScore}`
-      : hasScore && awayScore! > homeScore!
-        ? `${awayName} beat ${homeName} ${awayScore}–${homeScore}`
-        : hasScore
-          ? `${homeName} and ${awayName} drew ${homeScore}–${awayScore}`
-          : "";
+  const winnerText = formatCanonicalResultSummary({
+    homeName,
+    awayName,
+    homeScore,
+    awayScore,
+    scoreDuration: liveState.scoreDuration,
+    winner: liveState.winner,
+    penaltyShootoutScore: shootout,
+  });
   const goalCompleteness = liveState.goalEventCompleteness;
   const nowMs = Date.now();
   const isOldCompletedMatch = !isMatchInReconciliationWindow(liveState.status, matchTime, nowMs);
