@@ -63,8 +63,8 @@ async function run() {
   assert.equal(scheduleSource.includes("useEffect"), false, "schedule output must not drift after hydration");
   assert.equal(matchCenterSource.includes("shortScorerName"), false, "homepage cards must preserve canonical compound names");
   assert.equal(scheduleSource.includes('aria-hidden="true"'), false, "responsive schedule metadata must remain exposed");
-  assert.ok(scheduleSource.includes("sm:hidden"));
-  assert.ok(scheduleSource.includes("hidden w-32"));
+  assert.ok(scheduleSource.includes("data-schedule-meta"));
+  assert.equal(scheduleSource.includes("data-schedule-right-meta"), false, "schedule must use one semantic metadata container");
   assert.ok(scheduleSource.includes('scoreDuration === "EXTRA_TIME" ? "AET"'));
   assert.ok(scheduleSource.includes('scoreDuration === "PENALTY_SHOOTOUT" ? "PEN"'));
   assert.ok(teamSource.includes("hasKnockoutJourney"));

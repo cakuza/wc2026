@@ -146,8 +146,8 @@ async function run() {
 
   const scheduleSource = fs.readFileSync("app/schedule/ScheduleContent.tsx", "utf8");
   assert.equal(scheduleSource.includes('aria-hidden="true" className="mt-2 flex items-center gap-2 sm:hidden'), false);
-  assert.ok(scheduleSource.includes("hidden w-32 shrink-0"));
-  assert.ok(scheduleSource.includes("sm:hidden text-xs text-white/50"));
+  assert.ok(scheduleSource.includes("data-schedule-meta"));
+  assert.equal(scheduleSource.includes("data-schedule-right-meta"), false, "schedule must use one semantic metadata container");
   assert.ok(scheduleSource.includes('scoreDuration === "EXTRA_TIME" ? "AET"'));
   assert.ok(scheduleSource.includes('scoreDuration === "PENALTY_SHOOTOUT" ? "PEN"'));
   assert.ok(scheduleSource.includes('t("match_status_aet")'));
