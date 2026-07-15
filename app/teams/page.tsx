@@ -1,6 +1,11 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { TeamsByConfederation } from "@/components/TeamsByConfederation";
+import { TeamsDirectory } from "@/components/TeamsDirectory";
+import { TEAMS } from "@/lib/teams";
+import { MATCHES } from "@/lib/matches";
+import { getTournamentLiveSnapshot } from "@/lib/liveSnapshot";
+import { buildKnockoutResolution } from "@/lib/knockoutResolution";
+import { getTeamTournamentStatus } from "@/lib/teamTournamentStatus";
 
 const BASE_URL = "https://www.worldcupmatchday.com";
 
@@ -18,18 +23,22 @@ export const metadata: Metadata = {
   },
 };
 
-export default function TeamsPage() {
+export default async function TeamsPage() {
+  const snapshot = await getTournamentLiveSnapshot();
+  const resolvedParticipants = buildKnockoutResolution(snapshot.matches);
+  const statuses = Object.fromEntries(TEAMS.map((team) => [team.key, getTeamTournamentStatus({ teamKey: team.key, matches: MATCHES, snapshotMatches: snapshot.matches, resolvedParticipants })]));
+  const classifications = Object.fromEntries(Object.entries(statuses).map(([key, status]) => [key, status.classification]));
+  const finalists = Object.entries(statuses).filter(([, status]) => status.currentStageLabel === "Finalist").map(([key]) => key);
   return (
     <div className="mx-auto max-w-4xl px-4 py-8">
       <h1 className="mb-2 font-heading text-4xl font-extrabold uppercase tracking-wide text-white">
         All Teams
       </h1>
       <p className="mb-6 max-w-3xl text-sm text-white/55">
-        Explore all 48 World Cup 2026 teams grouped by confederation, with links to each team&apos;s
-        fixtures and group.
+        Follow the remaining teams first, then explore every World Cup side by knockout status or confederation.
       </p>
 
-      <TeamsByConfederation />
+      <TeamsDirectory classifications={classifications} finalists={finalists} />
 
       <div className="mt-8 flex flex-wrap gap-3 text-sm">
         {[

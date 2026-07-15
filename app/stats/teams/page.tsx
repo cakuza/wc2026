@@ -24,10 +24,10 @@ export default async function TeamsStatsPage() {
   const snapshot = await getTournamentLiveSnapshot();
   const { teamLeaderboards, teamStatLeaderboards } = snapshot;
   
-  const hasTeamData = teamLeaderboards.groupStagePoints.length > 0;
+  const hasTeamData = teamStatLeaderboards.goalsScored.length > 0;
 
   const attackLists = [
-    { title: "Goals Scored", data: teamLeaderboards.topScoringTeams },
+    { title: "Goals Scored", data: teamStatLeaderboards.goalsScored },
     { title: "Shots", data: teamStatLeaderboards.shots },
     { title: "Shots on Target", data: teamStatLeaderboards.shotsOnTarget },
   ];

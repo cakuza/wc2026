@@ -21,6 +21,15 @@ import type { GoalScorerEvent } from "@/lib/worldcup26Provider";
 import { getMatchPresentation } from "@/lib/matchPresentation";
 import { formatGoalEventDisplay } from "@/lib/canonicalArchiveEvents";
 
+const STAGE_LABELS: Record<string, string> = {
+  R32: "Round of 32",
+  R16: "Round of 16",
+  QF: "Quarter-final",
+  SF: "Semi-final",
+  "3P": "Third-place playoff",
+  F: "Final",
+};
+
 interface Props {
   liveScores?: Record<string | number, Pick<LiveMatchData, "status" | "homeScore" | "awayScore" | "scoreDuration" | "penaltyShootoutScore">>;
   scorerLines?: Record<string, GoalScorerEvent[]>;
@@ -151,6 +160,13 @@ export function ScheduleContent({ liveScores, scorerLines, resolvedParticipants,
           >
             <div className="flex flex-col gap-2 sm:flex-row sm:items-start">
               <div data-schedule-score-cluster className="min-w-0 flex-1">
+                {"matchNumber" in m && (
+                  <div className="mb-2 text-center">
+                    <span className="font-heading text-[10px] font-bold uppercase tracking-wider text-white/50">
+                      Match {m.matchNumber} &bull; {STAGE_LABELS[m.stage] ?? m.stage}
+                    </span>
+                  </div>
+                )}
                 <div className="flex items-center gap-3">
                   <div className="flex min-w-0 flex-1 items-center justify-end gap-2 text-end">
                     <span className="truncate font-semibold text-white">

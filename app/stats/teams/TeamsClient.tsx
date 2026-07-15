@@ -2,18 +2,13 @@
 
 import { useState } from "react";
 import { countryName } from "@/lib/i18n";
-
-export interface StatRow {
-  teamKey: string;
-  value: number;
-  matchesCovered?: number;
-}
+import type { TeamLeaderboard } from "@/lib/tournamentStats";
 
 interface StatList {
   title: string;
-  data: StatRow[];
+  data: TeamLeaderboard[];
   showCoverage?: boolean;
-  isAverage?: boolean; // If the original data is ALREADY an average (e.g. Possession)
+  isAverage?: boolean;
 }
 
 interface Props {
@@ -27,14 +22,13 @@ export function TeamsClient({ attackLists, controlLists, defenseLists, disciplin
   const [mode, setMode] = useState<"total" | "perMatch">("total");
 
   const processList = (list: StatList) => {
-    // Top 10 only to keep HTML size down if we were doing SSR, but here we just slice 10.
     const raw = list.data;
     if (mode === "total" || list.isAverage) {
-      // If it's already an average, "total" mode just shows the average.
-      // And perMatch mode also just shows the average.
-      return raw.slice(0, 10);
+      return raw.slice(0, 10).map(row => ({
+        ...row,
+        displayValue: String(row.value)
+      }));
     } else {
-      // mode === "perMatch" and it's NOT an average yet.
       return [...raw]
         .map(row => {
           const denominator = row.matchesCovered || 1;
@@ -71,20 +65,32 @@ export function TeamsClient({ attackLists, controlLists, defenseLists, disciplin
               </div>
               {processed.length > 0 ? (
                 <ul className="divide-y divide-white/5 flex-1">
-                  {processed.map((stat, i) => (
-                    <li key={stat.teamKey + i} className="flex items-center gap-3 px-4 py-3">
-                      <span className="w-5 shrink-0 font-heading text-xs font-bold text-white/30">{i + 1}</span>
-                      <div className="flex-1 min-w-0">
-                        <p className="truncate font-semibold text-white text-sm">{countryName(stat.teamKey, "en")}</p>
-                        {stat.matchesCovered && stat.matchesCovered > 0 ? (
-                          <p className="text-xs text-white/40">in {stat.matchesCovered} matches</p>
-                        ) : null}
-                      </div>
-                      <span className="font-heading text-base font-extrabold tabular-nums text-white">
-                        {String('displayValue' in stat ? stat.displayValue : stat.value)}
-                      </span>
-                    </li>
-                  ))}
+                  {processed.map((stat, i) => {
+                    const { coverageStatus, matchesCovered, completedMatches } = stat;
+                    const isPartial = coverageStatus === "PARTIAL";
+
+                    return (
+                      <li key={stat.teamKey + i} className="flex items-center gap-3 px-4 py-3">
+                        <span className="w-5 shrink-0 font-heading text-xs font-bold text-white/30">{i + 1}</span>
+                        <div className="flex-1 min-w-0">
+                          <p className="truncate font-semibold text-white text-sm">{countryName(stat.teamKey, "en")}</p>
+                          {isPartial ? (
+                            <p className="text-[11px] text-white/40">
+                              <span className="text-yellow-500/80 mr-1">PARTIAL:</span>
+                              {matchesCovered} of {completedMatches} completed matches covered
+                            </p>
+                          ) : coverageStatus === "COMPLETE" ? (
+                            <p className="text-[11px] text-white/40">
+                              {matchesCovered} completed matches covered
+                            </p>
+                          ) : null}
+                        </div>
+                        <span className="font-heading text-base font-extrabold tabular-nums text-white">
+                          {stat.displayValue}
+                        </span>
+                      </li>
+                    );
+                  })}
                 </ul>
               ) : (
                 <div className="p-6 text-center text-xs text-white/40 flex-1 flex items-center justify-center">No data available</div>

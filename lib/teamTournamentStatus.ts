@@ -15,11 +15,18 @@ const STAGE_STATUS: Record<string, string> = {
   F: "Finalist",
 };
 
+export type TeamClassification =
+  | "ACTIVE_KNOCKOUT"
+  | "ELIMINATED_KNOCKOUT"
+  | "ELIMINATED_GROUP_STAGE"
+  | "UNKNOWN";
+
 export type TeamTournamentStatus = {
   listedMatches: Match[];
   hasKnockoutJourney: boolean;
   nextMatch: Match | null;
   currentStageLabel: string | null;
+  classification: TeamClassification;
 };
 
 /** Canonical team journey derived from resolved knockout participants and snapshot status. */
@@ -55,6 +62,33 @@ export function getTeamTournamentStatus({
     ? nextMatch
     : [...listedMatches].reverse().find((match) => "matchNumber" in match);
 
+  let classification: TeamClassification = "UNKNOWN";
+
+  if (!hasKnockoutJourney) {
+    // Check if the team is completely eliminated from group stage
+    // If there is no next match and the group stage is completely over for them, they are eliminated
+    if (!nextMatch) {
+      const groupStageOver = matches.filter(m => !("matchNumber" in m)).every(m => {
+        const slug = matchSlug(m);
+        return snapshotMatches[slug]?.status === "FINISHED";
+      });
+      classification = groupStageOver ? "ELIMINATED_GROUP_STAGE" : "UNKNOWN";
+    }
+  } else {
+    // They have a knockout journey
+    if (nextMatch) {
+      classification = "ACTIVE_KNOCKOUT";
+    } else {
+      // No more matches. Check the last match to see if they won the final or third place playoff?
+      // Wait, if nextMatch is null, they have no future matches. The tournament might be over,
+      // or they are eliminated in knockouts.
+      // We will consider them ELIMINATED_KNOCKOUT if they have no future matches and they aren't the final winner.
+      // But the requirement says "active knockout team, eliminated knockout team, group-stage eliminated team".
+      // We don't need a "CHAMPION" classification for this phase since it's just the semifinals.
+      classification = "ELIMINATED_KNOCKOUT";
+    }
+  }
+
   return {
     listedMatches,
     hasKnockoutJourney,
@@ -62,5 +96,6 @@ export function getTeamTournamentStatus({
     currentStageLabel: currentKnockoutMatch && "matchNumber" in currentKnockoutMatch
       ? STAGE_STATUS[currentKnockoutMatch.stage] ?? null
       : null,
+    classification,
   };
 }

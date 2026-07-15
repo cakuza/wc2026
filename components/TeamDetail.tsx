@@ -108,6 +108,23 @@ export function TeamDetail({
     if (!("matchNumber" in m)) return `Group ${team.group}`;
     return ({ R32: "Round of 32", R16: "Round of 16", QF: "Quarter-final", SF: "Semi-final", "3P": "Third-place playoff", F: "Final" } as const)[m.stage];
   };
+  const completedMatches = listedMatches.filter((match) => snapshotMatches[matchSlug(match)]?.status === "FINISHED");
+  const latestCompletedMatch = completedMatches[completedMatches.length - 1] ?? null;
+  const form = completedMatches.reduce((acc, match) => {
+    const snap = snapshotMatches[matchSlug(match)];
+    if (!snap || snap.homeScore === null || snap.awayScore === null) return acc;
+    const isHome = (getResolvedHomeTeam(match, resolvedParticipants) ?? match.homeKey) === team.key;
+    const ours = isHome ? snap.homeScore : snap.awayScore;
+    const theirs = isHome ? snap.awayScore : snap.homeScore;
+    if (ours > theirs) acc.wins++; else if (ours === theirs) acc.draws++; else acc.losses++;
+    acc.goalsFor += ours;
+    acc.goalsAgainst += theirs;
+    return acc;
+  }, { wins: 0, draws: 0, losses: 0, goalsFor: 0, goalsAgainst: 0 });
+  const leadingScorers = Object.entries(completedMatches.flatMap((match) => getCanonicalArchiveEventsForMatch(eventsArchive, matchSlug(match)))
+    .filter((event) => (event.eventType === "goal" || event.eventType === "penalty_goal") && event.teamKey?.toLowerCase() === teamDisplayName.toLowerCase())
+    .reduce<Record<string, number>>((totals, event) => ({ ...totals, [event.playerName]: (totals[event.playerName] ?? 0) + 1 }), {}))
+    .sort(([, left], [, right]) => right - left).slice(0, 3);
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-8">
@@ -185,7 +202,30 @@ export function TeamDetail({
       </div>
 
       {/* ── 3 MATCHDAY CARDS ────────────────────────────────────────────── */}
-      <section className="mt-6" aria-labelledby="team-journey-heading">
+       {hasKnockoutJourney ? <section className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4" aria-label={`${teamDisplayName} tournament summary`}>
+         <div className="rounded-xl border border-accent/30 bg-accent/10 p-4"><p className="text-[10px] font-bold uppercase tracking-widest text-white/50">Current status</p><p className="mt-1 font-heading text-lg font-extrabold text-white">{tournamentStatus.currentStageLabel}</p></div>
+         <div className="rounded-xl border border-white/10 bg-navyCard p-4"><p className="text-[10px] font-bold uppercase tracking-widest text-white/50">Latest result</p>{latestCompletedMatch ? (() => {
+           const m = latestCompletedMatch;
+           const homeKey = getResolvedHomeTeam(m, resolvedParticipants) ?? m.homeKey;
+           const awayKey = getResolvedAwayTeam(m, resolvedParticipants) ?? m.awayKey;
+           const home = country(homeKey);
+           const away = country(awayKey);
+           const snap = snapshotMatches[matchSlug(m)];
+           const statusLabel = snap ? getMatchStatusLabel(getMatchPresentation({ match: m, liveData: snap.live ?? undefined, timeZone: "UTC", now: new Date(ARCHIVE_DEFAULT_DATE) })) : "FT";
+           return (
+             <Link href={`/matches/${matchSlug(m)}`} className="mt-1 block transition-opacity hover:opacity-80">
+               <span className="font-heading text-xs font-extrabold text-accent">{fixtureStage(m)}</span><br/>
+               <span className="font-heading text-sm font-extrabold text-white">{home} {scoreOrVs(m)} {away}</span><br/>
+               <span className="font-heading text-[10px] font-bold uppercase tracking-widest text-white/50">{formatDate(m.date)} · {statusLabel}</span>
+             </Link>
+           );
+         })() : <p className="mt-1 font-heading text-sm font-extrabold text-white">—</p>}</div>
+         <div className="rounded-xl border border-white/10 bg-navyCard p-4"><p className="text-[10px] font-bold uppercase tracking-widest text-white/50">Next match</p>{nextListedMatch ? <Link href={`/matches/${matchSlug(nextListedMatch)}`} className="mt-1 block font-heading text-sm font-extrabold text-accent hover:text-white">{fixtureStage(nextListedMatch)}: {nextFixtureLabel}</Link> : <p className="mt-1 font-heading text-sm font-extrabold text-white">Tournament complete</p>}</div>
+         <div className="rounded-xl border border-white/10 bg-navyCard p-4"><p className="text-[10px] font-bold uppercase tracking-widest text-white/50">Tournament record</p><p className="mt-1 font-heading text-sm font-extrabold text-white">{form.wins}-{form.draws}-{form.losses} <span className="text-white/45">GF {form.goalsFor} GA {form.goalsAgainst}</span></p></div>
+       </section> : null}
+       {hasKnockoutJourney && leadingScorers.length > 0 ? <section className="mt-3 rounded-xl border border-white/10 bg-navyCard px-4 py-3"><p className="text-[10px] font-bold uppercase tracking-widest text-white/50">Leading scorers</p><p className="mt-1 text-sm text-white">{leadingScorers.map(([player, goals]) => `${player} (${goals})`).join(" · ")}</p></section> : null}
+
+       <section className="mt-6" aria-labelledby="team-journey-heading">
         <div className="mb-3 flex flex-wrap items-end justify-between gap-3">
           <div>
             <h2 id="team-journey-heading" className="font-heading text-2xl font-extrabold uppercase tracking-wide text-white">{hasKnockoutJourney ? "2026 Tournament Run" : "Tournament journey"}</h2>

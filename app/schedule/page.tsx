@@ -75,6 +75,9 @@ export default async function SchedulePage() {
           <LiveDataUnavailableNotice show />
         </div>
       ) : null}
+      <div className="mx-auto w-full max-w-7xl px-4 pt-8 sm:px-6 lg:px-8 pb-2">
+        <h1 className="font-heading text-4xl font-extrabold uppercase tracking-wide text-white">World Cup 2026 Match Schedule</h1>
+      </div>
       <ScheduleContent liveScores={liveScores} scorerLines={scorerLines} resolvedParticipants={buildKnockoutResolution(snapshot.matches)} />
     </>
   );
