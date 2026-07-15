@@ -43,6 +43,7 @@
     "recovered-deployment-*",
     "recovery-backups",
     "design-reference",
-    "scripts/scratch"
+    "scripts/scratch",
+    "scripts/test-final-browser-qa.ts"
   ]
 }
