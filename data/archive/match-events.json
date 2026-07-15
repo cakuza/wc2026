@@ -15368,5 +15368,39 @@
     "teamKey": "France",
     "sourceId": "espn",
     "confidence": "source_single"
+  },
+  {
+    "id": "espn:102_1",
+    "matchId": "match-102",
+    "playerName": "Anthony Gordon",
+    "eventType": "goal",
+    "minute": 55,
+    "period": "second_half",
+    "teamKey": "England",
+    "sourceId": "espn",
+    "confidence": "source_single"
+  },
+  {
+    "id": "espn:102_2",
+    "matchId": "match-102",
+    "playerName": "Enzo Fernández",
+    "eventType": "goal",
+    "minute": 85,
+    "period": "second_half",
+    "teamKey": "Argentina",
+    "sourceId": "espn",
+    "confidence": "source_single"
+  },
+  {
+    "id": "espn:102_3",
+    "matchId": "match-102",
+    "playerName": "Lautaro Martínez",
+    "eventType": "goal",
+    "minute": 90,
+    "stoppageMinute": 2,
+    "period": "second_half",
+    "teamKey": "Argentina",
+    "sourceId": "espn",
+    "confidence": "source_single"
   }
 ]

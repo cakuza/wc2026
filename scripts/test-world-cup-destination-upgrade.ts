@@ -124,6 +124,8 @@ async function main(): Promise<void> {
   const match102 = snapshot.matches["match-102"];
   if (match102?.status === "SCHEDULED") {
     assert(scheduled102 !== null && scheduled102.stats.length > 0 && scheduled102.winnerDestination !== undefined && scheduled102.loserDestination !== undefined, "scheduled Match 102 receives full preview data by status, not match number hardcoding");
+  } else if (match102?.status === "FINISHED") {
+    assert(scheduled102 === null, "completed Match 102 receives no scheduled preview payload");
   }
   for (const [matchId, entry] of Object.entries(snapshot.matches)) {
     if (entry.status !== "SCHEDULED" || !isKnockoutMatch(entry.match)) continue;
@@ -143,10 +145,12 @@ async function main(): Promise<void> {
     assert(html101.includes("France") && html101.includes("Spain") && html101.includes("Mikel Oyarzabal") && html101.includes("Semi-final"), "completed Match 101 static HTML contains canonical result, event, and stage");
     assert(html101.includes("/matches/match-103") && html101.includes("/matches/match-104"), "completed Match 101 contains advancement consequences");
     assert(!html101.includes("Bracket Destination") && !html101.includes("Tournament Stats Comparison"), "completed Match 101 contains no scheduled-preview module or copy");
-    assert(html102.includes("Preview") && html102.includes("England") && html102.includes("Argentina") && html102.includes("Recent Form") && html102.includes("Top Scorers"), "scheduled Match 102 static HTML contains substantial preview, form, and scorers");
-    assert(html102.includes("Goals Scored") && html102.includes("matches covered"), "scheduled Match 102 static HTML contains covered metrics");
-    assert(html102.includes(`Match 104 ${EM_DASH} Final`) && html102.includes("/matches/match-104") && html102.includes(`Match 103 ${EM_DASH} Third-place playoff`) && html102.includes("/matches/match-103"), "scheduled Match 102 static HTML contains separate destination labels and links");
-    assert(!html102.includes(">F<") && !html102.includes(">3P<"), "scheduled Match 102 exposes no raw destination labels");
+    
+    // Match 102 is now completed too
+    assert(html102.includes("England") && html102.includes("Argentina") && html102.includes("Anthony Gordon") && html102.includes("Semi-final"), "completed Match 102 static HTML contains canonical result, event, and stage");
+    assert(html102.includes("/matches/match-103") && html102.includes("/matches/match-104"), "completed Match 102 contains advancement consequences");
+    assert(!html102.includes("Bracket Destination") && !html102.includes("Tournament Stats Comparison"), "completed Match 102 contains no scheduled-preview module or copy");
+
     const title101 = html101.match(/<title>(.*?)<\/title>/)?.[1];
     const title102 = html102.match(/<title>(.*?)<\/title>/)?.[1];
     const description101 = html101.match(/name="description" content="(.*?)"/)?.[1];

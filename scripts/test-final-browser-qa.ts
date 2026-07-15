@@ -40,6 +40,8 @@ const ROUTES = [
   '/teams',
   '/teams/france',
   '/teams/spain',
+  '/teams/england',
+  '/teams/argentina',
   '/groups/group-a',
   '/groups/group-b',
   '/groups/group-c',
@@ -130,7 +132,7 @@ async function run() {
         if (route === '/') {
           assert(data.h1s === 1, `[${vp.width}] ${route} exactly one H1`);
           assert(/(France\s*0\s*[–-]\s*2\s*Spain|Spain\s*2\s*[–-]\s*0\s*France)/i.test(data.text), `[${vp.width}] ${route} Spain 2-0 France exists`);
-          assert(/England\s*vs\s*Argentina/i.test(data.text), `[${vp.width}] ${route} England vs Argentina exists`);
+          assert(/(England\s*1\s*[–-]\s*2\s*Argentina|Argentina\s*2\s*[–-]\s*1\s*England)/i.test(data.text), `[${vp.width}] ${route} England 1-2 Argentina exists`);
           assert(data.destExists, `[${vp.width}] ${route} destination section exists`);
           assert(data.qfExists, `[${vp.width}] ${route} first quarterfinal archive item exists`);
 
@@ -169,15 +171,11 @@ async function run() {
 
         else if (route === '/matches/match-102') {
           assert(data.h1s === 1, `[${vp.width}] ${route} exactly one H1`);
-          assert(/England\s*vs\s*Argentina/i.test(data.text), `[${vp.width}] ${route} England vs Argentina visible`);
-          assert(/Recent Form/i.test(data.text), `[${vp.width}] ${route} Recent Form visible`);
-          assert(/Tournament Journey/i.test(data.text), `[${vp.width}] ${route} Tournament Journey visible`);
-          assert(data.text.includes('Quarter-final') && data.text.includes('Switzerland'), `[${vp.width}] ${route} England journey visible`);
-          assert(data.text.includes('Quarter-final') && data.text.includes('Norway'), `[${vp.width}] ${route} Argentina journey visible`);
-          assert(data.text.includes('Atlanta'), `[${vp.width}] ${route} Atlanta visible`);
-          assert(data.text.includes('Mercedes-Benz Stadium'), `[${vp.width}] ${route} Mercedes-Benz Stadium visible`);
-          assert(data.links.some(l => l.includes('match-103')), `[${vp.width}] ${route} Match 103 destination link visible`);
-          assert(data.links.some(l => l.includes('match-104')), `[${vp.width}] ${route} Match 104 destination link visible`);
+          assert(/England\s*1[–-]\s*2\s*Argentina/i.test(data.text), `[${vp.width}] ${route} England 1-2 Argentina visible`);
+          assert(/Final|Completed|FT/i.test(data.text) && !/Scheduled/i.test(data.text), `[${vp.width}] ${route} completed state visible`);
+          assert(!data.text.includes('Recent Form'), `[${vp.width}] ${route} no Recent Form`);
+          assert(!data.text.includes('Tournament Journey'), `[${vp.width}] ${route} no Tournament Journey`);
+          assert(!/Match Preview/i.test(data.text), `[${vp.width}] ${route} no scheduled-preview module`);
         }
 
         else if (route.startsWith('/groups/group-')) {
@@ -194,12 +192,12 @@ async function run() {
         else if (route.startsWith('/schedule')) {
           assert(/Match 103/i.test(data.text), `[${vp.width}] ${route} Match 103 visible`);
           assert(/Third-place/i.test(data.text), `[${vp.width}] ${route} Third-place playoff visible`);
-          assert(/France/i.test(data.text), `[${vp.width}] ${route} France visible`);
-          assert(/Loser/i.test(data.text) && /England/i.test(data.text) && /Argentina/i.test(data.text), `[${vp.width}] ${route} Loser of England vs Argentina visible`);
+          assert(/France/i.test(data.text) && /England/i.test(data.text), `[${vp.width}] ${route} France vs England visible for third place`);
+          assert(!/Loser/i.test(data.text), `[${vp.width}] ${route} No 'Loser of' fallback string visible`);
           assert(/Match 104/i.test(data.text), `[${vp.width}] ${route} Match 104 visible`);
           assert(/Final/i.test(data.text), `[${vp.width}] ${route} Final visible`);
-          assert(/Spain/i.test(data.text), `[${vp.width}] ${route} Spain visible`);
-          assert(/Winner/i.test(data.text) && /England/i.test(data.text) && /Argentina/i.test(data.text), `[${vp.width}] ${route} Winner of England vs Argentina visible`);
+          assert(/Spain/i.test(data.text) && /Argentina/i.test(data.text), `[${vp.width}] ${route} Spain vs Argentina visible for final`);
+          assert(!/Winner/i.test(data.text), `[${vp.width}] ${route} No 'Winner of' fallback string visible`);
           assert(!/France\s*vs\s*Spain/i.test(data.text), `[${vp.width}] ${route} no false future France vs Spain fixture`);
         }
 
@@ -220,6 +218,18 @@ async function run() {
           if (route === '/teams/france') {
              assert(/Third-place/i.test(data.text) || /3rd Place/i.test(data.text), `[${vp.width}] ${route} Third-place path visible`);
           } else if (route === '/teams/spain') {
+             assert(/Final/i.test(data.text), `[${vp.width}] ${route} Final path visible`);
+          }
+        }
+        else if (route === '/teams/england' || route === '/teams/argentina') {
+          assert(/England\s*1[–-]\s*2\s*Argentina/i.test(data.text), `[${vp.width}] ${route} explicit England 1-2 Argentina latest result`);
+          assert(/lost to argentina|beat england/i.test(data.text) || /1[–-]2/i.test(data.text), `[${vp.width}] ${route} opponent-aware result copy`);
+          assert(data.links.some(l => l.includes('match-102')), `[${vp.width}] ${route} link to /matches/match-102`);
+          assert(!/\btbd\b/i.test(data.text), `[${vp.width}] ${route} no raw tbd`);
+
+          if (route === '/teams/england') {
+             assert(/Third-place/i.test(data.text) || /3rd Place/i.test(data.text), `[${vp.width}] ${route} Third-place path visible`);
+          } else if (route === '/teams/argentina') {
              assert(/Final/i.test(data.text), `[${vp.width}] ${route} Final path visible`);
           }
         }
