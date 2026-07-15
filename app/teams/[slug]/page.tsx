@@ -64,9 +64,16 @@ export async function generateMetadata({
     .map((t) => countryName(t.key, "en"));
   const opponentStr = opponents.join(", ");
 
+  const getParticipantName = (m: any, side: "home" | "away") => {
+    const key = side === "home" ? getResolvedHomeTeam(m, resolvedParticipants) : getResolvedAwayTeam(m, resolvedParticipants);
+    if (key) return countryName(key, "en");
+    if (!("matchNumber" in m)) return countryName(side === "home" ? m.homeKey : m.awayKey, "en");
+    return m[side === "home" ? "homeSlot" : "awaySlot"] ? m[side === "home" ? "homeSlot" : "awaySlot"].kind === "group" ? `Runner-up Group ${m[side === "home" ? "homeSlot" : "awaySlot"].group}` : `Winner Match ${m[side === "home" ? "homeSlot" : "awaySlot"].matchNumber}` : "TBD";
+  };
+
   const nextMatch = tournamentStatus.nextMatch;
   const nextFixture = nextMatch
-    ? `${countryName(getResolvedHomeTeam(nextMatch, resolvedParticipants) ?? nextMatch.homeKey, "en")} vs ${countryName(getResolvedAwayTeam(nextMatch, resolvedParticipants) ?? nextMatch.awayKey, "en")}`
+    ? `${getParticipantName(nextMatch, "home")} vs ${getParticipantName(nextMatch, "away")}`
     : null;
 
   const title = tournamentStatus.hasKnockoutJourney && tournamentStatus.currentStageLabel

@@ -15,7 +15,7 @@ import type { StandingRow } from "@/lib/groupStandings";
 import { pathSlotsForGroup, slotLabel } from "@/lib/knockoutBracket2026";
 import { firstMatchResultSentence, playedGroupSummary } from "@/lib/teamCopy";
 import { formatCanonicalGoalEvents, getCanonicalArchiveEventsForMatch } from "@/lib/canonicalArchiveEvents";
-import { getResolvedAwayTeam, getResolvedHomeTeam, type ResolvedParticipantLookup } from "@/lib/participant-resolution";
+import { getResolvedAwayTeam, getResolvedHomeTeam, knockoutSlotLabel, type ResolvedParticipantLookup } from "@/lib/participant-resolution";
 import { getMatchPresentation, getMatchStatusLabel } from "@/lib/matchPresentation";
 import { getTeamTournamentStatus } from "@/lib/teamTournamentStatus";
 
@@ -64,8 +64,16 @@ export function TeamDetail({
   const teamRow = standingsRows?.find((row) => row.teamKey === team.key);
   const hasPlayed = Boolean(teamRow && teamRow.played > 0);
   const teamDisplayName = country(team.key);
+
+  const getParticipantName = (m: Match, side: "home" | "away") => {
+    const key = side === "home" ? getResolvedHomeTeam(m, resolvedParticipants) : getResolvedAwayTeam(m, resolvedParticipants);
+    if (key) return country(key);
+    if (!("matchNumber" in m)) return country(side === "home" ? m.homeKey : m.awayKey);
+    return knockoutSlotLabel(side === "home" ? m.homeSlot : m.awaySlot, "en", resolvedParticipants);
+  };
+
   const nextFixtureLabel = nextListedMatch
-    ? `${country(getResolvedHomeTeam(nextListedMatch, resolvedParticipants) ?? nextListedMatch.homeKey)} ${t("vs")} ${country(getResolvedAwayTeam(nextListedMatch, resolvedParticipants) ?? nextListedMatch.awayKey)}`
+    ? `${getParticipantName(nextListedMatch, "home")} ${t("vs")} ${getParticipantName(nextListedMatch, "away")}`
     : null;
   const playedSummary = teamRow
     ? playedGroupSummary({
@@ -236,11 +244,17 @@ export function TeamDetail({
       {listedMatches.length > 0 && (
         <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
           {listedMatches.map((m, idx) => {
-            const resolvedHome = getResolvedHomeTeam(m, resolvedParticipants) ?? m.homeKey;
-            const resolvedAway = getResolvedAwayTeam(m, resolvedParticipants) ?? m.awayKey;
-            const isHome = resolvedHome === team.key;
-            const opponentKey = isHome ? resolvedAway : resolvedHome;
-            const opponentCode = TEAMS.find((candidate) => candidate.key === opponentKey)?.code ?? (isHome ? m.awayCode : m.homeCode);
+            const resolvedHome = getResolvedHomeTeam(m, resolvedParticipants);
+            const resolvedAway = getResolvedAwayTeam(m, resolvedParticipants);
+            const isHome = (resolvedHome ?? m.homeKey) === team.key;
+            let opponentKey = isHome ? resolvedAway : resolvedHome;
+            let opponentName = opponentKey ? country(opponentKey) : undefined;
+            if (!opponentName) {
+              opponentName = "matchNumber" in m
+                ? knockoutSlotLabel(isHome ? m.awaySlot : m.homeSlot, "en", resolvedParticipants)
+                : country(isHome ? m.awayKey : m.homeKey);
+            }
+            const opponentCode = opponentKey ? (TEAMS.find((candidate) => candidate.key === opponentKey)?.code ?? (isHome ? m.awayCode : m.homeCode)) : "tbd";
             return (
               <Link
                 key={idx}
@@ -263,15 +277,17 @@ export function TeamDetail({
 
                 {/* Opponent */}
                 <div className="flex items-center gap-2">
-                  <Flag
-                    code={opponentCode}
-                    name={country(opponentKey)}
-                    width={26}
-                    height={18}
-                    className="shrink-0 rounded-sm"
-                  />
+                  {opponentCode !== "tbd" && (
+                    <Flag
+                      code={opponentCode}
+                      name={opponentName}
+                      width={26}
+                      height={18}
+                      className="shrink-0 rounded-sm"
+                    />
+                  )}
                   <span className="truncate font-heading text-xs font-extrabold uppercase leading-tight tracking-wide text-white transition group-hover:text-accent">
-                    {country(opponentKey)}
+                    {opponentName}
                   </span>
                 </div>
 
@@ -305,13 +321,13 @@ export function TeamDetail({
         </div>
       ) : nextListedMatch && (() => {
         const isHome = nextListedMatch.homeKey === team.key;
-        const opponentKey = isHome ? nextListedMatch.awayKey : nextListedMatch.homeKey;
+        const opponentName = getParticipantName(nextListedMatch, isHome ? "away" : "home");
         return (
           <div className="mt-3 rounded-lg border border-white/10 bg-navyCard/70 px-4 py-3 text-sm text-white/70">
             <span className="font-semibold text-white">{country(team.key)}</span>
             {" "}are in Group {team.group}. Next listed match:{" "}
             <Link href={`/matches/${matchSlug(nextListedMatch)}`} className="font-semibold text-accent underline underline-offset-2 hover:text-white">
-              {country(team.key)} {t("vs")} {country(opponentKey)}
+              {country(team.key)} {t("vs")} {opponentName}
             </Link>
             {" "}at <MatchTime match={nextListedMatch} withZone className="font-semibold text-white" />.
             {" "}Top two teams in the group advance automatically; third place is ranked across all groups.
@@ -328,10 +344,9 @@ export function TeamDetail({
           {/* Q1: First match */}
           {teamMatches[0] && (() => {
             const m = teamMatches[0];
-            const isHome = m.homeKey === team.key;
-            const oppKey = isHome ? m.awayKey : m.homeKey;
+            const isHome = (getResolvedHomeTeam(m, resolvedParticipants) ?? m.homeKey) === team.key;
+            const oppName = getParticipantName(m, isHome ? "away" : "home");
             const teamName = country(team.key);
-            const oppName  = country(oppKey);
             const snap = snapshotMatches[matchSlug(m)];
             const dateStr  = formatDate(m.date);
             const timeStr  = m.time  ?? "";
