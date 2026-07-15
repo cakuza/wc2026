@@ -14,6 +14,8 @@ import type { MatchEvents } from "@/lib/matchEvents";
 import type { LiveMatchData, LiveMatchEvent } from "@/lib/liveMatchData";
 import type { StandingRow } from "@/lib/groupStandings";
 import type { ThirdPlaceRow } from "@/lib/thirdPlaceRanking";
+import type { KnockoutPreviewData } from "@/lib/scheduledKnockoutPreview";
+import { ScheduledKnockoutPreview } from "@/components/ScheduledKnockoutPreview";
 import { countryName } from "@/lib/i18n";
 import { buildScorerSentence, formatCanonicalResultSummary } from "@/lib/resultSummary";
 import { missingScorerDetailText, type GoalEventCompleteness } from "@/lib/goalEventCompleteness";
@@ -47,6 +49,7 @@ interface Props {
   groupStandings?: StandingRow[];
   thirdPlaceRows?: ThirdPlaceRow[];
   resolvedParticipants?: ResolvedParticipantLookup;
+  knockoutPreviewData?: KnockoutPreviewData | null;
 }
 
 type DisplayStatus = "upcoming" | "live" | "halftime" | "finished" | "syncing";
@@ -153,6 +156,25 @@ function ordinal(n: number) {
   return `${n}${suffix}`;
 }
 
+const VENUE_CITIES: Record<string, string> = {
+  "Estadio Azteca": "Mexico City",
+  "Estadio Akron": "Guadalajara",
+  "Estadio BBVA": "Monterrey",
+  "BMO Field": "Toronto",
+  "BC Place": "Vancouver",
+  "Mercedes-Benz Stadium": "Atlanta",
+  "Gillette Stadium": "Boston",
+  "AT&T Stadium": "Dallas",
+  "NRG Stadium": "Houston",
+  "GEHA Field at Arrowhead Stadium": "Kansas City",
+  "SoFi Stadium": "Los Angeles",
+  "Hard Rock Stadium": "Miami",
+  "MetLife Stadium": "New York / New Jersey",
+  "Lincoln Financial Field": "Philadelphia",
+  "Levi's Stadium": "San Francisco Bay Area",
+  "Lumen Field": "Seattle",
+};
+
 export function MatchDetail({
   match,
   events,
@@ -170,6 +192,7 @@ export function MatchDetail({
   groupStandings,
   thirdPlaceRows,
   resolvedParticipants,
+  knockoutPreviewData,
 }: Props) {
   const { t, country, formatDate } = useLang();
   const { timeZone } = useTimezone();
@@ -240,7 +263,11 @@ export function MatchDetail({
   const nextMatches = teamKeysForNext
     .map((teamKey) => {
       const next = MATCHES
-        .filter((m) => (m.homeKey === teamKey || m.awayKey === teamKey) && matchUtcDate(m).getTime() > matchTime)
+        .filter((m) => {
+          const mHome = getResolvedHomeTeam(m, resolvedParticipants) ?? m.homeKey;
+          const mAway = getResolvedAwayTeam(m, resolvedParticipants) ?? m.awayKey;
+          return (mHome === teamKey || mAway === teamKey) && matchUtcDate(m).getTime() > matchTime;
+        })
         .sort((a, b) => matchUtcDate(a).getTime() - matchUtcDate(b).getTime())[0];
       return next ? { teamKey, match: next } : null;
     })
@@ -476,7 +503,7 @@ export function MatchDetail({
             {match.venue && (
               <>
                 <span>·</span>
-                <span>{match.venue}</span>
+                <span>{match.venue} {VENUE_CITIES[match.venue] ? `(${VENUE_CITIES[match.venue]})` : ""}</span>
               </>
             )}
           </div>
@@ -518,7 +545,7 @@ export function MatchDetail({
               <p className="font-heading text-[11px] font-extrabold uppercase tracking-wide text-white/40">
                 {t("match_qa_where")}
               </p>
-              <p className="mt-1 text-sm font-semibold text-white">{match.venue}</p>
+              <p className="mt-1 text-sm font-semibold text-white">{match.venue} {VENUE_CITIES[match.venue] ? `(${VENUE_CITIES[match.venue]})` : ""}</p>
             </div>
           )}
           <div className="rounded-lg border border-white/8 bg-navyCard/60 px-4 py-3">
@@ -539,36 +566,46 @@ export function MatchDetail({
       <div className="mt-6 space-y-4">
         {status === "upcoming" ? (
           /* Pre-match preview */
-          <EventSection title={t("match_preview")} icon="🔭">
+          <EventSection title={t("match_preview") || "Preview"} icon="🔭">
             <p className="text-sm text-white/50">{t("match_previewNote")}</p>
-            <div className="mt-4 grid grid-cols-2 gap-3">
-              <div className="rounded-lg bg-navy/60 p-3 text-center">
-                <Flag
-                  code={homeKey ? (getResolvedHomeCode(match, resolvedParticipants) ?? match.homeCode) : ""}
-                  name={homeName}
-                  width={40}
-                  height={28}
-                  className="mx-auto rounded-sm"
+            {knockoutPreviewData ? (
+              <div className="mt-4">
+                <ScheduledKnockoutPreview
+                  match={match}
+                  resolvedParticipants={resolvedParticipants}
+                  previewData={knockoutPreviewData}
                 />
-                <p className="mt-2 font-heading text-xs font-extrabold uppercase tracking-wide text-white">
-                  {homeName}
-                </p>
-                <p className="mt-0.5 text-xs text-white/40">{stageLabel}</p>
               </div>
-              <div className="rounded-lg bg-navy/60 p-3 text-center">
-                <Flag
-                  code={awayKey ? (getResolvedAwayCode(match, resolvedParticipants) ?? match.awayCode) : ""}
-                  name={awayName}
-                  width={40}
-                  height={28}
-                  className="mx-auto rounded-sm"
-                />
-                <p className="mt-2 font-heading text-xs font-extrabold uppercase tracking-wide text-white">
-                  {awayName}
-                </p>
-                <p className="mt-0.5 text-xs text-white/40">{stageLabel}</p>
+            ) : (
+              <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
+                <div className="rounded-lg bg-navy/60 p-3 text-center">
+                  <Flag
+                    code={homeKey ? (getResolvedHomeCode(match, resolvedParticipants) ?? match.homeCode) : ""}
+                    name={homeName}
+                    width={40}
+                    height={28}
+                    className="mx-auto rounded-sm"
+                  />
+                  <p className="mt-2 font-heading text-xs font-extrabold uppercase tracking-wide text-white">
+                    {homeName}
+                  </p>
+                  <p className="mt-0.5 text-xs text-white/40">{stageLabel}</p>
+                </div>
+                <div className="rounded-lg bg-navy/60 p-3 text-center">
+                  <Flag
+                    code={awayKey ? (getResolvedAwayCode(match, resolvedParticipants) ?? match.awayCode) : ""}
+                    name={awayName}
+                    width={40}
+                    height={28}
+                    className="mx-auto rounded-sm"
+                  />
+                  <p className="mt-2 font-heading text-xs font-extrabold uppercase tracking-wide text-white">
+                    {awayName}
+                  </p>
+                  <p className="mt-0.5 text-xs text-white/40">{stageLabel}</p>
+                </div>
               </div>
-            </div>
+            )}
           </EventSection>
         ) : (
           <>

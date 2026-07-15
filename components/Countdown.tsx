@@ -58,11 +58,11 @@ export function CountdownTimer({ target }: { target: string | null }) {
 
   return (
     /* suppressHydrationWarning: numbers tick immediately after hydration */
-    <div className="flex gap-2 sm:gap-3" suppressHydrationWarning>
+    <div className="flex gap-1 sm:gap-3" suppressHydrationWarning>
       {cells.map((c, i) => (
-        <div key={i} className="min-w-[64px] rounded-lg border border-white/10 bg-navyCard px-3 py-2 text-center sm:min-w-[80px]">
-          <div className="font-heading text-3xl font-extrabold tabular-nums text-white sm:text-4xl">{c.value}</div>
-          <div className="mt-0.5 text-[10px] font-semibold uppercase tracking-wider text-white/50 sm:text-xs">{c.label}</div>
+        <div key={i} className="flex-1 min-w-0 rounded-lg border border-white/10 bg-navyCard px-1 py-0.5 text-center sm:py-2 sm:px-3 sm:min-w-[80px]">
+          <div className="font-heading text-xl font-extrabold tabular-nums text-white sm:text-4xl">{c.value}</div>
+          <div className="mt-0.5 text-[10px] font-medium uppercase tracking-tight text-white/50 sm:text-xs">{c.label}</div>
         </div>
       ))}
     </div>
