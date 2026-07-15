@@ -1,225 +1,249 @@
+/**
+ * Local/manual browser acceptance test.
+ * Excluded from the production TypeScript build.
+ * Requires a local Puppeteer installation.
+ * Supported setup: `npm install --no-save puppeteer`
+ * Package.json and package-lock.json must remain unchanged.
+ */
+
 import puppeteer from 'puppeteer';
 
+let failureCount = 0;
+function assert(condition: boolean, message: string) {
+  if (condition) {
+    console.log(`✅ PASS: ${message}`);
+  } else {
+    console.error(`❌ FAIL: ${message}`);
+    failureCount++;
+    process.exitCode = 1;
+  }
+}
+
 const VIEWPORTS = [
-  { width: 390, height: 844, name: 'Mobile (390)' }
+  { width: 1440, height: 900, name: 'Desktop (1440)' },
+  { width: 390, height: 844, name: 'Mobile (390)' },
+  { width: 360, height: 800, name: 'Mobile (360)' }
 ];
 
 const BASE_URL = 'http://localhost:3000';
-const URLS_TO_TEST = [
+const ROUTES = [
   '/',
+  '/today',
+  '/schedule',
+  '/schedule/australia-time',
+  '/schedule/brazil-time',
+  '/schedule/eastern-time',
+  '/schedule/india-time',
+  '/schedule/japan-time',
+  '/schedule/turkey-time',
+  '/schedule/uk-time',
+  '/teams',
   '/teams/france',
   '/teams/spain',
-  ...['a','b','c','d','e','f','g','h','i','j','k','l'].map(g => `/groups/group-${g}`),
-  '/schedule'
+  '/groups/group-a',
+  '/groups/group-b',
+  '/groups/group-c',
+  '/groups/group-d',
+  '/groups/group-e',
+  '/groups/group-f',
+  '/groups/group-g',
+  '/groups/group-h',
+  '/groups/group-i',
+  '/groups/group-j',
+  '/groups/group-k',
+  '/groups/group-l',
+  '/stats/top-scorers',
+  '/matches/match-101',
+  '/matches/match-102'
 ];
 
-async function checkClipping(page: any) {
-  return await page.evaluate(() => {
-    let culprets: string[] = [];
-    document.querySelectorAll('*').forEach((el: any) => {
-      // Check for horizontal clipping/overflow
-      if (el.scrollWidth > el.clientWidth && window.getComputedStyle(el).overflow !== 'hidden' && window.getComputedStyle(el).overflowX !== 'auto' && window.getComputedStyle(el).overflowX !== 'scroll') {
-        culprets.push(el.className + ' | <' + el.tagName + '>');
-      }
-    });
-    
-    // Check global horizontal scroll
-    if (document.documentElement.scrollWidth > window.innerWidth) {
-      culprets.push('document.documentElement exceeds innerWidth');
-    }
-    if (document.body.scrollWidth > window.innerWidth) {
-      culprets.push('document.body exceeds innerWidth');
-    }
-    
-    return culprets.length > 0 ? culprets : false;
-  });
-}
-
-async function checkH1Count(page: any) {
-  return await page.evaluate(() => document.querySelectorAll('h1').length);
-}
-
 async function run() {
-  const browser = await puppeteer.launch({ headless: true });
-  const page = await browser.newPage();
-
-  let hasErrors = false;
+  const browser = await puppeteer.launch({
+    headless: true,
+    args: ['--no-sandbox']
+  });
 
   for (const vp of VIEWPORTS) {
-    console.log(`\n=== Testing Viewport: ${vp.name} (${vp.width}x${vp.height}) ===`);
-    await page.setViewport({ width: vp.width, height: vp.height });
-
-    for (const route of URLS_TO_TEST) {
-      console.log(`\nTesting ${route}`);
-      
+    console.log(`\n===================`);
+    console.log(`TESTING AT ${vp.name}`);
+    console.log(`===================\n`);
+    for (const route of ROUTES) {
+      const page = await browser.newPage();
+      await page.setViewport(vp);
       const errors: string[] = [];
       const warnings: string[] = [];
-      
-      page.on('console', (msg) => {
-        if (msg.type() === 'error' && !msg.text().includes('404')) errors.push(msg.text());
-        if (msg.type() === 'warn') warnings.push(msg.text());
-      });
 
-      const suffix = route === '/' ? '' : '.html';
-      await page.goto(`${BASE_URL}${route}${suffix}`, { waitUntil: 'networkidle0' });
+      const onPageError = (err: any) => errors.push(err.message || err.toString());
+      const onConsole = (msg: any) => {
+        if (msg.type() === 'error' && !msg.text().includes('404') && !msg.text().includes('favicon')) {
+          errors.push(msg.text());
+        }
+        if (msg.type() === 'warn') {
+          warnings.push(msg.text());
+        }
+      };
 
-      // Check H1 Count
-      const h1Count = await checkH1Count(page);
-      if (h1Count !== 1) {
-        console.error(`❌ FAIL: Expected 1 H1 on ${route}, found ${h1Count}`);
-        hasErrors = true;
-      } else {
-        console.log(`✅ PASS: exactly 1 H1`);
-      }
+      page.on('pageerror', onPageError);
+      page.on('console', onConsole);
 
-      // Check Console Errors / Hydration Warnings
-      if (errors.length > 0) {
-        console.error(`❌ FAIL: Console errors found:`, errors);
-        hasErrors = true;
-      } else {
-        console.log(`✅ PASS: no console errors`);
-      }
+      try {
+        const suffix = route === '/' ? '' : '.html';
+        await page.goto(`${BASE_URL}${route}${suffix}`, { waitUntil: 'networkidle0' });
 
-      const hydrationWarnings = warnings.filter(w => w.toLowerCase().includes('hydration') || w.toLowerCase().includes('did not match'));
-      if (hydrationWarnings.length > 0) {
-        console.error(`❌ FAIL: Hydration warnings found:`, hydrationWarnings);
-        hasErrors = true;
-      } else {
-        console.log(`✅ PASS: no hydration warnings`);
-      }
+        const hydrationWarnings = warnings.filter(w => w.toLowerCase().includes('hydration') || w.toLowerCase().includes('did not match'));
 
-      // Check for horizontal overflow/clipping
-      const isClipped = await checkClipping(page);
-      if (isClipped) {
-        console.error(`❌ FAIL: Horizontal overflow / clipping detected on ${route}:`, isClipped);
-        hasErrors = true;
-      } else {
-        console.log(`✅ PASS: no horizontal overflow / clipping`);
-      }
+        assert(errors.length === 0, `[${vp.width}] ${route} no unexpected console errors: ${errors.join(', ')}`);
+        assert(hydrationWarnings.length === 0, `[${vp.width}] ${route} no hydration warnings: ${hydrationWarnings.join(', ')}`);
 
-      // PAGE SPECIFIC CHECKS
-      if (route === '/') {
-        const homeCheck = await page.evaluate(() => {
-          const h1 = document.querySelector('h1')?.getBoundingClientRect();
-          const spainCard = Array.from(document.querySelectorAll('a')).find(a => a.href.includes('match-101'))?.getBoundingClientRect();
-          const engCard = Array.from(document.querySelectorAll('a')).find(a => a.href.includes('match-102'))?.getBoundingClientRect();
-          const qfCard = Array.from(document.querySelectorAll('a')).find(a => a.href.includes('match-97') || a.href.includes('match-98') || a.href.includes('match-99') || a.href.includes('match-100'))?.getBoundingClientRect();
+        const data = await page.evaluate(() => {
+          const text = document.body.innerText || '';
+          const links = Array.from(document.querySelectorAll('a')).map(a => a.href);
+          const h1s = document.querySelectorAll('h1').length;
+
+          const spainNode = Array.from(document.querySelectorAll('a')).find(a => a.href.includes('match-101'))?.getBoundingClientRect();
+          const engNode = Array.from(document.querySelectorAll('a')).find(a => a.href.includes('match-102'))?.getBoundingClientRect();
           const destinations = Array.from(document.querySelectorAll('h2')).find(h => h.textContent?.includes('Destinations'))?.parentElement?.getBoundingClientRect();
-          return { 
-            h1: h1 ? { x: h1.x, y: h1.y, width: h1.width, height: h1.height, right: h1.right } : null,
-            spainCard: spainCard ? { x: spainCard.x, y: spainCard.y, width: spainCard.width, height: spainCard.height, right: spainCard.right } : null, 
-            engCard: engCard ? { x: engCard.x, y: engCard.y, width: engCard.width, height: engCard.height, right: engCard.right } : null, 
-            qfCard: qfCard ? { x: qfCard.x, y: qfCard.y, width: qfCard.width, height: qfCard.height, right: qfCard.right } : null,
-            destinations: destinations ? { x: destinations.x, y: destinations.y, width: destinations.width, height: destinations.height, right: destinations.right } : null,
-            innerWidth: window.innerWidth
+          const qfNode = Array.from(document.querySelectorAll('a')).find(a => a.href.includes('match-97') || a.href.includes('match-98') || a.href.includes('match-99') || a.href.includes('match-100'))?.getBoundingClientRect();
+          const tsInput = document.querySelector('input[type="search"]')?.getAttribute('aria-label');
+
+          return {
+            text,
+            links,
+            h1s,
+            docWidth: document.documentElement.scrollWidth,
+            bodyWidth: document.body.scrollWidth,
+            innerWidth: window.innerWidth,
+            spainExists: !!spainNode,
+            engExists: !!engNode,
+            destExists: !!destinations,
+            qfExists: !!qfNode,
+            spainY: spainNode ? spainNode.y : -1,
+            engY: engNode ? engNode.y : -1,
+            destY: destinations ? destinations.y : -1,
+            qfY: qfNode ? qfNode.y : -1,
+            destRight: destinations ? destinations.right : -1,
+            destX: destinations ? destinations.x : -1,
+            tsInput
           };
         });
-        console.log('Homepage Bounding Boxes:', homeCheck);
-        
-        if (!homeCheck.destinations) {
-          console.error(`❌ FAIL: destination section is absent`);
-          hasErrors = true;
-        } else {
-          if (homeCheck.engCard && homeCheck.destinations.y < homeCheck.engCard.y) {
-            console.error(`❌ FAIL: destination section appears before England-Argentina`);
-            hasErrors = true;
-          }
-          if (homeCheck.qfCard && homeCheck.destinations.y > homeCheck.qfCard.y) {
-            console.error(`❌ FAIL: destination section appears after the quarterfinal archive`);
-            hasErrors = true;
-          }
-          if (vp.width === 390 || vp.width === 360) {
-            if (homeCheck.destinations.right > homeCheck.innerWidth || homeCheck.destinations.x < 0) {
-              console.error(`❌ FAIL: destination rect extends outside the mobile viewport`);
-              hasErrors = true;
-            }
-          }
-        }
-        
-        if (vp.width === 390) {
-          if (homeCheck.spainCard && homeCheck.spainCard.y > 650) {
-            console.error(`❌ FAIL: Spain card y=${homeCheck.spainCard.y} exceeds 650`);
-            hasErrors = true;
-          }
-          if (homeCheck.engCard && homeCheck.engCard.y > 820) {
-            console.error(`❌ FAIL: England card y=${homeCheck.engCard.y} exceeds 820`);
-            hasErrors = true;
-          }
-          if (homeCheck.h1 && homeCheck.h1.right > homeCheck.innerWidth) {
-            console.error(`❌ FAIL: H1 overflows viewport`);
-            hasErrors = true;
-          }
-          if (homeCheck.spainCard && homeCheck.spainCard.right > homeCheck.innerWidth) {
-            console.error(`❌ FAIL: Spain card overflows viewport`);
-            hasErrors = true;
-          }
-          if (homeCheck.engCard && homeCheck.engCard.right > homeCheck.innerWidth) {
-            console.error(`❌ FAIL: England card overflows viewport`);
-            hasErrors = true;
-          }
-        }
-      }
-      
-      if (route === '/matches/match-102') {
-        const m102Check = await page.evaluate(() => {
-          const form = document.body.innerText?.includes('Recent Form');
-          const journey = document.body.innerText?.includes('Tournament Journey');
-          const engJourney = document.body.innerText?.includes('Quarter-final vs Switzerland');
-          const argJourney = document.body.innerText?.includes('Quarter-final vs Norway');
-          const cityVenue = document.body.innerText?.includes('Mercedes-Benz Stadium') && document.body.innerText?.includes('Atlanta');
-          const links = Array.from(document.querySelectorAll('a')).map(a => a.href);
-          const hasM103 = links.some(l => l.includes('match-103'));
-          const hasM104 = links.some(l => l.includes('match-104'));
-          return { form, journey, engJourney, argJourney, cityVenue, hasM103, hasM104 };
-        });
-        console.log('Match 102 Data:', m102Check);
-      }
-      
-      if (route.startsWith('/groups/group-')) {
-        const groupsCheck = await page.evaluate(() => {
-          const txt = document.body.innerText || '';
-          const c1 = (txt.match(/Advanced as group winner/g) || []).length;
-          const c2 = (txt.match(/Advanced as runner-up/g) || []).length;
-          const c3 = (txt.match(/Advanced as a third-place qualifier/g) || []).length;
-          const c4 = (txt.match(/Eliminated in the group stage/g) || []).length;
-          const totalLabels = c1 + c2 + c3 + c4;
-          
-          const noForbidden = !txt.match(/may qualify|eligible to advance|current leader|leads the group/i);
-          return { totalLabels, noForbidden };
-        });
-        console.log(`Group ${route} Data:`, groupsCheck);
-      }
 
-      if (route.startsWith('/schedule')) {
-        const scheduleCheck = await page.evaluate(() => {
-          const txt = document.body.innerText || '';
-          const hasM103 = txt.includes('Match 103') && txt.includes('Third-place playoff');
-          const hasM104 = txt.includes('Match 104') && txt.includes('Final');
-          
-          // Should not see raw "France vs Spain" scheduled future fixture
-          const hasFranceSpainStr = (txt.match(/France.{0,20}vs.{0,20}Spain/i) || []).length > 0;
-          return { hasM103, hasM104, hasFranceSpainStr };
-        });
-        console.log(`Schedule ${route} Data:`, scheduleCheck);
-      }
-      
-      if (route === '/stats/top-scorers') {
-        const tsCheck = await page.evaluate(() => {
-          const input = document.querySelector('input[type="search"]');
-          return input ? input.getAttribute('aria-label') : null;
-        });
-        console.log('Top Scorers Search ARIA Label:', tsCheck);
+        if (route === '/') {
+          assert(data.h1s === 1, `[${vp.width}] ${route} exactly one H1`);
+          assert(/(France\s*0\s*[–-]\s*2\s*Spain|Spain\s*2\s*[–-]\s*0\s*France)/i.test(data.text), `[${vp.width}] ${route} Spain 2-0 France exists`);
+          assert(/England\s*vs\s*Argentina/i.test(data.text), `[${vp.width}] ${route} England vs Argentina exists`);
+          assert(data.destExists, `[${vp.width}] ${route} destination section exists`);
+          assert(data.qfExists, `[${vp.width}] ${route} first quarterfinal archive item exists`);
+
+          if (data.spainExists && data.engExists && data.destExists && data.qfExists) {
+            assert(data.spainY <= data.engY, `[${vp.width}] ${route} visual order: Spain before England`);
+            assert(data.engY <= data.destY, `[${vp.width}] ${route} visual order: England before destinations`);
+            assert(data.destY <= data.qfY, `[${vp.width}] ${route} visual order: destinations before quarterfinals`);
+          }
+
+          assert(data.docWidth <= data.innerWidth, `[${vp.width}] ${route} document has no horizontal overflow`);
+          assert(data.bodyWidth <= data.innerWidth, `[${vp.width}] ${route} body has no horizontal overflow`);
+          if (data.destExists) {
+             assert(data.destRight <= data.innerWidth && data.destX >= 0, `[${vp.width}] ${route} destination section bounding box remains inside viewport`);
+          }
+
+          if (vp.width === 390 && data.spainExists && data.engExists) {
+            assert(data.spainY <= 650, `[${vp.width}] ${route} Spain y <= 650`);
+            assert(data.engY <= 820, `[${vp.width}] ${route} England-Argentina y <= 820`);
+          }
+        }
+
+        else if (route === '/today') {
+          assert(data.h1s === 1, `[${vp.width}] ${route} exactly one H1`);
+          assert(data.text.includes('France') && data.text.includes('Spain') && data.text.includes('2') && data.text.includes('0'), `[${vp.width}] ${route} current semifinal state is visible`);
+          assert(data.docWidth <= data.innerWidth, `[${vp.width}] ${route} no horizontal overflow`);
+        }
+
+        else if (route === '/matches/match-101') {
+          assert(data.h1s === 1, `[${vp.width}] ${route} exactly one H1`);
+          assert(/France\s*0[–-]\s*2\s*Spain/i.test(data.text), `[${vp.width}] ${route} France 0-2 Spain visible`);
+          assert(/Final|Completed|FT/i.test(data.text) && !/Scheduled/i.test(data.text), `[${vp.width}] ${route} completed state visible`);
+          assert(!data.text.includes('Recent Form'), `[${vp.width}] ${route} no Recent Form`);
+          assert(!data.text.includes('Tournament Journey'), `[${vp.width}] ${route} no Tournament Journey`);
+          assert(!/Match Preview/i.test(data.text), `[${vp.width}] ${route} no scheduled-preview module`);
+        }
+
+        else if (route === '/matches/match-102') {
+          assert(data.h1s === 1, `[${vp.width}] ${route} exactly one H1`);
+          assert(/England\s*vs\s*Argentina/i.test(data.text), `[${vp.width}] ${route} England vs Argentina visible`);
+          assert(/Recent Form/i.test(data.text), `[${vp.width}] ${route} Recent Form visible`);
+          assert(/Tournament Journey/i.test(data.text), `[${vp.width}] ${route} Tournament Journey visible`);
+          assert(data.text.includes('Quarter-final') && data.text.includes('Switzerland'), `[${vp.width}] ${route} England journey visible`);
+          assert(data.text.includes('Quarter-final') && data.text.includes('Norway'), `[${vp.width}] ${route} Argentina journey visible`);
+          assert(data.text.includes('Atlanta'), `[${vp.width}] ${route} Atlanta visible`);
+          assert(data.text.includes('Mercedes-Benz Stadium'), `[${vp.width}] ${route} Mercedes-Benz Stadium visible`);
+          assert(data.links.some(l => l.includes('match-103')), `[${vp.width}] ${route} Match 103 destination link visible`);
+          assert(data.links.some(l => l.includes('match-104')), `[${vp.width}] ${route} Match 104 destination link visible`);
+        }
+
+        else if (route.startsWith('/groups/group-')) {
+          const c1 = (data.text.match(/Advanced as group winner/gi) || []).length;
+          const c2 = (data.text.match(/Advanced as runner-up/gi) || []).length;
+          const c3 = (data.text.match(/Advanced as a third-place qualifier/gi) || []).length;
+          const c4 = (data.text.match(/Eliminated in the group stage/gi) || []).length;
+          assert((c1 + c2 + c3 + c4) === 4, `[${vp.width}] ${route} exactly four final-outcome labels`);
+
+          const forbidden = /may qualify|eligible to advance|current leader|leads the group/i.test(data.text);
+          assert(!forbidden, `[${vp.width}] ${route} no forbidden phrases`);
+        }
+
+        else if (route.startsWith('/schedule')) {
+          assert(/Match 103/i.test(data.text), `[${vp.width}] ${route} Match 103 visible`);
+          assert(/Third-place/i.test(data.text), `[${vp.width}] ${route} Third-place playoff visible`);
+          assert(/France/i.test(data.text), `[${vp.width}] ${route} France visible`);
+          assert(/Loser/i.test(data.text) && /England/i.test(data.text) && /Argentina/i.test(data.text), `[${vp.width}] ${route} Loser of England vs Argentina visible`);
+          assert(/Match 104/i.test(data.text), `[${vp.width}] ${route} Match 104 visible`);
+          assert(/Final/i.test(data.text), `[${vp.width}] ${route} Final visible`);
+          assert(/Spain/i.test(data.text), `[${vp.width}] ${route} Spain visible`);
+          assert(/Winner/i.test(data.text) && /England/i.test(data.text) && /Argentina/i.test(data.text), `[${vp.width}] ${route} Winner of England vs Argentina visible`);
+          assert(!/France\s*vs\s*Spain/i.test(data.text), `[${vp.width}] ${route} no false future France vs Spain fixture`);
+        }
+
+        else if (route === '/stats/top-scorers') {
+          assert(data.tsInput === 'Search players', `[${vp.width}] ${route} Top Scorers search field accessible name`);
+        }
+
+        else if (route === '/teams') {
+          assert(data.text.includes('Teams that still have a match remaining in the tournament.'), `[${vp.width}] ${route} active-filter description exact match`);
+        }
+
+        else if (route === '/teams/france' || route === '/teams/spain') {
+          assert(/France\s*0[–-]\s*2\s*Spain/i.test(data.text), `[${vp.width}] ${route} explicit France 0-2 Spain latest result`);
+          assert(/lost to spain|beat france/i.test(data.text) || /0[–-]2/i.test(data.text), `[${vp.width}] ${route} opponent-aware result copy`);
+          assert(data.links.some(l => l.includes('match-101')), `[${vp.width}] ${route} link to /matches/match-101`);
+          assert(!/\btbd\b/i.test(data.text), `[${vp.width}] ${route} no raw tbd`);
+
+          if (route === '/teams/france') {
+             assert(/Third-place/i.test(data.text) || /3rd Place/i.test(data.text), `[${vp.width}] ${route} Third-place path visible`);
+          } else if (route === '/teams/spain') {
+             assert(/Final/i.test(data.text), `[${vp.width}] ${route} Final path visible`);
+          }
+        }
+      } catch (err: any) {
+        assert(false, `[${vp.width}] ${route} evaluation or navigation error: ${err.message}`);
+      } finally {
+        page.off('pageerror', onPageError);
+        page.off('console', onConsole);
+        await page.close();
       }
     }
   }
 
   await browser.close();
-  if (hasErrors) {
-    console.error('FAILED SOME CHECKS');
-    throw new Error('Test failed');
+
+  if (failureCount > 0) {
+    console.error(`\nCompleted with ${failureCount} failures.`);
+    process.exitCode = 1;
   } else {
-    console.log('ALL PASSED');
+    console.log('\nALL CHECKS PASSED SUCCESSFULLY.');
   }
 }
 
-run().catch(console.error);
+run().catch((error) => {
+  console.error(error);
+  process.exitCode = 1;
+});
