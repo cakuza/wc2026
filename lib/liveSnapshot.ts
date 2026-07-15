@@ -9,7 +9,7 @@ import {
   computeTournamentStats,
   computePlayerEventLeaderboards,
   computeTeamStatLeaderboards,
-  type PlayerGoalStat,
+  type PlayerRankingRecord,
   type TeamLeaderboards,
   type TournamentStats,
   type PlayerEventLeaderboards,
@@ -79,7 +79,7 @@ export type TournamentLiveSnapshot = {
   teamLeaderboards: TeamLeaderboards;
   playerEventLeaderboards: PlayerEventLeaderboards;
   teamStatLeaderboards: TeamStatLeaderboards;
-  topScorers: PlayerGoalStat[];
+  topScorers: PlayerRankingRecord[];
   /** Diagnostics — internal freshness tracking, not provider-branded for public display. */
   primaryProviderOk: boolean;
   secondaryProviderOk: boolean;
@@ -106,12 +106,6 @@ type SnapshotProviderPayload = {
   skipEnrichment?: boolean;
 };
 
-type SnapshotCacheOptions = {
-  ttlMs: number;
-  now?: () => number;
-  build: () => Promise<TournamentLiveSnapshot>;
-};
-
 const TEAM_NAME_ALIASES: Record<string, string> = {
   czechrepublic: "czechia",
   bosniaandherzegovina: "bosniaherzegovina",
@@ -121,11 +115,6 @@ const TEAM_NAME_ALIASES: Record<string, string> = {
   congodr: "drcongo",
   korearepublic: "southkorea",
 };
-
-let lastKnownGoodSnapshot: TournamentLiveSnapshot | null = null;
-// The last validated snapshot this instance accepted, staged for promotion into
-// the durable cross-instance baseline cache (see durableBaselineCache below).
-let pendingBaselineSnapshot: TournamentLiveSnapshot | null = null;
 
 export function normalizeTeamName(name: string): string {
   const norm = name
@@ -168,10 +157,11 @@ export function canonicalStatus({
 }): SnapshotMatchStatus {
   const footballStatus = toSnapshotStatus(footballData);
   if (footballStatus === "FINISHED") return "FINISHED";
-  if (worldcupGame?.finished) return "FINISHED";
-  if (footballStatus === "LIVE" || footballStatus === "HALFTIME" || footballStatus === "SYNCING" || worldcupGame?.isLive) {
+  if (footballStatus === "LIVE" || footballStatus === "HALFTIME" || footballStatus === "SYNCING") {
     return footballStatus === "HALFTIME" ? "HALFTIME" : "LIVE";
   }
+  if (worldcupGame?.finished) return "FINISHED";
+  if (worldcupGame?.isLive) return "LIVE";
   return "SCHEDULED";
 }
 
@@ -448,12 +438,12 @@ function topScorersFromSnapshot(
   scorerEventsByMatch: ReadonlyMap<string, GoalScorerEvent[]>,
   liveData: ReadonlyMap<number, LiveMatchData>,
   matches: Record<string, SerializableSnapshotMatch>
-): PlayerGoalStat[] {
+): PlayerRankingRecord[] {
   // If provider data provides them directly from a tournament endpoint, we use that
   const providerScorers = computeTopScorers(liveData);
   if (providerScorers.length > 0) return providerScorers;
 
-  const scorerMap = new Map<string, PlayerGoalStat>();
+  const scorerMap = new Map<string, PlayerRankingRecord>();
   
   // Aggregate from all enriched match scorers
   for (const match of Object.values(matches)) {
@@ -468,6 +458,8 @@ function topScorersFromSnapshot(
           teamName: goal.teamName,
           teamKey: identity.teamKey,
           goals: 0,
+          assists: null,
+          minutesPlayed: null,
         });
       }
       scorerMap.get(identity.key)!.goals++;
@@ -640,34 +632,6 @@ export async function buildTournamentLiveSnapshot({
     secondaryProviderOk,
     primaryProviderFetchedAt,
     secondaryProviderFetchedAt,
-  };
-}
-
-export function createSerializableSnapshotCache({ ttlMs, now = () => Date.now(), build }: SnapshotCacheOptions) {
-  let cached: TournamentLiveSnapshot | null = null;
-  let expiresAt = 0;
-  let inFlight: Promise<TournamentLiveSnapshot> | null = null;
-
-  return async function getCachedSnapshot() {
-    const currentTime = now();
-    if (cached && currentTime < expiresAt) return cached;
-    if (inFlight) return inFlight;
-
-    inFlight = build()
-      .then((snapshot) => {
-        cached = snapshot;
-        expiresAt = now() + ttlMs;
-        return snapshot;
-      })
-      .catch((err) => {
-        if (cached) return cached;
-        throw err;
-      })
-      .finally(() => {
-        inFlight = null;
-      });
-
-    return inFlight;
   };
 }
 

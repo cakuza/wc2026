@@ -105,15 +105,15 @@ function mapOne(match: Match, fixture: KickoffApiFixture, overrides: readonly Fi
 
 console.log("=== KickoffAPI fixture mapping test ===\n");
 
-test("all 72 canonical fixtures map uniquely using deterministic fixtures", () => {
+test("all canonical fixtures map uniquely using deterministic fixtures", () => {
   const result = mapKickoffFixturesToCanonicalMatches({
     providerFixtures: deterministicFixtures(),
     overrides: REVIEWED_KICKOFF_FIXTURE_OVERRIDES,
   });
-  assert.strictEqual(result.summary.canonicalCount, 72);
-  assert.strictEqual(result.mappings.length, 72);
-  assert.strictEqual(result.summary.automaticallyMappedCount, 69);
-  assert.strictEqual(result.summary.explicitOverrideCount, 3);
+  assert.strictEqual(result.summary.canonicalCount, MATCHES.length);
+  assert.strictEqual(result.mappings.length, MATCHES.length);
+  assert.strictEqual(result.summary.automaticallyMappedCount + result.summary.explicitOverrideCount, MATCHES.length);
+  assert.strictEqual(result.summary.explicitOverrideCount, REVIEWED_KICKOFF_FIXTURE_OVERRIDES.length);
   assert.strictEqual(result.summary.unmappedCount, 0);
 });
 
@@ -298,7 +298,7 @@ test("substring and fuzzy accidental names do not match", () => {
 });
 
 test("alias collision invariant has zero collisions", () => {
-  const canonicalTeamKeys = [...new Set(MATCHES.flatMap((match) => [match.homeKey, match.awayKey]))].sort((a, b) => a.localeCompare(b, "en"));
+  const canonicalTeamKeys = [...new Set(MATCHES.flatMap((match) => [match.homeKey, match.awayKey]).filter((teamKey) => teamKey !== "tbd"))].sort((a, b) => a.localeCompare(b, "en"));
   const reverseAliases = new Map<string, string>();
   const collisions: Array<{ normalizedAlias: string; teamKeys: string[] }> = [];
   let rawAliasCount = 0;

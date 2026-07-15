@@ -15205,6 +15205,17 @@
     "confidence": "source_single"
   },
   {
+    "id": "espn:49792518",
+    "matchId": "match-101",
+    "playerName": "Mikel Oyarzabal",
+    "eventType": "penalty_goal",
+    "minute": 22,
+    "period": "first_half",
+    "teamKey": "Spain",
+    "sourceId": "espn",
+    "confidence": "source_single"
+  },
+  {
     "id": "espn:49792635",
     "matchId": "match-101",
     "playerName": "Maxence Lacroix",
