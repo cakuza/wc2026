@@ -85,6 +85,61 @@ const ROUTES = [
 // comparing one section's bottom edge against the next section's top edge.
 const ORDER_TOLERANCE_PX = 5;
 
+// Server-rendered HTML must never disagree with the hydrated DOM about
+// tournament lifecycle state. Raw HTML is viewport-independent, so it is
+// fetched once per route (not once per route×viewport) and cached here.
+const rawHtmlByRoute = new Map<string, string>();
+
+async function getRawHtml(route: string): Promise<string> {
+  const cached = rawHtmlByRoute.get(route);
+  if (cached !== undefined) return cached;
+  const res = await fetch(`${BASE_URL}${route}`);
+  const html = res.ok ? await res.text() : '';
+  rawHtmlByRoute.set(route, html);
+  return html;
+}
+
+/**
+ * Approximates visible page text from raw server HTML: strips <script> tags
+ * (which embed the RSC flight-data payload — prop names like
+ * "isTournamentComplete":false would otherwise false-positive-match a naive
+ * "tournament complete" substring search) and reduces remaining markup to
+ * text, mirroring what document.body.innerText exposes in the hydrated DOM.
+ */
+function visibleTextFromHtml(html: string): string {
+  return html
+    .replace(/<script[\s\S]*?<\/script>/gi, ' ')
+    .replace(/<style[\s\S]*?<\/style>/gi, ' ')
+    .replace(/<[^>]+>/g, ' ');
+}
+
+/**
+ * Proves the exact regression this suite exists to catch: components like
+ * CountdownClient render nothing on the server (client-only island) and
+ * only decide "Tournament complete" post-hydration — so a bug in that
+ * decision (e.g. treating a null countdown target as completion) is
+ * invisible to server-HTML-only checks and only shows up by diffing server
+ * HTML against the hydrated DOM. Requires whitespace between the two words
+ * so it matches only rendered copy, never a camelCase identifier like
+ * "isTournamentComplete" embedded in the RSC payload.
+ */
+function assertNoLifecycleDivergence(label: string, route: string, rawHtml: string, hydratedText: string) {
+  const serverSaysComplete = /tournament\s+complete/i.test(visibleTextFromHtml(rawHtml));
+  const hydratedSaysComplete = /tournament\s+complete/i.test(hydratedText);
+  if (!serverSaysComplete && hydratedSaysComplete) {
+    assert(false, `[${label}] ${route} Lifecycle divergence: server says pre-final, hydrated DOM says tournament complete`);
+  } else {
+    assert(true, `[${label}] ${route} no server-vs-hydrated-DOM lifecycle divergence`);
+  }
+  // The reverse direction (server claims completion the client silently
+  // retracts) is equally a truth failure, just not the specific regression
+  // this suite was built to catch — still worth a permanent guard.
+  assert(
+    !(serverSaysComplete && !hydratedSaysComplete),
+    `[${label}] ${route} Lifecycle divergence: server says tournament complete, hydrated DOM does not`,
+  );
+}
+
 async function run() {
   const browser = await puppeteer.launch({
     headless: true,
@@ -172,6 +227,9 @@ async function run() {
             tsInput,
           };
         });
+
+        const rawHtml = await getRawHtml(route);
+        assertNoLifecycleDivergence(label, route, rawHtml, data.text);
 
         if (route === '/') {
           assert(data.h1s === 1, `[${label}] ${route} exactly one H1`);
