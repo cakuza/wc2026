@@ -74,6 +74,9 @@ const ROUTES = [
   '/matches/match-102',
   '/matches/match-103',
   '/matches/match-104',
+  '/world-cup-2026',
+  '/world-cup-2026/results',
+  '/world-cup-2026/results/2026-07-11',
 ];
 
 // Small documented tolerance for sub-pixel/anti-aliasing rounding when
@@ -83,7 +86,11 @@ const ORDER_TOLERANCE_PX = 5;
 async function run() {
   const browser = await puppeteer.launch({
     headless: true,
-    args: ['--no-sandbox'],
+    // --disable-dev-shm-usage and --disable-gpu harden long sequential-page
+    // Chromium runs against sandboxed/constrained environments, where the
+    // default /dev/shm size or GPU process can otherwise cause a silent
+    // mid-run crash with no error output after dozens of page navigations.
+    args: ['--no-sandbox', '--disable-dev-shm-usage', '--disable-gpu'],
   });
 
   let totalAssertionsBefore = 0;
@@ -249,6 +256,31 @@ async function run() {
           assert(!/Winner Match 101|Winner Match 102/i.test(data.text), `[${label}] ${route} no raw Winner Match 101/102 labels`);
           assert(!/\btbd\b/i.test(data.text), `[${label}] ${route} no raw tbd`);
           assert(!/Winner\s*of|Loser\s*of/i.test(data.text), `[${label}] ${route} no unresolved participant labels`);
+        }
+
+        else if (route === '/world-cup-2026') {
+          assert(data.h1s === 1, `[${label}] ${route} exactly one H1`);
+          assert(data.links.some(l => l.includes('/world-cup-2026/results')), `[${label}] ${route} links to full results archive`);
+          assert(data.links.some(l => l.includes('/bracket')), `[${label}] ${route} links to bracket`);
+          assert(data.links.some(l => l.includes('/stats')), `[${label}] ${route} links to stats`);
+          assert(data.links.some(l => l.includes('/teams')), `[${label}] ${route} links to teams`);
+          assert(data.links.some(l => l.includes('/groups')), `[${label}] ${route} links to groups`);
+          assert(data.docWidth <= data.innerWidth, `[${label}] ${route} no horizontal overflow`);
+        }
+
+        else if (route === '/world-cup-2026/results') {
+          assert(data.h1s === 1, `[${label}] ${route} exactly one H1`);
+          assert(data.links.some(l => l.includes('/matches/match-104')), `[${label}] ${route} links to the Final match page`);
+          assert(data.links.some(l => l.includes('/matches/match-103')), `[${label}] ${route} links to the Third-place match page`);
+          assert(!/\btbd\b/i.test(data.text), `[${label}] ${route} no raw tbd`);
+          assert(data.docWidth <= data.innerWidth, `[${label}] ${route} no horizontal overflow`);
+        }
+
+        else if (route === '/world-cup-2026/results/2026-07-11') {
+          assert(data.h1s === 1, `[${label}] ${route} exactly one H1`);
+          assert(/July 11,? 2026/i.test(data.text), `[${label}] ${route} date-page heading is visible`);
+          assert(!/\btbd\b/i.test(data.text), `[${label}] ${route} no raw tbd`);
+          assert(data.docWidth <= data.innerWidth, `[${label}] ${route} no horizontal overflow`);
         }
 
         else if (route === '/bracket') {
