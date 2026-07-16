@@ -15370,7 +15370,40 @@
     "confidence": "source_single"
   },
   {
-    "id": "espn:102_1",
+    "id": "espn:49796710",
+    "matchId": "match-102",
+    "playerName": "Elliot Anderson",
+    "eventType": "yellow_card",
+    "minute": 37,
+    "period": "first_half",
+    "teamKey": "England",
+    "sourceId": "espn",
+    "confidence": "source_single"
+  },
+  {
+    "id": "espn:49796783",
+    "matchId": "match-102",
+    "playerName": "Lisandro Martínez",
+    "eventType": "yellow_card",
+    "minute": 42,
+    "period": "first_half",
+    "teamKey": "Argentina",
+    "sourceId": "espn",
+    "confidence": "source_single"
+  },
+  {
+    "id": "espn:49797058",
+    "matchId": "match-102",
+    "playerName": "Cristian Romero",
+    "eventType": "yellow_card",
+    "minute": 51,
+    "period": "second_half",
+    "teamKey": "Argentina",
+    "sourceId": "espn",
+    "confidence": "source_single"
+  },
+  {
+    "id": "espn:49797120",
     "matchId": "match-102",
     "playerName": "Anthony Gordon",
     "eventType": "goal",
@@ -15378,10 +15411,107 @@
     "period": "second_half",
     "teamKey": "England",
     "sourceId": "espn",
-    "confidence": "source_single"
+    "confidence": "source_single",
+    "assistPlayerName": "Morgan Rogers"
   },
   {
-    "id": "espn:102_2",
+    "id": "espn:49797288",
+    "matchId": "match-102",
+    "playerName": "Nico González",
+    "eventType": "substitution",
+    "minute": 64,
+    "period": "second_half",
+    "teamKey": "Argentina",
+    "sourceId": "espn",
+    "confidence": "source_single",
+    "relatedPlayerName": "Leandro Paredes"
+  },
+  {
+    "id": "espn:49797375",
+    "matchId": "match-102",
+    "playerName": "Ezri Konsa",
+    "eventType": "substitution",
+    "minute": 72,
+    "period": "second_half",
+    "teamKey": "England",
+    "sourceId": "espn",
+    "confidence": "source_single",
+    "relatedPlayerName": "Anthony Gordon"
+  },
+  {
+    "id": "espn:49797376",
+    "matchId": "match-102",
+    "playerName": "Gonzalo Montiel",
+    "eventType": "substitution",
+    "minute": 72,
+    "period": "second_half",
+    "teamKey": "Argentina",
+    "sourceId": "espn",
+    "confidence": "source_single",
+    "relatedPlayerName": "Nahuel Molina"
+  },
+  {
+    "id": "espn:49797374",
+    "matchId": "match-102",
+    "playerName": "Rodrigo De Paul",
+    "eventType": "substitution",
+    "minute": 72,
+    "period": "second_half",
+    "teamKey": "Argentina",
+    "sourceId": "espn",
+    "confidence": "source_single",
+    "relatedPlayerName": "Giuliano Simeone"
+  },
+  {
+    "id": "espn:49797377",
+    "matchId": "match-102",
+    "playerName": "Nicolás Otamendi",
+    "eventType": "substitution",
+    "minute": 72,
+    "period": "second_half",
+    "teamKey": "Argentina",
+    "sourceId": "espn",
+    "confidence": "source_single",
+    "relatedPlayerName": "Lisandro Martínez"
+  },
+  {
+    "id": "espn:49797544",
+    "matchId": "match-102",
+    "playerName": "Lautaro Martínez",
+    "eventType": "substitution",
+    "minute": 81,
+    "period": "second_half",
+    "teamKey": "Argentina",
+    "sourceId": "espn",
+    "confidence": "source_single",
+    "relatedPlayerName": "Nicolás Tagliafico"
+  },
+  {
+    "id": "espn:49797550",
+    "matchId": "match-102",
+    "playerName": "Dan Burn",
+    "eventType": "substitution",
+    "minute": 82,
+    "period": "second_half",
+    "teamKey": "England",
+    "sourceId": "espn",
+    "confidence": "source_single",
+    "relatedPlayerName": "Reece James"
+  },
+  {
+    "id": "espn:49797552",
+    "matchId": "match-102",
+    "playerName": "Nico O'Reilly",
+    "eventType": "substitution",
+    "minute": 82,
+    "period": "second_half",
+    "teamKey": "England",
+    "sourceId": "espn",
+    "confidence": "source_single",
+    "relatedPlayerName": "Declan Rice"
+  },
+  {
+    "id": "espn:49797604",
     "matchId": "match-102",
     "playerName": "Enzo Fernández",
     "eventType": "goal",
@@ -15389,10 +15519,11 @@
     "period": "second_half",
     "teamKey": "Argentina",
     "sourceId": "espn",
-    "confidence": "source_single"
+    "confidence": "source_single",
+    "assistPlayerName": "Lionel Messi"
   },
   {
-    "id": "espn:102_3",
+    "id": "espn:49797667",
     "matchId": "match-102",
     "playerName": "Lautaro Martínez",
     "eventType": "goal",
@@ -15401,6 +15532,45 @@
     "period": "second_half",
     "teamKey": "Argentina",
     "sourceId": "espn",
+    "confidence": "source_single",
+    "assistPlayerName": "Lionel Messi"
+  },
+  {
+    "id": "espn:49797670",
+    "matchId": "match-102",
+    "playerName": "Rodrigo De Paul",
+    "eventType": "yellow_card",
+    "minute": 90,
+    "stoppageMinute": 4,
+    "period": "second_half",
+    "teamKey": "Argentina",
+    "sourceId": "espn",
     "confidence": "source_single"
+  },
+  {
+    "id": "espn:49797694",
+    "matchId": "match-102",
+    "playerName": "Ivan Toney",
+    "eventType": "substitution",
+    "minute": 90,
+    "stoppageMinute": 6,
+    "period": "second_half",
+    "teamKey": "England",
+    "sourceId": "espn",
+    "confidence": "source_single",
+    "relatedPlayerName": "John Stones"
+  },
+  {
+    "id": "espn:49797695",
+    "matchId": "match-102",
+    "playerName": "Marcus Rashford",
+    "eventType": "substitution",
+    "minute": 90,
+    "stoppageMinute": 6,
+    "period": "second_half",
+    "teamKey": "England",
+    "sourceId": "espn",
+    "confidence": "source_single",
+    "relatedPlayerName": "Djed Spence"
   }
 ]

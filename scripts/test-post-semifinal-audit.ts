@@ -98,9 +98,22 @@ async function run() {
   const lautaro = "Lautaro Mart\u00ednez";
   assertArchiveScorer(alvarez, "Argentina", 1);
   assertArchiveScorer("Alexis Mac Allister", "Argentina", 1);
-  assertArchiveScorer(lautaro, "Argentina", 1);
+  assertArchiveScorer(lautaro, "Argentina", 2);
   assertArchiveScorer("Jude Bellingham", "England", 6);
   assertArchiveScorer("Dan Ndoye", "Switzerland", 2);
+  assertArchiveScorer("Anthony Gordon", "England", 1);
+  assertArchiveScorer("Enzo Fern\u00e1ndez", "Argentina", 2);
+
+  const messiAssists = MATCHES.flatMap((match) => getCanonicalArchiveEventsForMatch(matchEventsData, matchSlug(match)))
+    .filter((event) => event.eventType === "goal" && resolveCanonicalPlayerIdentity(event.assistPlayerName || "", event.teamKey)?.playerName === "Lionel Messi")
+    .length;
+  assert.equal(messiAssists, 4, "Lionel Messi gains two Match 102 assists");
+
+  const rogersAssists = MATCHES.flatMap((match) => getCanonicalArchiveEventsForMatch(matchEventsData, matchSlug(match)))
+    .filter((event) => event.eventType === "goal" && resolveCanonicalPlayerIdentity(event.assistPlayerName || "", event.teamKey)?.playerName === "Morgan Rogers")
+    .length;
+  assert.equal(rogersAssists, 1, "Morgan Rogers assist total");
+
   for (const rawAlias of ["ALVAREZ Julian", "Julian Alvarez", "MAC ALLISTER Alexis"]) {
     assert.equal(snapshot.topScorers.some((row) => row.playerName === rawAlias), false, `${rawAlias} must not appear as a separate snapshot scorer`);
   }
@@ -112,6 +125,43 @@ async function run() {
     canonicalArchiveGoalTotal,
     "snapshot scorer totals must not duplicate canonical archive goals",
   );
+
+  const match102 = MATCHES.find((match) => "matchNumber" in match && match.matchNumber === 102)!;
+  const match102Events = getCanonicalArchiveEventsForMatch(matchEventsData, matchSlug(match102));
+  const match102Goals = match102Events.filter((e) => e.eventType === "goal");
+  assert.equal(match102Goals.length, 3, "exactly three goal events in Match 102");
+
+  const gordonGoal = match102Goals.find(g => g.playerName === "Anthony Gordon");
+  const enzoGoal = match102Goals.find(g => g.playerName === "Enzo Fernández");
+  const lautaroGoal = match102Goals.find(g => g.playerName === "Lautaro Martínez");
+
+  assert.equal(gordonGoal?.assistPlayerName, "Morgan Rogers", "Gordon assisted by Rogers");
+  assert.equal(enzoGoal?.assistPlayerName, "Lionel Messi", "Enzo assisted by Messi");
+  assert.equal(lautaroGoal?.assistPlayerName, "Lionel Messi", "Lautaro assisted by Messi");
+
+  const matchStatsData = JSON.parse(fs.readFileSync("data/archive/match-stats.json", "utf8"));
+  const match102Stats = matchStatsData.find((s: any) => s.matchId === "match-102");
+  assert.ok(match102Stats, "exactly one completed Match 102 result stats");
+  assert.equal(match102Stats.possession.home, 35.7, "England possession is 35.7");
+  assert.equal(match102Stats.possession.away, 64.3, "Argentina possession is 64.3");
+
+  for (const e of match102Events as any[]) {
+    assert.ok(!e.id.startsWith("espn:102_"), "no espn:102_* IDs");
+    assert.ok(e.id.startsWith("espn:"), "authentic ESPN provider event IDs");
+  }
+  const match102Yellows = match102Events.filter(e => e.eventType === "yellow_card");
+  assert.equal(match102Yellows.length, 4, "all ESPN cards are represented");
+
+  const match102Subs = match102Events.filter(e => e.eventType === "substitution");
+  assert.equal(match102Subs.length, 10, "all ESPN substitutions supported by the schema are represented");
+
+  const match102GoalsHT = match102Goals.filter(g => (g as any).period === "first_half");
+  assert.equal(match102GoalsHT.length, 0, "halftime score is 0-0");
+
+  const engGoals = match102Goals.filter(g => g.teamKey === "England").length;
+  const argGoals = match102Goals.filter(g => g.teamKey === "Argentina").length;
+  assert.equal(engGoals, 1, "final score England 1");
+  assert.equal(argGoals, 2, "final score Argentina 2");
 
   const match99 = MATCHES.find((match) => "matchNumber" in match && match.matchNumber === 99)!;
   const match100 = MATCHES.find((match) => "matchNumber" in match && match.matchNumber === 100)!;

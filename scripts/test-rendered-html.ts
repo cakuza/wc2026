@@ -71,8 +71,8 @@ async function main() {
     assert(existsSync(route), route + ' exists');
     if (existsSync(route)) {
       const html = readFileSync(route, 'utf8').replace(/<!-- -->/g, '');
-      assert(html.includes('Match 103') && html.includes('Third-place playoff') && html.includes('France') && html.includes('Loser of England vs Argentina'), 'Route ' + route + ' has visible Match 103, Third-place playoff, France, Loser of England vs Argentina');
-      assert(html.includes('Match 104') && html.includes('Final') && html.includes('Spain') && html.includes('Winner of England vs Argentina'), 'Route ' + route + ' has visible Match 104, Final, Spain, Winner of England vs Argentina');
+      assert(html.includes('Match 103') && html.includes('Third-place playoff') && html.includes('France') && html.includes('England'), 'Route ' + route + ' has visible Match 103, Third-place playoff, France, England');
+      assert(html.includes('Match 104') && html.includes('Final') && html.includes('Spain') && html.includes('Argentina'), 'Route ' + route + ' has visible Match 104, Final, Spain, Argentina');
       const htmlNoScripts = html.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '');
       assert(!htmlNoScripts.match(/France.{0,20}vs.{0,20}Spain/i), 'Route ' + route + ' has no future France vs Spain fixture');
       
