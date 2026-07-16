@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { useLang } from "@/components/LanguageProvider";
-import { DESKTOP_LINKS, PRIMARY_LINKS, SECONDARY_LINKS, isActive } from "@/lib/navLinks";
+import { getDesktopLinks, getPrimaryLinks, getSecondaryLinks, isActive } from "@/lib/navLinks";
 import { getTodayHref } from "@/lib/todaySelection";
 import { useTimezone } from "@/components/TimezoneProvider";
 
@@ -62,6 +62,19 @@ function PrimaryIcon({ href }: { href: string }) {
           <path d="M14 16h2" />
         </svg>
       );
+    case "/world-cup-2026":
+      return (
+        <svg {...common} xmlns="http://www.w3.org/2000/svg">
+          <path d="M8 21h8M12 17v4M6 4h12v3a6 6 0 0 1-12 0V4z" />
+          <path d="M6 5H3a3 3 0 0 0 3 5M18 5h3a3 3 0 0 1-3 5" />
+        </svg>
+      );
+    case "/world-cup-2026/results":
+      return (
+        <svg {...common} xmlns="http://www.w3.org/2000/svg">
+          <path d="M9 11l2 2 4-4M4 4h16v16H4z" />
+        </svg>
+      );
     default:
       return null;
   }
@@ -73,12 +86,14 @@ function MobileDrawer({
   pathname,
   t,
   todayHref,
+  isTournamentComplete,
 }: {
   open: boolean;
   onClose: () => void;
   pathname: string;
   t: (key: string) => string;
   todayHref: string;
+  isTournamentComplete: boolean;
 }) {
   const panelRef = useRef<HTMLDivElement>(null);
   const restoreFocusRef = useRef<HTMLElement | null>(null);
@@ -161,7 +176,7 @@ function MobileDrawer({
           </button>
         </div>
         <nav aria-label="Secondary" className="flex flex-col gap-1 px-3 py-3">
-          {SECONDARY_LINKS.map((l) => {
+          {getSecondaryLinks(isTournamentComplete).map((l) => {
             const actualHref = l.href === "/today" ? todayHref : l.href;
             const active = isActive(pathname, l.href);
             return (
@@ -184,7 +199,7 @@ function MobileDrawer({
   );
 }
 
-export function Nav() {
+export function Nav({ isTournamentComplete }: { isTournamentComplete: boolean }) {
   const { t } = useLang();
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
@@ -210,7 +225,7 @@ export function Nav() {
           </Link>
           {/* Desktop nav */}
           <nav aria-label="Primary" className="hidden items-center gap-1 lg:flex">
-            {DESKTOP_LINKS.map((l) => {
+            {getDesktopLinks(isTournamentComplete).map((l) => {
               const actualHref = l.href === "/today" ? todayHref : l.href;
               const active = isActive(pathname, l.href);
               return (
@@ -250,7 +265,7 @@ export function Nav() {
       {/* Persistent mobile primary nav — visible without opening any menu */}
       <nav aria-label="Primary" className="border-t border-white/10 bg-navy lg:hidden">
         <div className="mx-auto grid max-w-7xl grid-cols-4">
-          {PRIMARY_LINKS.map((l) => {
+          {getPrimaryLinks(isTournamentComplete).map((l) => {
             const actualHref = l.href === "/today" ? todayHref : l.href;
             const active = isActive(pathname, l.href);
             return (
@@ -265,7 +280,7 @@ export function Nav() {
                 }`}
               >
                 <PrimaryIcon href={l.href} />
-                <span className="w-full truncate text-center">{t(l.key)}</span>
+                <span className="w-full truncate text-center">{l.label ?? t(l.key)}</span>
                 <span
                   aria-hidden
                   className={`h-0.5 w-6 rounded-full ${active ? "bg-accent" : "bg-transparent"}`}
@@ -276,7 +291,7 @@ export function Nav() {
         </div>
       </nav>
 
-      <MobileDrawer open={menuOpen} onClose={closeMenu} pathname={pathname} t={t} todayHref={todayHref} />
+      <MobileDrawer open={menuOpen} onClose={closeMenu} pathname={pathname} t={t} todayHref={todayHref} isTournamentComplete={isTournamentComplete} />
     </header>
   );
 }
