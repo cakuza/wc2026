@@ -174,6 +174,19 @@ export function MatchCenterContent({
     return (
       <div className="rounded-xl border border-white/10 bg-navyCard p-4 shadow-2xl sm:p-6">
         <div className="space-y-4 sm:space-y-6">
+          {tournamentPhase === "tournament_complete" && phaseSnapshot.destinations && phaseSnapshot.destinations.length > 0 && (
+            <section>
+              <h2 className="mb-3 font-heading text-[11px] font-bold uppercase tracking-widest text-white/40">Tournament Final</h2>
+              <div className="flex flex-col gap-1">
+                {phaseSnapshot.destinations.map(m => (
+                  <div key={matchSlug(m)}>
+                    {renderRow(m)}
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
+
           <section>
             <h2 className="mb-3 font-heading text-[11px] font-bold uppercase tracking-widest text-white/40">Semifinals</h2>
             <div className="flex flex-col gap-1">
@@ -182,7 +195,7 @@ export function MatchCenterContent({
             </div>
           </section>
 
-          {phaseSnapshot.destinations && phaseSnapshot.destinations.length > 0 && (
+          {tournamentPhase !== "tournament_complete" && phaseSnapshot.destinations && phaseSnapshot.destinations.length > 0 && (
             <section className="rounded-lg border border-white/10 bg-navy/30 p-4">
               <h2 className="mb-3 font-heading text-[11px] font-bold uppercase tracking-widest text-white/40">Destinations</h2>
               <div className="flex flex-col gap-3">

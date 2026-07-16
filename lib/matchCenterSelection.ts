@@ -400,7 +400,11 @@ export function getHomepageMatchCenterSnapshot({
   
   let destinations: Match[] | undefined = undefined;
 
-  if (phase === "third_place" || phase === "final" || phase === "tournament_complete") {
+  if (phase === "tournament_complete") {
+    activePreviousStage = "QF";
+    activeCurrentStage = "SF";
+    destinations = knockoutMatches.filter(m => m.stage === "3P" || m.stage === "F").sort((a, b) => ("matchNumber" in a && "matchNumber" in b ? b.matchNumber - a.matchNumber : 0));
+  } else if (phase === "third_place" || phase === "final") {
     activePreviousStage = "QF";
     activeCurrentStage = "SF";
     destinations = knockoutMatches.filter(m => m.stage === "3P" || m.stage === "F").sort((a, b) => ("matchNumber" in a && "matchNumber" in b ? a.matchNumber - b.matchNumber : 0));
