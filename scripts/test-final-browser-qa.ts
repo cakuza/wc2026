@@ -113,8 +113,11 @@ async function run() {
       page.on('console', onConsole);
 
       try {
-        const suffix = route === '/' ? '' : '.html';
-        await page.goto(`${BASE_URL}${route}${suffix}`, { waitUntil: 'networkidle0' });
+        // Clean URLs work universally: Vercel's routing layer serves the
+        // static export's <route>.html file for the extensionless path (and
+        // 404s on an explicit .html suffix), and the local `serve` static
+        // server resolves the same way.
+        await page.goto(`${BASE_URL}${route}`, { waitUntil: 'networkidle0' });
 
         const hydrationWarnings = warnings.filter(w => w.toLowerCase().includes('hydration') || w.toLowerCase().includes('did not match'));
 
