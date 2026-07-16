@@ -191,7 +191,7 @@ export function getTournamentPhase({
   if (hasUnresolvedR32 || (!anyR16Started && anyR32Started)) return "round_of_32";
   if (hasUnresolvedR16 || (!anyQFStarted && anyR16Started)) return "round_of_16";
   if (hasUnresolvedQF) return "quarterfinals";
-  if (hasUnresolvedSF || (!thirdStarted && !finalStarted && anySFStarted)) return "semifinals";
+  if (hasUnresolvedSF) return "semifinals";
 
   if (hasUnresolvedThird && !finalStarted) {
     return "third_place";
@@ -349,10 +349,37 @@ export interface MatchCenterSnapshot {
   upNext: Match[];
 }
 
+/**
+ * Splits placement matches (103/104) by their own completion state rather than
+ * by tournament phase. A placement match can complete out of chronological
+ * order relative to its sibling (e.g. the Final finishes before the
+ * Third-place playoff), so phase-level grouping alone cannot tell a caller
+ * whether a given match belongs under a "completed" or "upcoming" heading.
+ */
+export function splitDestinationsByCompletion({
+  destinations,
+  liveData,
+  now,
+}: {
+  destinations: Match[];
+  liveData: Record<string, LiveMatchData>;
+  now: Date;
+}): { completed: Match[]; upcoming: Match[] } {
+  const completed: Match[] = [];
+  const upcoming: Match[] = [];
+  for (const match of destinations) {
+    const live = match.providerIds?.footballData ? liveData[String(match.providerIds.footballData)] : undefined;
+    const state = normalizeMatchState({ match, liveData: live, now }).state;
+    (state === "final" ? completed : upcoming).push(match);
+  }
+  return { completed, upcoming };
+}
+
 export interface HomepageMatchCenterSnapshot {
   completedPreviousRound: Match[];
   completedCurrentRound: Match[];
   upcomingCurrentRound: Match[];
+  destinations?: Match[];
 }
 
 const PREVIOUS_KNOCKOUT_STAGE: Partial<Record<TournamentPhase, Match["stage"]>> = {
@@ -392,31 +419,50 @@ export function getHomepageMatchCenterSnapshot({
   const currentStage = CURRENT_KNOCKOUT_STAGE[phase];
   const knockoutMatches = matches.filter((match) => "stage" in match);
 
-  const completedPreviousRound = previousStage
+  // If we are in third_place or final phase, let's explicitly override the homepage snapshot to 
+  // lock the view to Semifinals as current, and provide Destinations (3P & F) and QF as previous.
+  let activePreviousStage = previousStage;
+  let activeCurrentStage = currentStage;
+  
+  let destinations: Match[] | undefined = undefined;
+
+  if (phase === "tournament_complete") {
+    activePreviousStage = "QF";
+    activeCurrentStage = "SF";
+    destinations = knockoutMatches.filter(m => m.stage === "3P" || m.stage === "F").sort((a, b) => ("matchNumber" in a && "matchNumber" in b ? b.matchNumber - a.matchNumber : 0));
+  } else if (phase === "third_place" || phase === "final") {
+    activePreviousStage = "QF";
+    activeCurrentStage = "SF";
+    destinations = knockoutMatches.filter(m => m.stage === "3P" || m.stage === "F").sort((a, b) => ("matchNumber" in a && "matchNumber" in b ? a.matchNumber - b.matchNumber : 0));
+  } else if (phase === "semifinals") {
+    destinations = knockoutMatches.filter(m => m.stage === "3P" || m.stage === "F").sort((a, b) => ("matchNumber" in a && "matchNumber" in b ? a.matchNumber - b.matchNumber : 0));
+  }
+
+  const completedPreviousRound = activePreviousStage
     ? knockoutMatches.filter((match) => {
-        if (match.stage !== previousStage) return false;
+        if (match.stage !== activePreviousStage) return false;
         const live = match.providerIds?.footballData ? liveData[String(match.providerIds.footballData)] : undefined;
         return normalizeMatchState({ match, liveData: live, now }).state === "final";
       }).sort((a, b) => ("matchNumber" in a && "matchNumber" in b ? a.matchNumber - b.matchNumber : 0))
     : [];
 
-  const upcomingCurrentRound = currentStage
+  const upcomingCurrentRound = activeCurrentStage
     ? knockoutMatches.filter((match) => {
-        if (match.stage !== currentStage) return false;
+        if (match.stage !== activeCurrentStage) return false;
         const live = match.providerIds?.footballData ? liveData[String(match.providerIds.footballData)] : undefined;
         return normalizeMatchState({ match, liveData: live, now }).state === "scheduled" && matchUtcDate(match).getTime() > now.getTime();
       }).sort((a, b) => matchUtcDate(a).getTime() - matchUtcDate(b).getTime())
     : [];
 
-  const completedCurrentRound = currentStage
+  const completedCurrentRound = activeCurrentStage
     ? knockoutMatches.filter((match) => {
-        if (match.stage !== currentStage) return false;
+        if (match.stage !== activeCurrentStage) return false;
         const live = match.providerIds?.footballData ? liveData[String(match.providerIds.footballData)] : undefined;
         return normalizeMatchState({ match, liveData: live, now }).state === "final";
-      }).sort((a, b) => matchUtcDate(a).getTime() - matchUtcDate(b).getTime())
+      }).sort((a, b) => matchUtcDate(b).getTime() - matchUtcDate(a).getTime())
     : [];
 
-  return { completedPreviousRound, completedCurrentRound, upcomingCurrentRound };
+  return { completedPreviousRound, completedCurrentRound, upcomingCurrentRound, destinations };
 }
 
 export function getMatchCenterSnapshot({

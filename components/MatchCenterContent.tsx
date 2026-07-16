@@ -8,7 +8,7 @@ import { FreshnessLabel } from "@/components/FreshnessLabel";
 import { useLang } from "@/components/LanguageProvider";
 import { useTimezone } from "@/components/TimezoneProvider";
 import { matchSlug, ARCHIVE_DEFAULT_DATE, MATCHES, type Match } from "@/lib/matches";
-import { getHomepageMatchCenterSnapshot, getMatchCenterSnapshot, type TournamentPhase } from "@/lib/matchCenterSelection";
+import { getHomepageMatchCenterSnapshot, getMatchCenterSnapshot, splitDestinationsByCompletion, type TournamentPhase } from "@/lib/matchCenterSelection";
 import { getMatchPresentation, getMatchStatusLabel } from "@/lib/matchPresentation";
 import { getParticipantDisplay, type ResolvedParticipantLookup } from "@/lib/participant-resolution";
 import type { LiveMatchData } from "@/lib/liveMatchData";
@@ -174,6 +174,19 @@ export function MatchCenterContent({
     return (
       <div className="rounded-xl border border-white/10 bg-navyCard p-4 shadow-2xl sm:p-6">
         <div className="space-y-4 sm:space-y-6">
+          {tournamentPhase === "tournament_complete" && phaseSnapshot.destinations && phaseSnapshot.destinations.length > 0 && (
+            <section>
+              <h2 className="mb-3 font-heading text-[11px] font-bold uppercase tracking-widest text-white/40">Tournament Final</h2>
+              <div className="flex flex-col gap-1">
+                {phaseSnapshot.destinations.map(m => (
+                  <div key={matchSlug(m)}>
+                    {renderRow(m)}
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
+
           <section>
             <h2 className="mb-3 font-heading text-[11px] font-bold uppercase tracking-widest text-white/40">Semifinals</h2>
             <div className="flex flex-col gap-1">
@@ -182,39 +195,45 @@ export function MatchCenterContent({
             </div>
           </section>
 
-          {phaseSnapshot.completedCurrentRound.length > 0 && (
-            <section className="rounded-lg border border-white/10 bg-navy/30 p-4">
-              <h2 className="mb-3 font-heading text-[11px] font-bold uppercase tracking-widest text-white/40">Destinations</h2>
-              <div className="flex flex-col gap-2 text-sm text-white/80">
-                {phaseSnapshot.completedCurrentRound.map(m => {
-                  if (m.stage !== "SF") return null;
-                  const live = m.providerIds?.footballData ? liveSnapshot.liveDataByProviderId[String(m.providerIds.footballData)] : undefined;
-                  const pres = getMatchPresentation({ match: m, liveData: live, timeZone: tz, now });
-                  if (pres.state !== "final" || pres.homeScore === null || pres.awayScore === null) return null;
+          {tournamentPhase !== "tournament_complete" && phaseSnapshot.destinations && phaseSnapshot.destinations.length > 0 && (() => {
+            const stageLabel = (m: Match) => ("stage" in m && m.stage === "3P" ? "Match 103 — Third-place playoff" : "Match 104 — Final");
+            const { completed, upcoming } = splitDestinationsByCompletion({
+              destinations: phaseSnapshot.destinations,
+              liveData: liveSnapshot.liveDataByProviderId,
+              now,
+            });
 
-                  const home = getParticipantDisplay(m, "home", liveSnapshot.resolvedParticipants, lang).label;
-                  const away = getParticipantDisplay(m, "away", liveSnapshot.resolvedParticipants, lang).label;
-                  
-                  let winnerLabel = "";
-                  let loserLabel = "";
-                  if (live?.winner === "HOME_TEAM" || pres.homeScore > pres.awayScore) {
-                    winnerLabel = home;
-                    loserLabel = away;
-                  } else {
-                    winnerLabel = away;
-                    loserLabel = home;
-                  }
-
-                  return (
-                    <div key={m.matchNumber} className="space-y-1">
-                      <p><span className="font-bold text-accent">{winnerLabel}</span> advances to Match 104 — Final</p>
-                      <p><span className="font-bold text-red-400">{loserLabel}</span> advances to Match 103 — Third-place playoff</p>
+            return (
+              <>
+                {completed.length > 0 && (
+                  <section className="rounded-lg border border-white/10 bg-navy/30 p-4">
+                    <h2 className="mb-3 font-heading text-[11px] font-bold uppercase tracking-widest text-white/40">Placement Results</h2>
+                    <div className="flex flex-col gap-3">
+                      {completed.map(m => (
+                        <div key={matchSlug(m)}>
+                          <p className="mb-1 text-xs font-bold text-white/60">{stageLabel(m)}</p>
+                          {renderRow(m)}
+                        </div>
+                      ))}
                     </div>
-                  );
-                })}
-              </div>
-            </section>
-          )}
+                  </section>
+                )}
+                {upcoming.length > 0 && (
+                  <section className="rounded-lg border border-white/10 bg-navy/30 p-4">
+                    <h2 className="mb-3 font-heading text-[11px] font-bold uppercase tracking-widest text-white/40">Destinations</h2>
+                    <div className="flex flex-col gap-3">
+                      {upcoming.map(m => (
+                        <div key={matchSlug(m)}>
+                          <p className="mb-1 text-xs font-bold text-white/60">{stageLabel(m)}</p>
+                          {renderRow(m)}
+                        </div>
+                      ))}
+                    </div>
+                  </section>
+                )}
+              </>
+            );
+          })()}
 
           <section>
             <h2 className="mb-3 font-heading text-[11px] font-bold uppercase tracking-widest text-white/40">Quarterfinal Results</h2>
