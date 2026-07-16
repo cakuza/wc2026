@@ -351,6 +351,7 @@ export interface MatchCenterSnapshot {
 
 export interface HomepageMatchCenterSnapshot {
   completedPreviousRound: Match[];
+  completedCurrentRound: Match[];
   upcomingCurrentRound: Match[];
 }
 
@@ -407,7 +408,15 @@ export function getHomepageMatchCenterSnapshot({
       }).sort((a, b) => matchUtcDate(a).getTime() - matchUtcDate(b).getTime())
     : [];
 
-  return { completedPreviousRound, upcomingCurrentRound };
+  const completedCurrentRound = currentStage
+    ? knockoutMatches.filter((match) => {
+        if (match.stage !== currentStage) return false;
+        const live = match.providerIds?.footballData ? liveData[String(match.providerIds.footballData)] : undefined;
+        return normalizeMatchState({ match, liveData: live, now }).state === "final";
+      }).sort((a, b) => matchUtcDate(a).getTime() - matchUtcDate(b).getTime())
+    : [];
+
+  return { completedPreviousRound, completedCurrentRound, upcomingCurrentRound };
 }
 
 export function getMatchCenterSnapshot({

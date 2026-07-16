@@ -47,10 +47,8 @@ export function GroupsContent({ standings }: GroupsContentProps) {
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-8">
-      <h1 className="mb-2 font-heading text-4xl font-extrabold uppercase tracking-wide text-white">
-        {t("groups_title")}
-      </h1>
-      <p className="mb-6 max-w-3xl text-sm text-white/50">{t("groups_intro")}</p>
+      <h1 className="mb-2 font-heading text-4xl font-extrabold uppercase tracking-wide text-white">Final Group Standings</h1>
+      <p className="mb-6 max-w-3xl text-sm text-white/50">The group stage is complete. Final positions and the tournament outcomes for all 48 teams are preserved here.</p>
 
       <div className="grid gap-5 lg:grid-cols-2">
         {GROUP_LETTERS.map((g) => {
@@ -76,7 +74,7 @@ export function GroupsContent({ standings }: GroupsContentProps) {
               </div>
 
               {/* Standings table — rows prop carries live data when available */}
-              <StandingsTable teams={teams} rows={rows} showQualInfo />
+              <StandingsTable teams={teams} rows={rows} />
 
               {/* Group preview (only while no match has been played in this group) */}
               {previews.length > 0 && (!rows || rows.every((r) => r.played === 0)) && (
@@ -104,9 +102,10 @@ export function GroupsContent({ standings }: GroupsContentProps) {
       </div>
 
       {/* Standings sync note */}
-      <p className="mt-4 font-heading text-[11px] font-bold uppercase tracking-widest text-white/30">
-        Standings update after completed matches are synced.
-      </p>
+      <section className="mt-6 rounded-xl border border-white/10 bg-navyCard p-4 text-sm text-white/60">
+        <h2 className="font-heading text-sm font-extrabold uppercase tracking-wide text-white">How qualification worked</h2>
+        <p className="mt-2">The top two teams in each group advanced automatically, with the eight best third-placed teams completing the Round of 32 field. The table above is now historical rather than a live qualification projection.</p>
+      </section>
 
       {/* Related links */}
       <div className="mt-4 flex flex-wrap gap-3 text-sm">

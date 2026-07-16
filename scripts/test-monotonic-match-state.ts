@@ -1,7 +1,6 @@
 import {
   buildTournamentLiveSnapshot,
   canonicalStatus,
-  createSerializableSnapshotCache,
 } from "../lib/liveSnapshot";
 import type { LiveMatchData } from "../lib/liveMatchData";
 import type { GoalScorerEvent, WorldCup26Game } from "../lib/worldcup26Provider";
@@ -71,6 +70,10 @@ async function main() {
     canonicalStatus({ footballData: live("IN_PLAY", 1, 1), worldcupGame: worldcupGame(true) }) === "LIVE",
     "secondary scorer provider cannot mark a primary-live match FINISHED",
   );
+  assert(
+    canonicalStatus({ footballData: live("PAUSED", 1, 1), worldcupGame: worldcupGame(true) }) === "HALFTIME",
+    "secondary scorer provider cannot mark a primary-halftime match FINISHED",
+  );
 
   const finalSnapshot = await buildTournamentLiveSnapshot({
     liveData: new Map([[CANADA_PROVIDER_ID, live("FINISHED", 1, 1)]]),
@@ -84,27 +87,6 @@ async function main() {
   assert(finalMatch.scorers.length === 2, "duplicate scorers are removed by player, minute and team");
   assert(finalMatch.scorers[0]?.playerName === "Jovo Lukić" && finalMatch.scorers[0]?.minute === 21, "verified correction keeps Bosnia opener at 21'");
   assert(finalMatch.scorers[1]?.playerName === "Cyle Larin" && finalMatch.scorers[1]?.minute === 78, "verified correction moves Canada equalizer to 78'");
-
-  let now = 1_000;
-  let fail = false;
-  const getCachedSnapshot = createSerializableSnapshotCache({
-    ttlMs: 30_000,
-    now: () => now,
-    build: async () => {
-      if (fail) throw new Error("provider timeout");
-      return finalSnapshot;
-    },
-  });
-
-  const first = await getCachedSnapshot();
-  fail = true;
-  now += 30_001;
-  const stale = await getCachedSnapshot();
-  const staleMatch = stale.matches[CANADA_MATCH_ID];
-  assert(stale.snapshotId === first.snapshotId, "failed refresh serves previous cached snapshot");
-  assert(staleMatch.status === "FINISHED", "FINISHED -> SCHEDULED rejected during score timeout");
-  assert(staleMatch.homeScore === 1 && staleMatch.awayScore === 1, "score timeout preserves previous final score");
-  assert(staleMatch.scorers.length === 2, "scorer timeout preserves previous scorers");
 
   console.log(`\n${passed} passed, ${failed} failed`);
   if (failed > 0) process.exitCode = 1;

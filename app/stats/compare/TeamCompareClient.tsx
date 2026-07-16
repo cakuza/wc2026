@@ -1,50 +1,78 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { countryName } from "@/lib/i18n";
-import type { TeamStatLeaderboards } from "@/lib/tournamentStats";
+import type { TeamStatLeaderboards, TeamLeaderboard } from "@/lib/tournamentStats";
 
 interface Props {
   teamsList: { key: string; name: string }[];
   teamStatLeaderboards: TeamStatLeaderboards;
 }
 
-export function TeamCompareClient({ teamsList, teamStatLeaderboards }: Props) {
-  const router = useRouter();
-  const searchParams = useSearchParams();
+export const DEFAULT_COMPARE_TEAMS = { team1: "france", team2: "spain" } as const;
 
-  const [t1, setT1] = useState(searchParams?.get("team1") || "");
-  const [t2, setT2] = useState(searchParams?.get("team2") || "");
+export type CompareQueryReader = Pick<URLSearchParams, "get"> | null | undefined;
 
-  useEffect(() => {
-    const p1 = searchParams?.get("team1") || "";
-    const p2 = searchParams?.get("team2") || "";
-    if (p1 !== t1) setT1(p1);
-    if (p2 !== t2) setT2(p2);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searchParams]);
-
-  const handleSelect = (which: 1 | 2, val: string) => {
-    if (which === 1) setT1(val);
-    else setT2(val);
-    
-    const url = new URL(window.location.href);
-    if (which === 1 && val) url.searchParams.set("team1", val);
-    else if (which === 1) url.searchParams.delete("team1");
-
-    if (which === 2 && val) url.searchParams.set("team2", val);
-    else if (which === 2) url.searchParams.delete("team2");
-
-    router.replace(url.pathname + url.search);
+export function resolveCompareTeams(
+  searchParams: CompareQueryReader,
+  teamsList: readonly { key: string }[],
+): { team1: string; team2: string } {
+  const hasTeam = (teamKey: string | null): teamKey is string => (
+    typeof teamKey === "string" && teamsList.some((team) => team.key === teamKey)
+  );
+  const requestedTeam1 = searchParams?.get("team1") ?? null;
+  const requestedTeam2 = searchParams?.get("team2") ?? null;
+  return {
+    team1: hasTeam(requestedTeam1) ? requestedTeam1 : DEFAULT_COMPARE_TEAMS.team1,
+    team2: hasTeam(requestedTeam2) ? requestedTeam2 : DEFAULT_COMPARE_TEAMS.team2,
   };
+}
 
-  const getStat = (list: any[], team: string) => {
-    const row = list.find((r) => r.teamKey === team);
-    return row ? row.value : "Unavailable";
+export function comparisonColors({
+  left,
+  right,
+  label,
+}: {
+  left: TeamLeaderboard | undefined;
+  right: TeamLeaderboard | undefined;
+  label: string;
+}): { left: string; right: string } {
+  if (
+    typeof left?.value !== "number"
+    || typeof right?.value !== "number"
+    || left.coverageStatus !== "COMPLETE"
+    || right.coverageStatus !== "COMPLETE"
+    || left.value === right.value
+  ) {
+    return { left: "text-white", right: "text-white" };
+  }
+
+  const reverse = label === "Goals Conceded" || label === "Fouls";
+  if (left.value > right.value) {
+    return { left: reverse ? "text-red-400" : "text-accent", right: "text-white" };
+  }
+  return { left: "text-white", right: reverse ? "text-red-400" : "text-accent" };
+}
+
+export function comparisonCoverageLabel(row: TeamLeaderboard | undefined): string | null {
+  if (row?.coverageStatus !== "PARTIAL") return null;
+  return `${row.matchesCovered ?? 0} of ${row.completedMatches ?? 0} matches covered`;
+}
+
+export function TeamCompareShell({
+  t1,
+  t2,
+  onSelect,
+  teamsList,
+  teamStatLeaderboards,
+}: Props & { t1: string; t2: string; onSelect: (which: 1 | 2, val: string) => void }) {
+  const getRow = (list: TeamLeaderboard[], team: string) => {
+    return list.find((r) => r.teamKey === team);
   };
 
   const metrics = [
+    { label: "Goals Scored", list: teamStatLeaderboards.goalsScored },
     { label: "Goals Conceded", list: teamStatLeaderboards.goalsConceded },
     { label: "Clean Sheets", list: teamStatLeaderboards.cleanSheets },
     { label: "Shots", list: teamStatLeaderboards.shots },
@@ -65,7 +93,7 @@ export function TeamCompareClient({ teamsList, teamStatLeaderboards }: Props) {
           <select
             className="w-full rounded-lg bg-navyCard border border-white/10 px-4 py-3 text-white focus:border-accent outline-none"
             value={t1}
-            onChange={(e) => handleSelect(1, e.target.value)}
+            onChange={(e) => onSelect(1, e.target.value)}
           >
             <option value="">Select Team...</option>
             {teamsList.map((t) => (
@@ -78,7 +106,7 @@ export function TeamCompareClient({ teamsList, teamStatLeaderboards }: Props) {
           <select
             className="w-full rounded-lg bg-navyCard border border-white/10 px-4 py-3 text-white focus:border-accent outline-none"
             value={t2}
-            onChange={(e) => handleSelect(2, e.target.value)}
+            onChange={(e) => onSelect(2, e.target.value)}
           >
             <option value="">Select Team...</option>
             {teamsList.map((t) => (
@@ -97,35 +125,43 @@ export function TeamCompareClient({ teamsList, teamStatLeaderboards }: Props) {
           </div>
           <ul className="divide-y divide-white/5">
             {metrics.map((m) => {
-              const val1 = getStat(m.list, t1);
-              const val2 = getStat(m.list, t2);
+              const r1 = getRow(m.list, t1);
+              const r2 = getRow(m.list, t2);
+
+              const val1 = r1 ? r1.value : "—";
+              const val2 = r2 ? r2.value : "—";
+
               const isNum1 = typeof val1 === "number";
               const isNum2 = typeof val2 === "number";
+              const colors = comparisonColors({ left: r1, right: r2, label: m.label });
 
-              let color1 = "text-white";
-              let color2 = "text-white";
-
-              // Simple comparison coloring logic (higher is better, except for goals conceded/fouls)
-              if (isNum1 && isNum2 && val1 !== val2) {
-                const reverse = m.label === "Goals Conceded" || m.label === "Fouls";
-                if (val1 > val2) {
-                  color1 = reverse ? "text-red-400" : "text-accent";
-                } else {
-                  color2 = reverse ? "text-red-400" : "text-accent";
-                }
-              }
+              const isPartial1 = r1?.coverageStatus === "PARTIAL";
+              const isPartial2 = r2?.coverageStatus === "PARTIAL";
 
               return (
-                <li key={m.label} className="grid grid-cols-3 px-4 py-4 text-center items-center hover:bg-white/5">
-                  <span className={`font-heading text-base font-extrabold ${color1}`}>
-                    {val1}
-                  </span>
-                  <span className="font-heading text-[10px] font-bold uppercase tracking-widest text-white/50">
-                    {m.label}
-                  </span>
-                  <span className={`font-heading text-base font-extrabold ${color2}`}>
-                    {val2}
-                  </span>
+                <li key={m.label} className="flex flex-col px-4 py-4 hover:bg-white/5">
+                  <div className="grid grid-cols-3 text-center items-center">
+                    <span className={`font-heading text-base font-extrabold ${colors.left}`}>
+                      {val1}
+                    </span>
+                    <span className="font-heading text-[10px] font-bold uppercase tracking-widest text-white/50">
+                      {m.label}
+                    </span>
+                    <span className={`font-heading text-base font-extrabold ${colors.right}`}>
+                      {val2}
+                    </span>
+                  </div>
+                  {(isPartial1 || isPartial2) && (
+                    <div className="grid grid-cols-3 text-center items-center mt-1">
+                      <span className="text-[10px] text-yellow-500/80">
+                        {isPartial1 ? comparisonCoverageLabel(r1) : (isNum1 ? "COMPLETE" : "")}
+                      </span>
+                      <span></span>
+                      <span className="text-[10px] text-yellow-500/80">
+                        {isPartial2 ? comparisonCoverageLabel(r2) : (isNum2 ? "COMPLETE" : "")}
+                      </span>
+                    </div>
+                  )}
                 </li>
               );
             })}
@@ -137,5 +173,51 @@ export function TeamCompareClient({ teamsList, teamStatLeaderboards }: Props) {
         </div>
       )}
     </div>
+  );
+}
+
+function TeamCompareInner({ teamsList, teamStatLeaderboards }: Props) {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
+  const [t1, setT1] = useState<string>(DEFAULT_COMPARE_TEAMS.team1);
+  const [t2, setT2] = useState<string>(DEFAULT_COMPARE_TEAMS.team2);
+
+  useEffect(() => {
+    const nextTeams = resolveCompareTeams(searchParams, teamsList);
+    setT1((current) => current === nextTeams.team1 ? current : nextTeams.team1);
+    setT2((current) => current === nextTeams.team2 ? current : nextTeams.team2);
+  }, [searchParams, teamsList]);
+
+  const handleSelect = (which: 1 | 2, val: string) => {
+    if (which === 1) setT1(val);
+    else setT2(val);
+
+    const url = new URL(window.location.href);
+    if (which === 1 && val) url.searchParams.set("team1", val);
+    else if (which === 1) url.searchParams.delete("team1");
+
+    if (which === 2 && val) url.searchParams.set("team2", val);
+    else if (which === 2) url.searchParams.delete("team2");
+
+    router.replace(url.pathname + url.search);
+  };
+
+  return (
+    <TeamCompareShell
+      teamsList={teamsList}
+      teamStatLeaderboards={teamStatLeaderboards}
+      t1={t1}
+      t2={t2}
+      onSelect={handleSelect}
+    />
+  );
+}
+
+export function TeamCompareClient({ teamsList, teamStatLeaderboards }: Props) {
+  return (
+    <Suspense fallback={<TeamCompareShell teamsList={teamsList} teamStatLeaderboards={teamStatLeaderboards} t1={DEFAULT_COMPARE_TEAMS.team1} t2={DEFAULT_COMPARE_TEAMS.team2} onSelect={() => {}} />}>
+      <TeamCompareInner teamsList={teamsList} teamStatLeaderboards={teamStatLeaderboards} />
+    </Suspense>
   );
 }

@@ -5,6 +5,9 @@ import { COMPLETED_KNOCKOUT_RESULTS } from "../lib/canonicalMatchResults";
 import { getHomepageMatchCenterSnapshot, getTournamentPhase } from "../lib/matchCenterSelection";
 import { matchUtcDate, MATCHES } from "../lib/matches";
 import { buildKnockoutResolution } from "../lib/knockoutResolution";
+import type { LiveMatchData } from "../lib/liveMatchData";
+import { getGoalEventCompleteness } from "../lib/goalEventCompleteness";
+import type { SerializableSnapshotMatch } from "../lib/liveSnapshot";
 
 const now = new Date("2026-07-12T12:00:00Z");
 const result99 = COMPLETED_KNOCKOUT_RESULTS[99];
@@ -32,24 +35,59 @@ assert.equal(new Set([...match99Events, ...match100Events].map((event) => event.
 assert(stats.some((row) => row.matchId === "match-99"));
 assert(stats.some((row) => row.matchId === "match-100"));
 
-const liveData: Record<string, any> = {};
+const match101 = MATCHES.find((match) => "matchNumber" in match && match.matchNumber === 101);
+assert.ok(match101, "match 101 exists");
+const liveData: Record<string, LiveMatchData> = {
+  [String(match101.providerIds?.footballData)]: {
+    provider: "football-data.org",
+    providerMatchId: match101.providerIds?.footballData ?? 0,
+    status: "FINISHED",
+    homeScore: 0,
+    awayScore: 2,
+    winner: "AWAY_TEAM",
+    scoreDuration: "REGULAR",
+    lastSyncedAt: now.toISOString(),
+    eventDataAvailable: false,
+  },
+};
 const phase = getTournamentPhase({ matches: MATCHES, liveData, now });
 assert.equal(phase, "semifinals");
 const homepage = getHomepageMatchCenterSnapshot({ matches: MATCHES, liveData, now, phase });
 assert.deepEqual(homepage.completedPreviousRound.map((match) => "matchNumber" in match ? match.matchNumber : null), [97, 98, 99, 100]);
-assert.deepEqual(homepage.upcomingCurrentRound.map((match) => "matchNumber" in match ? match.matchNumber : null), [101, 102]);
-assert.equal(matchUtcDate(homepage.upcomingCurrentRound[0]).toISOString(), "2026-07-14T19:00:00.000Z");
+assert.deepEqual(homepage.completedCurrentRound.map((match) => "matchNumber" in match ? match.matchNumber : null), [101]);
+assert.deepEqual(homepage.upcomingCurrentRound.map((match) => "matchNumber" in match ? match.matchNumber : null), [102]);
+assert.equal(matchUtcDate(homepage.upcomingCurrentRound[0]).toISOString(), "2026-07-15T19:00:00.000Z");
 
-const matches: Record<string, any> = {};
+const matches: Record<string, SerializableSnapshotMatch> = {};
 for (const match of MATCHES) {
   if (!("matchNumber" in match)) continue;
   const result = COMPLETED_KNOCKOUT_RESULTS[match.matchNumber];
   matches[`match-${match.matchNumber}`] = {
     match,
+    internalId: `match-${match.matchNumber}`,
+    providerMatchId: match.providerIds?.footballData ?? null,
     status: result ? "FINISHED" : "SCHEDULED",
     homeScore: result?.homeScore ?? null,
     awayScore: result?.awayScore ?? null,
-    live: result ? { winner: result.winner, status: "FINISHED" } : undefined,
+    scorers: [],
+    goalEventCompleteness: getGoalEventCompleteness({
+      homeScore: result?.homeScore ?? null,
+      awayScore: result?.awayScore ?? null,
+      eventDataAvailable: false,
+    }),
+    sourceUpdatedAt: null,
+    providerUpdatedAt: null,
+    live: result ? {
+      provider: "football-data.org",
+      providerMatchId: match.providerIds?.footballData ?? 0,
+      status: "FINISHED",
+      homeScore: result.homeScore,
+      awayScore: result.awayScore,
+      winner: result.winner,
+      scoreDuration: result.scoreDuration,
+      lastSyncedAt: now.toISOString(),
+      eventDataAvailable: false,
+    } : null,
   };
 }
 const resolved = buildKnockoutResolution(matches);

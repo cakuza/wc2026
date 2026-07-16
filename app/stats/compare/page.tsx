@@ -1,4 +1,3 @@
-import { Suspense } from "react";
 import type { Metadata } from "next";
 import { getTournamentLiveSnapshot } from "@/lib/liveSnapshot";
 import { StatsNav } from "@/components/StatsNav";
@@ -50,12 +49,10 @@ export default async function CompareStatsPage() {
       <StatsNav />
 
       <div className="max-w-4xl mx-auto">
-        <Suspense fallback={<div className="text-white/50 text-center py-10">Loading comparison tool...</div>}>
-          <TeamCompareClient 
-            teamsList={teamsList} 
-            teamStatLeaderboards={teamStatLeaderboards} 
-          />
-        </Suspense>
+        <TeamCompareClient
+          teamsList={teamsList}
+          teamStatLeaderboards={teamStatLeaderboards}
+        />
       </div>
     </div>
   );

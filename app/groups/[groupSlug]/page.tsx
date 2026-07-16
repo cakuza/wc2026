@@ -12,10 +12,13 @@ import { SourcesAndMethodology } from "@/components/SourcesAndMethodology";
 import { Flag } from "@/components/Flag";
 import { groupSlugToLetter, generateGroupStaticParams, letterToGroupSlug } from "@/lib/groupSlug";
 import { teamsInGroup, GROUP_LETTERS, slugFor } from "@/lib/teams";
-import { matchesInGroup, matchSlug, matchUtcDate } from "@/lib/matches";
+import { matchesInGroup, matchSlug, matchUtcDate, MATCHES } from "@/lib/matches";
 import { countryName } from "@/lib/i18n";
 import { getTournamentLiveSnapshot } from "@/lib/liveSnapshot";
 import { getLiveRefreshPolicy } from "@/lib/liveRefreshPolicy";
+import { getTeamTournamentStatus } from "@/lib/teamTournamentStatus";
+import { resolveGroupOutcome } from "@/lib/groupOutcomes";
+import { buildKnockoutResolution } from "@/lib/knockoutResolution";
 
 const BASE = "https://www.worldcupmatchday.com";
 
@@ -93,6 +96,24 @@ export default async function GroupPage({
   const leader = standingsRows[0];
   const leaderName = leader ? countryName(leader.teamKey, "en") : null;
 
+  const resolvedParticipants = buildKnockoutResolution(snapshot.matches);
+
+  const teamOutcomes = new Map<string, string>();
+  if (allGroupMatchesFinished) {
+    for (const row of standingsRows) {
+      const status = getTeamTournamentStatus({
+        teamKey: row.teamKey,
+        matches: MATCHES,
+        snapshotMatches: snapshot.matches,
+        resolvedParticipants,
+      });
+      const outcome = resolveGroupOutcome(row.rank ?? 0, status.classification, allGroupMatchesFinished);
+      if (outcome) {
+        teamOutcomes.set(row.teamKey, outcome);
+      }
+    }
+  }
+
   const breadcrumbs = [
     { label: "Home", href: "/" },
     { label: "Groups", href: "/groups" },
@@ -145,8 +166,8 @@ export default async function GroupPage({
 
         {/* Quick answer */}
         {anyPlayed && leaderName && (
-          <QuickAnswer label={`Group ${letter} current leader`}>
-            {leaderName} leads Group {letter} with {leader.points} point
+          <QuickAnswer label={`Group ${letter} winner`}>
+            {leaderName} {allGroupMatchesFinished ? "won" : "leads"} Group {letter} with {leader.points} point
             {leader.points !== 1 ? "s" : ""}.{" "}
             {allGroupMatchesFinished
               ? "All group matches are complete."
@@ -161,7 +182,7 @@ export default async function GroupPage({
           </h2>
           {anyPlayed ? (
             <>
-              <StandingsTable teams={teams} rows={standingsRows} showQualInfo />
+              <StandingsTable teams={teams} rows={standingsRows} showQualInfo={!allGroupMatchesFinished} />
               <LastUpdated isoTimestamp={snapshot.updatedAt} label="Standings last synced" />
             </>
           ) : (
@@ -175,22 +196,24 @@ export default async function GroupPage({
         {/* Qualification info */}
         <section className="mb-6 rounded-xl border border-white/10 bg-navyCard px-4 py-4">
           <h2 className="mb-2 font-heading text-sm font-extrabold uppercase tracking-wide text-white">
-            Qualification from Group {letter}
+            {allGroupMatchesFinished ? `How Qualification Worked for Group ${letter}` : `Qualification from Group ${letter}`}
           </h2>
-          <ul className="space-y-1 text-xs leading-relaxed text-white/60">
-            <li>
-              <span className="font-bold text-green-400">1st &amp; 2nd</span> — advance
-              automatically to the Round of 32.
-            </li>
-            <li>
-              <span className="font-bold text-amber-400">3rd</span> — eligible to advance as one
-              of the 8 best third-placed teams.
-            </li>
-            <li>
-              <span className="font-bold text-red-400">4th</span> — eliminated.
-            </li>
-          </ul>
-          <p className="mt-3 text-xs text-white/40">
+          {!allGroupMatchesFinished && (
+            <ul className="space-y-1 text-xs leading-relaxed text-white/60 mb-3">
+              <li>
+                <span className="font-bold text-green-400">1st &amp; 2nd</span> — advance
+                automatically to the Round of 32.
+              </li>
+              <li>
+                <span className="font-bold text-amber-400">3rd</span> — eligible to advance as one
+                of the 8 best third-placed teams.
+              </li>
+              <li>
+                <span className="font-bold text-red-400">4th</span> — eliminated.
+              </li>
+            </ul>
+          )}
+          <p className="text-xs text-white/40">
             Third-place qualification is determined across all 12 groups — see{" "}
             <Link
               href="/world-cup-third-place-qualification"
@@ -266,17 +289,26 @@ export default async function GroupPage({
           <h2 className="mb-2 font-heading text-sm font-extrabold uppercase tracking-wide text-white">
             Teams in Group {letter}
           </h2>
-          <div className="flex flex-wrap gap-2">
-            {teams.map((t) => (
-              <Link
-                key={t.key}
-                href={`/teams/${slugFor(t.key)}`}
-                className="flex items-center gap-2 rounded-lg border border-white/10 bg-navyCard px-3 py-2 text-xs font-bold text-white/70 transition hover:border-white/30 hover:text-white"
-              >
-                <Flag code={t.code} width={22} height={16} />
-                {countryName(t.key, "en")}
-              </Link>
-            ))}
+          <div className="flex flex-col gap-2">
+            {teams.map((t) => {
+              const outcome = teamOutcomes.get(t.key);
+              return (
+                <div key={t.key} className="flex items-center justify-between gap-4 rounded-lg border border-white/10 bg-navyCard px-4 py-3">
+                  <Link
+                    href={`/teams/${slugFor(t.key)}`}
+                    className="flex items-center gap-2 font-bold text-white transition hover:text-accent"
+                  >
+                    <Flag code={t.code} width={22} height={16} />
+                    {countryName(t.key, "en")}
+                  </Link>
+                  {outcome && (
+                    <span className="text-xs font-semibold text-white/60 text-right">
+                      {outcome}
+                    </span>
+                  )}
+                </div>
+              );
+            })}
           </div>
         </section>
 

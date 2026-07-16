@@ -26,6 +26,8 @@ import * as assert from "assert";
 
 const PROJECT_ROOT = path.resolve(process.cwd());
 const BUILD_MARKER = path.join(PROJECT_ROOT, ".next", "BUILD_ID");
+const NEXT_CONFIG_PATH = path.join(PROJECT_ROOT, "next.config.js");
+const STATIC_EXPORT_DIR = path.join(PROJECT_ROOT, "out");
 const FIXTURE_PATH = path.join(PROJECT_ROOT, "scripts", "fixtures", "primary-fixture.json");
 const SERVER_READY_TIMEOUT_MS = 60_000;
 const REQUEST_TIMEOUT_MS = 15_000;
@@ -164,6 +166,27 @@ function test(name: string, fn: () => void): void {
   }
 }
 
+function usesStaticExport(): boolean {
+  return fs.existsSync(NEXT_CONFIG_PATH)
+    && /output:\s*["']export["']/.test(fs.readFileSync(NEXT_CONFIG_PATH, "utf8"));
+}
+
+function verifyStaticExport(): void {
+  console.log("[cold-cache] Static-export mode: verifying built route output instead of starting next start.");
+  for (const route of ["today.html", "stats.html", path.join("matches", "mexico-vs-south-africa-jun11.html")]) {
+    const outputPath = path.join(STATIC_EXPORT_DIR, route);
+    test(`${route} exists in the static export`, () => {
+      assert.ok(fs.existsSync(outputPath), `Missing ${outputPath}`);
+    });
+    if (!fs.existsSync(outputPath)) continue;
+    const html = fs.readFileSync(outputPath, "utf8");
+    test(`${route} contains an HTML document without a server error`, () => {
+      assert.ok(html.includes("<html") || html.includes("<!DOCTYPE"), "No HTML root element");
+      assert.ok(!html.includes("500 Internal Server Error"), "Static output contains a server error page");
+    });
+  }
+}
+
 async function run(): Promise<void> {
   // ── Pre-flight: require production build ──────────────────────────────────
 
@@ -173,6 +196,14 @@ async function run(): Promise<void> {
         "             Run `npm run build` first.",
     );
     process.exitCode = 1;
+    return;
+  }
+
+  if (usesStaticExport()) {
+    verifyStaticExport();
+    console.log(`\n${"─".repeat(56)}`);
+    console.log(`Cold-cache runtime: ${passed} passed, ${failed} failed`);
+    if (failed > 0) process.exitCode = 1;
     return;
   }
 

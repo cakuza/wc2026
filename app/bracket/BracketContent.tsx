@@ -30,7 +30,10 @@ function firstTop(r: number): number {
 const NUM_ROUNDS = 4;                                   // R32 · R16 · QF · SF
 const LABEL_H  = 28;                                    // height reserved for round label above bracket
 const CANVAS_H = 16 * BASE_SLOT + LABEL_H;             // 16 R32 slots + label row
-const CANVAS_W = NUM_ROUNDS * CARD_W + (NUM_ROUNDS - 1) * CON_W; // total canvas width
+const BRACKET_W = NUM_ROUNDS * CARD_W + (NUM_ROUNDS - 1) * CON_W;
+const DECIDING_X = BRACKET_W + 48;
+const CANVAS_W = DECIDING_X + CARD_W;
+const DECIDING_TOP = LABEL_H + firstTop(3) + 90;
 
 // Horizontal left edge of each round column
 function roundX(r: number) { return r * (CARD_W + CON_W); }
@@ -161,6 +164,8 @@ export function BracketContent({ resolvedParticipants, tournamentPhase }: { reso
     t("bracket_qf"),
     t("bracket_sf"),
   ];
+  const thirdPlaceModel = mapMatch(THIRD_PLACE_MATCH, false);
+  const finalModel = mapMatch(FINAL_MATCH, false);
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-8">
@@ -253,27 +258,31 @@ export function BracketContent({ resolvedParticipants, tournamentPhase }: { reso
               </div>
             );
           })}
+
+          <aside
+            className="absolute"
+            style={{ left: DECIDING_X, top: 0, width: CARD_W }}
+            aria-label="Deciding matches"
+          >
+            <p className="text-center font-heading text-[10px] font-bold uppercase tracking-widest text-white/50">
+              Deciding matches
+            </p>
+            <div className="absolute left-0" style={{ top: DECIDING_TOP }}>
+              <p className="mb-2 font-heading text-[9px] font-bold uppercase tracking-widest text-white/45">
+                Third-place playoff
+              </p>
+              <MatchCard m={thirdPlaceModel} />
+              <p className="mb-2 mt-10 font-heading text-[9px] font-bold uppercase tracking-widest text-accent">
+                {t("bracket_final")}
+              </p>
+              <MatchCard m={finalModel} isFinal />
+              <p className="mt-3 text-[10px] leading-relaxed text-white/50">
+                {FINAL_DATE[lang] ?? FINAL_DATE.en}<br />New York New Jersey Stadium
+              </p>
+            </div>
+          </aside>
         </div>
       </div>
-
-      <section className="mt-5 grid gap-3 sm:grid-cols-2" aria-label="Deciding matches">
-        {[THIRD_PLACE_MATCH, FINAL_MATCH].map((match) => {
-          const model = mapMatch(match, false);
-          return (
-            <div key={model.id} className="rounded-xl border border-white/10 bg-navyCard p-4">
-              <p className="mb-2 font-heading text-[10px] font-bold uppercase tracking-widest text-white/45">
-                {match.matchNumber === 103 ? "Third-place playoff" : t("bracket_final")}
-              </p>
-              <MatchCard m={model} isFinal={match.matchNumber === 104} />
-              {match.matchNumber === 104 && (
-                <p className="mt-3 text-sm text-white/60">
-                  New York New Jersey Stadium (MetLife Stadium) · East Rutherford, NJ · <strong className="text-white/80">{FINAL_DATE[lang] ?? FINAL_DATE.en}</strong>
-                </p>
-              )}
-            </div>
-          );
-        })}
-      </section>
 
       {/* Format note */}
       <div className="mt-4 rounded-xl border border-white/10 bg-navyCard p-4 text-sm text-white/50">

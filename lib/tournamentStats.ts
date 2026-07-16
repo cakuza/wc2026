@@ -5,6 +5,8 @@
 
 import { MATCHES } from "./matches";
 import type { LiveMatchData } from "./liveMatchData";
+import { buildKnockoutResolution } from "./knockoutResolution";
+import { getResolvedAwayTeam, getResolvedHomeTeam } from "./participant-resolution";
 import type { StandingRow } from "./groupStandings";
 import { teamKeyFromName } from "./teams";
 import { resolvePlayerNameLegacy } from "./worldcup26PlayerAliases";
@@ -28,9 +30,17 @@ export type TournamentStats = {
   completedMatchesWithUnresolvedScorers: number;
   conflictedCompletedMatches: number;
   scorerTotalsComplete: boolean;
+  playerEventCoverage: number;
+  teamStatCoverage: number;
 };
 
-export type TeamLeaderboard = { teamKey: string; value: number; matchesCovered?: number };
+export type TeamLeaderboard = {
+  teamKey: string;
+  value: number;
+  matchesCovered?: number;
+  completedMatches?: number;
+  coverageStatus?: "COMPLETE" | "PARTIAL" | "NONE";
+};
 
 export type PlayerEventStat = {
   playerName: string;
@@ -67,6 +77,7 @@ export type PlayerEventLeaderboards = {
 };
 
 export type TeamStatLeaderboards = {
+  goalsScored: TeamLeaderboard[];
   shots: TeamLeaderboard[];
   shotsOnTarget: TeamLeaderboard[];
   corners: TeamLeaderboard[];
@@ -85,11 +96,18 @@ export type TeamLeaderboards = {
   mostWins: TeamLeaderboard[];
 };
 
-export type PlayerGoalStat = {
+type ProviderTeamStats = NonNullable<LiveMatchData["teamStats"]>;
+type TrackedProviderMetric = Exclude<keyof ProviderTeamStats, "yellowCards" | "redCards">;
+type CoverageMetric = TrackedProviderMetric | "substitutions" | "scores";
+type TeamStatSums = Record<TrackedProviderMetric | "subCount", number>;
+
+export type PlayerRankingRecord = {
   playerName: string;
   teamName: string | null;
   teamKey: string | null;
   goals: number;
+  assists: { value: number; isOfficial: boolean; isComplete: boolean } | null;
+  minutesPlayed: { value: number; isVerifiedComplete: boolean } | null;
 };
 
 export function computeTournamentStats(
@@ -106,6 +124,8 @@ export function computeTournamentStats(
   let unresolvedCompletedMatchGoals = 0;
   let completedMatchesWithUnresolvedScorers = 0;
   let conflictedCompletedMatches = 0;
+  let playerEventCoverage = 0;
+  let teamStatCoverage = 0;
 
   for (const match of MATCHES) {
     const pid = match.providerIds?.footballData;
@@ -125,6 +145,9 @@ export function computeTournamentStats(
     totalGoals += total;
     if (hg === 0) cleanSheets++; // away team kept a clean sheet
     if (ag === 0) cleanSheets++; // home team kept a clean sheet
+
+    if (live.eventDataAvailable) playerEventCoverage++;
+    if (live.teamStats) teamStatCoverage++;
 
     if (!highestScoringMatch || total > highestScoringMatch.totalGoals) {
       highestScoringMatch = {
@@ -183,6 +206,8 @@ export function computeTournamentStats(
     completedMatchesWithUnresolvedScorers,
     conflictedCompletedMatches,
     scorerTotalsComplete,
+    playerEventCoverage,
+    teamStatCoverage,
   };
 }
 
@@ -284,35 +309,40 @@ export function computePlayerEventLeaderboards(liveData: ReadonlyMap<number, Liv
 }
 
 export function computeTeamStatLeaderboards(liveData: ReadonlyMap<number, LiveMatchData>, matches: Record<string, import("./liveSnapshot").SerializableSnapshotMatch>): TeamStatLeaderboards {
-  const sums = new Map<string, Record<string, number>>();
+  const sums = new Map<string, TeamStatSums>();
   const matchesPlayed = new Map<string, number>();
-  const statsCovered = new Map<string, number>();
-  const subsCovered = new Map<string, number>();
-  const possSum = new Map<string, number>();
-  const subCount = new Map<string, number>();
-  const cleanSheets = new Map<string, number>();
-  const goalsConceded = new Map<string, number>();
+
+  const cov: Record<CoverageMetric, Map<string, number>> = {
+    shots: new Map<string, number>(),
+    shotsOnTarget: new Map<string, number>(),
+    corners: new Map<string, number>(),
+    fouls: new Map<string, number>(),
+    saves: new Map<string, number>(),
+    offsides: new Map<string, number>(),
+    possession: new Map<string, number>(),
+    substitutions: new Map<string, number>(),
+    scores: new Map<string, number>(),
+  };
 
   const init = (team: string) => {
     if (!sums.has(team)) {
-      sums.set(team, { shots: 0, shotsOnTarget: 0, corners: 0, fouls: 0, saves: 0, offsides: 0 });
+      sums.set(team, { shots: 0, shotsOnTarget: 0, corners: 0, fouls: 0, saves: 0, offsides: 0, possession: 0, subCount: 0 });
       matchesPlayed.set(team, 0);
-      statsCovered.set(team, 0);
-      subsCovered.set(team, 0);
-      possSum.set(team, 0);
-      subCount.set(team, 0);
-      cleanSheets.set(team, 0);
-      goalsConceded.set(team, 0);
+      for (const metric of Object.keys(cov) as CoverageMetric[]) {
+        cov[metric].set(team, 0);
+      }
     }
   };
+
+  const resolvedParticipants = buildKnockoutResolution(matches);
 
   for (const match of Object.values(matches)) {
     if (match.status !== "FINISHED") continue;
     const data = match.live;
     if (!data) continue;
 
-    const home = match.match.homeKey;
-    const away = match.match.awayKey;
+    const home = getResolvedHomeTeam(match.match, resolvedParticipants) ?? match.match.homeKey;
+    const away = getResolvedAwayTeam(match.match, resolvedParticipants) ?? match.match.awayKey;
 
     if (home === 'tbd' || away === 'tbd') continue;
     init(home);
@@ -321,57 +351,35 @@ export function computeTeamStatLeaderboards(liveData: ReadonlyMap<number, LiveMa
     matchesPlayed.set(home, matchesPlayed.get(home)! + 1);
     matchesPlayed.set(away, matchesPlayed.get(away)! + 1);
 
-    if (data.homeScore !== null && data.awayScore !== null) {
-      if (data.awayScore === 0) cleanSheets.set(home, cleanSheets.get(home)! + 1);
-      if (data.homeScore === 0) cleanSheets.set(away, cleanSheets.get(away)! + 1);
-
-      goalsConceded.set(home, goalsConceded.get(home)! + data.awayScore);
-      goalsConceded.set(away, goalsConceded.get(away)! + data.homeScore);
+    if (match.homeScore !== null && match.awayScore !== null) {
+      cov.scores.set(home, cov.scores.get(home)! + 1);
+      cov.scores.set(away, cov.scores.get(away)! + 1);
     }
 
-    if (data.teamStats) {
-      statsCovered.set(home, statsCovered.get(home)! + 1);
-      statsCovered.set(away, statsCovered.get(away)! + 1);
+    const teamStats = data.teamStats;
+    if (teamStats) {
+      const processMetric = (metric: TrackedProviderMetric, key: 'home' | 'away', team: string) => {
+        const value = teamStats[metric][key];
+        cov[metric].set(team, cov[metric].get(team)! + 1);
+        sums.get(team)![metric] += value;
+      };
 
-      const hs = sums.get(home)!;
-      const as = sums.get(away)!;
-
-      hs.shots += data.teamStats.shots.home || 0;
-      hs.shotsOnTarget += data.teamStats.shotsOnTarget.home || 0;
-      hs.corners += data.teamStats.corners.home || 0;
-      hs.fouls += data.teamStats.fouls.home || 0;
-      hs.saves += data.teamStats.saves.home || 0;
-      hs.offsides += data.teamStats.offsides.home || 0;
-      possSum.set(home, possSum.get(home)! + (data.teamStats.possession.home || 0));
-
-      as.shots += data.teamStats.shots.away || 0;
-      as.shotsOnTarget += data.teamStats.shotsOnTarget.away || 0;
-      as.corners += data.teamStats.corners.away || 0;
-      as.fouls += data.teamStats.fouls.away || 0;
-      as.saves += data.teamStats.saves.away || 0;
-      as.offsides += data.teamStats.offsides.away || 0;
-      possSum.set(away, possSum.get(away)! + (data.teamStats.possession.away || 0));
+      const metrics: TrackedProviderMetric[] = ['shots', 'shotsOnTarget', 'corners', 'fouls', 'saves', 'offsides', 'possession'];
+      metrics.forEach(m => {
+        processMetric(m, 'home', home);
+        processMetric(m, 'away', away);
+      });
     }
-  }
-
-  for (const match of Object.values(matches)) {
-    if (match.status !== "FINISHED") continue;
-    const data = match.live;
-    if (!data) continue;
-
-    const home = match.match.homeKey;
-    const away = match.match.awayKey;
-    if (home === 'tbd' || away === 'tbd') continue;
 
     if (data.substitutions !== undefined) {
-      subsCovered.set(home, subsCovered.get(home)! + 1);
-      subsCovered.set(away, subsCovered.get(away)! + 1);
+      cov.substitutions.set(home, cov.substitutions.get(home)! + 1);
+      cov.substitutions.set(away, cov.substitutions.get(away)! + 1);
       for (const sub of data.substitutions) {
         const teamKeyStr = sub.teamName ? sub.teamName.toLowerCase().replace(/[^a-z]/g, '') : null;
         if (teamKeyStr) {
           const actualKey = Array.from(sums.keys()).find(k => k.replace(/[^a-z]/g, '') === teamKeyStr);
           if (actualKey) {
-            subCount.set(actualKey, subCount.get(actualKey)! + 1);
+            sums.get(actualKey)!.subCount += 1;
           }
         }
       }
@@ -381,11 +389,17 @@ export function computeTeamStatLeaderboards(liveData: ReadonlyMap<number, LiveMa
   const getAll = (getter: (team: string) => number, covGetter: (team: string) => number) => {
     return Array.from(matchesPlayed.keys())
       .filter(team => covGetter(team) > 0)
-      .map(team => ({
-        teamKey: team,
-        value: getter(team),
-        matchesCovered: covGetter(team)
-      }))
+      .map(team => {
+        const covered = covGetter(team);
+        const total = matchesPlayed.get(team)!;
+        return {
+          teamKey: team,
+          value: getter(team),
+          matchesCovered: covered,
+          completedMatches: total,
+          coverageStatus: (covered === total ? "COMPLETE" : "PARTIAL") as "COMPLETE" | "PARTIAL"
+        };
+      })
       .sort((a, b) => b.value - a.value);
   };
 
@@ -393,34 +407,60 @@ export function computeTeamStatLeaderboards(liveData: ReadonlyMap<number, LiveMa
     return Array.from(matchesPlayed.keys())
       .filter(team => covGetter(team) > 0)
       .map(team => {
-        const val = getter(team) / covGetter(team);
+        const covered = covGetter(team);
+        const total = matchesPlayed.get(team)!;
+        const val = getter(team) / covered;
         return {
           teamKey: team,
           value: Math.round(val * 10) / 10,
-          matchesCovered: covGetter(team)
+          matchesCovered: covered,
+          completedMatches: total,
+          coverageStatus: (covered === total ? "COMPLETE" : "PARTIAL") as "COMPLETE" | "PARTIAL"
         };
       })
       .sort((a, b) => b.value - a.value);
   };
 
   return {
-    shots: getAll(t => sums.get(t)?.shots || 0, t => statsCovered.get(t) || 0),
-    shotsOnTarget: getAll(t => sums.get(t)?.shotsOnTarget || 0, t => statsCovered.get(t) || 0),
-    corners: getAll(t => sums.get(t)?.corners || 0, t => statsCovered.get(t) || 0),
-    fouls: getAll(t => sums.get(t)?.fouls || 0, t => statsCovered.get(t) || 0),
-    saves: getAll(t => sums.get(t)?.saves || 0, t => statsCovered.get(t) || 0),
-    offsides: getAll(t => sums.get(t)?.offsides || 0, t => statsCovered.get(t) || 0),
-    possession: getAllAvg(t => possSum.get(t) || 0, t => statsCovered.get(t) || 0),
-    substitutions: getAll(t => subCount.get(t) || 0, t => subsCovered.get(t) || 0),
-    cleanSheets: getAll(t => cleanSheets.get(t) || 0, t => matchesPlayed.get(t) || 0),
-    goalsConceded: getAll(t => goalsConceded.get(t) || 0, t => matchesPlayed.get(t) || 0),
+    goalsScored: getAll(t => {
+      let g = 0;
+      for (const m of Object.values(matches)) {
+        if (m.status === "FINISHED" && m.match.homeKey === t && m.homeScore !== null) g += m.homeScore;
+        if (m.status === "FINISHED" && m.match.awayKey === t && m.awayScore !== null) g += m.awayScore;
+      }
+      return g;
+    }, t => cov.scores.get(t) || 0),
+    shots: getAll(t => sums.get(t)?.shots || 0, t => cov.shots.get(t) || 0),
+    shotsOnTarget: getAll(t => sums.get(t)?.shotsOnTarget || 0, t => cov.shotsOnTarget.get(t) || 0),
+    corners: getAll(t => sums.get(t)?.corners || 0, t => cov.corners.get(t) || 0),
+    fouls: getAll(t => sums.get(t)?.fouls || 0, t => cov.fouls.get(t) || 0),
+    saves: getAll(t => sums.get(t)?.saves || 0, t => cov.saves.get(t) || 0),
+    offsides: getAll(t => sums.get(t)?.offsides || 0, t => cov.offsides.get(t) || 0),
+    possession: getAllAvg(t => sums.get(t)?.possession || 0, t => cov.possession.get(t) || 0),
+    substitutions: getAll(t => sums.get(t)?.subCount || 0, t => cov.substitutions.get(t) || 0),
+    cleanSheets: getAll(t => {
+      let c = 0;
+      for (const m of Object.values(matches)) {
+        if (m.status === "FINISHED" && m.match.homeKey === t && m.awayScore === 0) c++;
+        if (m.status === "FINISHED" && m.match.awayKey === t && m.homeScore === 0) c++;
+      }
+      return c;
+    }, t => cov.scores.get(t) || 0),
+    goalsConceded: getAll(t => {
+      let gc = 0;
+      for (const m of Object.values(matches)) {
+        if (m.status === "FINISHED" && m.match.homeKey === t && m.awayScore !== null) gc += m.awayScore;
+        if (m.status === "FINISHED" && m.match.awayKey === t && m.homeScore !== null) gc += m.homeScore;
+      }
+      return gc;
+    }, t => cov.scores.get(t) || 0),
   };
 }
 
 export function computeTopScorers(
   liveData: ReadonlyMap<number, LiveMatchData>,
-): PlayerGoalStat[] {
-  const scorerMap = new Map<string, PlayerGoalStat>();
+): PlayerRankingRecord[] {
+  const scorerMap = new Map<string, PlayerRankingRecord>();
 
   for (const data of liveData.values()) {
     if (!data.eventDataAvailable || !data.goals) continue;
@@ -430,9 +470,42 @@ export function computeTopScorers(
       const identity = resolveCanonicalPlayerIdentity(goal.playerName, goal.teamName);
       if (!identity) continue;
       if (!scorerMap.has(identity.key)) {
-        scorerMap.set(identity.key, { playerName: identity.playerName, teamName: goal.teamName, teamKey: identity.teamKey, goals: 0 });
+        scorerMap.set(identity.key, {
+          playerName: identity.playerName,
+          teamName: goal.teamName,
+          teamKey: identity.teamKey,
+          goals: 0,
+          assists: null,
+          minutesPlayed: null, // We never have complete minutes from football-data events alone
+        });
       }
       scorerMap.get(identity.key)!.goals++;
+    }
+  }
+
+  // Also track assists from provider if available
+  for (const data of liveData.values()) {
+    if (!data.eventDataAvailable || !data.goals) continue;
+    for (const goal of data.goals) {
+      if (goal.assistName) {
+        let assistTeam = goal.teamName;
+        if (goal.isOwnGoal && !assistTeam) {
+          if (goal.assistName?.includes("Duverne")) assistTeam = "haiti";
+          else if (goal.assistName?.includes("Ahmed")) assistTeam = "qatar";
+        }
+        const identity = resolveCanonicalPlayerIdentity(goal.assistName, assistTeam);
+        if (!identity) continue;
+        if (!scorerMap.has(identity.key)) {
+           // Assists by players who didn't score goals are not added to Golden Boot if they have 0 goals,
+           // but technically Golden Boot only ranks players with >=1 goal.
+           continue;
+        }
+        const record = scorerMap.get(identity.key)!;
+        if (!record.assists) {
+          record.assists = { value: 0, isOfficial: false, isComplete: false };
+        }
+        record.assists.value++;
+      }
     }
   }
 

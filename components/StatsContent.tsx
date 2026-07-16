@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useLang } from "@/components/LanguageProvider";
-import type { TournamentStats, TeamLeaderboards, PlayerGoalStat, PlayerEventLeaderboards, TeamStatLeaderboards } from "@/lib/tournamentStats";
+import type { TournamentStats, TeamLeaderboards, PlayerRankingRecord, PlayerEventLeaderboards, TeamStatLeaderboards } from "@/lib/tournamentStats";
 import { StatsNav } from "./StatsNav";
 import { countryName } from "@/lib/i18n";
 import { Flag } from "@/components/Flag";
@@ -11,7 +11,7 @@ import { teamKeyFromName, teamCodeForKey } from "@/lib/teams";
 interface Props {
   tournamentStats: TournamentStats;
   teamLeaderboards: TeamLeaderboards;
-  topScorers: PlayerGoalStat[];
+  topScorers: PlayerRankingRecord[];
   playerEventLeaderboards: PlayerEventLeaderboards;
   teamStatLeaderboards: TeamStatLeaderboards;
   hasEventData: boolean;
@@ -45,7 +45,7 @@ export default function StatsContent({ tournamentStats, teamLeaderboards, topSco
       ]
     : null;
 
-  const hasTeamData = teamLeaderboards.groupStagePoints.length > 0;
+  const hasTeamData = teamStatLeaderboards.goalsScored.length > 0;
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-10">
@@ -191,13 +191,25 @@ export default function StatsContent({ tournamentStats, teamLeaderboards, topSco
                   Most Goals Scored
                 </p>
               </div>
-              {hasTeamData && teamLeaderboards.topScoringTeams.length > 0 ? (
+              {hasTeamData && teamStatLeaderboards.goalsScored.length > 0 ? (
                 <div className="p-4 flex items-center gap-4">
                   <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-lg bg-accent/20 text-accent font-heading text-2xl font-black">
-                    {teamLeaderboards.topScoringTeams[0].value}
+                    {teamStatLeaderboards.goalsScored[0].value}
                   </div>
                   <div>
-                    <p className="font-bold text-white">{countryName(teamLeaderboards.topScoringTeams[0].teamKey, "en")}</p>
+                    <p className="font-bold text-white">{countryName(teamStatLeaderboards.goalsScored[0].teamKey, "en")}</p>
+                    {(teamStatLeaderboards.goalsScored[0].matchesCovered ?? 0) > 0 && (
+                      <p className="text-xs text-white/50">
+                        {teamStatLeaderboards.goalsScored[0].coverageStatus === "PARTIAL" ? (
+                          <>
+                            <span className="text-yellow-500/80 mr-1">PARTIAL:</span>
+                            {teamStatLeaderboards.goalsScored[0].matchesCovered} of {teamStatLeaderboards.goalsScored[0].completedMatches} matches
+                          </>
+                        ) : (
+                          `in ${teamStatLeaderboards.goalsScored[0].matchesCovered} matches`
+                        )}
+                      </p>
+                    )}
                   </div>
                 </div>
               ) : (
@@ -218,8 +230,17 @@ export default function StatsContent({ tournamentStats, teamLeaderboards, topSco
                   </div>
                   <div>
                     <p className="font-bold text-white">{countryName(teamStatLeaderboards.cleanSheets[0].teamKey, "en")}</p>
-                    {teamStatLeaderboards.cleanSheets[0].matchesCovered && (
-                      <p className="text-xs text-white/50">in {teamStatLeaderboards.cleanSheets[0].matchesCovered} matches</p>
+                    {(teamStatLeaderboards.cleanSheets[0].matchesCovered ?? 0) > 0 && (
+                      <p className="text-xs text-white/50">
+                        {teamStatLeaderboards.cleanSheets[0].coverageStatus === "PARTIAL" ? (
+                          <>
+                            <span className="text-yellow-500/80 mr-1">PARTIAL:</span>
+                            {teamStatLeaderboards.cleanSheets[0].matchesCovered} of {teamStatLeaderboards.cleanSheets[0].completedMatches} matches
+                          </>
+                        ) : (
+                          `in ${teamStatLeaderboards.cleanSheets[0].matchesCovered} matches`
+                        )}
+                      </p>
                     )}
                   </div>
                 </div>
@@ -297,8 +318,8 @@ export default function StatsContent({ tournamentStats, teamLeaderboards, topSco
           <div>
             <ul className="space-y-1">
               <li>• <strong className="text-white">Completed Matches:</strong> {tournamentStats.matchesPlayed} / 104</li>
-              <li>• <strong className="text-white">Player Event Coverage:</strong> {tournamentStats.matchesPlayed} matches</li>
-              <li>• <strong className="text-white">Team Stat Coverage:</strong> {tournamentStats.matchesPlayed} matches</li>
+              <li>• <strong className="text-white">Player Event Coverage:</strong> {tournamentStats.playerEventCoverage} matches</li>
+              <li>• <strong className="text-white">Team Stat Coverage:</strong> {tournamentStats.teamStatCoverage} matches</li>
             </ul>
           </div>
 

@@ -9,6 +9,7 @@ import { getTournamentLiveSnapshot } from "@/lib/liveSnapshot";
 import { matchBySlug, MATCHES, matchSlug } from "@/lib/matches";
 import { getResolvedHomeTeam, getResolvedAwayTeam, getParticipantDisplayLabel, isKnockoutMatch, knockoutSlotLabel, matchStageLabel } from "@/lib/participant-resolution";
 import { buildKnockoutResolution } from "@/lib/knockoutResolution";
+import { buildScheduledKnockoutPreviewData } from "@/lib/scheduledKnockoutPreview";
 import matchEventsData from "@/data/archive/match-events.json";
 import type { MatchEvents } from "@/lib/matchEvents";
 
@@ -202,6 +203,8 @@ export default async function MatchPage({
     });
 
   const faqRef  = matchFaqRef(match);
+  const isCompleted = snap?.status === "FINISHED";
+  const knockoutPreviewData = (!isCompleted && matchId !== "match-101") ? buildScheduledKnockoutPreviewData(matchId, snapshot, resolvedParticipants) : null;
   const dateStr = longDate(match.date);
   const venueStr = match.venue ?? "venue TBC";
   const timeStr = match.time
@@ -258,6 +261,13 @@ export default async function MatchPage({
           <LiveDataUnavailableNotice show />
         </div>
       ) : null}
+      <div className="mx-auto max-w-4xl px-4 pt-6 pb-2 text-center">
+        <h1 className="font-heading text-2xl font-extrabold uppercase text-white">
+          {snap?.status === "FINISHED"
+            ? `${resolvedTeamName(match, "home")} ${snap.homeScore ?? 0}–${snap.awayScore ?? 0} ${resolvedTeamName(match, "away")}`
+            : `${resolvedTeamName(match, "home")} vs ${resolvedTeamName(match, "away")}`}
+        </h1>
+      </div>
       <MatchDetail
         match={match}
         events={(matchEventsData as unknown as Record<string, MatchEvents>)[matchId] ?? null}
@@ -275,6 +285,7 @@ export default async function MatchPage({
         groupStandings={match.group ? snapshot.standingsByGroup[match.group] : undefined}
         thirdPlaceRows={snapshot.thirdPlaceRanking}
         resolvedParticipants={resolvedParticipants}
+        knockoutPreviewData={knockoutPreviewData}
       />
     </>
   );

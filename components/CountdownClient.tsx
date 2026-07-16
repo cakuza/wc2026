@@ -24,12 +24,12 @@ export function CountdownClient({ tournamentPhase, target }: { tournamentPhase: 
   if (tournamentPhase === "tournament_complete" || !target) {
     return (
       <div className="mt-1">
-        <h1 className="font-heading font-extrabold uppercase leading-[0.85] text-white">
+        <div className="font-heading font-extrabold uppercase leading-[0.85] text-white">
           <span className="block text-2xl tracking-wide text-white/80 sm:text-3xl">
             Tournament complete
           </span>
-        </h1>
-        <div className="mt-4 flex flex-wrap gap-3 text-sm">
+        </div>
+        <div className="mt-2 flex flex-wrap gap-3 text-sm">
           <Link
             href="/bracket"
             className="rounded-lg border border-white/15 bg-navyCard px-4 py-2 font-heading text-xs font-bold uppercase tracking-wide text-white/70 transition hover:border-white/30 hover:text-white"
@@ -49,21 +49,21 @@ export function CountdownClient({ tournamentPhase, target }: { tournamentPhase: 
 
   return (
     <div className="mt-1" suppressHydrationWarning>
-      <h1 className="font-heading font-extrabold uppercase leading-[0.85] text-white">
-        <span className="block text-2xl tracking-wide text-white/80">
+      <div className="font-heading font-extrabold uppercase leading-[0.85] text-white">
+        <span className="block text-xl tracking-wide text-white/80">
           {tournamentPhase === "pre_tournament" ? t("hero_kickoffIn") : "Next match in"}
         </span>
-        <span className="block text-[52px] leading-none tracking-tight sm:text-7xl">
+        <span className="block text-2xl leading-none tracking-tight sm:text-7xl">
           {parts.days}{" "}
           <span className="text-accent">{t("hero_days")}</span>
         </span>
-      </h1>
+      </div>
       {tournamentPhase !== "pre_tournament" && (
-        <p className="mt-2 font-heading text-xs font-bold uppercase tracking-widest text-white/50">
+        <p className="mt-1 font-heading text-xs font-bold uppercase tracking-widest text-white/50">
           Current phase · {getTournamentPhaseLabel(tournamentPhase)}
         </p>
       )}
-      <div className="mt-6">
+      <div className="mt-0 sm:mt-6">
         <CountdownTimer target={target} />
       </div>
     </div>

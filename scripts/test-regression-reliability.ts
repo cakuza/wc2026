@@ -34,7 +34,7 @@ function runTests() {
   // 2. Subsequent timeout (preserves LKG)
   run("2. Subsequent timeout (preserves LKG)", () => {
     // Timeout behavior is handled by unstable_cache returning the old value,
-    // or by catching the fetch error and returning lastKnownGoodSnapshot.
+    // or by preserving the caller's validated provider baseline.
     // For monotonic merge, an empty response Map does not overwrite.
     const oldLiveData = new Map<number, LiveMatchData>();
     oldLiveData.set(1, { status: "FINISHED", homeScore: 2, awayScore: 1, goals: [{ minute: 10 }] } as any);

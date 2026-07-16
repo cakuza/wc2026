@@ -15,7 +15,7 @@ import type { StandingRow } from "@/lib/groupStandings";
 import { pathSlotsForGroup, slotLabel } from "@/lib/knockoutBracket2026";
 import { firstMatchResultSentence, playedGroupSummary } from "@/lib/teamCopy";
 import { formatCanonicalGoalEvents, getCanonicalArchiveEventsForMatch } from "@/lib/canonicalArchiveEvents";
-import { getResolvedAwayTeam, getResolvedHomeTeam, type ResolvedParticipantLookup } from "@/lib/participant-resolution";
+import { getResolvedAwayTeam, getResolvedHomeTeam, knockoutSlotLabel, type ResolvedParticipantLookup } from "@/lib/participant-resolution";
 import { getMatchPresentation, getMatchStatusLabel } from "@/lib/matchPresentation";
 import { getTeamTournamentStatus } from "@/lib/teamTournamentStatus";
 
@@ -64,8 +64,16 @@ export function TeamDetail({
   const teamRow = standingsRows?.find((row) => row.teamKey === team.key);
   const hasPlayed = Boolean(teamRow && teamRow.played > 0);
   const teamDisplayName = country(team.key);
+
+  const getParticipantName = (m: Match, side: "home" | "away") => {
+    const key = side === "home" ? getResolvedHomeTeam(m, resolvedParticipants) : getResolvedAwayTeam(m, resolvedParticipants);
+    if (key) return country(key);
+    if (!("matchNumber" in m)) return country(side === "home" ? m.homeKey : m.awayKey);
+    return knockoutSlotLabel(side === "home" ? m.homeSlot : m.awaySlot, "en", resolvedParticipants);
+  };
+
   const nextFixtureLabel = nextListedMatch
-    ? `${country(getResolvedHomeTeam(nextListedMatch, resolvedParticipants) ?? nextListedMatch.homeKey)} ${t("vs")} ${country(getResolvedAwayTeam(nextListedMatch, resolvedParticipants) ?? nextListedMatch.awayKey)}`
+    ? `${getParticipantName(nextListedMatch, "home")} ${t("vs")} ${getParticipantName(nextListedMatch, "away")}`
     : null;
   const playedSummary = teamRow
     ? playedGroupSummary({
@@ -108,6 +116,23 @@ export function TeamDetail({
     if (!("matchNumber" in m)) return `Group ${team.group}`;
     return ({ R32: "Round of 32", R16: "Round of 16", QF: "Quarter-final", SF: "Semi-final", "3P": "Third-place playoff", F: "Final" } as const)[m.stage];
   };
+  const completedMatches = listedMatches.filter((match) => snapshotMatches[matchSlug(match)]?.status === "FINISHED");
+  const latestCompletedMatch = completedMatches[completedMatches.length - 1] ?? null;
+  const form = completedMatches.reduce((acc, match) => {
+    const snap = snapshotMatches[matchSlug(match)];
+    if (!snap || snap.homeScore === null || snap.awayScore === null) return acc;
+    const isHome = (getResolvedHomeTeam(match, resolvedParticipants) ?? match.homeKey) === team.key;
+    const ours = isHome ? snap.homeScore : snap.awayScore;
+    const theirs = isHome ? snap.awayScore : snap.homeScore;
+    if (ours > theirs) acc.wins++; else if (ours === theirs) acc.draws++; else acc.losses++;
+    acc.goalsFor += ours;
+    acc.goalsAgainst += theirs;
+    return acc;
+  }, { wins: 0, draws: 0, losses: 0, goalsFor: 0, goalsAgainst: 0 });
+  const leadingScorers = Object.entries(completedMatches.flatMap((match) => getCanonicalArchiveEventsForMatch(eventsArchive, matchSlug(match)))
+    .filter((event) => (event.eventType === "goal" || event.eventType === "penalty_goal") && event.teamKey?.toLowerCase() === teamDisplayName.toLowerCase())
+    .reduce<Record<string, number>>((totals, event) => ({ ...totals, [event.playerName]: (totals[event.playerName] ?? 0) + 1 }), {}))
+    .sort(([, left], [, right]) => right - left).slice(0, 3);
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-8">
@@ -185,7 +210,30 @@ export function TeamDetail({
       </div>
 
       {/* ── 3 MATCHDAY CARDS ────────────────────────────────────────────── */}
-      <section className="mt-6" aria-labelledby="team-journey-heading">
+       {hasKnockoutJourney ? <section className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4" aria-label={`${teamDisplayName} tournament summary`}>
+         <div className="rounded-xl border border-accent/30 bg-accent/10 p-4"><p className="text-[10px] font-bold uppercase tracking-widest text-white/50">Current status</p><p className="mt-1 font-heading text-lg font-extrabold text-white">{tournamentStatus.currentStageLabel}</p></div>
+         <div className="rounded-xl border border-white/10 bg-navyCard p-4"><p className="text-[10px] font-bold uppercase tracking-widest text-white/50">Latest result</p>{latestCompletedMatch ? (() => {
+           const m = latestCompletedMatch;
+           const homeKey = getResolvedHomeTeam(m, resolvedParticipants) ?? m.homeKey;
+           const awayKey = getResolvedAwayTeam(m, resolvedParticipants) ?? m.awayKey;
+           const home = country(homeKey);
+           const away = country(awayKey);
+           const snap = snapshotMatches[matchSlug(m)];
+           const statusLabel = snap ? getMatchStatusLabel(getMatchPresentation({ match: m, liveData: snap.live ?? undefined, timeZone: "UTC", now: new Date(ARCHIVE_DEFAULT_DATE) })) : "FT";
+           return (
+             <Link href={`/matches/${matchSlug(m)}`} className="mt-1 block transition-opacity hover:opacity-80">
+               <span className="font-heading text-xs font-extrabold text-accent">{fixtureStage(m)}</span><br/>
+               <span className="font-heading text-sm font-extrabold text-white">{home} {scoreOrVs(m)} {away}</span><br/>
+               <span className="font-heading text-[10px] font-bold uppercase tracking-widest text-white/50">{formatDate(m.date)} · {statusLabel}</span>
+             </Link>
+           );
+         })() : <p className="mt-1 font-heading text-sm font-extrabold text-white">—</p>}</div>
+         <div className="rounded-xl border border-white/10 bg-navyCard p-4"><p className="text-[10px] font-bold uppercase tracking-widest text-white/50">Next match</p>{nextListedMatch ? <Link href={`/matches/${matchSlug(nextListedMatch)}`} className="mt-1 block font-heading text-sm font-extrabold text-accent hover:text-white">{fixtureStage(nextListedMatch)}: {nextFixtureLabel}</Link> : <p className="mt-1 font-heading text-sm font-extrabold text-white">Tournament complete</p>}</div>
+         <div className="rounded-xl border border-white/10 bg-navyCard p-4"><p className="text-[10px] font-bold uppercase tracking-widest text-white/50">Tournament record</p><p className="mt-1 font-heading text-sm font-extrabold text-white">{form.wins}-{form.draws}-{form.losses} <span className="text-white/45">GF {form.goalsFor} GA {form.goalsAgainst}</span></p></div>
+       </section> : null}
+       {hasKnockoutJourney && leadingScorers.length > 0 ? <section className="mt-3 rounded-xl border border-white/10 bg-navyCard px-4 py-3"><p className="text-[10px] font-bold uppercase tracking-widest text-white/50">Leading scorers</p><p className="mt-1 text-sm text-white">{leadingScorers.map(([player, goals]) => `${player} (${goals})`).join(" · ")}</p></section> : null}
+
+       <section className="mt-6" aria-labelledby="team-journey-heading">
         <div className="mb-3 flex flex-wrap items-end justify-between gap-3">
           <div>
             <h2 id="team-journey-heading" className="font-heading text-2xl font-extrabold uppercase tracking-wide text-white">{hasKnockoutJourney ? "2026 Tournament Run" : "Tournament journey"}</h2>
@@ -196,11 +244,17 @@ export function TeamDetail({
       {listedMatches.length > 0 && (
         <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
           {listedMatches.map((m, idx) => {
-            const resolvedHome = getResolvedHomeTeam(m, resolvedParticipants) ?? m.homeKey;
-            const resolvedAway = getResolvedAwayTeam(m, resolvedParticipants) ?? m.awayKey;
-            const isHome = resolvedHome === team.key;
-            const opponentKey = isHome ? resolvedAway : resolvedHome;
-            const opponentCode = TEAMS.find((candidate) => candidate.key === opponentKey)?.code ?? (isHome ? m.awayCode : m.homeCode);
+            const resolvedHome = getResolvedHomeTeam(m, resolvedParticipants);
+            const resolvedAway = getResolvedAwayTeam(m, resolvedParticipants);
+            const isHome = (resolvedHome ?? m.homeKey) === team.key;
+            let opponentKey = isHome ? resolvedAway : resolvedHome;
+            let opponentName = opponentKey ? country(opponentKey) : undefined;
+            if (!opponentName) {
+              opponentName = "matchNumber" in m
+                ? knockoutSlotLabel(isHome ? m.awaySlot : m.homeSlot, "en", resolvedParticipants)
+                : country(isHome ? m.awayKey : m.homeKey);
+            }
+            const opponentCode = opponentKey ? (TEAMS.find((candidate) => candidate.key === opponentKey)?.code ?? (isHome ? m.awayCode : m.homeCode)) : "tbd";
             return (
               <Link
                 key={idx}
@@ -223,15 +277,17 @@ export function TeamDetail({
 
                 {/* Opponent */}
                 <div className="flex items-center gap-2">
-                  <Flag
-                    code={opponentCode}
-                    name={country(opponentKey)}
-                    width={26}
-                    height={18}
-                    className="shrink-0 rounded-sm"
-                  />
+                  {opponentCode !== "tbd" && (
+                    <Flag
+                      code={opponentCode}
+                      name={opponentName}
+                      width={26}
+                      height={18}
+                      className="shrink-0 rounded-sm"
+                    />
+                  )}
                   <span className="truncate font-heading text-xs font-extrabold uppercase leading-tight tracking-wide text-white transition group-hover:text-accent">
-                    {country(opponentKey)}
+                    {opponentName}
                   </span>
                 </div>
 
@@ -265,13 +321,13 @@ export function TeamDetail({
         </div>
       ) : nextListedMatch && (() => {
         const isHome = nextListedMatch.homeKey === team.key;
-        const opponentKey = isHome ? nextListedMatch.awayKey : nextListedMatch.homeKey;
+        const opponentName = getParticipantName(nextListedMatch, isHome ? "away" : "home");
         return (
           <div className="mt-3 rounded-lg border border-white/10 bg-navyCard/70 px-4 py-3 text-sm text-white/70">
             <span className="font-semibold text-white">{country(team.key)}</span>
             {" "}are in Group {team.group}. Next listed match:{" "}
             <Link href={`/matches/${matchSlug(nextListedMatch)}`} className="font-semibold text-accent underline underline-offset-2 hover:text-white">
-              {country(team.key)} {t("vs")} {country(opponentKey)}
+              {country(team.key)} {t("vs")} {opponentName}
             </Link>
             {" "}at <MatchTime match={nextListedMatch} withZone className="font-semibold text-white" />.
             {" "}Top two teams in the group advance automatically; third place is ranked across all groups.
@@ -288,10 +344,9 @@ export function TeamDetail({
           {/* Q1: First match */}
           {teamMatches[0] && (() => {
             const m = teamMatches[0];
-            const isHome = m.homeKey === team.key;
-            const oppKey = isHome ? m.awayKey : m.homeKey;
+            const isHome = (getResolvedHomeTeam(m, resolvedParticipants) ?? m.homeKey) === team.key;
+            const oppName = getParticipantName(m, isHome ? "away" : "home");
             const teamName = country(team.key);
-            const oppName  = country(oppKey);
             const snap = snapshotMatches[matchSlug(m)];
             const dateStr  = formatDate(m.date);
             const timeStr  = m.time  ?? "";

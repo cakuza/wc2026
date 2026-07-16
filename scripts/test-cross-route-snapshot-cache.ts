@@ -1,4 +1,4 @@
-import { createSerializableSnapshotCache, type TournamentLiveSnapshot } from "../lib/liveSnapshot";
+import { buildTournamentLiveSnapshot } from "../lib/liveSnapshot";
 
 let passed = 0;
 let failed = 0;
@@ -13,76 +13,26 @@ function assert(condition: boolean, msg: string) {
   }
 }
 
-function emptySnapshot(snapshotId: string): TournamentLiveSnapshot {
-  return {
-    snapshotId,
-    generatedAt: "2026-06-12T21:00:00.000Z",
-    updatedAt: "2026-06-12T21:00:00.000Z",
-    matches: {},
-    liveDataByProviderId: {},
-    standingsByGroup: {},
-    thirdPlaceRanking: [],
-    tournamentStats: {
-      matchesPlayed: 0,
-      totalGoals: 0,
-      averageGoalsPerMatch: 0,
-      highestScoringMatch: null,
-      biggestWin: null,
-      cleanSheets: 0,
-      lastSyncedAt: null,
-      unresolvedCompletedMatchGoals: 0,
-      completedMatchesWithUnresolvedScorers: 0,
-      conflictedCompletedMatches: 0,
-      scorerTotalsComplete: true,
-    },
-    teamLeaderboards: {
-      topScoringTeams: [],
-      groupStagePoints: [],
-      mostWins: [],
-    },
-    topScorers: [],
-    playerEventLeaderboards: { assists: [], yellowCards: [], redCards: [], ownGoals: [], penaltyGoals: [], shootoutScored: [], shootoutMissed: [] },
-    teamStatLeaderboards: { shots: [], shotsOnTarget: [], corners: [], fouls: [], saves: [], offsides: [], possession: [], substitutions: [], cleanSheets: [], goalsConceded: [] },
-    primaryProviderOk: true,
-    secondaryProviderOk: true,
-    primaryProviderFetchedAt: "2026-06-12T21:00:00.000Z",
-    secondaryProviderFetchedAt: "2026-06-12T21:00:00.000Z",
-  };
-}
-
 async function main() {
-  console.log("=== Cross-route snapshot cache test ===\n");
+  console.log("=== Snapshot construction isolation test ===\n");
 
-  let now = 1_000;
-  let providerBuilds = 0;
-  const getCachedSnapshot = createSerializableSnapshotCache({
-    ttlMs: 30_000,
-    now: () => now,
-    build: async () => {
-      providerBuilds++;
-      return emptySnapshot(`snapshot-${providerBuilds}`);
-    },
+  const first = await buildTournamentLiveSnapshot({
+    liveData: new Map(),
+    worldcupGames: null,
+    generatedAt: "2026-07-15T10:00:00.000Z",
+    skipEnrichment: true,
+  });
+  const second = await buildTournamentLiveSnapshot({
+    liveData: new Map(),
+    worldcupGames: null,
+    generatedAt: "2026-07-15T10:00:01.000Z",
+    skipEnrichment: true,
   });
 
-  const selectors = await Promise.all([
-    getCachedSnapshot(),
-    getCachedSnapshot(),
-    getCachedSnapshot(),
-    getCachedSnapshot(),
-    getCachedSnapshot(),
-    getCachedSnapshot(),
-  ]);
-
-  assert(new Set(selectors.map((s) => s.snapshotId)).size === 1, "six route selectors receive the same snapshotId");
-  assert(providerBuilds === 1, "provider fetch builder runs once within the TTL");
-
-  const afterFirstWindow = await getCachedSnapshot();
-  assert(afterFirstWindow.snapshotId === selectors[0].snapshotId, "cached result is reused across route selectors");
-
-  now += 30_001;
-  const afterTtl = await getCachedSnapshot();
-  assert(afterTtl.snapshotId === "snapshot-2", "cache refreshes after TTL expires");
-  assert(providerBuilds === 2, "provider fetch builder runs again only after TTL");
+  assert(first !== second, "each caller receives a newly constructed snapshot object");
+  assert(first.generatedAt === "2026-07-15T10:00:00.000Z", "first snapshot retains its construction timestamp");
+  assert(second.generatedAt === "2026-07-15T10:00:01.000Z", "second snapshot uses a fresh construction timestamp");
+  assert(first.updatedAt !== second.updatedAt, "derived snapshot freshness is not retained across calls");
 
   console.log(`\n${passed} passed, ${failed} failed`);
   if (failed > 0) process.exitCode = 1;

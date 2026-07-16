@@ -77,12 +77,12 @@ function MatchRow({
     <Link
       href={`/matches/${matchSlug(m)}`}
       prefetch={false}
-      className="block rounded-lg border border-white/10 bg-navy px-3 py-2.5 transition hover:border-white/20"
+      className="block rounded-lg border border-white/10 bg-navy px-3 py-1.5 transition hover:border-white/20"
     >
       <div className="flex items-center gap-2">
-        <div className="flex min-w-0 flex-1 items-center justify-end gap-2">
-          <span className="min-w-0 truncate text-sm font-bold text-white">{home.label}</span>
-          {home.teamCode && <Flag code={home.teamCode} alt="" width={28} height={20} />}
+        <div className="flex min-w-0 flex-1 items-center justify-end gap-1.5 sm:gap-2">
+          <span className="min-w-0 text-sm font-bold text-white text-right leading-tight break-words">{home.label}</span>
+          {home.teamCode && <Flag code={home.teamCode} alt="" width={28} height={20} className="shrink-0 shadow-sm" />}
         </div>
 
         {pres.showScore ? (
@@ -93,13 +93,13 @@ function MatchRow({
           <span className="shrink-0 px-1 font-heading text-[11px] font-bold uppercase text-white/55">{t("vs")}</span>
         )}
 
-        <div className="flex min-w-0 flex-1 items-center gap-2">
-          {away.teamCode && <Flag code={away.teamCode} alt="" width={28} height={20} />}
-          <span className="min-w-0 truncate text-sm font-bold text-white">{away.label}</span>
+        <div className="flex min-w-0 flex-1 items-center gap-1.5 sm:gap-2">
+          {away.teamCode && <Flag code={away.teamCode} alt="" width={28} height={20} className="shrink-0 shadow-sm" />}
+          <span className="min-w-0 text-sm font-bold text-white text-left leading-tight break-words">{away.label}</span>
         </div>
       </div>
 
-      <div className="mt-1.5 flex items-center justify-center gap-2 text-[11px] text-white/50">
+      <div className="mt-1.5 flex flex-wrap items-center justify-center gap-2 text-[11px] text-white/50">
         {pres.showStatus && (
           <span className={`rounded px-1.5 py-0.5 font-heading text-[10px] font-extrabold uppercase tracking-widest ${
             pres.state === 'live' || pres.state === 'halftime'
@@ -135,7 +135,7 @@ export function MatchCenterContent({
   mode?: "standard" | "homepage" | "current";
   tournamentPhase?: TournamentPhase;
 }) {
-  const { t } = useLang();
+  const { t, lang } = useLang();
   const { timeZone } = useTimezone();
   const tz = timeZone || "UTC";
 
@@ -172,18 +172,54 @@ export function MatchCenterContent({
 
   if (phaseSnapshot) {
     return (
-      <div className="rounded-xl border border-white/10 bg-navyCard p-5 shadow-2xl sm:p-6">
-        <div className="space-y-6">
-          <section>
-            <h2 className="mb-3 font-heading text-[11px] font-bold uppercase tracking-widest text-white/40">Quarterfinal Results</h2>
-            <div className="flex flex-col gap-2">
-              {phaseSnapshot.completedPreviousRound.map(renderRow)}
-            </div>
-          </section>
+      <div className="rounded-xl border border-white/10 bg-navyCard p-4 shadow-2xl sm:p-6">
+        <div className="space-y-4 sm:space-y-6">
           <section>
             <h2 className="mb-3 font-heading text-[11px] font-bold uppercase tracking-widest text-white/40">Semifinals</h2>
-            <div className="flex flex-col gap-2">
+            <div className="flex flex-col gap-1">
+              {phaseSnapshot.completedCurrentRound.map(renderRow)}
               {phaseSnapshot.upcomingCurrentRound.map(renderRow)}
+            </div>
+          </section>
+
+          {phaseSnapshot.completedCurrentRound.length > 0 && (
+            <section className="rounded-lg border border-white/10 bg-navy/30 p-4">
+              <h2 className="mb-3 font-heading text-[11px] font-bold uppercase tracking-widest text-white/40">Destinations</h2>
+              <div className="flex flex-col gap-2 text-sm text-white/80">
+                {phaseSnapshot.completedCurrentRound.map(m => {
+                  if (m.stage !== "SF") return null;
+                  const live = m.providerIds?.footballData ? liveSnapshot.liveDataByProviderId[String(m.providerIds.footballData)] : undefined;
+                  const pres = getMatchPresentation({ match: m, liveData: live, timeZone: tz, now });
+                  if (pres.state !== "final" || pres.homeScore === null || pres.awayScore === null) return null;
+
+                  const home = getParticipantDisplay(m, "home", liveSnapshot.resolvedParticipants, lang).label;
+                  const away = getParticipantDisplay(m, "away", liveSnapshot.resolvedParticipants, lang).label;
+                  
+                  let winnerLabel = "";
+                  let loserLabel = "";
+                  if (live?.winner === "HOME_TEAM" || pres.homeScore > pres.awayScore) {
+                    winnerLabel = home;
+                    loserLabel = away;
+                  } else {
+                    winnerLabel = away;
+                    loserLabel = home;
+                  }
+
+                  return (
+                    <div key={m.matchNumber} className="space-y-1">
+                      <p><span className="font-bold text-accent">{winnerLabel}</span> advances to Match 104 — Final</p>
+                      <p><span className="font-bold text-red-400">{loserLabel}</span> advances to Match 103 — Third-place playoff</p>
+                    </div>
+                  );
+                })}
+              </div>
+            </section>
+          )}
+
+          <section>
+            <h2 className="mb-3 font-heading text-[11px] font-bold uppercase tracking-widest text-white/40">Quarterfinal Results</h2>
+            <div className="flex flex-col gap-1">
+              {phaseSnapshot.completedPreviousRound.map(renderRow)}
             </div>
           </section>
         </div>
@@ -192,21 +228,21 @@ export function MatchCenterContent({
   }
 
   return (
-    <div className="rounded-xl border border-white/10 bg-navyCard p-5 shadow-2xl sm:p-6">
-      <div className="mb-2 flex items-center justify-between">
+    <div className="rounded-xl border border-white/10 bg-navyCard p-2 shadow-2xl sm:p-6">
+      <div className="mb-0 flex items-center justify-between">
         <p className="font-heading text-sm font-extrabold uppercase tracking-[0.2em] text-accent">Match Center</p>
       </div>
 
-      <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
+      <div className="mb-1 flex flex-wrap items-center justify-between gap-2">
         <TimezoneLabel className="text-[11px] text-white/55" />
         <FreshnessLabel primaryProviderFetchedAt={liveSnapshot.primaryProviderFetchedAt} primaryProviderOk={liveSnapshot.primaryProviderOk} />
       </div>
 
-      <div className="space-y-6">
+      <div className="space-y-2 sm:space-y-6">
         {snapshot.liveNow.length > 0 && (
           <div>
             <h3 className="mb-3 font-heading text-[11px] font-bold uppercase tracking-widest text-red-400">Live Now</h3>
-            <div className="flex flex-col gap-2">
+            <div className="flex flex-col gap-1">
               {snapshot.liveNow.map(renderRow)}
             </div>
           </div>
@@ -215,7 +251,7 @@ export function MatchCenterContent({
         {snapshot.syncing && snapshot.syncing.length > 0 && (
           <div>
             <h3 className="mb-3 font-heading text-[11px] font-bold uppercase tracking-widest text-[#f5a623]">{t("sec_awaitingUpdate") || "Awaiting update"}</h3>
-            <div className="flex flex-col gap-2">
+            <div className="flex flex-col gap-1">
               {snapshot.syncing.map(renderRow)}
             </div>
           </div>
@@ -223,8 +259,8 @@ export function MatchCenterContent({
 
         {snapshot.latestResult && (
           <div>
-            <h3 className="mb-3 font-heading text-[11px] font-bold uppercase tracking-widest text-white/40">{t("sec_latestResults") || "Latest Result"}</h3>
-            <div className="flex flex-col gap-2">
+            <h3 className="mb-1 font-heading text-[11px] font-bold uppercase tracking-widest text-white/40">{t("sec_latestResults") || "Latest Result"}</h3>
+            <div className="flex flex-col gap-1">
               {renderRow(snapshot.latestResult)}
             </div>
           </div>
@@ -232,8 +268,8 @@ export function MatchCenterContent({
 
         {snapshot.upNext.length > 0 && (
           <div>
-            <h3 className="mb-3 font-heading text-[11px] font-bold uppercase tracking-widest text-white/40">Up Next</h3>
-            <div className="flex flex-col gap-2">
+            <h3 className="mb-1 font-heading text-[11px] font-bold uppercase tracking-widest text-white/40">Up Next</h3>
+            <div className="flex flex-col gap-1">
               {snapshot.upNext.map(renderRow)}
             </div>
           </div>
