@@ -5,35 +5,48 @@ import { LiveDataUnavailableNotice } from "@/components/LiveDataUnavailableNotic
 import StatsContent from "@/components/StatsContent";
 import { getLiveRefreshPolicy } from "@/lib/liveRefreshPolicy";
 import { getTournamentLiveSnapshot } from "@/lib/liveSnapshot";
+import { buildKnockoutResolution } from "@/lib/knockoutResolution";
+import { getArchiveState } from "@/lib/archiveLifecycle";
+import { ARCHIVE_DEFAULT_DATE, MATCHES } from "@/lib/matches";
+
+const BASE = "https://www.worldcupmatchday.com";
 
 export const revalidate = 60;
 // export const dynamic = "force-dynamic"; // removed for ISR
 
-export const metadata: Metadata = {
-  title: "World Cup 2026 Stats - Goals, Scores, Standings & Top Scorers",
-  description:
-    "Explore World Cup 2026 tournament statistics, team records, match records and player leaders.",
-  alternates: { canonical: "https://www.worldcupmatchday.com/stats" },
-  openGraph: {
-    title: "World Cup 2026 Stats - Goals, Scores, Standings & Top Scorers",
-    description:
-      "Explore World Cup 2026 tournament statistics, team records, match records and player leaders.",
-    url: "https://www.worldcupmatchday.com/stats",
-    type: "website",
-  },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const snapshot = await getTournamentLiveSnapshot();
+  const resolvedParticipants = buildKnockoutResolution(snapshot.matches);
+  const archive = getArchiveState({ matches: MATCHES, liveData: snapshot.liveDataByProviderId, resolvedParticipants, now: new Date(ARCHIVE_DEFAULT_DATE) });
+  const stats = snapshot.tournamentStats;
+  const topScorer = snapshot.topScorers[0];
 
-const jsonLd = {
-  "@context": "https://schema.org",
-  "@type": "WebPage",
-  name: "World Cup 2026 Statistics",
-  description:
-    "World Cup 2026 tournament stats, including matches played, total goals, team stats, clean sheets and top scorers.",
-  url: "https://www.worldcupmatchday.com/stats",
-};
+  const title = archive.isComplete
+    ? `2026 World Cup Stats: ${stats.totalGoals} Total Goals, Top Scorers & Records`
+    : "World Cup 2026 Stats — Total Goals, Top Scorers & Clean Sheets";
+  const description = archive.isComplete
+    ? `Final 2026 FIFA World Cup statistics: ${stats.matchesPlayed} matches, ${stats.totalGoals} total goals (${stats.averageGoalsPerMatch} per match), ${stats.cleanSheets} clean sheets.${topScorer ? ` Golden Boot: ${topScorer.playerName} (${topScorer.goals}).` : ""}`
+    : `2026 FIFA World Cup statistics so far: ${stats.matchesPlayed} matches played, ${stats.totalGoals} total goals, top scorers, assists and clean sheets.`;
+
+  return {
+    title,
+    description,
+    alternates: { canonical: `${BASE}/stats` },
+    openGraph: { title, description, url: `${BASE}/stats`, type: "website" },
+  };
+}
 
 export default async function StatsPage() {
   const snapshot = await getTournamentLiveSnapshot();
+  const resolvedParticipants = buildKnockoutResolution(snapshot.matches);
+  const archive = getArchiveState({ matches: MATCHES, liveData: snapshot.liveDataByProviderId, resolvedParticipants, now: new Date(ARCHIVE_DEFAULT_DATE) });
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    name: archive.isComplete ? "2026 World Cup Final Statistics" : "2026 World Cup Statistics",
+    description: `2026 World Cup tournament stats, including matches played (${snapshot.tournamentStats.matchesPlayed}), total goals (${snapshot.tournamentStats.totalGoals}), team stats, clean sheets and top scorers.`,
+    url: `${BASE}/stats`,
+  };
   const hasEventData = snapshot.topScorers.length > 0;
   const refreshPolicy = getLiveRefreshPolicy(Object.values(snapshot.matches));
 

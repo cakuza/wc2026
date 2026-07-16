@@ -76,15 +76,24 @@ export async function generateMetadata({
     ? `${getParticipantName(nextMatch, "home")} vs ${getParticipantName(nextMatch, "away")}`
     : null;
 
+  // Eliminated-at-group-stage pages previously used generic "fixtures/squad"
+  // titles that didn't answer the actual query intent: GSC shows a large,
+  // near-zero-CTR cluster searching "was [team] eliminated" / "[team] Group
+  // [X] standings" — see docs/seo/ARCHIVE_SEO_V1_AUDIT.md §4 (Turkey Group D:
+  // 70 query variants, 450 impressions, 0 clicks despite position ~10).
+  const groupRank = snapshot.standingsByGroup[team.group]?.find((r) => r.teamKey === team.key)?.rank;
+  const isEliminatedGroupStage = tournamentStatus.classification === "ELIMINATED_GROUP_STAGE";
+  const groupRankLabel = groupRank ? `${groupRank}${groupRank === 1 ? "st" : groupRank === 2 ? "nd" : groupRank === 3 ? "rd" : "th"}` : null;
+
   const title = tournamentStatus.hasKnockoutJourney && tournamentStatus.currentStageLabel
     ? `${name} · ${tournamentStatus.currentStageLabel} | World Cup 2026 Tournament Run`
-    : team.key === "turkey"
-      ? "Turkey World Cup 2026 Fixtures, Group, Scores & Squad"
+    : isEliminatedGroupStage
+      ? `${name} Eliminated: World Cup 2026 Group ${team.group}${groupRankLabel ? ` — Finished ${groupRankLabel}` : " Standings"}`
       : `${name} World Cup 2026 — Schedule, Squad & Group ${team.group}`;
   const description = tournamentStatus.hasKnockoutJourney && tournamentStatus.currentStageLabel
     ? `${name} are ${tournamentStatus.currentStageLabel} at the 2026 World Cup.${nextFixture ? ` Next: ${nextFixture}.` : ""} Group ${team.group} results and squad remain available as tournament history.`
-    : team.key === "turkey"
-      ? "See Turkey's World Cup 2026 fixtures, group path, kickoff times, scores, squad notes and qualification outlook."
+    : isEliminatedGroupStage
+      ? `${name} were eliminated in the group stage of the 2026 FIFA World Cup${groupRankLabel ? `, finishing ${groupRankLabel} in Group ${team.group}` : ` in Group ${team.group}`}. Full group results, fixtures and squad.`
       : `${name} World Cup 2026: Group ${team.group} fixtures vs ${opponentStr}. ` +
         (playerCount > 0 ? `Squad of ${playerCount} players. ` : "") +
         `Qualification scenarios and group standings.`;
