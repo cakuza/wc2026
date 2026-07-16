@@ -29,7 +29,7 @@ export default async function BracketPage() {
   const tournamentPhase = getTournamentPhase({
     matches: MATCHES,
     liveData: snapshot.liveDataByProviderId,
-    now: new Date(ARCHIVE_DEFAULT_DATE),
+    now: new Date(snapshot.generatedAt),
   });
   return <BracketContent resolvedParticipants={buildKnockoutResolution(snapshot.matches)} tournamentPhase={tournamentPhase} />;
 }

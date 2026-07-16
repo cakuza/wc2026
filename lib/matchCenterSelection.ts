@@ -191,7 +191,7 @@ export function getTournamentPhase({
   if (hasUnresolvedR32 || (!anyR16Started && anyR32Started)) return "round_of_32";
   if (hasUnresolvedR16 || (!anyQFStarted && anyR16Started)) return "round_of_16";
   if (hasUnresolvedQF) return "quarterfinals";
-  if (hasUnresolvedSF || (!thirdStarted && !finalStarted && anySFStarted)) return "semifinals";
+  if (hasUnresolvedSF) return "semifinals";
 
   if (hasUnresolvedThird && !finalStarted) {
     return "third_place";

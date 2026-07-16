@@ -260,7 +260,7 @@ export function matchStageLabel(match: Match): string {
     case "SF":
       return "Semi-final";
     case "3P":
-      return "Third-place match";
+      return "Third-place playoff";
     case "F":
       return "Final";
   }
