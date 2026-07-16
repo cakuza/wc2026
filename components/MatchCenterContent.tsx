@@ -8,7 +8,7 @@ import { FreshnessLabel } from "@/components/FreshnessLabel";
 import { useLang } from "@/components/LanguageProvider";
 import { useTimezone } from "@/components/TimezoneProvider";
 import { matchSlug, ARCHIVE_DEFAULT_DATE, MATCHES, type Match } from "@/lib/matches";
-import { getHomepageMatchCenterSnapshot, getMatchCenterSnapshot, type TournamentPhase } from "@/lib/matchCenterSelection";
+import { getHomepageMatchCenterSnapshot, getMatchCenterSnapshot, splitDestinationsByCompletion, type TournamentPhase } from "@/lib/matchCenterSelection";
 import { getMatchPresentation, getMatchStatusLabel } from "@/lib/matchPresentation";
 import { getParticipantDisplay, type ResolvedParticipantLookup } from "@/lib/participant-resolution";
 import type { LiveMatchData } from "@/lib/liveMatchData";
@@ -195,21 +195,45 @@ export function MatchCenterContent({
             </div>
           </section>
 
-          {tournamentPhase !== "tournament_complete" && phaseSnapshot.destinations && phaseSnapshot.destinations.length > 0 && (
-            <section className="rounded-lg border border-white/10 bg-navy/30 p-4">
-              <h2 className="mb-3 font-heading text-[11px] font-bold uppercase tracking-widest text-white/40">Destinations</h2>
-              <div className="flex flex-col gap-3">
-                {phaseSnapshot.destinations.map(m => (
-                  <div key={matchSlug(m)}>
-                    <p className="mb-1 text-xs font-bold text-white/60">
-                      {"stage" in m && m.stage === "3P" ? "Match 103 — Third-place playoff" : "Match 104 — Final"}
-                    </p>
-                    {renderRow(m)}
-                  </div>
-                ))}
-              </div>
-            </section>
-          )}
+          {tournamentPhase !== "tournament_complete" && phaseSnapshot.destinations && phaseSnapshot.destinations.length > 0 && (() => {
+            const stageLabel = (m: Match) => ("stage" in m && m.stage === "3P" ? "Match 103 — Third-place playoff" : "Match 104 — Final");
+            const { completed, upcoming } = splitDestinationsByCompletion({
+              destinations: phaseSnapshot.destinations,
+              liveData: liveSnapshot.liveDataByProviderId,
+              now,
+            });
+
+            return (
+              <>
+                {completed.length > 0 && (
+                  <section className="rounded-lg border border-white/10 bg-navy/30 p-4">
+                    <h2 className="mb-3 font-heading text-[11px] font-bold uppercase tracking-widest text-white/40">Placement Results</h2>
+                    <div className="flex flex-col gap-3">
+                      {completed.map(m => (
+                        <div key={matchSlug(m)}>
+                          <p className="mb-1 text-xs font-bold text-white/60">{stageLabel(m)}</p>
+                          {renderRow(m)}
+                        </div>
+                      ))}
+                    </div>
+                  </section>
+                )}
+                {upcoming.length > 0 && (
+                  <section className="rounded-lg border border-white/10 bg-navy/30 p-4">
+                    <h2 className="mb-3 font-heading text-[11px] font-bold uppercase tracking-widest text-white/40">Destinations</h2>
+                    <div className="flex flex-col gap-3">
+                      {upcoming.map(m => (
+                        <div key={matchSlug(m)}>
+                          <p className="mb-1 text-xs font-bold text-white/60">{stageLabel(m)}</p>
+                          {renderRow(m)}
+                        </div>
+                      ))}
+                    </div>
+                  </section>
+                )}
+              </>
+            );
+          })()}
 
           <section>
             <h2 className="mb-3 font-heading text-[11px] font-bold uppercase tracking-widest text-white/40">Quarterfinal Results</h2>

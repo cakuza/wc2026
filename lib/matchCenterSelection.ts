@@ -349,6 +349,32 @@ export interface MatchCenterSnapshot {
   upNext: Match[];
 }
 
+/**
+ * Splits placement matches (103/104) by their own completion state rather than
+ * by tournament phase. A placement match can complete out of chronological
+ * order relative to its sibling (e.g. the Final finishes before the
+ * Third-place playoff), so phase-level grouping alone cannot tell a caller
+ * whether a given match belongs under a "completed" or "upcoming" heading.
+ */
+export function splitDestinationsByCompletion({
+  destinations,
+  liveData,
+  now,
+}: {
+  destinations: Match[];
+  liveData: Record<string, LiveMatchData>;
+  now: Date;
+}): { completed: Match[]; upcoming: Match[] } {
+  const completed: Match[] = [];
+  const upcoming: Match[] = [];
+  for (const match of destinations) {
+    const live = match.providerIds?.footballData ? liveData[String(match.providerIds.footballData)] : undefined;
+    const state = normalizeMatchState({ match, liveData: live, now }).state;
+    (state === "final" ? completed : upcoming).push(match);
+  }
+  return { completed, upcoming };
+}
+
 export interface HomepageMatchCenterSnapshot {
   completedPreviousRound: Match[];
   completedCurrentRound: Match[];
