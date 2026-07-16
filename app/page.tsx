@@ -74,9 +74,8 @@ export default async function TodayPage() {
     now,
     phase: tournamentPhase,
   });
-  const countdownTarget = homepageMatches.upcomingCurrentRound[0]
-    ? matchUtcDate(homepageMatches.upcomingCurrentRound[0]).toISOString()
-    : null;
+  const nextCountdownMatch = homepageMatches.upcomingCurrentRound[0] ?? homepageMatches.nextDestinationMatch;
+  const countdownTarget = nextCountdownMatch ? matchUtcDate(nextCountdownMatch).toISOString() : null;
 
   return (
     <>

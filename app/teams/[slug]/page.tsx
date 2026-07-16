@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { TeamDetail } from "@/components/TeamDetail";
 import { LiveDataUnavailableNotice } from "@/components/LiveDataUnavailableNotice";
 import { TEAMS, slugFor, teamBySlug, teamsInGroup, withArticle } from "@/lib/teams";
-import { MATCHES, matchesInGroup } from "@/lib/matches";
+import { MATCHES, matchesInGroup, ARCHIVE_DEFAULT_DATE } from "@/lib/matches";
 import { squadFor } from "@/lib/squads";
 import { countryName } from "@/lib/i18n";
 import { getTournamentLiveSnapshot } from "@/lib/liveSnapshot";
@@ -13,6 +13,7 @@ import matchEventsData from "@/data/archive/match-events.json";
 import { buildKnockoutResolution } from "@/lib/knockoutResolution";
 import { getResolvedAwayTeam, getResolvedHomeTeam } from "@/lib/participant-resolution";
 import { getTeamTournamentStatus } from "@/lib/teamTournamentStatus";
+import { getArchiveState } from "@/lib/archiveLifecycle";
 
 export function generateStaticParams() {
   return TEAMS.map((t) => ({ slug: slugFor(t.key) }));
@@ -138,12 +139,15 @@ export default async function TeamPage({ params }: { params: Promise<{ slug: str
   const groupMatches = matchesInGroup(team.group);
   const snapshot = await getTournamentLiveSnapshot();
   const resolvedParticipants = buildKnockoutResolution(snapshot.matches);
+  const now = new Date(ARCHIVE_DEFAULT_DATE);
   const tournamentStatus = getTeamTournamentStatus({
     teamKey: team.key,
     matches: MATCHES,
     snapshotMatches: snapshot.matches,
     resolvedParticipants,
+    now,
   });
+  const archiveState = getArchiveState({ matches: MATCHES, liveData: snapshot.liveDataByProviderId, resolvedParticipants, now });
   const teamMatches = tournamentStatus.listedMatches;
   const hasReachedKnockoutStage = tournamentStatus.hasKnockoutJourney;
   const name = countryName(team.key, "en");
@@ -257,6 +261,7 @@ export default async function TeamPage({ params }: { params: Promise<{ slug: str
         snapshotMatches={snapshot.matches}
         eventsArchive={matchEventsData}
         resolvedParticipants={resolvedParticipants}
+        isTournamentComplete={archiveState.isComplete}
       />
     </>
   );

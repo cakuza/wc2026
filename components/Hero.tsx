@@ -88,7 +88,7 @@ export function Hero({
              * block down (eliminating this client island as a layout-shift source).
              */}
             <div className="min-h-[60px] sm:min-h-[200px]">
-              <CountdownClient tournamentPhase={tournamentPhase} target={countdownTarget} />
+              <CountdownClient tournamentPhase={tournamentPhase} target={countdownTarget} isComplete={archiveState.isComplete} />
             </div>
 
             {/* Host nations */}

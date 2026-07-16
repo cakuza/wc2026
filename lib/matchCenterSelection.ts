@@ -380,6 +380,14 @@ export interface HomepageMatchCenterSnapshot {
   completedCurrentRound: Match[];
   upcomingCurrentRound: Match[];
   destinations?: Match[];
+  /**
+   * Earliest not-yet-final match among `destinations` (Third-place/Final).
+   * `upcomingCurrentRound` is empty by design once the semifinals are both
+   * final (activeCurrentStage stays locked to "SF" for display purposes),
+   * so the homepage countdown falls back to this instead of treating an
+   * empty upcomingCurrentRound as tournament completion.
+   */
+  nextDestinationMatch?: Match;
 }
 
 const PREVIOUS_KNOCKOUT_STAGE: Partial<Record<TournamentPhase, Match["stage"]>> = {
@@ -462,7 +470,16 @@ export function getHomepageMatchCenterSnapshot({
       }).sort((a, b) => matchUtcDate(b).getTime() - matchUtcDate(a).getTime())
     : [];
 
-  return { completedPreviousRound, completedCurrentRound, upcomingCurrentRound, destinations };
+  const nextDestinationMatch = destinations
+    ? destinations
+        .filter((match) => {
+          const live = match.providerIds?.footballData ? liveData[String(match.providerIds.footballData)] : undefined;
+          return normalizeMatchState({ match, liveData: live, now }).state !== "final";
+        })
+        .sort((a, b) => matchUtcDate(a).getTime() - matchUtcDate(b).getTime())[0]
+    : undefined;
+
+  return { completedPreviousRound, completedCurrentRound, upcomingCurrentRound, destinations, nextDestinationMatch };
 }
 
 export function getMatchCenterSnapshot({

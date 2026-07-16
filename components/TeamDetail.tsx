@@ -40,6 +40,7 @@ export function TeamDetail({
   snapshotMatches = {},
   eventsArchive = {},
   resolvedParticipants,
+  isTournamentComplete = false,
 }: {
   team: Team;
   groupTeams: Team[];
@@ -49,6 +50,7 @@ export function TeamDetail({
   snapshotMatches?: Record<string, SerializableSnapshotMatch>;
   eventsArchive?: unknown;
   resolvedParticipants?: ResolvedParticipantLookup;
+  isTournamentComplete?: boolean;
 }) {
   const { t, country, formatDate } = useLang();
   const squad = squadByPosition(team.key);
@@ -75,6 +77,10 @@ export function TeamDetail({
   const nextFixtureLabel = nextListedMatch
     ? `${getParticipantName(nextListedMatch, "home")} ${t("vs")} ${getParticipantName(nextListedMatch, "away")}`
     : null;
+  // "No next match" means two different things: the whole tournament is over
+  // (accurate to say "Tournament complete"), or just this team was eliminated
+  // while the tournament continues — those must not share the same copy.
+  const noNextMatchLabel = isTournamentComplete ? "Tournament complete" : "Eliminated";
   const playedSummary = teamRow
     ? playedGroupSummary({
         teamName: teamDisplayName,
@@ -228,7 +234,7 @@ export function TeamDetail({
              </Link>
            );
          })() : <p className="mt-1 font-heading text-sm font-extrabold text-white">—</p>}</div>
-         <div className="rounded-xl border border-white/10 bg-navyCard p-4"><p className="text-[10px] font-bold uppercase tracking-widest text-white/50">Next match</p>{nextListedMatch ? <Link href={`/matches/${matchSlug(nextListedMatch)}`} className="mt-1 block font-heading text-sm font-extrabold text-accent hover:text-white">{fixtureStage(nextListedMatch)}: {nextFixtureLabel}</Link> : <p className="mt-1 font-heading text-sm font-extrabold text-white">Tournament complete</p>}</div>
+         <div className="rounded-xl border border-white/10 bg-navyCard p-4"><p className="text-[10px] font-bold uppercase tracking-widest text-white/50">Next match</p>{nextListedMatch ? <Link href={`/matches/${matchSlug(nextListedMatch)}`} className="mt-1 block font-heading text-sm font-extrabold text-accent hover:text-white">{fixtureStage(nextListedMatch)}: {nextFixtureLabel}</Link> : <p className="mt-1 font-heading text-sm font-extrabold text-white">{noNextMatchLabel}</p>}</div>
          <div className="rounded-xl border border-white/10 bg-navyCard p-4"><p className="text-[10px] font-bold uppercase tracking-widest text-white/50">Tournament record</p><p className="mt-1 font-heading text-sm font-extrabold text-white">{form.wins}-{form.draws}-{form.losses} <span className="text-white/45">GF {form.goalsFor} GA {form.goalsAgainst}</span></p></div>
        </section> : null}
        {hasKnockoutJourney && leadingScorers.length > 0 ? <section className="mt-3 rounded-xl border border-white/10 bg-navyCard px-4 py-3"><p className="text-[10px] font-bold uppercase tracking-widest text-white/50">Leading scorers</p><p className="mt-1 text-sm text-white">{leadingScorers.map(([player, goals]) => `${player} (${goals})`).join(" · ")}</p></section> : null}
