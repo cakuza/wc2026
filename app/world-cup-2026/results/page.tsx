@@ -3,10 +3,11 @@ import Link from "next/link";
 import { BreadcrumbNav, breadcrumbLd } from "@/components/BreadcrumbNav";
 import { getTournamentLiveSnapshot } from "@/lib/liveSnapshot";
 import { buildKnockoutResolution } from "@/lib/knockoutResolution";
-import { getArchiveState } from "@/lib/archiveLifecycle";
+import { getArchiveState, isDateFullyResolved } from "@/lib/archiveLifecycle";
 import { getParticipantDisplay, matchStageLabel, isKnockoutMatch } from "@/lib/participant-resolution";
 import { getMatchPresentation } from "@/lib/matchPresentation";
 import { matchSlug, matchUtcDate, MATCHES, ARCHIVE_DEFAULT_DATE, type Match } from "@/lib/matches";
+import { CANDIDATE_ARCHIVE_DATES } from "@/lib/archiveDates";
 
 const BASE = "https://www.worldcupmatchday.com";
 const now = new Date(ARCHIVE_DEFAULT_DATE);
@@ -45,11 +46,18 @@ const STAGE_ORDER: Array<{ key: string; label: string; match: (m: Match) => bool
   { key: "group", label: "Group Stage", match: (m) => !isKnockoutMatch(m) },
 ];
 
+function formatDateShort(dateStr: string): string {
+  return new Date(`${dateStr}T12:00:00Z`).toLocaleDateString("en-US", { day: "numeric", month: "short", timeZone: "UTC" });
+}
+
 export default async function WorldCup2026ResultsPage() {
   const snapshot = await getTournamentLiveSnapshot();
   const resolvedParticipants = buildKnockoutResolution(snapshot.matches);
   const archive = getArchiveState({ matches: MATCHES, liveData: snapshot.liveDataByProviderId, resolvedParticipants, now });
   const stats = snapshot.tournamentStats;
+  // Every built date page must be reachable from here — otherwise it has no
+  // internal-link entry point and is only discoverable via the sitemap.
+  const resolvedDates = CANDIDATE_ARCHIVE_DATES.filter((date) => isDateFullyResolved({ date, liveData: snapshot.liveDataByProviderId, now }));
 
   const rows = MATCHES.map((match) => {
     const live = match.providerIds?.footballData ? snapshot.liveDataByProviderId[String(match.providerIds.footballData)] : undefined;
@@ -139,6 +147,23 @@ export default async function WorldCup2026ResultsPage() {
           </section>
         );
       })}
+
+      {resolvedDates.length > 0 && (
+        <section className="mb-8">
+          <h2 className="mb-3 font-heading text-lg font-bold uppercase tracking-wide text-white">Browse by Date</h2>
+          <div className="flex flex-wrap gap-2">
+            {resolvedDates.map((date) => (
+              <Link
+                key={date}
+                href={`/world-cup-2026/results/${date}`}
+                className="rounded-lg border border-white/10 bg-navyCard px-3 py-1.5 text-xs font-bold uppercase tracking-wide text-white/70 transition hover:border-white/25 hover:text-white"
+              >
+                {formatDateShort(date)}
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
 
       {archive.isComplete && (
         <p className="mt-4 text-xs text-white/40">
