@@ -137,10 +137,16 @@ async function run() {
           assert(data.qfExists, `[${vp.width}] ${route} first quarterfinal archive item exists`);
 
           if (data.spainExists && data.engExists && data.destExists && data.qfExists) {
-            assert(data.spainY <= data.engY, `[${vp.width}] ${route} visual order: Spain before England`);
-            assert(data.engY <= data.destY, `[${vp.width}] ${route} visual order: England before destinations`);
+            assert(data.engY <= data.spainY, `[${vp.width}] ${route} visual order: England before Spain`);
+            assert(data.spainY <= data.destY, `[${vp.width}] ${route} visual order: Spain before destinations`);
             assert(data.destY <= data.qfY, `[${vp.width}] ${route} visual order: destinations before quarterfinals`);
           }
+
+          assert(data.links.some(l => l.includes('match-103')), `[${vp.width}] ${route} Match 103 link exists`);
+          assert(data.links.some(l => l.includes('match-104')), `[${vp.width}] ${route} Match 104 link exists`);
+          assert(!/tbd/i.test(data.text), `[${vp.width}] ${route} no raw TBD exists`);
+          assert(!/Winner\s*of/i.test(data.text), `[${vp.width}] ${route} no Winner of... exists`);
+          assert(!/Loser\s*of/i.test(data.text), `[${vp.width}] ${route} no Loser of... exists`);
 
           assert(data.docWidth <= data.innerWidth, `[${vp.width}] ${route} document has no horizontal overflow`);
           assert(data.bodyWidth <= data.innerWidth, `[${vp.width}] ${route} body has no horizontal overflow`);
@@ -149,8 +155,8 @@ async function run() {
           }
 
           if (vp.width === 390 && data.spainExists && data.engExists) {
-            assert(data.spainY <= 650, `[${vp.width}] ${route} Spain y <= 650`);
-            assert(data.engY <= 820, `[${vp.width}] ${route} England-Argentina y <= 820`);
+            assert(data.engY <= 650, `[${vp.width}] ${route} England y <= 650`);
+            assert(data.spainY <= 820, `[${vp.width}] ${route} Spain y <= 820`);
           }
         }
 

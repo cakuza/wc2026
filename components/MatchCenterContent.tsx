@@ -182,36 +182,18 @@ export function MatchCenterContent({
             </div>
           </section>
 
-          {phaseSnapshot.completedCurrentRound.length > 0 && (
+          {phaseSnapshot.destinations && phaseSnapshot.destinations.length > 0 && (
             <section className="rounded-lg border border-white/10 bg-navy/30 p-4">
               <h2 className="mb-3 font-heading text-[11px] font-bold uppercase tracking-widest text-white/40">Destinations</h2>
-              <div className="flex flex-col gap-2 text-sm text-white/80">
-                {phaseSnapshot.completedCurrentRound.map(m => {
-                  if (m.stage !== "SF") return null;
-                  const live = m.providerIds?.footballData ? liveSnapshot.liveDataByProviderId[String(m.providerIds.footballData)] : undefined;
-                  const pres = getMatchPresentation({ match: m, liveData: live, timeZone: tz, now });
-                  if (pres.state !== "final" || pres.homeScore === null || pres.awayScore === null) return null;
-
-                  const home = getParticipantDisplay(m, "home", liveSnapshot.resolvedParticipants, lang).label;
-                  const away = getParticipantDisplay(m, "away", liveSnapshot.resolvedParticipants, lang).label;
-                  
-                  let winnerLabel = "";
-                  let loserLabel = "";
-                  if (live?.winner === "HOME_TEAM" || pres.homeScore > pres.awayScore) {
-                    winnerLabel = home;
-                    loserLabel = away;
-                  } else {
-                    winnerLabel = away;
-                    loserLabel = home;
-                  }
-
-                  return (
-                    <div key={m.matchNumber} className="space-y-1">
-                      <p><span className="font-bold text-accent">{winnerLabel}</span> advances to Match 104 — Final</p>
-                      <p><span className="font-bold text-red-400">{loserLabel}</span> advances to Match 103 — Third-place playoff</p>
-                    </div>
-                  );
-                })}
+              <div className="flex flex-col gap-3">
+                {phaseSnapshot.destinations.map(m => (
+                  <div key={matchSlug(m)}>
+                    <p className="mb-1 text-xs font-bold text-white/60">
+                      {"stage" in m && m.stage === "3P" ? "Match 103 — Third-place playoff" : "Match 104 — Final"}
+                    </p>
+                    {renderRow(m)}
+                  </div>
+                ))}
               </div>
             </section>
           )}
