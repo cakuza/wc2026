@@ -8,6 +8,14 @@ import { getArchiveState } from "@/lib/archiveLifecycle";
 import { getParticipantDisplay } from "@/lib/participant-resolution";
 import { matchSlug, MATCHES, ARCHIVE_DEFAULT_DATE, TOURNAMENT_FINAL_DATE } from "@/lib/matches";
 import { websiteSchema } from "@/lib/schema";
+import { getTiedLeaders } from "@/lib/tournamentStats";
+
+/** "A" / "A & B" / "A, B & C" — for naming every player tied for a leaderboard's top value. */
+function joinNames(names: string[]): string {
+  if (names.length <= 1) return names[0] ?? "";
+  if (names.length === 2) return `${names[0]} & ${names[1]}`;
+  return `${names.slice(0, -1).join(", ")} & ${names[names.length - 1]}`;
+}
 
 const BASE = "https://www.worldcupmatchday.com";
 const now = new Date(ARCHIVE_DEFAULT_DATE);
@@ -41,7 +49,7 @@ export default async function WorldCup2026Page() {
   const resolvedParticipants = buildKnockoutResolution(snapshot.matches);
   const archive = getArchiveState({ matches: MATCHES, liveData: snapshot.liveDataByProviderId, resolvedParticipants, now });
   const stats = snapshot.tournamentStats;
-  const topScorer = snapshot.topScorers[0] ?? null;
+  const topScorers = getTiedLeaders(snapshot.topScorers, (p) => p.goals);
 
   const collectionLd = {
     "@context": "https://schema.org",
@@ -134,10 +142,10 @@ export default async function WorldCup2026Page() {
         ))}
       </section>
 
-      {topScorer && (
+      {topScorers.length > 0 && (
         <p className="mb-8 text-sm text-white/60">
-          Golden Boot leader: <span className="font-bold text-white">{topScorer.playerName}</span>
-          {topScorer.teamName ? ` (${topScorer.teamName})` : ""} with {topScorer.goals} goal{topScorer.goals !== 1 ? "s" : ""}. See the{" "}
+          Golden Boot leader{topScorers.length > 1 ? "s" : ""}: <span className="font-bold text-white">{joinNames(topScorers.map((p) => p.playerName))}</span>
+          {" "}with {topScorers[0].goals} goal{topScorers[0].goals !== 1 ? "s" : ""}{topScorers.length > 1 ? " each" : ""}. See the{" "}
           <Link href="/stats/top-scorers" className="underline decoration-white/30 underline-offset-2 hover:text-white">full Top Scorers table</Link>.
         </p>
       )}

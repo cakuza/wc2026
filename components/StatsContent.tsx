@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useLang } from "@/components/LanguageProvider";
 import type { TournamentStats, TeamLeaderboards, PlayerRankingRecord, PlayerEventLeaderboards, TeamStatLeaderboards } from "@/lib/tournamentStats";
+import { getTiedLeaders } from "@/lib/tournamentStats";
 import { StatsNav } from "./StatsNav";
 import { countryName } from "@/lib/i18n";
 import { Flag } from "@/components/Flag";
@@ -34,6 +35,13 @@ export default function StatsContent({ tournamentStats, teamLeaderboards, topSco
     const hh = String(d.getUTCHours()).padStart(2, "0");
     const mm = String(d.getUTCMinutes()).padStart(2, "0");
     return `${hh}:${mm} UTC`;
+  }
+
+  /** "A" / "A & B" / "A, B & C" — for naming every team/player tied for a leaderboard's top value. */
+  function joinNames(names: string[]): string {
+    if (names.length <= 1) return names[0] ?? "";
+    if (names.length === 2) return `${names[0]} & ${names[1]}`;
+    return `${names.slice(0, -1).join(", ")} & ${names[names.length - 1]}`;
   }
 
   const liveStats = hasData
@@ -121,19 +129,23 @@ export default function StatsContent({ tournamentStats, teamLeaderboards, topSco
                 </p>
               </div>
               {hasEventData && topScorers.length > 0 ? (() => {
-                const teamKey = topScorers[0].teamKey;
-                const teamCode = teamKey ? teamCodeForKey(teamKey) : null;
+                const leaders = getTiedLeaders(topScorers, (p) => p.goals);
                 return (
                   <div className="p-4 flex items-center gap-4">
                     <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-accent/20 text-accent font-heading text-2xl font-black">
-                      {topScorers[0].goals}
+                      {leaders[0].goals}
                     </div>
-                    <div>
-                      <div className="flex items-center gap-2">
-                        {teamCode && <Flag code={teamCode} width={20} height={14} className="shrink-0" alt="" />}
-                        <p className="font-bold text-white">{topScorers[0].playerName}</p>
-                      </div>
-                      <p className="text-sm text-white/50 mt-0.5">{teamKey ? country(teamKey) : (topScorers[0].teamName ?? "")}</p>
+                    <div className="min-w-0">
+                      {leaders.map((p) => {
+                        const teamCode = p.teamKey ? teamCodeForKey(p.teamKey) : null;
+                        return (
+                          <div key={p.playerName} className="flex items-center gap-2">
+                            {teamCode && <Flag code={teamCode} width={20} height={14} className="shrink-0" alt="" />}
+                            <p className="font-bold text-white">{p.playerName}</p>
+                            <p className="text-sm text-white/50">{p.teamKey ? country(p.teamKey) : (p.teamName ?? "")}</p>
+                          </div>
+                        );
+                      })}
                     </div>
                   </div>
                 );
@@ -149,19 +161,23 @@ export default function StatsContent({ tournamentStats, teamLeaderboards, topSco
                 </p>
               </div>
               {hasEventData && playerEventLeaderboards.assists.length > 0 ? (() => {
-                const teamKey = playerEventLeaderboards.assists[0].teamKey;
-                const teamCode = teamKey ? teamCodeForKey(teamKey) : null;
+                const leaders = getTiedLeaders(playerEventLeaderboards.assists, (p) => p.value);
                 return (
                   <div className="p-4 flex items-center gap-4">
                     <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-white/10 text-white font-heading text-2xl font-black">
-                      {playerEventLeaderboards.assists[0].value}
+                      {leaders[0].value}
                     </div>
-                    <div>
-                      <div className="flex items-center gap-2">
-                        {teamCode && <Flag code={teamCode} width={20} height={14} className="shrink-0" alt="" />}
-                        <p className="font-bold text-white">{playerEventLeaderboards.assists[0].playerName}</p>
-                      </div>
-                      <p className="text-sm text-white/50 mt-0.5">{teamKey ? country(teamKey) : (playerEventLeaderboards.assists[0].teamName ?? "")}</p>
+                    <div className="min-w-0">
+                      {leaders.map((p) => {
+                        const teamCode = p.teamKey ? teamCodeForKey(p.teamKey) : null;
+                        return (
+                          <div key={p.playerName} className="flex items-center gap-2">
+                            {teamCode && <Flag code={teamCode} width={20} height={14} className="shrink-0" alt="" />}
+                            <p className="font-bold text-white">{p.playerName}</p>
+                            <p className="text-sm text-white/50">{p.teamKey ? country(p.teamKey) : (p.teamName ?? "")}</p>
+                          </div>
+                        );
+                      })}
                     </div>
                   </div>
                 );
@@ -191,28 +207,32 @@ export default function StatsContent({ tournamentStats, teamLeaderboards, topSco
                   Most Goals Scored
                 </p>
               </div>
-              {hasTeamData && teamStatLeaderboards.goalsScored.length > 0 ? (
-                <div className="p-4 flex items-center gap-4">
-                  <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-lg bg-accent/20 text-accent font-heading text-2xl font-black">
-                    {teamStatLeaderboards.goalsScored[0].value}
+              {hasTeamData && teamStatLeaderboards.goalsScored.length > 0 ? (() => {
+                const leaders = getTiedLeaders(teamStatLeaderboards.goalsScored, (t) => t.value);
+                const top = leaders[0];
+                return (
+                  <div className="p-4 flex items-center gap-4">
+                    <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-lg bg-accent/20 text-accent font-heading text-2xl font-black">
+                      {top.value}
+                    </div>
+                    <div className="min-w-0">
+                      <p className="font-bold text-white">{joinNames(leaders.map((l) => countryName(l.teamKey, "en")))}</p>
+                      {(top.matchesCovered ?? 0) > 0 && leaders.every((l) => l.matchesCovered === top.matchesCovered && l.completedMatches === top.completedMatches && l.coverageStatus === top.coverageStatus) && (
+                        <p className="text-xs text-white/50">
+                          {top.coverageStatus === "PARTIAL" ? (
+                            <>
+                              <span className="text-yellow-500/80 mr-1">PARTIAL:</span>
+                              {top.matchesCovered} of {top.completedMatches} matches
+                            </>
+                          ) : (
+                            `in ${top.matchesCovered} matches`
+                          )}
+                        </p>
+                      )}
+                    </div>
                   </div>
-                  <div>
-                    <p className="font-bold text-white">{countryName(teamStatLeaderboards.goalsScored[0].teamKey, "en")}</p>
-                    {(teamStatLeaderboards.goalsScored[0].matchesCovered ?? 0) > 0 && (
-                      <p className="text-xs text-white/50">
-                        {teamStatLeaderboards.goalsScored[0].coverageStatus === "PARTIAL" ? (
-                          <>
-                            <span className="text-yellow-500/80 mr-1">PARTIAL:</span>
-                            {teamStatLeaderboards.goalsScored[0].matchesCovered} of {teamStatLeaderboards.goalsScored[0].completedMatches} matches
-                          </>
-                        ) : (
-                          `in ${teamStatLeaderboards.goalsScored[0].matchesCovered} matches`
-                        )}
-                      </p>
-                    )}
-                  </div>
-                </div>
-              ) : (
+                );
+              })() : (
                 <div className="p-4 text-xs text-white/40">Data unavailable</div>
               )}
             </div>
@@ -223,28 +243,32 @@ export default function StatsContent({ tournamentStats, teamLeaderboards, topSco
                   Most Clean Sheets
                 </p>
               </div>
-              {hasTeamData && teamStatLeaderboards.cleanSheets.length > 0 ? (
-                <div className="p-4 flex items-center gap-4">
-                  <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-lg bg-white/10 text-white font-heading text-2xl font-black">
-                    {teamStatLeaderboards.cleanSheets[0].value}
+              {hasTeamData && teamStatLeaderboards.cleanSheets.length > 0 ? (() => {
+                const leaders = getTiedLeaders(teamStatLeaderboards.cleanSheets, (t) => t.value);
+                const top = leaders[0];
+                return (
+                  <div className="p-4 flex items-center gap-4">
+                    <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-lg bg-white/10 text-white font-heading text-2xl font-black">
+                      {top.value}
+                    </div>
+                    <div className="min-w-0">
+                      <p className="font-bold text-white">{joinNames(leaders.map((l) => countryName(l.teamKey, "en")))}</p>
+                      {(top.matchesCovered ?? 0) > 0 && leaders.every((l) => l.matchesCovered === top.matchesCovered && l.completedMatches === top.completedMatches && l.coverageStatus === top.coverageStatus) && (
+                        <p className="text-xs text-white/50">
+                          {top.coverageStatus === "PARTIAL" ? (
+                            <>
+                              <span className="text-yellow-500/80 mr-1">PARTIAL:</span>
+                              {top.matchesCovered} of {top.completedMatches} matches
+                            </>
+                          ) : (
+                            `in ${top.matchesCovered} matches`
+                          )}
+                        </p>
+                      )}
+                    </div>
                   </div>
-                  <div>
-                    <p className="font-bold text-white">{countryName(teamStatLeaderboards.cleanSheets[0].teamKey, "en")}</p>
-                    {(teamStatLeaderboards.cleanSheets[0].matchesCovered ?? 0) > 0 && (
-                      <p className="text-xs text-white/50">
-                        {teamStatLeaderboards.cleanSheets[0].coverageStatus === "PARTIAL" ? (
-                          <>
-                            <span className="text-yellow-500/80 mr-1">PARTIAL:</span>
-                            {teamStatLeaderboards.cleanSheets[0].matchesCovered} of {teamStatLeaderboards.cleanSheets[0].completedMatches} matches
-                          </>
-                        ) : (
-                          `in ${teamStatLeaderboards.cleanSheets[0].matchesCovered} matches`
-                        )}
-                      </p>
-                    )}
-                  </div>
-                </div>
-              ) : (
+                );
+              })() : (
                 <div className="p-4 text-xs text-white/40">Data unavailable</div>
               )}
             </div>

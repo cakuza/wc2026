@@ -110,6 +110,19 @@ export type PlayerRankingRecord = {
   minutesPlayed: { value: number; isVerifiedComplete: boolean } | null;
 };
 
+/**
+ * Every "Most X" leaderboard card must show every team/player tied for the
+ * top value, never just whichever entry happens to sort first. Callers pass
+ * an array already sorted descending by the relevant field (all the
+ * leaderboard computers below already do this) — this only slices off the
+ * leading run of entries that share the max value.
+ */
+export function getTiedLeaders<T>(sortedDescending: T[], getValue: (item: T) => number): T[] {
+  if (sortedDescending.length === 0) return [];
+  const max = getValue(sortedDescending[0]);
+  return sortedDescending.filter((item) => getValue(item) === max);
+}
+
 export function computeTournamentStats(
   liveData: ReadonlyMap<number, LiveMatchData>,
   matches?: Record<string, import("./liveSnapshot").SerializableSnapshotMatch>
