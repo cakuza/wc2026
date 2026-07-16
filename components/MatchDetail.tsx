@@ -259,6 +259,13 @@ export function MatchDetail({
   const homeRank = groupStandings?.findIndex((row) => row.teamKey === match.homeKey);
   const awayRank = groupStandings?.findIndex((row) => row.teamKey === match.awayKey);
   const matchTime = matchUtcDate(match).getTime();
+  const getParticipantName = (m: Match, side: "home" | "away") => {
+    const key = side === "home" ? getResolvedHomeTeam(m, resolvedParticipants) : getResolvedAwayTeam(m, resolvedParticipants);
+    if (key) return country(key);
+    if (!("matchNumber" in m)) return country(side === "home" ? m.homeKey : m.awayKey);
+    return knockoutSlotLabel(side === "home" ? m.homeSlot : m.awaySlot, "en", resolvedParticipants);
+  };
+
   const teamKeysForNext = [homeKey, awayKey].filter((k): k is string => k !== null && k !== "tbd");
   const nextMatches = teamKeysForNext
     .map((teamKey) => {
@@ -762,7 +769,7 @@ export function MatchDetail({
                   >
                     <span className="font-semibold text-white">{country(teamKey)}</span>
                     {" — "}
-                    {country(next.homeKey)} {t("vs")} {country(next.awayKey)}
+                    {getParticipantName(next, "home")} {t("vs")} {getParticipantName(next, "away")}
                     {" · "}
                     <KickoffDateTime match={next} className="font-semibold text-white/80" />
                   </Link>
