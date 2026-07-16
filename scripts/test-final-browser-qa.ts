@@ -53,6 +53,8 @@ const ROUTES = [
   '/teams/spain',
   '/teams/england',
   '/teams/argentina',
+  '/teams/turkey',
+  '/teams/brazil',
   '/groups/group-a',
   '/groups/group-b',
   '/groups/group-c',
@@ -190,6 +192,13 @@ async function run() {
           assert(!/Winner\s*of/i.test(data.text), `[${label}] ${route} no Winner of... exists`);
           assert(!/Loser\s*of/i.test(data.text), `[${label}] ${route} no Loser of... exists`);
           assert(!/England[^.]{0,40}vs[^.]{0,40}Argentina[^.]{0,60}Upcoming/i.test(data.text), `[${label}] ${route} no upcoming England vs Argentina card`);
+
+          // Lifecycle-aware navigation: pre-completion nav must not surface
+          // the archive hub link yet (that only appears once the tournament
+          // is canonically complete — see lib/navLinks.ts ARCHIVE_DESKTOP_LINKS).
+          assert(!data.links.some(l => l.endsWith('/world-cup-2026') || l.endsWith('/world-cup-2026/')), `[${label}] ${route} primary nav does not surface archive hub link before completion`);
+          assert(data.links.some(l => l.includes('/today')), `[${label}] ${route} /today remains reachable in navigation`);
+          assert(data.links.some(l => l.includes('/schedule')), `[${label}] ${route} /schedule remains reachable in navigation`);
 
           const match103Count = data.links.filter(l => l.includes('match-103')).length;
           const match104Count = data.links.filter(l => l.includes('match-104')).length;
@@ -351,6 +360,16 @@ async function run() {
           } else if (route === '/teams/argentina') {
              assert(/Final/i.test(data.text), `[${label}] ${route} Final path visible`);
              assert(data.links.some(l => l.includes('match-104')), `[${label}] ${route} link to /matches/match-104`);
+          }
+        }
+
+        else if (route === '/teams/turkey' || route === '/teams/brazil') {
+          assert(data.h1s === 1, `[${label}] ${route} exactly one H1`);
+          assert(!/\btbd\b/i.test(data.text), `[${label}] ${route} no raw tbd`);
+          assert(data.docWidth <= data.innerWidth, `[${label}] ${route} no horizontal overflow`);
+          if (route === '/teams/turkey') {
+            assert(/eliminat/i.test(data.text), `[${label}] ${route} states elimination status`);
+            assert(/Group D/i.test(data.text), `[${label}] ${route} names the correct group (D)`);
           }
         }
       } catch (err: any) {
