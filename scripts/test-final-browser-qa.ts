@@ -53,6 +53,8 @@ const ROUTES = [
   '/teams/spain',
   '/teams/england',
   '/teams/argentina',
+  '/teams/turkey',
+  '/teams/brazil',
   '/groups/group-a',
   '/groups/group-b',
   '/groups/group-c',
@@ -74,16 +76,78 @@ const ROUTES = [
   '/matches/match-102',
   '/matches/match-103',
   '/matches/match-104',
+  '/world-cup-2026',
+  '/world-cup-2026/results',
+  '/world-cup-2026/results/2026-07-11',
 ];
 
 // Small documented tolerance for sub-pixel/anti-aliasing rounding when
 // comparing one section's bottom edge against the next section's top edge.
 const ORDER_TOLERANCE_PX = 5;
 
+// Server-rendered HTML must never disagree with the hydrated DOM about
+// tournament lifecycle state. Raw HTML is viewport-independent, so it is
+// fetched once per route (not once per route×viewport) and cached here.
+const rawHtmlByRoute = new Map<string, string>();
+
+async function getRawHtml(route: string): Promise<string> {
+  const cached = rawHtmlByRoute.get(route);
+  if (cached !== undefined) return cached;
+  const res = await fetch(`${BASE_URL}${route}`);
+  const html = res.ok ? await res.text() : '';
+  rawHtmlByRoute.set(route, html);
+  return html;
+}
+
+/**
+ * Approximates visible page text from raw server HTML: strips <script> tags
+ * (which embed the RSC flight-data payload — prop names like
+ * "isTournamentComplete":false would otherwise false-positive-match a naive
+ * "tournament complete" substring search) and reduces remaining markup to
+ * text, mirroring what document.body.innerText exposes in the hydrated DOM.
+ */
+function visibleTextFromHtml(html: string): string {
+  return html
+    .replace(/<script[\s\S]*?<\/script>/gi, ' ')
+    .replace(/<style[\s\S]*?<\/style>/gi, ' ')
+    .replace(/<[^>]+>/g, ' ');
+}
+
+/**
+ * Proves the exact regression this suite exists to catch: components like
+ * CountdownClient render nothing on the server (client-only island) and
+ * only decide "Tournament complete" post-hydration — so a bug in that
+ * decision (e.g. treating a null countdown target as completion) is
+ * invisible to server-HTML-only checks and only shows up by diffing server
+ * HTML against the hydrated DOM. Requires whitespace between the two words
+ * so it matches only rendered copy, never a camelCase identifier like
+ * "isTournamentComplete" embedded in the RSC payload.
+ */
+function assertNoLifecycleDivergence(label: string, route: string, rawHtml: string, hydratedText: string) {
+  const serverSaysComplete = /tournament\s+complete/i.test(visibleTextFromHtml(rawHtml));
+  const hydratedSaysComplete = /tournament\s+complete/i.test(hydratedText);
+  if (!serverSaysComplete && hydratedSaysComplete) {
+    assert(false, `[${label}] ${route} Lifecycle divergence: server says pre-final, hydrated DOM says tournament complete`);
+  } else {
+    assert(true, `[${label}] ${route} no server-vs-hydrated-DOM lifecycle divergence`);
+  }
+  // The reverse direction (server claims completion the client silently
+  // retracts) is equally a truth failure, just not the specific regression
+  // this suite was built to catch — still worth a permanent guard.
+  assert(
+    !(serverSaysComplete && !hydratedSaysComplete),
+    `[${label}] ${route} Lifecycle divergence: server says tournament complete, hydrated DOM does not`,
+  );
+}
+
 async function run() {
   const browser = await puppeteer.launch({
     headless: true,
-    args: ['--no-sandbox'],
+    // --disable-dev-shm-usage and --disable-gpu harden long sequential-page
+    // Chromium runs against sandboxed/constrained environments, where the
+    // default /dev/shm size or GPU process can otherwise cause a silent
+    // mid-run crash with no error output after dozens of page navigations.
+    args: ['--no-sandbox', '--disable-dev-shm-usage', '--disable-gpu'],
   });
 
   let totalAssertionsBefore = 0;
@@ -164,6 +228,9 @@ async function run() {
           };
         });
 
+        const rawHtml = await getRawHtml(route);
+        assertNoLifecycleDivergence(label, route, rawHtml, data.text);
+
         if (route === '/') {
           assert(data.h1s === 1, `[${label}] ${route} exactly one H1`);
           assert(/(France\s*0\s*[–-]\s*2\s*Spain|Spain\s*2\s*[–-]\s*0\s*France)/i.test(data.text), `[${label}] ${route} Spain 2-0 France exists`);
@@ -183,6 +250,13 @@ async function run() {
           assert(!/Winner\s*of/i.test(data.text), `[${label}] ${route} no Winner of... exists`);
           assert(!/Loser\s*of/i.test(data.text), `[${label}] ${route} no Loser of... exists`);
           assert(!/England[^.]{0,40}vs[^.]{0,40}Argentina[^.]{0,60}Upcoming/i.test(data.text), `[${label}] ${route} no upcoming England vs Argentina card`);
+
+          // Lifecycle-aware navigation: pre-completion nav must not surface
+          // the archive hub link yet (that only appears once the tournament
+          // is canonically complete — see lib/navLinks.ts ARCHIVE_DESKTOP_LINKS).
+          assert(!data.links.some(l => l.endsWith('/world-cup-2026') || l.endsWith('/world-cup-2026/')), `[${label}] ${route} primary nav does not surface archive hub link before completion`);
+          assert(data.links.some(l => l.includes('/today')), `[${label}] ${route} /today remains reachable in navigation`);
+          assert(data.links.some(l => l.includes('/schedule')), `[${label}] ${route} /schedule remains reachable in navigation`);
 
           const match103Count = data.links.filter(l => l.includes('match-103')).length;
           const match104Count = data.links.filter(l => l.includes('match-104')).length;
@@ -249,6 +323,31 @@ async function run() {
           assert(!/Winner Match 101|Winner Match 102/i.test(data.text), `[${label}] ${route} no raw Winner Match 101/102 labels`);
           assert(!/\btbd\b/i.test(data.text), `[${label}] ${route} no raw tbd`);
           assert(!/Winner\s*of|Loser\s*of/i.test(data.text), `[${label}] ${route} no unresolved participant labels`);
+        }
+
+        else if (route === '/world-cup-2026') {
+          assert(data.h1s === 1, `[${label}] ${route} exactly one H1`);
+          assert(data.links.some(l => l.includes('/world-cup-2026/results')), `[${label}] ${route} links to full results archive`);
+          assert(data.links.some(l => l.includes('/bracket')), `[${label}] ${route} links to bracket`);
+          assert(data.links.some(l => l.includes('/stats')), `[${label}] ${route} links to stats`);
+          assert(data.links.some(l => l.includes('/teams')), `[${label}] ${route} links to teams`);
+          assert(data.links.some(l => l.includes('/groups')), `[${label}] ${route} links to groups`);
+          assert(data.docWidth <= data.innerWidth, `[${label}] ${route} no horizontal overflow`);
+        }
+
+        else if (route === '/world-cup-2026/results') {
+          assert(data.h1s === 1, `[${label}] ${route} exactly one H1`);
+          assert(data.links.some(l => l.includes('/matches/match-104')), `[${label}] ${route} links to the Final match page`);
+          assert(data.links.some(l => l.includes('/matches/match-103')), `[${label}] ${route} links to the Third-place match page`);
+          assert(!/\btbd\b/i.test(data.text), `[${label}] ${route} no raw tbd`);
+          assert(data.docWidth <= data.innerWidth, `[${label}] ${route} no horizontal overflow`);
+        }
+
+        else if (route === '/world-cup-2026/results/2026-07-11') {
+          assert(data.h1s === 1, `[${label}] ${route} exactly one H1`);
+          assert(/July 11,? 2026/i.test(data.text), `[${label}] ${route} date-page heading is visible`);
+          assert(!/\btbd\b/i.test(data.text), `[${label}] ${route} no raw tbd`);
+          assert(data.docWidth <= data.innerWidth, `[${label}] ${route} no horizontal overflow`);
         }
 
         else if (route === '/bracket') {
@@ -319,6 +418,16 @@ async function run() {
           } else if (route === '/teams/argentina') {
              assert(/Final/i.test(data.text), `[${label}] ${route} Final path visible`);
              assert(data.links.some(l => l.includes('match-104')), `[${label}] ${route} link to /matches/match-104`);
+          }
+        }
+
+        else if (route === '/teams/turkey' || route === '/teams/brazil') {
+          assert(data.h1s === 1, `[${label}] ${route} exactly one H1`);
+          assert(!/\btbd\b/i.test(data.text), `[${label}] ${route} no raw tbd`);
+          assert(data.docWidth <= data.innerWidth, `[${label}] ${route} no horizontal overflow`);
+          if (route === '/teams/turkey') {
+            assert(/eliminat/i.test(data.text), `[${label}] ${route} states elimination status`);
+            assert(/Group D/i.test(data.text), `[${label}] ${route} names the correct group (D)`);
           }
         }
       } catch (err: any) {

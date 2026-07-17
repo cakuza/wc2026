@@ -9,9 +9,10 @@ import {
   localHourInTimeZone,
   previousMatchdayWithMatches,
 } from "@/lib/todaySelection";
-import { ARCHIVE_DEFAULT_DATE } from "@/lib/matches";
+import { ARCHIVE_DEFAULT_DATE, matchSlug } from "@/lib/matches";
 import type { MatchCenterLiveSnapshot } from "@/components/MatchCenterContent";
 import type { TournamentPhase } from "@/lib/matchCenterSelection";
+import type { ArchiveState } from "@/lib/archiveLifecycle";
 
 const MIDNIGHT_CONTINUITY_END_HOUR = 3;
 
@@ -31,6 +32,7 @@ export function TodayContent({
   dateParam,
   selectedTimeZone,
   tournamentPhase,
+  archiveState,
 }: {
   snapshot: MatchCenterLiveSnapshot;
   isFallbackSnapshot: boolean;
@@ -38,8 +40,12 @@ export function TodayContent({
   dateParam?: string;
   selectedTimeZone: string;
   tournamentPhase: TournamentPhase;
+  archiveState: ArchiveState;
 }) {
   const resolved = resolveSelectedMatchday({ dateParam, timeZone: selectedTimeZone });
+  // The completion transition only replaces the base (non-dated) view — a
+  // dated ?date= view still shows that day's real matches truthfully.
+  const showArchiveComplete = archiveState.isComplete && !resolved.isExplicitDate;
 
   const localHour = localHourInTimeZone(new Date(ARCHIVE_DEFAULT_DATE), selectedTimeZone);
   const inMidnightWindow = localHour >= 0 && localHour < MIDNIGHT_CONTINUITY_END_HOUR;
@@ -51,14 +57,40 @@ export function TodayContent({
   return (
     <div className="mx-auto max-w-4xl px-4 py-8">
       <h1 className="mb-2 font-heading text-4xl font-extrabold uppercase tracking-wide text-white">
-        {resolved.isExplicitDate
+        {showArchiveComplete
+          ? "The 2026 World Cup Is Complete"
+          : resolved.isExplicitDate
           ? `World Cup Matches — ${longDate(resolved.date)}`
           : "World Cup Match Center"}
       </h1>
       <p className="mb-2 max-w-3xl text-sm text-white/50">
-        Follow World Cup matches with scores, kickoff times in your selected timezone,
-        venues and match status. Finished matches include final scores and goal scorers when available.
+        {showArchiveComplete
+          ? `${archiveState.champion} won the Final ${archiveState.finalResult?.homeScore}–${archiveState.finalResult?.awayScore} over ${archiveState.runnerUp}. ${archiveState.thirdPlace} finished third.`
+          : "Follow World Cup matches with scores, kickoff times in your selected timezone, venues and match status. Finished matches include final scores and goal scorers when available."}
       </p>
+
+      {showArchiveComplete && archiveState.finalResult && (
+        <div className="mb-6 flex flex-wrap items-center gap-3">
+          <Link
+            href="/world-cup-2026"
+            className="rounded-lg border border-accent/40 bg-accent/10 px-4 py-2 font-heading text-xs font-bold uppercase tracking-wide text-accent transition hover:border-accent/60"
+          >
+            2026 World Cup Archive →
+          </Link>
+          <Link
+            href={`/matches/${matchSlug(archiveState.finalResult.match)}`}
+            className="rounded-lg border border-white/15 bg-navyCard px-4 py-2 font-heading text-xs font-bold uppercase tracking-wide text-white/70 transition hover:border-white/30 hover:text-white"
+          >
+            Final Match Report
+          </Link>
+          <Link
+            href="/world-cup-2026/results"
+            className="rounded-lg border border-white/15 bg-navyCard px-4 py-2 font-heading text-xs font-bold uppercase tracking-wide text-white/70 transition hover:border-white/30 hover:text-white"
+          >
+            Full Results
+          </Link>
+        </div>
+      )}
 
       {!resolved.isExplicitDate && (
         <div className="mb-6 flex flex-wrap items-center justify-between gap-2">
@@ -89,7 +121,7 @@ export function TodayContent({
 
       <LiveDataUnavailableNotice show={isFallbackSnapshot} />
 
-      {previousMatchday && (
+      {previousMatchday && !showArchiveComplete && (
         <Link
           href={`/today?date=${previousMatchday}&tz=${encodeURIComponent(selectedTimeZone)}`}
           className="mb-6 flex items-center justify-between gap-3 rounded-xl border border-accent/30 bg-accent/10 px-4 py-3 text-sm transition hover:border-accent/50 hover:bg-accent/15"

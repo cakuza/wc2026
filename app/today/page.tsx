@@ -7,6 +7,7 @@ import { buildKnockoutResolution } from "@/lib/knockoutResolution";
 import { TodayClientWrapper } from "@/components/TodayClientWrapper";
 import { ARCHIVE_DEFAULT_DATE, MATCHES } from "@/lib/matches";
 import { getTournamentPhase } from "@/lib/matchCenterSelection";
+import { getArchiveState } from "@/lib/archiveLifecycle";
 
 const BASE_URL = "https://www.worldcupmatchday.com";
 
@@ -17,21 +18,25 @@ export const revalidate = 3600;
 
 export async function generateMetadata(): Promise<Metadata> {
   const hasDateParam = false;
+  const snapshot = await getTournamentLiveSnapshot();
+  const resolvedParticipants = buildKnockoutResolution(snapshot.matches);
+  const archive = getArchiveState({ matches: MATCHES, liveData: snapshot.liveDataByProviderId, resolvedParticipants, now: new Date(ARCHIVE_DEFAULT_DATE) });
+
+  const title = archive.isComplete
+    ? "2026 World Cup Complete — Final Result & Champion"
+    : "World Cup Match Center — Scores, Fixtures & Kickoff Times";
+  const description = archive.isComplete
+    ? `The 2026 FIFA World Cup is complete. ${archive.champion} beat ${archive.runnerUp} ${archive.finalResult?.homeScore}-${archive.finalResult?.awayScore} in the Final. See the full archive of results, bracket and stats.`
+    : "Follow the World Cup Match Center with live scores, upcoming fixtures, latest results, and goal scorers.";
+
   return {
-    title: "World Cup Match Center — Scores, Fixtures & Kickoff Times",
-    description:
-      "Follow the World Cup Match Center with live scores, upcoming fixtures, latest results, and goal scorers.",
+    title,
+    description,
     // A single canonical /today regardless of ?date=/?tz= avoids duplicate
     // indexable URLs; dated views are explicitly de-indexed.
     alternates: { canonical: `${BASE_URL}/today` },
     robots: hasDateParam ? { index: false, follow: true } : undefined,
-    openGraph: {
-      title: "World Cup Match Center — Scores, Fixtures & Kickoff Times",
-      description:
-        "Follow the World Cup Match Center with live scores, upcoming fixtures, latest results, and goal scorers.",
-      url: `${BASE_URL}/today`,
-      type: "website",
-    },
+    openGraph: { title, description, url: `${BASE_URL}/today`, type: "website" },
   };
 }
 
@@ -85,11 +90,9 @@ export default async function TodayPage() {
   const liveDataUnavailableByMatchId = Object.fromEntries(
     Object.entries(snapshot.matches).map(([id, entry]) => [id, Boolean(entry.liveDataUnavailable)]),
   );
-  const tournamentPhase = getTournamentPhase({
-    matches: MATCHES,
-    liveData,
-    now: new Date(ARCHIVE_DEFAULT_DATE),
-  });
+  const now = new Date(ARCHIVE_DEFAULT_DATE);
+  const tournamentPhase = getTournamentPhase({ matches: MATCHES, liveData, now });
+  const archiveState = getArchiveState({ matches: MATCHES, liveData, resolvedParticipants, now });
 
   return (
     <>
@@ -104,6 +107,7 @@ export default async function TodayPage() {
         isFallbackSnapshot={isFallbackSnapshot}
         liveDataUnavailableByMatchId={liveDataUnavailableByMatchId}
         tournamentPhase={tournamentPhase}
+        archiveState={archiveState}
       />
 
       {/* FAQ */}

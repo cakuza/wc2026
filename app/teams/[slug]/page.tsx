@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { TeamDetail } from "@/components/TeamDetail";
 import { LiveDataUnavailableNotice } from "@/components/LiveDataUnavailableNotice";
 import { TEAMS, slugFor, teamBySlug, teamsInGroup, withArticle } from "@/lib/teams";
-import { MATCHES, matchesInGroup } from "@/lib/matches";
+import { MATCHES, matchesInGroup, ARCHIVE_DEFAULT_DATE } from "@/lib/matches";
 import { squadFor } from "@/lib/squads";
 import { countryName } from "@/lib/i18n";
 import { getTournamentLiveSnapshot } from "@/lib/liveSnapshot";
@@ -13,6 +13,7 @@ import matchEventsData from "@/data/archive/match-events.json";
 import { buildKnockoutResolution } from "@/lib/knockoutResolution";
 import { getResolvedAwayTeam, getResolvedHomeTeam } from "@/lib/participant-resolution";
 import { getTeamTournamentStatus } from "@/lib/teamTournamentStatus";
+import { getArchiveState } from "@/lib/archiveLifecycle";
 
 export function generateStaticParams() {
   return TEAMS.map((t) => ({ slug: slugFor(t.key) }));
@@ -76,15 +77,24 @@ export async function generateMetadata({
     ? `${getParticipantName(nextMatch, "home")} vs ${getParticipantName(nextMatch, "away")}`
     : null;
 
+  // Eliminated-at-group-stage pages previously used generic "fixtures/squad"
+  // titles that didn't answer the actual query intent: GSC shows a large,
+  // near-zero-CTR cluster searching "was [team] eliminated" / "[team] Group
+  // [X] standings" — see docs/seo/ARCHIVE_SEO_V1_AUDIT.md §4 (Turkey Group D:
+  // 70 query variants, 450 impressions, 0 clicks despite position ~10).
+  const groupRank = snapshot.standingsByGroup[team.group]?.find((r) => r.teamKey === team.key)?.rank;
+  const isEliminatedGroupStage = tournamentStatus.classification === "ELIMINATED_GROUP_STAGE";
+  const groupRankLabel = groupRank ? `${groupRank}${groupRank === 1 ? "st" : groupRank === 2 ? "nd" : groupRank === 3 ? "rd" : "th"}` : null;
+
   const title = tournamentStatus.hasKnockoutJourney && tournamentStatus.currentStageLabel
     ? `${name} · ${tournamentStatus.currentStageLabel} | World Cup 2026 Tournament Run`
-    : team.key === "turkey"
-      ? "Turkey World Cup 2026 Fixtures, Group, Scores & Squad"
+    : isEliminatedGroupStage
+      ? `${name} Eliminated: World Cup 2026 Group ${team.group}${groupRankLabel ? ` — Finished ${groupRankLabel}` : " Standings"}`
       : `${name} World Cup 2026 — Schedule, Squad & Group ${team.group}`;
   const description = tournamentStatus.hasKnockoutJourney && tournamentStatus.currentStageLabel
     ? `${name} are ${tournamentStatus.currentStageLabel} at the 2026 World Cup.${nextFixture ? ` Next: ${nextFixture}.` : ""} Group ${team.group} results and squad remain available as tournament history.`
-    : team.key === "turkey"
-      ? "See Turkey's World Cup 2026 fixtures, group path, kickoff times, scores, squad notes and qualification outlook."
+    : isEliminatedGroupStage
+      ? `${name} were eliminated in the group stage of the 2026 FIFA World Cup${groupRankLabel ? `, finishing ${groupRankLabel} in Group ${team.group}` : ` in Group ${team.group}`}. Full group results, fixtures and squad.`
       : `${name} World Cup 2026: Group ${team.group} fixtures vs ${opponentStr}. ` +
         (playerCount > 0 ? `Squad of ${playerCount} players. ` : "") +
         `Qualification scenarios and group standings.`;
@@ -129,12 +139,15 @@ export default async function TeamPage({ params }: { params: Promise<{ slug: str
   const groupMatches = matchesInGroup(team.group);
   const snapshot = await getTournamentLiveSnapshot();
   const resolvedParticipants = buildKnockoutResolution(snapshot.matches);
+  const now = new Date(ARCHIVE_DEFAULT_DATE);
   const tournamentStatus = getTeamTournamentStatus({
     teamKey: team.key,
     matches: MATCHES,
     snapshotMatches: snapshot.matches,
     resolvedParticipants,
+    now,
   });
+  const archiveState = getArchiveState({ matches: MATCHES, liveData: snapshot.liveDataByProviderId, resolvedParticipants, now });
   const teamMatches = tournamentStatus.listedMatches;
   const hasReachedKnockoutStage = tournamentStatus.hasKnockoutJourney;
   const name = countryName(team.key, "en");
@@ -248,6 +261,7 @@ export default async function TeamPage({ params }: { params: Promise<{ slug: str
         snapshotMatches={snapshot.matches}
         eventsArchive={matchEventsData}
         resolvedParticipants={resolvedParticipants}
+        isTournamentComplete={archiveState.isComplete}
       />
     </>
   );

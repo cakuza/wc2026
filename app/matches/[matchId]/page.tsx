@@ -6,7 +6,7 @@ import { MatchDetail } from "@/components/MatchDetail";
 import { countryName } from "@/lib/i18n";
 import { getGoalEventCompleteness } from "@/lib/goalEventCompleteness";
 import { getTournamentLiveSnapshot } from "@/lib/liveSnapshot";
-import { matchBySlug, MATCHES, matchSlug } from "@/lib/matches";
+import { matchBySlug, MATCHES, matchSlug, matchUtcDate } from "@/lib/matches";
 import { getResolvedHomeTeam, getResolvedAwayTeam, getParticipantDisplayLabel, isKnockoutMatch, knockoutSlotLabel, matchStageLabel } from "@/lib/participant-resolution";
 import { buildKnockoutResolution } from "@/lib/knockoutResolution";
 import { buildScheduledKnockoutPreviewData } from "@/lib/scheduledKnockoutPreview";
@@ -218,6 +218,31 @@ export default async function MatchPage({
       ? `2026 World Cup ${stageLabel}`
       : "";
 
+  const homeName = resolvedTeamName(match, "home");
+  const awayName = resolvedTeamName(match, "away");
+  const eventName = isCompleted && snap?.homeScore !== null && snap?.awayScore !== null
+    ? `${homeName} ${snap?.homeScore}–${snap?.awayScore} ${awayName}`
+    : `${homeName} vs ${awayName}`;
+
+  const sportsEventLd = {
+    "@context": "https://schema.org",
+    "@type": "SportsEvent",
+    name: `${eventName} — 2026 FIFA World Cup${groupOrStage ? ` ${groupOrStage}` : ""}`,
+    startDate: matchUtcDate(match).toISOString(),
+    sport: "Soccer",
+    // schema.org's EventStatusType has no "completed" value — EventScheduled
+    // remains the correct status for a normally-held event whether it is
+    // upcoming or already played.
+    eventStatus: "https://schema.org/EventScheduled",
+    eventAttendanceMode: "https://schema.org/OfflineEventAttendanceMode",
+    location: match.venue ? { "@type": "Place", name: match.venue } : undefined,
+    competitor: [
+      { "@type": "SportsTeam", name: homeName },
+      { "@type": "SportsTeam", name: awayName },
+    ],
+    url: `https://www.worldcupmatchday.com/matches/${matchId}`,
+  };
+
   const faqLd = {
     "@context": "https://schema.org",
     "@type": "FAQPage",
@@ -252,6 +277,10 @@ export default async function MatchPage({
   return (
     <>
       <LiveSnapshotDebug snapshotId={snapshot.snapshotId} generatedAt={snapshot.generatedAt} />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(sportsEventLd) }}
+      />
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(faqLd) }}

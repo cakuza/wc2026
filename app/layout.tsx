@@ -7,6 +7,10 @@ import { TimezoneProvider } from "@/components/TimezoneProvider";
 import { Nav } from "@/components/Nav";
 import { Footer } from "@/components/Footer";
 import { SchemaScripts } from "@/components/SchemaScripts";
+import { getTournamentLiveSnapshot } from "@/lib/liveSnapshot";
+import { buildKnockoutResolution } from "@/lib/knockoutResolution";
+import { getArchiveState } from "@/lib/archiveLifecycle";
+import { ARCHIVE_DEFAULT_DATE, MATCHES } from "@/lib/matches";
 import "./globals.css";
 
 // Google AdSense publisher ID (e.g. "ca-pub-1234567890123456").
@@ -89,7 +93,21 @@ export const metadata: Metadata = {
   }
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  // Single shared lifecycle truth for the whole site: computed once here,
+  // server-side, from the same canonical tournament-phase system every other
+  // archive-aware page uses (never a hardcoded date). Passed down as a plain
+  // prop so the client Nav renders identically on first paint and after
+  // hydration — no client-side refetch, no mismatch.
+  const snapshot = await getTournamentLiveSnapshot();
+  const resolvedParticipants = buildKnockoutResolution(snapshot.matches);
+  const isTournamentComplete = getArchiveState({
+    matches: MATCHES,
+    liveData: snapshot.liveDataByProviderId,
+    resolvedParticipants,
+    now: new Date(ARCHIVE_DEFAULT_DATE),
+  }).isComplete;
+
   return (
     <html lang="en" dir="ltr">
       {/* Preconnect to flag CDN so flag images resolve faster (low-risk LCP aid) */}
@@ -107,7 +125,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className={`${barlow.variable} ${barlowCondensed.variable} font-body bg-navy text-white antialiased`}>
         <LanguageProvider>
           <TimezoneProvider>
-            <Nav />
+            <Nav isTournamentComplete={isTournamentComplete} />
             <main>{children}</main>
             <Footer />
           </TimezoneProvider>

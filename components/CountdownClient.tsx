@@ -10,7 +10,7 @@ import { getTournamentPhaseLabel, type TournamentPhase } from "@/lib/matchCenter
  * Client-only countdown island. Computed from Date.now() on both server and client (see
  * useCountdown), so the correct phase is shown immediately — no placeholder/zero state.
  */
-export function CountdownClient({ tournamentPhase, target }: { tournamentPhase: TournamentPhase; target: string | null }) {
+export function CountdownClient({ tournamentPhase, target, isComplete }: { tournamentPhase: TournamentPhase; target: string | null; isComplete: boolean }) {
   const { t } = useLang();
   const [mounted, setMounted] = useState(false);
   const { parts } = useCountdown(target);
@@ -21,7 +21,7 @@ export function CountdownClient({ tournamentPhase, target }: { tournamentPhase: 
 
   if (!mounted) return null;
 
-  if (tournamentPhase === "tournament_complete" || !target) {
+  if (isComplete) {
     return (
       <div className="mt-1">
         <div className="font-heading font-extrabold uppercase leading-[0.85] text-white">

@@ -47,8 +47,8 @@ export async function generateMetadata({
   const teamsStr = teamNames.join(", ");
   const url = `${BASE}/groups/${groupSlug}`;
 
-  const title = `World Cup 2026 Group ${letter} Standings — ${teamsStr}`;
-  const description = `Live Group ${letter} standings, fixtures and results for the 2026 FIFA World Cup. Group ${letter} teams: ${teamsStr}. Track qualification, scores and goal scorers.`;
+  const title = `World Cup 2026 Group ${letter} Final Standings — ${teamsStr}`;
+  const description = `Final Group ${letter} standings, results and qualification outcomes for the 2026 FIFA World Cup. Group ${letter} teams: ${teamsStr}, with scores and goal scorers for every match.`;
 
   return {
     title,
@@ -126,8 +126,8 @@ export default async function GroupPage({
   const webPageLd = {
     "@context": "https://schema.org",
     "@type": "WebPage",
-    name: `World Cup 2026 Group ${letter} Standings`,
-    description: `Live Group ${letter} standings, fixtures and results for the 2026 FIFA World Cup.`,
+    name: `World Cup 2026 Group ${letter} Final Standings`,
+    description: `Final Group ${letter} standings, results and qualification outcomes for the 2026 FIFA World Cup.`,
     url,
     breadcrumb: breadcrumbSchema,
   };

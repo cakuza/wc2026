@@ -41,6 +41,53 @@ export const SECONDARY_LINKS: NavLink[] = [
   { href: "/about", key: "nav_about" },
 ];
 
+// ── Archive-mode navigation (tournament canonically complete) ──────────────
+// Required post-completion priority: Archive, Results, Stats, Bracket,
+// Teams, Groups. /today and /schedule stay reachable but move to the end of
+// desktop nav / into the mobile secondary drawer so they no longer dominate.
+
+export const ARCHIVE_DESKTOP_LINKS: NavLink[] = [
+  { href: "/world-cup-2026", key: "nav_archive", label: "2026 Archive" },
+  { href: "/world-cup-2026/results", key: "nav_results", label: "Results" },
+  { href: "/stats", key: "nav_stats" },
+  { href: "/bracket", key: "nav_bracket" },
+  { href: "/teams", key: "nav_teams" },
+  { href: "/groups", key: "nav_groups" },
+  { href: "/today", key: "nav_today" },
+  { href: "/schedule", key: "nav_schedule" },
+];
+
+export const ARCHIVE_PRIMARY_LINKS: NavLink[] = [
+  { href: "/world-cup-2026", key: "nav_archive", label: "2026 Archive" },
+  { href: "/world-cup-2026/results", key: "nav_results", label: "Results" },
+  { href: "/stats", key: "nav_stats" },
+  { href: "/bracket", key: "nav_bracket" },
+];
+
+export const ARCHIVE_SECONDARY_LINKS: NavLink[] = [
+  { href: "/teams", key: "nav_teams" },
+  { href: "/groups", key: "nav_groups" },
+  { href: "/today", key: "nav_today" },
+  { href: "/schedule", key: "nav_schedule" },
+  { href: "/world-cup-schedule-local-time", key: "nav_localTime" },
+  { href: "/matchday-hub", key: "nav_matchdayHub" },
+  { href: "/quiz", key: "nav_quiz" },
+  { href: "/about", key: "nav_about" },
+];
+
+/** Single shared lifecycle truth for which nav link sets to render. */
+export function getDesktopLinks(isTournamentComplete: boolean): NavLink[] {
+  return isTournamentComplete ? ARCHIVE_DESKTOP_LINKS : DESKTOP_LINKS;
+}
+
+export function getPrimaryLinks(isTournamentComplete: boolean): NavLink[] {
+  return isTournamentComplete ? ARCHIVE_PRIMARY_LINKS : PRIMARY_LINKS;
+}
+
+export function getSecondaryLinks(isTournamentComplete: boolean): NavLink[] {
+  return isTournamentComplete ? ARCHIVE_SECONDARY_LINKS : SECONDARY_LINKS;
+}
+
 /**
  * Whether `href` should be marked active for the current `pathname`. Exact
  * match or a path segment below it — so `/teams` is NOT active on
