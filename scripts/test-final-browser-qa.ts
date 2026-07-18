@@ -11,6 +11,7 @@ const VIEWPORTS = [
 const ROUTES = [
   "/", "/today", "/schedule", "/bracket", "/teams/argentina", "/groups/group-a", "/stats",
   "/matches/match-101", "/matches/match-103", "/matches/match-104", "/world-cup-2026/results",
+  "/world-cup-third-place-qualification", "/world-cup-2026-data-sources", "/terms",
 ];
 
 let failures = 0;
@@ -57,7 +58,19 @@ async function main() {
           await final.scrollIntoViewIfNeeded();
           assert(await final.isVisible() && await final.boundingBox() !== null, `[${label}] Final card is visible and reachable`);
         }
-        if (route === "/today") assert(/No World Cup match is being played today|Final Weekend/.test(text) && !/Destinations/i.test(text), `[${label}] Match Center prioritizes Final Weekend`);
+        if (route === "/today") assert(/Times shown in/.test(text) && /Final Weekend/.test(text) && !/Destinations/i.test(text), `[${label}] Today resolves timezone-aware Final Weekend copy after hydration`);
+        if (route === "/world-cup-third-place-qualification") {
+          assert(/Final third-place ranking/i.test(text) && /Qualified for Round of 32/i.test(text) && /Did not qualify/i.test(text), `[${label}] third-place ranking is final historical truth`);
+          assert(!/current snapshot|current Round of 32 cut line|until all group matches are complete/i.test(text), `[${label}] third-place ranking suppresses provisional copy`);
+        }
+        if (route === "/world-cup-2026-data-sources") {
+          assert(/15 minutes before kickoff/i.test(text) && /3 hours after kickoff/i.test(text) && /every 30 seconds/i.test(text), `[${label}] methodology states the bounded live refresh policy`);
+          assert(!/10 seconds|12 seconds|90 seconds/i.test(text), `[${label}] methodology has no contradictory polling intervals`);
+        }
+        if (["/matches/match-103", "/matches/match-104"].includes(route)) assert(!/Bracket Destination/i.test(text), `[${label}] ${route} has no false onward destination`);
+        if (route === "/terms") {
+          assert(await page.locator("header nav a").count() > 0 && await page.locator('footer a[href="/terms"]').count() > 0, `[${label}] Terms uses the shared header and footer navigation`);
+        }
         if (route === "/stats") {
           assert(/102\s*\/\s*104/.test(text) && /Messi/.test(text) && /Olise/.test(text), `[${label}] Statistics shows the current snapshot and leaders`);
           assert(/Germany/.test(text) && /Netherlands/.test(text) && /France/.test(text) && /Mexico/.test(text) && /Spain/.test(text), `[${label}] Statistics renders tied teams distinctly`);

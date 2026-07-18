@@ -1,4 +1,4 @@
-import { matchBySlug, MATCHES, matchSlug, matchUtcDate, type KnockoutMatch } from "./matches";
+import { matchBySlug, MATCHES, matchSlug, matchUtcDate, type KnockoutMatch, type Match } from "./matches";
 import type { TournamentLiveSnapshot, SnapshotMatchStatus } from "./liveSnapshot";
 import { isKnockoutMatch, getResolvedHomeTeam, getResolvedAwayTeam, matchStageLabel, type ResolvedParticipantLookup } from "./participant-resolution";
 import { topScorerRows, type RankedPlayerRankingRecord } from "./topScorersPageData";
@@ -235,6 +235,24 @@ function formatDestination(
   };
 }
 
+/**
+ * Return only real onward bracket destinations. Terminal third-place and Final
+ * fixtures deliberately return neither outcome: their teams have nowhere else
+ * to advance within this tournament.
+ */
+export function getScheduledKnockoutDestinations(match: Match): {
+  winnerDestination?: WinnerDestination;
+  loserDestination?: LoserDestination;
+} {
+  if (!isKnockoutMatch(match)) return {};
+  const winnerMatch = findDestination(match, "winner");
+  const loserMatch = findDestination(match, "loser");
+  return {
+    winnerDestination: winnerMatch ? formatDestination(winnerMatch, "winner") : undefined,
+    loserDestination: loserMatch ? formatDestination(loserMatch, "loser") : undefined,
+  };
+}
+
 export function buildScheduledKnockoutPreviewData(
   matchId: string,
   snapshot: TournamentLiveSnapshot,
@@ -255,8 +273,7 @@ export function buildScheduledKnockoutPreviewData(
     .map(({ playerName, goals }) => ({ playerName, goals }));
   const fixtures = previewFixtures(snapshot, resolvedParticipants);
   const targetKickoffMs = matchUtcDate(match).getTime();
-  const winnerMatch = findDestination(match, "winner");
-  const loserMatch = findDestination(match, "loser");
+  const destinations = getScheduledKnockoutDestinations(match);
 
   return {
     homeRecentForm: buildRecentForm({ teamKey: homeKey, targetMatchId: matchId, targetKickoffMs, fixtures }),
@@ -271,7 +288,6 @@ export function buildScheduledKnockoutPreviewData(
       { label: "Clean Sheets", home: previewMetric(snapshot.teamStatLeaderboards.cleanSheets, homeKey), away: previewMetric(snapshot.teamStatLeaderboards.cleanSheets, awayKey) },
       { label: "Shots on Target", home: previewMetric(snapshot.teamStatLeaderboards.shotsOnTarget, homeKey), away: previewMetric(snapshot.teamStatLeaderboards.shotsOnTarget, awayKey) },
     ],
-    winnerDestination: winnerMatch ? formatDestination(winnerMatch, "winner") : undefined,
-    loserDestination: loserMatch ? formatDestination(loserMatch, "loser") : undefined,
+    ...destinations,
   };
 }

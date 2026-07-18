@@ -49,8 +49,8 @@ function runTests() {
     const notStartedMatches = html.match(/Not started/g);
     assert.strictEqual(notStartedMatches?.length, 3, "Should show 'Not started' for all 3 P=0 rows");
 
-    // "Tied at cut line" must NOT be present anywhere
-    assert.strictEqual(html.includes("Tied at cut line"), false, "Tied at cut line should not be visible for P=0");
+    // A final tied-position label must NOT be present for unstarted fixture data.
+    assert.strictEqual(html.includes("Tied final position"), false, "Tied final position should not be visible for P=0");
 
     // The "=" marker for shared ranks should not be present for the unstarted rows.
     // The rank column renders a `div` containing the rank string.
@@ -64,13 +64,13 @@ function runTests() {
     assert.ok(cutlineMatches && cutlineMatches.length > 0, "Cut line should be applied to Argentina");
   });
 
-  test("2. Played rows retain correct qualifying/outside states", () => {
+  test("2. Played rows retain correct final qualification states", () => {
     const html = renderToString(
       React.createElement(LanguageProvider, null,
         React.createElement(ThirdPlaceTable, { rows: mockRows })
       )
     );
-    assert.strictEqual(html.includes("Inside top 8"), true);
+    assert.strictEqual(html.includes("Qualified for Round of 32"), true);
   });
 
   console.log(`\n${passed} passed, ${failed} failed`);

@@ -36,10 +36,10 @@ export function ThirdPlaceTable({ rows }: ThirdPlaceTableProps) {
   const legend = getThirdPlaceLegendCopy(rows);
   const statusText = (status: ThirdPlaceRow["status"]) => {
     if (status === "not_started") return "Not started";
-    if (status === "qualifying") return "Inside top 8";
-    if (status === "outside") return "Below cut line";
-    if (status === "boundary") return "Tied at cut line";
-    return "Tied - order unresolved";
+    if (status === "qualifying") return "Qualified for Round of 32";
+    if (status === "outside") return "Did not qualify";
+    if (status === "boundary") return "Tied final position";
+    return "Tied final position";
   };
   const statusClass = (status: ThirdPlaceRow["status"]) => {
     if (status === "not_started") return "bg-white/10 text-white/40";

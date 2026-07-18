@@ -5,14 +5,14 @@ export function getThirdPlaceLegendCopy(rows: ThirdPlaceRow[]): { primary: strin
   if (cutLineTied) {
     return {
       cutLineTied,
-      primary: "Current ordering is provisional. Teams tied on the available criteria cannot yet be separated at the qualification cut line.",
-      secondary: "Definitive qualifying and outside positions will appear once the available tie-break criteria separate the teams.",
+      primary: "Final third-place ranking preserved as tournament history. Teams tied on the available published criteria share a truthful tied position.",
+      secondary: "The available record does not establish a further internal order for the tied teams.",
     };
   }
 
   return {
     cutLineTied,
-    primary: "Top 8 third-placed teams are inside the current Round of 32 cut line.",
-    secondary: "Rows below the cut line remain a current snapshot until all group matches are complete.",
+    primary: "Qualified for the Round of 32: the eight highest-ranked third-placed teams in the final table.",
+    secondary: "Did not qualify: the remaining third-placed teams in the final table, preserved as tournament history.",
   };
 }
