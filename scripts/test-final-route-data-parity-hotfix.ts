@@ -64,6 +64,8 @@ async function run() {
     100: matchCard(schedule, 100),
     101: matchCard(schedule, 101),
     102: matchCard(schedule, 102),
+    103: matchCard(schedule, 103),
+    104: matchCard(schedule, 104),
   };
   assertCardContains(canonicalCards[86], ["Argentina", "Cape Verde", "AET", "Diney Borges (OG)"]);
   assertCardContains(canonicalCards[96], ["Switzerland", "Colombia", "PEN"]);
@@ -71,6 +73,8 @@ async function run() {
   assertCardContains(canonicalCards[100], ["Argentina", "Switzerland", "AET", "Alexis Mac Allister", "120+1"]);
   assertCardContains(canonicalCards[101], ["France", "Spain"]);
   assertCardContains(canonicalCards[102], ["England", "Argentina"]);
+  assertCardContains(canonicalCards[103], ["Third-place playoff"]);
+  assertCardContains(canonicalCards[104], ["Final"]);
 
   for (const zone of TIMEZONE_SLUGS) {
     const html = readRouteHtml(`/schedule/${zone}`);
@@ -81,6 +85,8 @@ async function run() {
     assertCardContains(matchCard(html, 100), ["Argentina", "Switzerland", "AET", "Alexis Mac Allister", "120+1"]);
     assertCardContains(matchCard(html, 101), ["France", "Spain"]);
     assertCardContains(matchCard(html, 102), ["England", "Argentina"]);
+    assertCardContains(matchCard(html, 103), ["Third-place playoff"]);
+    assertCardContains(matchCard(html, 104), ["Final"]);
   }
 
   const match86Text = mainText(readRouteHtml("/matches/match-86"));
@@ -104,7 +110,8 @@ async function run() {
     assert.equal(today.includes(stale), false, `/today must not contain ${stale}`);
   }
   const todayIds = [...today.matchAll(/href="\/matches\/match-(\d+)"/g)].map((match) => Number(match[1]));
-  assert.deepEqual([...new Set(todayIds)], [97, 98, 99, 100, 101, 102]);
+  assert.ok(today.includes("Final Weekend"), "/today must retain Final Weekend messaging before archive completion");
+  assert.deepEqual([...new Set(todayIds)], [104, 103, 102, 101, 97, 98, 99, 100]);
   const todaySource = fs.readFileSync("components/TodayContent.tsx", "utf8");
   assert.equal(todaySource.includes("TodayPageLiveSection"), false, "query parameters must not select a second Match Center list");
 

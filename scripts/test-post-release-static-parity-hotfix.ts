@@ -36,9 +36,10 @@ function run() {
   assert.equal(todayHtml.includes("Latest Results"), false, "/today must not render stale latest-results content");
   assert.equal(todayHtml.includes("Up Next"), false, "/today must not render generic up-next content");
   for (const matchNumber of [103, 104]) {
-    assert.equal(todayHtml.includes(`Match ${matchNumber}`), false, `/today must not expose Match ${matchNumber}`);
-    assert.equal(todayHtml.includes(`href="/matches/match-${matchNumber}"`), false, `/today must not expose Match ${matchNumber} links`);
+    assert.ok(todayHtml.includes(`href="/matches/match-${matchNumber}"`), `/today must expose Match ${matchNumber} links`);
   }
+  assert.ok(todayHtml.includes("Final Weekend"), "/today must retain Final Weekend messaging before archive completion");
+  assert.ok(homepageHtml.includes("Final Weekend"), "homepage must retain Final Weekend messaging before archive completion");
 
   for (const [name, html] of [["homepage", homepageHtml], ["schedule", scheduleHtml]] as const) {
     assert.match(html, /45\+2['’]/, `${name} static HTML must preserve Match 99 stoppage time`);
@@ -51,6 +52,8 @@ function run() {
 
   assert.match(matchCardHtml(scheduleHtml, "match-99"), /AET/, "Match 99 must show AET in static schedule HTML");
   assert.match(matchCardHtml(scheduleHtml, "match-100"), /AET/, "Match 100 must show AET in static schedule HTML");
+  assert.match(matchCardHtml(scheduleHtml, "match-103"), /Third-place playoff/, "Match 103 must remain discoverable in static schedule HTML");
+  assert.match(matchCardHtml(scheduleHtml, "match-104"), /Final/, "Match 104 must remain discoverable in static schedule HTML");
   assert.match(matchCardHtml(scheduleHtml, "match-96"), /PEN/, "Match 96 must show PEN in static schedule HTML");
 
   const todaySource = fs.readFileSync("components/TodayContent.tsx", "utf8");
@@ -58,6 +61,7 @@ function run() {
   const scheduleSource = fs.readFileSync("app/schedule/ScheduleContent.tsx", "utf8");
   assert.ok(todaySource.includes('mode="current"'), "/today must use the phase-aware current Match Center mode");
   assert.ok(matchCenterSource.includes('mode === "homepage" || mode === "current"'), "homepage and /today must share the phase-aware selector");
+  assert.ok(matchCenterSource.includes("isComplete={isTournamentComplete}"), "archive completion must not be inferred from phase or countdown state");
   assert.equal(matchCenterSource.includes("useEffect"), false, "Match Center must not client-filter after hydration");
   assert.equal(scheduleSource.includes("useEffect"), false, "schedule must not alter static semantics after hydration");
 

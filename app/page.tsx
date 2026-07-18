@@ -12,6 +12,8 @@ import { selectHomepageTickerMatches, getHomepageMatchCenterSnapshot, getTournam
 import { LiveDataUnavailableNotice } from "@/components/LiveDataUnavailableNotice";
 import { buildKnockoutResolution } from "@/lib/knockoutResolution";
 import { getArchiveState } from "@/lib/archiveLifecycle";
+import { getResolvedAwayTeam, getResolvedHomeTeam } from "@/lib/participant-resolution";
+import { countryName } from "@/lib/i18n";
 
 const BASE_URL = "https://www.worldcupmatchday.com";
 
@@ -19,74 +21,46 @@ export async function generateMetadata(): Promise<Metadata> {
   const snapshot = await getTournamentLiveSnapshot();
   const resolvedParticipants = buildKnockoutResolution(snapshot.matches);
   const archive = getArchiveState({ matches: MATCHES, liveData: snapshot.liveDataByProviderId, resolvedParticipants, now: new Date(ARCHIVE_DEFAULT_DATE) });
-
-  const title = archive.isComplete
-    ? `WorldCupMatchDay — ${archive.champion} Win the 2026 World Cup`
-    : "WorldCupMatchDay — World Cup 2026 Scores, Schedule & Matchday Guide";
+  const final = MATCHES.find((match) => "matchNumber" in match && match.matchNumber === 104);
+  const thirdPlace = MATCHES.find((match) => "matchNumber" in match && match.matchNumber === 103);
+  const finalHome = final ? getResolvedHomeTeam(final, resolvedParticipants) : null;
+  const finalAway = final ? getResolvedAwayTeam(final, resolvedParticipants) : null;
+  const thirdHome = thirdPlace ? getResolvedHomeTeam(thirdPlace, resolvedParticipants) : null;
+  const thirdAway = thirdPlace ? getResolvedAwayTeam(thirdPlace, resolvedParticipants) : null;
+  const finalTeams = finalHome && finalAway ? `${countryName(finalHome, "en")} vs ${countryName(finalAway, "en")}` : "2026 World Cup Final";
+  const thirdTeams = thirdHome && thirdAway ? `${countryName(thirdHome, "en")} vs ${countryName(thirdAway, "en")} Third-Place Playoff` : "Third-Place Playoff";
+  const title = archive.isComplete ? `WorldCupMatchDay — ${archive.champion} Win the 2026 World Cup` : `2026 World Cup Final: ${finalTeams} & ${thirdTeams}`;
   const description = archive.isComplete
     ? `${archive.champion} won the 2026 FIFA World Cup, beating ${archive.runnerUp} ${archive.finalResult?.homeScore}-${archive.finalResult?.awayScore} in the Final. Full results, bracket, stats and teams archive.`
-    : "Follow World Cup 2026 matchdays with scores, fixtures, kickoff times, groups, standings, stats and qualification paths.";
+    : `${finalTeams} in the 2026 World Cup Final, with ${thirdHome && thirdAway ? `${countryName(thirdHome, "en")} vs ${countryName(thirdAway, "en")}` : "the Third-place playoff"}. See kickoff times, venues, semifinal results and the full bracket.`;
 
-  return {
-    title,
-    description,
-    alternates: { canonical: BASE_URL },
-    openGraph: { title, description, url: BASE_URL, type: "website" },
-  };
+  return { title, description, alternates: { canonical: BASE_URL }, openGraph: { title, description, url: BASE_URL, type: "website" } };
 }
 
-// Static-first containment mode: no runtime cookies() call, no force-dynamic.
-// The page is now ISR with a long revalidation window. The client-side
-// TimezoneProvider handles timezone selection after hydration at zero cost.
-export const revalidate = 3600; // revalidate at most once per hour
+export const revalidate = 3600;
 
-export default async function TodayPage() {
-  // Static fallback: serve the default timezone. The TimezoneProvider client
-  // component reads the user's real timezone after hydration (no server cost).
+export default async function HomePage() {
   const selectedTimeZone = DEFAULT_TIMEZONE;
   const now = new Date(ARCHIVE_DEFAULT_DATE);
   const snapshot = await getTournamentLiveSnapshot();
   const resolvedParticipants = buildKnockoutResolution(snapshot.matches);
   const archiveState = getArchiveState({ matches: MATCHES, liveData: snapshot.liveDataByProviderId, resolvedParticipants, now });
-
-  const tickerMatches = selectHomepageTickerMatches({
-    matches: MATCHES,
-    liveData: snapshot.liveDataByProviderId,
-    now,
-    resolvedParticipants,
-  });
-
-  const initialMatchday = getDisplayMatchdayForTimeZone({
-    now,
-    timeZone: selectedTimeZone,
-    resolvedParticipants,
-    liveDataByProviderId: snapshot.liveDataByProviderId,
-  });
-
-  const tournamentPhase = getTournamentPhase({
-    matches: MATCHES,
-    liveData: snapshot.liveDataByProviderId,
-    now,
-  });
-  const homepageMatches = getHomepageMatchCenterSnapshot({
-    matches: MATCHES,
-    liveData: snapshot.liveDataByProviderId,
-    now,
-    phase: tournamentPhase,
-  });
-  const nextCountdownMatch = homepageMatches.upcomingCurrentRound[0] ?? homepageMatches.nextDestinationMatch;
+  const tickerMatches = selectHomepageTickerMatches({ matches: MATCHES, liveData: snapshot.liveDataByProviderId, now, resolvedParticipants });
+  const initialMatchday = getDisplayMatchdayForTimeZone({ now, timeZone: selectedTimeZone, resolvedParticipants, liveDataByProviderId: snapshot.liveDataByProviderId });
+  const tournamentPhase = getTournamentPhase({ matches: MATCHES, liveData: snapshot.liveDataByProviderId, now });
+  const homepageMatches = getHomepageMatchCenterSnapshot({ matches: MATCHES, liveData: snapshot.liveDataByProviderId, now, phase: tournamentPhase });
+  // The shared selector already identifies the first placement match that is
+  // not final. Do not hard-code Match 103 here: between the third-place
+  // playoff and the Final, the countdown must advance to Match 104.
+  const nextCountdownMatch = homepageMatches.nextDestinationMatch ?? homepageMatches.upcomingCurrentRound[0];
   const countdownTarget = nextCountdownMatch ? matchUtcDate(nextCountdownMatch).toISOString() : null;
 
   return (
     <>
       <Ticker items={tickerMatches} resolvedParticipants={resolvedParticipants} />
-      {snapshot.isFallback ? (
-        <div className="mx-auto max-w-7xl px-4 pt-6">
-          <LiveDataUnavailableNotice show />
-        </div>
-      ) : null}
+      {snapshot.isFallback ? <div className="mx-auto max-w-7xl px-4 pt-6"><LiveDataUnavailableNotice show /></div> : null}
       <Hero initialMatchday={initialMatchday} snapshot={snapshot} resolvedParticipants={resolvedParticipants} tournamentPhase={tournamentPhase} countdownTarget={countdownTarget} archiveState={archiveState} />
-      {archiveState.isComplete && (
+      {archiveState.isComplete ? (
         <div className="mx-auto max-w-7xl px-4 py-8">
           <h2 className="mb-3 font-heading text-lg font-bold uppercase tracking-wide text-white">Explore the 2026 Archive</h2>
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
@@ -97,13 +71,11 @@ export default async function TodayPage() {
               { href: "/teams", label: "Teams" },
               { href: "/groups", label: "Groups" },
             ].map((link) => (
-              <Link key={link.href} href={link.href} className="rounded-lg border border-white/10 bg-navyCard px-4 py-3 text-center font-heading text-xs font-bold uppercase tracking-wide text-white/70 transition hover:border-white/25 hover:text-white">
-                {link.label}
-              </Link>
+              <Link key={link.href} href={link.href} className="rounded-lg border border-white/10 bg-navyCard px-4 py-3 text-center font-heading text-xs font-bold uppercase tracking-wide text-white/70 transition hover:border-white/25 hover:text-white">{link.label}</Link>
             ))}
           </div>
         </div>
-      )}
+      ) : null}
       <HomeTrivia />
       <TeamsByConfederationPreview />
     </>

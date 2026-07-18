@@ -137,7 +137,10 @@ async function main(): Promise<void> {
   const out101 = join(process.cwd(), "out", "matches", "match-101.html");
   const out102 = join(process.cwd(), "out", "matches", "match-102.html");
   const outCompare = join(process.cwd(), "out", "stats", "compare.html");
-  assert(existsSync(out101) && existsSync(out102) && existsSync(outCompare), "fresh required static HTML exists; missing output is a failure");
+  const outHome = join(process.cwd(), "out", "index.html");
+  const outToday = join(process.cwd(), "out", "today.html");
+  const outStats = join(process.cwd(), "out", "stats.html");
+  assert(existsSync(out101) && existsSync(out102) && existsSync(outCompare) && existsSync(outHome) && existsSync(outToday) && existsSync(outStats), "fresh required static HTML exists; missing output is a failure");
   if (existsSync(out101) && existsSync(out102)) {
     const html101 = readFileSync(out101, "utf8");
     const html102 = readFileSync(out102, "utf8");
@@ -157,6 +160,17 @@ async function main(): Promise<void> {
     const description102 = html102.match(/name="description" content="(.*?)"/)?.[1];
     assert(Boolean(title101 && title102 && title101 !== title102 && description101 && description102 && description101 !== description102), "Match 101 and 102 metadata is unique and status-truthful");
     assert(htmlCompare.includes(">France</p>") && htmlCompare.includes(">Spain</p>") && !htmlCompare.includes(">fra</p>") && !htmlCompare.includes(">esp</p>"), "static Compare HTML defaults to France vs Spain with canonical keys");
+
+    const htmlHome = readFileSync(outHome, "utf8");
+    const htmlToday = readFileSync(outToday, "utf8");
+    const htmlStats = readFileSync(outStats, "utf8");
+    const homeFinal = htmlHome.indexOf("Final Weekend");
+    const homeSemifinals = htmlHome.indexOf("Semifinal results");
+    const todayFinal = htmlToday.indexOf("Final Weekend");
+    const todaySemifinals = htmlToday.indexOf("Semifinal results");
+    assert(homeFinal >= 0 && homeFinal < homeSemifinals && htmlHome.includes("/matches/match-104") && htmlHome.includes("/matches/match-103") && !htmlHome.includes(">Destinations<"), "homepage leads with Final Weekend and deciding-match links before semifinal history");
+    assert(todayFinal >= 0 && todayFinal < todaySemifinals && htmlToday.includes("No World Cup match is being played today") && !htmlToday.includes(">Destinations<"), "Match Center leads with Final Weekend before semifinal history");
+    assert(htmlStats.includes("Tournament at a glance") && htmlStats.includes("Matches completed") && htmlStats.includes("/ 104") && htmlStats.includes("Lionel Messi") && htmlStats.includes("Michael Olise") && htmlStats.includes("Joint leaders") && htmlStats.includes("View full leaderboard"), "statistics overview renders compact totals, player identity, and accessible tied-leader treatment");
   }
 
   if (failures > 0) process.exitCode = 1;

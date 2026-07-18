@@ -8,13 +8,14 @@ import { FreshnessLabel } from "@/components/FreshnessLabel";
 import { useLang } from "@/components/LanguageProvider";
 import { useTimezone } from "@/components/TimezoneProvider";
 import { matchSlug, ARCHIVE_DEFAULT_DATE, MATCHES, type Match } from "@/lib/matches";
-import { getHomepageMatchCenterSnapshot, getMatchCenterSnapshot, splitDestinationsByCompletion, type TournamentPhase } from "@/lib/matchCenterSelection";
+import { getHomepageMatchCenterSnapshot, getMatchCenterSnapshot, type TournamentPhase } from "@/lib/matchCenterSelection";
 import { getMatchPresentation, getMatchStatusLabel } from "@/lib/matchPresentation";
 import { getParticipantDisplay, type ResolvedParticipantLookup } from "@/lib/participant-resolution";
 import type { LiveMatchData } from "@/lib/liveMatchData";
 import type { GoalScorerEvent } from "@/lib/worldcup26Provider";
 import { reconcileGoalEvents } from "@/lib/scoreReconciliation";
 import { formatGoalEventDisplay } from "@/lib/canonicalArchiveEvents";
+import { CountdownClient } from "@/components/CountdownClient";
 
 export type MatchCenterLiveSnapshot = {
   snapshotId: string;
@@ -29,6 +30,38 @@ export type MatchCenterLiveSnapshot = {
 function scorerText(events: GoalScorerEvent[] | undefined) {
   if (!events || events.length === 0) return null;
   return events.map(formatGoalEventDisplay).join(" • ");
+}
+
+function venueCity(venue: string | undefined) {
+  if (venue === "MetLife Stadium") return "East Rutherford, New Jersey";
+  if (venue === "Hard Rock Stadium") return "Miami Gardens, Florida";
+  return null;
+}
+
+function DecidingMatchCard({ m, live, resolvedParticipants, primary }: {
+  m: Match;
+  live: LiveMatchData | undefined;
+  resolvedParticipants: ResolvedParticipantLookup;
+  primary: boolean;
+}) {
+  const { lang } = useLang();
+  const { timeZone } = useTimezone();
+  const home = getParticipantDisplay(m, "home", resolvedParticipants, lang);
+  const away = getParticipantDisplay(m, "away", resolvedParticipants, lang);
+  const presentation = getMatchPresentation({ match: m, liveData: live, timeZone: timeZone || "UTC", now: new Date(ARCHIVE_DEFAULT_DATE) });
+  const isFinal = "stage" in m && m.stage === "F";
+  const stage = isFinal ? "2026 World Cup Final" : "Third-place playoff";
+  const city = venueCity(m.venue);
+
+  return (
+    <Link href={`/matches/${matchSlug(m)}`} prefetch={false} aria-label={`View ${stage}: ${home.label} vs ${away.label}`}
+      className={`block rounded-xl border transition hover:border-accent/80 ${primary ? "border-accent/70 bg-gradient-to-br from-accent/20 via-navyCard to-navyCard p-5 shadow-[0_18px_50px_rgba(232,0,28,0.18)] sm:p-6" : "border-white/15 bg-navyCard p-4 sm:p-5"}`}>
+      <div className="flex items-center justify-between gap-3"><span className={`font-heading font-extrabold uppercase tracking-[0.18em] ${primary ? "text-sm text-accent" : "text-[11px] text-white/60"}`}>{isFinal ? "FINAL" : "THIRD-PLACE PLAYOFF"}</span><span className="text-[11px] font-semibold uppercase tracking-wider text-white/50">{stage}</span></div>
+      <div className="mt-4 grid grid-cols-[1fr_auto_1fr] items-center gap-3"><div className="min-w-0 text-right"><p className={`font-heading font-extrabold uppercase leading-tight text-white ${primary ? "text-2xl sm:text-3xl" : "text-lg sm:text-xl"}`}>{home.label}</p>{home.teamCode ? <Flag code={home.teamCode} alt="" width={primary ? 36 : 28} height={primary ? 26 : 20} className="ml-auto mt-2 shadow-sm" /> : null}</div><span className={`font-heading font-black text-white/45 ${primary ? "text-xl" : "text-sm"}`}>VS</span><div className="min-w-0"><p className={`font-heading font-extrabold uppercase leading-tight text-white ${primary ? "text-2xl sm:text-3xl" : "text-lg sm:text-xl"}`}>{away.label}</p>{away.teamCode ? <Flag code={away.teamCode} alt="" width={primary ? 36 : 28} height={primary ? 26 : 20} className="mt-2 shadow-sm" /> : null}</div></div>
+      <div className="mt-5 border-t border-white/10 pt-3 text-center text-sm text-white/70"><span className="font-semibold">{presentation.displayKickoffDate} · {presentation.displayKickoffTime}</span>{m.venue ? <span> · {m.venue}</span> : null}{city ? <span> · {city}</span> : null}</div>
+      <span className="mt-4 inline-flex font-heading text-xs font-bold uppercase tracking-widest text-accent">View the {isFinal ? "Final" : "Third-place playoff"} →</span>
+    </Link>
+  );
 }
 
 function MatchRow({
@@ -130,10 +163,15 @@ export function MatchCenterContent({
   liveSnapshot,
   mode = "standard",
   tournamentPhase,
+  countdownTarget,
+  isTournamentComplete = false,
 }: {
   liveSnapshot: MatchCenterLiveSnapshot;
   mode?: "standard" | "homepage" | "current";
   tournamentPhase?: TournamentPhase;
+  countdownTarget?: string | null;
+  /** Owned by getArchiveState; never infer completion from a missing countdown. */
+  isTournamentComplete?: boolean;
 }) {
   const { t, lang } = useLang();
   const { timeZone } = useTimezone();
@@ -171,14 +209,22 @@ export function MatchCenterContent({
   );
 
   if (phaseSnapshot) {
+    const archivedDestinations = phaseSnapshot.destinations ?? [];
+    const decidingMatches = [...archivedDestinations].sort((a, b) => {
+      const aIsFinal = "stage" in a && a.stage === "F";
+      const bIsFinal = "stage" in b && b.stage === "F";
+      return Number(bIsFinal) - Number(aIsFinal);
+    });
+    const finalMatch = decidingMatches.find((m) => "stage" in m && m.stage === "F");
+    const thirdPlaceMatch = decidingMatches.find((m) => "stage" in m && m.stage === "3P");
     return (
       <div className="rounded-xl border border-white/10 bg-navyCard p-4 shadow-2xl sm:p-6">
         <div className="space-y-4 sm:space-y-6">
-          {tournamentPhase === "tournament_complete" && phaseSnapshot.destinations && phaseSnapshot.destinations.length > 0 && (
+          {false && tournamentPhase === "tournament_complete" && archivedDestinations.length > 0 && (
             <section>
               <h2 className="mb-3 font-heading text-[11px] font-bold uppercase tracking-widest text-white/40">Tournament Final</h2>
               <div className="flex flex-col gap-1">
-                {phaseSnapshot.destinations.map(m => (
+                {archivedDestinations.map(m => (
                   <div key={matchSlug(m)}>
                     {renderRow(m)}
                   </div>
@@ -187,15 +233,35 @@ export function MatchCenterContent({
             </section>
           )}
 
+          {(finalMatch || thirdPlaceMatch) && <section aria-labelledby="deciding-matches-heading">
+            <div className="mb-3 flex items-center justify-between gap-3">
+              <h2 id="deciding-matches-heading" className="font-heading text-sm font-extrabold uppercase tracking-[0.18em] text-accent">
+                {isTournamentComplete ? "Tournament Complete" : "Final Weekend"}
+              </h2>
+              <Link href="/bracket" className="text-xs font-bold uppercase tracking-wider text-white/55 hover:text-white">Complete bracket →</Link>
+            </div>
+            <div className="space-y-3">
+              {finalMatch ? <DecidingMatchCard m={finalMatch} live={finalMatch.providerIds?.footballData ? liveSnapshot.liveDataByProviderId[String(finalMatch.providerIds.footballData)] : undefined} resolvedParticipants={liveSnapshot.resolvedParticipants} primary /> : null}
+              {thirdPlaceMatch ? <DecidingMatchCard m={thirdPlaceMatch} live={thirdPlaceMatch.providerIds?.footballData ? liveSnapshot.liveDataByProviderId[String(thirdPlaceMatch.providerIds.footballData)] : undefined} resolvedParticipants={liveSnapshot.resolvedParticipants} primary={false} /> : null}
+            </div>
+          </section>}
+
+          {mode === "homepage" && <section className="rounded-xl border border-white/10 bg-navy/40 px-4 py-3" aria-label="Countdown to the next deciding match">
+            <p className="font-heading text-[11px] font-bold uppercase tracking-widest text-white/50">
+              {isTournamentComplete ? "Tournament complete" : "Next deciding match"}
+            </p>
+            <CountdownClient tournamentPhase={tournamentPhase ?? "pre_tournament"} target={countdownTarget ?? null} isComplete={isTournamentComplete} />
+          </section>}
+
           <section>
-            <h2 className="mb-3 font-heading text-[11px] font-bold uppercase tracking-widest text-white/40">Semifinals</h2>
+            <h2 className="mb-3 font-heading text-[11px] font-bold uppercase tracking-widest text-white/40">Semifinal results</h2>
             <div className="flex flex-col gap-1">
               {phaseSnapshot.completedCurrentRound.map(renderRow)}
               {phaseSnapshot.upcomingCurrentRound.map(renderRow)}
             </div>
           </section>
 
-          {tournamentPhase !== "tournament_complete" && phaseSnapshot.destinations && phaseSnapshot.destinations.length > 0 && (() => {
+          {/* Legacy placement output intentionally suppressed: Final Weekend above is the public deciding-match hierarchy.
             const stageLabel = (m: Match) => ("stage" in m && m.stage === "3P" ? "Match 103 — Third-place playoff" : "Match 104 — Final");
             const { completed, upcoming } = splitDestinationsByCompletion({
               destinations: phaseSnapshot.destinations,
@@ -234,6 +300,22 @@ export function MatchCenterContent({
               </>
             );
           })()}
+          {false && tournamentPhase !== "tournament_complete" && archivedDestinations.length > 0 && (
+            <section className="rounded-lg border border-white/10 bg-navy/30 p-4">
+              <h2 className="mb-3 font-heading text-[11px] font-bold uppercase tracking-widest text-white/40">Destinations</h2>
+              <div className="flex flex-col gap-3">
+                {archivedDestinations.map(m => (
+                  <div key={matchSlug(m)}>
+                    <p className="mb-1 text-xs font-bold text-white/60">
+                      {"stage" in m && m.stage === "3P" ? "Match 103 — Third-place playoff" : "Match 104 — Final"}
+                    </p>
+                    {renderRow(m)}
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
+          */}
 
           <section>
             <h2 className="mb-3 font-heading text-[11px] font-bold uppercase tracking-widest text-white/40">Quarterfinal Results</h2>

@@ -1,10 +1,8 @@
 "use client";
 
-import { Flag } from "@/components/Flag";
-import { CountdownClient } from "@/components/CountdownClient";
+import Link from "next/link";
 import { MatchCenterContent, type MatchCenterLiveSnapshot } from "@/components/MatchCenterContent";
-import { useLang } from "@/components/LanguageProvider";
-import { type DisplayMatchday } from "@/lib/matches";
+import type { DisplayMatchday } from "@/lib/matches";
 import type { TournamentLiveSnapshot } from "@/lib/liveSnapshot";
 import type { ResolvedParticipantLookup } from "@/lib/participant-resolution";
 import type { TournamentPhase } from "@/lib/matchCenterSelection";
@@ -27,7 +25,7 @@ function toMatchCenterLiveSnapshot(snapshot: TournamentLiveSnapshot, resolvedPar
 }
 
 export function Hero({
-  initialMatchday,
+  initialMatchday: _initialMatchday,
   snapshot,
   resolvedParticipants,
   tournamentPhase,
@@ -41,88 +39,48 @@ export function Hero({
   countdownTarget: string | null;
   archiveState: ArchiveState;
 }) {
-  const { t } = useLang();
+  const isComplete = archiveState.isComplete;
+
   return (
     <section className="relative overflow-hidden border-b border-white/10 bg-navy">
       <div
         className="pointer-events-none absolute inset-0 opacity-60"
-        style={{
-          backgroundImage:
-            "radial-gradient(60% 70% at 20% 0%, rgba(232,0,28,0.22), transparent 60%), radial-gradient(50% 60% at 90% 100%, rgba(232,0,28,0.14), transparent 60%)",
-        }}
+        style={{ backgroundImage: "radial-gradient(60% 70% at 20% 0%, rgba(232,0,28,0.22), transparent 60%), radial-gradient(50% 60% at 90% 100%, rgba(232,0,28,0.14), transparent 60%)" }}
       />
-      <div className="relative mx-auto flex flex-col lg:flex-row max-w-7xl gap-0 px-4 py-0 lg:items-start lg:gap-12 lg:py-20 lg:px-8">
-        {/* Left Column: Hero Text & Countdown */}
-        <div className="contents lg:flex lg:flex-col lg:w-[55%] lg:min-w-0 pt-0">
-          <div className="order-1 lg:order-none min-w-0">
-            <p className="font-heading text-xs font-bold uppercase tracking-[0.3em] text-accent">
-              FIFA World Cup 2026
+      <div className="relative mx-auto max-w-7xl px-4 py-4 sm:px-8 sm:py-8">
+        <header className="mb-3 max-w-4xl sm:mb-6">
+          <p className="font-heading text-[10px] font-bold uppercase tracking-[0.24em] text-accent sm:text-xs sm:tracking-[0.3em]">
+            {isComplete ? "2026 World Cup Archive" : "2026 World Cup · Final Weekend"}
+          </p>
+          <h1 className="mt-2 font-heading text-3xl font-extrabold uppercase leading-[0.9] tracking-tight text-white sm:mt-3 sm:text-5xl lg:text-6xl">
+            {isComplete ? "2026 World Cup Archive" : "World Cup 2026 Final Weekend"}
+          </h1>
+          {isComplete && archiveState.finalResult ? (
+            <p className="mt-2 max-w-3xl text-sm text-white/70 sm:text-base">
+              <span className="font-bold text-white">{archiveState.champion}</span> won the Final {archiveState.finalResult.homeScore}–{archiveState.finalResult.awayScore} over {archiveState.runnerUp}.
             </p>
-
-            {/*
-             * STATIC — always in SSR HTML, indexed by Google.
-             * CountdownClient (below) renders the live countdown on top of this
-             * once JS is loaded.           * no-JS fallback and permanent SEO anchor.
-             */}
-            <h1 className="mt-0 font-heading text-[2rem] font-extrabold uppercase leading-[0.9] tracking-tight text-white sm:mt-3 sm:text-[48px] lg:text-[64px] break-words">
-              {archiveState.isComplete ? "2026 World Cup Archive" : t("hero_kickoff_heading")}
-            </h1>
-            {archiveState.isComplete && archiveState.finalResult && (
-              <p className="mt-2 max-w-xl text-sm text-white/70 sm:text-base">
-                <span className="font-bold text-white">{archiveState.champion}</span> won the Final{" "}
-                {archiveState.finalResult.homeScore}–{archiveState.finalResult.awayScore} over {archiveState.runnerUp}.
-                {archiveState.thirdPlace ? ` ${archiveState.thirdPlace} finished third.` : ""}
-              </p>
-            )}
-          </div>
-
-          <div className="order-3 lg:order-none min-w-0 mt-0 lg:mt-6">
-            {/*
-             * CLIENT ISLAND — returns null on the server (parts === null).
-             * Renders the live "5 DAYS / HH MM SS" countdown post-hydration.
-             * Visually extends the section; the static h1 above acts as a
-             * no-JS fallback and permanent SEO anchor.
-             *
-             * The wrapper reserves the island's height so the post-hydration
-             * content fills reserved space instead of pushing the host-nations
-             * block down (eliminating this client island as a layout-shift source).
-             */}
-            <div className="min-h-[60px] sm:min-h-[200px]">
-              <CountdownClient tournamentPhase={tournamentPhase} target={countdownTarget} isComplete={archiveState.isComplete} />
+          ) : null}
+          {!isComplete ? (
+            <div className="mt-3 flex flex-wrap gap-2 sm:mt-5 sm:gap-3">
+              <Link href="/matches/match-104" className="rounded-lg bg-accent px-3 py-2.5 font-heading text-[10px] font-bold uppercase tracking-widest text-navy transition hover:bg-white sm:px-4 sm:text-xs">
+                View the Final
+              </Link>
+              <Link href="/schedule" className="rounded-lg border border-white/20 bg-navyCard px-3 py-2.5 font-heading text-[10px] font-bold uppercase tracking-widest text-white transition hover:border-white/50 sm:px-4 sm:text-xs">
+                Kickoff times
+              </Link>
+              <Link href="/bracket" className="hidden rounded-lg border border-white/10 px-4 py-3 font-heading text-xs font-bold uppercase tracking-widest text-white/65 transition hover:text-white sm:block">
+                Complete bracket
+              </Link>
             </div>
-
-            {/* Host nations */}
-            <div className="mt-0 sm:mt-6 hidden sm:block">
-              <div className="flex flex-wrap items-center gap-3 sm:gap-4">
-                {[
-                  { code: "us", name: "USA" },
-                  { code: "ca", name: "Canada" },
-                  { code: "mx", name: "Mexico" },
-                ].map((h) => (
-                  <div key={h.code} className="flex items-center gap-2">
-                    <Flag
-                      code={h.code}
-                      alt=""
-                      width={28}
-                      height={20}
-                      className="rounded-sm shadow-sm shrink-0"
-                    />
-                    <span className="text-sm font-medium text-white">{h.name}</span>
-                  </div>
-                ))}
-              </div>
-              <p className="mt-2 font-heading text-xs font-bold uppercase tracking-widest text-white/50">
-                {t("hero_subline")}
-              </p>
-              <p className="mt-2 max-w-xl text-sm text-white/70 hidden sm:block">{t("home_intro")}</p>
-            </div>
-          </div>
-        </div>
-
-        {/* Right: dynamic today's / next matches (client component) */}
-        <div className="order-2 lg:order-none min-w-0 w-full lg:flex-1 lg:w-auto">
-          <MatchCenterContent liveSnapshot={toMatchCenterLiveSnapshot(snapshot, resolvedParticipants)} mode="homepage" tournamentPhase={tournamentPhase} />
-        </div>
+          ) : null}
+        </header>
+        <MatchCenterContent
+          liveSnapshot={toMatchCenterLiveSnapshot(snapshot, resolvedParticipants)}
+          mode="homepage"
+          tournamentPhase={tournamentPhase}
+          countdownTarget={countdownTarget}
+          isTournamentComplete={archiveState.isComplete}
+        />
       </div>
     </section>
   );
