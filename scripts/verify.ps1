@@ -25,6 +25,7 @@ foreach ($directory in @(".next", "out")) {
 }
 
 Run-Checked "npm run build:p0"
+Run-Checked "npx tsx scripts/test-post-merge-production-truth.ts"
 Run-Checked "npm run test:runtime:cold-cache"
 Run-Checked "npx tsx scripts/test-final-route-content-parity.ts"
 Run-Checked "npx tsx scripts/test-final-route-data-parity-hotfix.ts"

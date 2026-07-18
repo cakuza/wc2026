@@ -31,6 +31,8 @@ export function TodayContent({
   liveDataUnavailableByMatchId,
   dateParam,
   selectedTimeZone,
+  now,
+  isClientDateResolved,
   tournamentPhase,
   archiveState,
 }: {
@@ -39,15 +41,17 @@ export function TodayContent({
   liveDataUnavailableByMatchId: Record<string, boolean>;
   dateParam?: string;
   selectedTimeZone: string;
+  now: Date;
+  isClientDateResolved: boolean;
   tournamentPhase: TournamentPhase;
   archiveState: ArchiveState;
 }) {
-  const resolved = resolveSelectedMatchday({ dateParam, timeZone: selectedTimeZone });
+  const resolved = resolveSelectedMatchday({ dateParam, timeZone: selectedTimeZone, now });
   // The completion transition only replaces the base (non-dated) view — a
   // dated ?date= view still shows that day's real matches truthfully.
   const showArchiveComplete = archiveState.isComplete && !resolved.isExplicitDate;
 
-  const localHour = localHourInTimeZone(new Date(ARCHIVE_DEFAULT_DATE), selectedTimeZone);
+  const localHour = localHourInTimeZone(now, selectedTimeZone);
   const inMidnightWindow = localHour >= 0 && localHour < MIDNIGHT_CONTINUITY_END_HOUR;
   const previousMatchday =
     !resolved.isExplicitDate && inMidnightWindow
@@ -123,8 +127,17 @@ export function TodayContent({
 
       {!showArchiveComplete && !resolved.isExplicitDate && (tournamentPhase === "third_place" || tournamentPhase === "final") && (
         <div className="mb-5 rounded-xl border border-white/10 bg-navyCard px-4 py-3 text-sm text-white/70">
-          <span className="font-semibold text-white">No World Cup match is being played today.</span>{" "}
-          Final Weekend fixtures and kickoff times are shown next in your selected timezone.
+          {isClientDateResolved ? (
+            <>
+              <span className="font-semibold text-white">No World Cup match is being played today.</span>{" "}
+              Final Weekend fixtures and kickoff times are shown next in your selected timezone.
+            </>
+          ) : (
+            <>
+              <span className="font-semibold text-white">Final Weekend fixture availability is resolving for your timezone.</span>{" "}
+              Kickoff times will update once your local date is available.
+            </>
+          )}
         </div>
       )}
 

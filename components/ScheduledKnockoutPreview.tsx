@@ -58,12 +58,12 @@ export function ScheduledKnockoutPreview({ match, resolvedParticipants, previewD
   const awayName = awayKey ? countryName(awayKey, "en") : "TBD";
   
   const isResolved = Boolean(homeKey && awayKey);
+  const hasBracketDestination = Boolean(winnerDestination || loserDestination);
 
   return (
     <>
       
-      {/* Bracket Consequences */}
-      <div className="mb-4 bg-navy/40 p-4 rounded-lg border border-white/5">
+      {hasBracketDestination && <div className="mb-4 bg-navy/40 p-4 rounded-lg border border-white/5">
         <h4 className="font-heading text-xs font-bold uppercase tracking-widest text-white/50 mb-2">Bracket Destination</h4>
         {winnerDestination && (
            <p className="text-sm text-white/80">
@@ -75,7 +75,7 @@ export function ScheduledKnockoutPreview({ match, resolvedParticipants, previewD
              <span className="text-red-400 font-bold">Loser</span> drops to: <Link href={loserDestination.href} className="underline decoration-white/20 hover:text-white transition">{loserDestination.displayLabel}</Link>
            </p>
         )}
-      </div>
+      </div>}
 
       <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
         {/* Home Team */}

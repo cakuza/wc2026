@@ -1,35 +1,32 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { LiveDataAutoRefresh } from "@/components/LiveDataAutoRefresh";
 import { LiveSnapshotDebug } from "@/components/LiveSnapshotDebug";
 import { ThirdPlaceTable } from "@/components/ThirdPlaceTable";
-import { getLiveRefreshPolicy } from "@/lib/liveRefreshPolicy";
 import { getTournamentLiveSnapshot } from "@/lib/liveSnapshot";
 
 export const revalidate = 60;
-// export const dynamic = "force-dynamic"; // removed for ISR
 
 const BASE_URL = "https://www.worldcupmatchday.com";
 
 export const metadata: Metadata = {
-  title: "World Cup 2026 Third-Place Ranking Table & Qualification Explained",
+  title: "World Cup 2026 Final Third-Place Ranking & Qualification History",
   description:
-    "Track the World Cup 2026 third-place ranking table and learn how the best third-placed teams qualify for the Round of 32.",
+    "The final World Cup 2026 third-place ranking, preserved as tournament history, and the teams that qualified for the Round of 32.",
   alternates: { canonical: `${BASE_URL}/world-cup-third-place-qualification` },
   openGraph: {
-    title: "World Cup 2026 Third-Place Ranking Table & Qualification Explained",
+    title: "World Cup 2026 Final Third-Place Ranking & Qualification History",
     description:
-      "Track the World Cup 2026 third-place ranking table and learn how the best third-placed teams qualify for the Round of 32.",
+      "The final World Cup 2026 third-place ranking, preserved as tournament history, and the teams that qualified for the Round of 32.",
     url: `${BASE_URL}/world-cup-third-place-qualification`,
     type: "website",
   },
 };
 
 const FAQS = [
-  { q: "How many third-placed teams qualify?", a: "The 8 best third-placed teams across the 12 groups advance to the Round of 32." },
-  { q: "How many teams reach the Round of 32?", a: "32 teams: the top two from each of the 12 groups (24 teams) plus the 8 best third-placed teams." },
-  { q: "Do all third-placed teams qualify?", a: "No. There are 12 third-placed teams but only the 8 best-ranked of them qualify. Exact order can remain unresolved when teams are level on the available criteria." },
-  { q: "When will the third-place ranking be known?", a: "The table on this page updates after completed group matches are synced, but it is only a current snapshot — the final ranking is only known once all group-stage matches are played." },
+  { q: "How many third-placed teams qualified?", a: "The 8 best third-placed teams across the 12 groups qualified for the Round of 32." },
+  { q: "How many teams reached the Round of 32?", a: "32 teams: the top two from each of the 12 groups (24 teams) plus the 8 best third-placed teams." },
+  { q: "Did all third-placed teams qualify?", a: "No. There were 12 third-placed teams but only the 8 best-ranked teams qualified. Exact internal order remains tied where the available published criteria do not separate teams." },
+  { q: "When was the third-place ranking known?", a: "The group stage is complete. This final table is preserved as tournament history; teams tied on the available published criteria share a tied position when no further verified ordering is available." },
   { q: "Is WorldCupMatchDay affiliated with FIFA?", a: "No. WorldCupMatchDay is an independent, fan-made resource and is not affiliated with FIFA." },
 ];
 
@@ -53,103 +50,89 @@ function Step({ n, title, children }: { n: string; title: string; children: Reac
 
 export default async function ThirdPlaceQualificationPage() {
   const snapshot = await getTournamentLiveSnapshot();
-  const standings = snapshot.standingsByGroup;
   const thirdPlaceRanking = snapshot.thirdPlaceRanking;
-  const anyMatchesPlayed = Object.values(standings).some((rows) => rows.some((r) => r.played > 0));
-  const refreshPolicy = getLiveRefreshPolicy(Object.values(snapshot.matches));
 
   return (
     <>
-      <LiveDataAutoRefresh intervalMs={refreshPolicy.intervalMs} />
       <LiveSnapshotDebug snapshotId={snapshot.snapshotId} generatedAt={snapshot.generatedAt} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqLd) }} />
 
       <div className="mx-auto max-w-3xl px-4 py-8">
         <p className="mb-2 font-heading text-sm font-bold uppercase tracking-[0.3em] text-accent">World Cup 2026</p>
         <h1 className="mb-2 font-heading text-4xl font-extrabold uppercase tracking-wide text-white">
-          World Cup 2026 Third-Place Ranking
+          Final third-place ranking
         </h1>
         <p className="mb-6 max-w-2xl text-sm text-white/55">
-          The eight best third-placed teams advance to the Round of 32. This ranking updates after completed
-          group matches are synced.
+          The group stage is complete. This final table is preserved as tournament history and records which
+          third-placed teams qualified for the Round of 32.
         </p>
 
-        {/* Live ranking of third-placed teams */}
         <section className="mb-8">
           <h2 className="mb-1 font-heading text-2xl font-extrabold uppercase tracking-wide text-white">
-            Ranking of third-placed teams
+            Final third-place ranking
           </h2>
           <p className="mb-3 max-w-2xl text-sm text-white/55">
-            The eight best third-placed teams advance to the Round of 32. This table updates after completed
-            group matches are synced.
+            The eight highest-ranked third-placed teams qualified for the Round of 32. Where the available
+            published criteria cannot separate teams, the table preserves a tied final position.
           </p>
-          {anyMatchesPlayed ? (
-            <ThirdPlaceTable rows={thirdPlaceRanking} />
-          ) : (
-            <div className="rounded-xl border border-accent/20 bg-accent/5 p-4">
-              <p className="font-heading text-[11px] font-bold uppercase tracking-widest text-accent/70">
-                Third-place ranking
-              </p>
-              <p className="mt-1 text-sm text-white/70">
-                Not available until group matches are played. This table will populate automatically as
-                results are synced.
-              </p>
-            </div>
-          )}
+          <ThirdPlaceTable rows={thirdPlaceRanking} />
         </section>
 
         <div className="space-y-3">
           <Step n="1" title="12 groups of four">
-            The 48 teams are split into 12 groups (A–L) of four. Every team plays the other three in its group once.
+            The 48 teams were split into 12 groups (A-L) of four. Every team played the other three in its group once.
           </Step>
-          <Step n="2" title="Top two qualify automatically">
-            The first- and second-placed team in each group advance directly — that is 24 teams.
+          <Step n="2" title="Top two qualified automatically">
+            The first- and second-placed team in each group qualified directly - 24 teams in total.
           </Step>
           <Step n="3" title="8 best third-placed teams">
-            Each group also has a third-placed team (12 in total). The 8 best-ranked third-placed teams also advance;
-            exact order can remain unresolved while teams are level on the available criteria.
+            Each group also had a third-placed team (12 in total). The 8 best-ranked third-placed teams qualified;
+            where available published criteria remain level, the final table records a tied position.
           </Step>
-          <Step n="4" title="32 teams reach the Round of 32">
-            24 group winners and runners-up plus the 8 best third-placed teams make up the 32-team knockout bracket.
+          <Step n="4" title="32 teams reached the Round of 32">
+            24 group winners and runners-up plus the 8 best third-placed teams made up the 32-team knockout bracket.
           </Step>
         </div>
 
-        {/* H2: How many third-place teams qualify */}
         <section className="mt-6">
           <h2 className="mb-2 font-heading text-xl font-extrabold uppercase tracking-wide text-white">
-            How many third-place teams qualify?
+            How many third-place teams qualified?
           </h2>
           <p className="text-sm leading-relaxed text-white/70">
-            Eight of the twelve third-placed teams qualify for the knockout stage. The other four finish outside the qualifying places once the final group table is complete, but live ordering can remain unresolved when available criteria are level.
+            Eight of the twelve third-placed teams qualified for the knockout stage. The other four did not qualify.
+            Where available published criteria are level, this historical table shows a tied position rather than an
+            unsupported internal order.
           </p>
         </section>
 
-        {/* H2: Why third place matters */}
         <section className="mt-6">
           <h2 className="mb-2 font-heading text-xl font-extrabold uppercase tracking-wide text-white">
-            Why third place matters
+            Why third place mattered
           </h2>
           <p className="text-sm leading-relaxed text-white/70">
-            A team can finish 3rd in its group and still reach the Round of 32, but it must rank among the eight best
-            third-placed teams across all 12 groups. That means every point and every goal in the group stage can matter,
-            even in a match that doesn&apos;t decide first or second place.
+            A team that finished third in its group could still reach the Round of 32 by ranking among the eight best
+            third-placed teams across all 12 groups. Every point and goal from the completed group stage contributed to
+            the historical ranking.
           </p>
           <p className="mt-2 text-sm leading-relaxed text-white/70">
-            Once the 8 best third-placed teams are confirmed, they enter the{" "}
+            The 8 qualifying third-placed teams entered the{" "}
             <Link href="/world-cup-2026-knockout-bracket-explained" className="text-accent underline-offset-2 hover:underline">
               knockout bracket
             </Link>{" "}
-            for the Round of 32. Their bracket slot depends on which groups they came from, per the pre-set FIFA bracket structure.
+            for the Round of 32. Their bracket slot depended on which groups they came from, per the pre-set FIFA
+            bracket structure.
           </p>
         </section>
 
-        {/* H2: What decides the best third-placed teams */}
         <section className="mt-6 rounded-xl border border-white/10 bg-navyCard p-4">
           <h2 className="mb-2 font-heading text-base font-extrabold uppercase tracking-wide text-white">
-            What decides the best third-placed teams?
+            What decided the best third-placed teams?
           </h2>
           <p className="text-sm leading-relaxed text-white/70">
-            Best third-placed teams are ranked by: (1) points, (2) goal difference, (3) goals scored — all from their three group matches. If still level: (4) disciplinary record (team conduct score) and (5) FIFA/Coca-Cola Men&apos;s World Ranking. Exact order can remain unresolved in live display because some tie-break inputs are not available until all group-stage matches are complete. The ranking above updates after completed matches are synced.
+            Best third-placed teams were ranked by: (1) points, (2) goal difference, and (3) goals scored - all from
+            their three group matches. Further criteria include disciplinary record and FIFA/Coca-Cola Men&apos;s World
+            Ranking. If available evidence does not resolve an internal tie, the ranking above preserves that tied final
+            position rather than implying that a future match will decide it.
           </p>
         </section>
 

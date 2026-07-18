@@ -71,7 +71,10 @@ export function isCanonicalComplete(item: RefreshCandidate, resolvedParticipants
 }
 
 export const LIVE_REFRESH_START_BEFORE_MS = 15 * 60 * 1000;
-export const LIVE_REFRESH_STOP_AFTER_MS = 195 * 60 * 1000;
+// The owner policy is deliberately bounded: start fifteen minutes before
+// kickoff and stop three hours after it. Nothing continuously refreshes a
+// provider-backed page outside that match window.
+export const LIVE_REFRESH_STOP_AFTER_MS = 180 * 60 * 1000;
 
 export function getLiveRefreshPolicy(
   candidates: RefreshCandidate[],
