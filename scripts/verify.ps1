@@ -17,5 +17,20 @@ Run-Checked "npm run test:ui"
 Run-Checked "npm run test:tournament"
 Run-Checked "npx tsx scripts/test-scorer-enrichment.ts"
 Run-Checked "npm run test:readiness-validator"
-Run-Checked "npm run build"
+
+foreach ($directory in @(".next", "out")) {
+  if (Test-Path -LiteralPath $directory) {
+    Remove-Item -LiteralPath $directory -Recurse -Force
+  }
+}
+
+Run-Checked "npm run build:p0"
 Run-Checked "npm run test:runtime:cold-cache"
+Run-Checked "npx tsx scripts/test-final-route-content-parity.ts"
+Run-Checked "npx tsx scripts/test-final-route-data-parity-hotfix.ts"
+Run-Checked "npx tsx scripts/test-post-release-static-parity-hotfix.ts"
+Run-Checked "npx tsx scripts/test-post-release-content-visual-audit.ts"
+Run-Checked "npx tsx scripts/test-rendered-html.ts"
+Run-Checked "npx tsx scripts/test-seo-technical-audit.ts"
+Run-Checked "npm run test:browser-qa"
+Run-Checked "git diff --check"
