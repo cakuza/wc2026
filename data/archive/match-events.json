@@ -13187,93 +13187,6 @@
     "confidence": "source_single"
   },
   {
-    "matchId": "match-89",
-    "playerName": "Bradley Barcola",
-    "eventType": "yellow_card",
-    "minute": 19,
-    "teamKey": "France",
-    "sourceId": "espn",
-    "confidence": "source_single"
-  },
-  {
-    "matchId": "match-89",
-    "playerName": "José Canale",
-    "eventType": "substitution",
-    "minute": 58,
-    "teamKey": "Paraguay",
-    "relatedPlayerName": "Omar Alderete",
-    "sourceId": "espn",
-    "confidence": "source_single"
-  },
-  {
-    "matchId": "match-89",
-    "playerName": "Gustavo Caballero",
-    "eventType": "substitution",
-    "minute": 61,
-    "teamKey": "Paraguay",
-    "relatedPlayerName": "Julio Enciso",
-    "sourceId": "espn",
-    "confidence": "source_single"
-  },
-  {
-    "matchId": "match-89",
-    "playerName": "Désiré Doué",
-    "eventType": "substitution",
-    "minute": 61,
-    "teamKey": "France",
-    "relatedPlayerName": "Bradley Barcola",
-    "sourceId": "espn",
-    "confidence": "source_single"
-  },
-  {
-    "matchId": "match-89",
-    "playerName": "Maurício",
-    "eventType": "substitution",
-    "minute": 71,
-    "teamKey": "Paraguay",
-    "relatedPlayerName": "Diego Gómez",
-    "sourceId": "espn",
-    "confidence": "source_single"
-  },
-  {
-    "matchId": "match-89",
-    "playerName": "Gabriel Ávalos",
-    "eventType": "substitution",
-    "minute": 71,
-    "teamKey": "Paraguay",
-    "relatedPlayerName": "Miguel Almirón",
-    "sourceId": "espn",
-    "confidence": "source_single"
-  },
-  {
-    "matchId": "match-89",
-    "playerName": "Manu Koné",
-    "eventType": "yellow_card",
-    "minute": 81,
-    "teamKey": "France",
-    "sourceId": "espn",
-    "confidence": "source_single"
-  },
-  {
-    "matchId": "match-89",
-    "playerName": "Rayan Cherki",
-    "eventType": "substitution",
-    "minute": 84,
-    "teamKey": "France",
-    "relatedPlayerName": "Ousmane Dembélé",
-    "sourceId": "espn",
-    "confidence": "source_single"
-  },
-  {
-    "matchId": "match-89",
-    "playerName": "Michael Olise",
-    "eventType": "yellow_card",
-    "minute": 90,
-    "teamKey": "France",
-    "sourceId": "espn",
-    "confidence": "source_single"
-  },
-  {
     "matchId": "match-90",
     "playerName": "Redouane Halhal",
     "eventType": "yellow_card",
@@ -15572,6 +15485,122 @@
     "sourceId": "espn",
     "confidence": "source_single",
     "relatedPlayerName": "Djed Spence"
+  },
+  {
+    "id": "repo_verified:match-89:PENALTY_GOAL:70::Kylian Mbappé",
+    "matchId": "match-89",
+    "playerName": "Kylian Mbappé",
+    "eventType": "penalty_goal",
+    "minute": 70,
+    "teamKey": "France",
+    "sourceId": "repo_verified",
+    "confidence": "verified"
+  },
+  {
+    "id": "espn:49707633",
+    "matchId": "match-89",
+    "playerName": "Bradley Barcola",
+    "eventType": "yellow_card",
+    "minute": 19,
+    "period": "first_half",
+    "teamKey": "France",
+    "sourceId": "espn",
+    "confidence": "source_single"
+  },
+  {
+    "id": "espn:49708202",
+    "matchId": "match-89",
+    "playerName": "José Canale",
+    "eventType": "substitution",
+    "minute": 58,
+    "period": "second_half",
+    "teamKey": "Paraguay",
+    "relatedPlayerName": "Omar Alderete",
+    "sourceId": "espn",
+    "confidence": "source_single"
+  },
+  {
+    "id": "espn:49708237",
+    "matchId": "match-89",
+    "playerName": "Gustavo Caballero",
+    "eventType": "substitution",
+    "minute": 61,
+    "period": "second_half",
+    "teamKey": "Paraguay",
+    "relatedPlayerName": "Julio Enciso",
+    "sourceId": "espn",
+    "confidence": "source_single"
+  },
+  {
+    "id": "espn:49708238",
+    "matchId": "match-89",
+    "playerName": "Désiré Doué",
+    "eventType": "substitution",
+    "minute": 61,
+    "period": "second_half",
+    "teamKey": "France",
+    "relatedPlayerName": "Bradley Barcola",
+    "sourceId": "espn",
+    "confidence": "source_single"
+  },
+  {
+    "id": "espn:49708344",
+    "matchId": "match-89",
+    "playerName": "Maurício",
+    "eventType": "substitution",
+    "minute": 71,
+    "period": "second_half",
+    "teamKey": "Paraguay",
+    "relatedPlayerName": "Diego Gómez",
+    "sourceId": "espn",
+    "confidence": "source_single"
+  },
+  {
+    "id": "espn:49708343",
+    "matchId": "match-89",
+    "playerName": "Gabriel Ávalos",
+    "eventType": "substitution",
+    "minute": 71,
+    "period": "second_half",
+    "teamKey": "Paraguay",
+    "relatedPlayerName": "Miguel Almirón",
+    "sourceId": "espn",
+    "confidence": "source_single"
+  },
+  {
+    "id": "espn:49708448",
+    "matchId": "match-89",
+    "playerName": "Manu Koné",
+    "eventType": "yellow_card",
+    "minute": 81,
+    "period": "second_half",
+    "teamKey": "France",
+    "sourceId": "espn",
+    "confidence": "source_single"
+  },
+  {
+    "id": "espn:49708493",
+    "matchId": "match-89",
+    "playerName": "Rayan Cherki",
+    "eventType": "substitution",
+    "minute": 84,
+    "period": "second_half",
+    "teamKey": "France",
+    "relatedPlayerName": "Ousmane Dembélé",
+    "sourceId": "espn",
+    "confidence": "source_single"
+  },
+  {
+    "id": "espn:49708696",
+    "matchId": "match-89",
+    "playerName": "Michael Olise",
+    "eventType": "yellow_card",
+    "minute": 90,
+    "stoppageMinute": 7,
+    "period": "second_half",
+    "teamKey": "France",
+    "sourceId": "espn",
+    "confidence": "source_single"
   },
   {
     "id": "espn:49865115",

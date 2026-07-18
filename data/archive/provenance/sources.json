@@ -1,4 +1,19 @@
 {
+  "760503": {
+    "sourceId": "espn",
+    "name": "ESPN Public API",
+    "endpointUrl": "https://site.api.espn.com/apis/site/v2/sports/soccer/fifa.world/summary?event=760503",
+    "accessMethod": "public_json",
+    "fetchedAt": "2026-07-19T02:50:00.000Z",
+    "rawPath": "data/archive/raw/espn/2026/760503.json",
+    "rawSha256": "ed82917a679283aae1229f7bcb5cecb510c5aa783aab94f6416dd625002e70af",
+    "parserVersion": "1.0",
+    "mappingConfidence": "high",
+    "mappingBasis": "exact match on date and teams (Paraguay vs France)",
+    "ingestionCommand": "curl.exe -s \"https://site.api.espn.com/apis/site/v2/sports/soccer/fifa.world/summary?event=760503\" -o data/archive/raw/espn/2026/760503.json",
+    "exclusionPolicy": "This raw provider response is excluded from repository version control by the .gitignore rules.",
+    "notes": "Mapped via exact date/team match for match-89"
+  },
   "760510": {
     "sourceId": "espn",
     "name": "ESPN Public API",
@@ -46,12 +61,16 @@
   "760516": {
     "sourceId": "espn",
     "name": "ESPN Public API",
-    "endpointPattern": "https://site.api.espn.com/apis/site/v2/sports/soccer/fifa.world/summary?event={eventId}",
+    "endpointUrl": "https://site.api.espn.com/apis/site/v2/sports/soccer/fifa.world/summary?event=760516",
     "accessMethod": "public_json",
     "fetchedAt": "2026-07-18T23:27:57.706Z",
     "rawPath": "data/archive/raw/espn/2026/760516.json",
     "rawSha256": "6af2db2e914da6a6a4797fa97cea4229ed01c7f25eca272ac6cff97ef6149bc8",
     "parserVersion": "1.0",
+    "mappingConfidence": "high",
+    "mappingBasis": "exact match on date and teams (France vs England)",
+    "ingestionCommand": "curl.exe -s \"https://site.api.espn.com/apis/site/v2/sports/soccer/fifa.world/summary?event=760516\" -o data/archive/raw/espn/2026/760516.json",
+    "exclusionPolicy": "This raw provider response is excluded from repository version control by the .gitignore rules.",
     "notes": "Mapped via exact date/team match for match-103"
   }
 }

@@ -570,6 +570,23 @@ const VERIFIED_GOAL_CORRECTIONS: Record<string, VerifiedGoalCorrection> = {
       },
     ],
   },
+  "match-89": {
+    note: "Verified: 70' Kylian Mbappé penalty converts to secure 1-0 win against Paraguay.",
+    events: [
+      {
+        type: "PENALTY_GOAL",
+        minute: 70,
+        minuteLabel: "70'",
+        teamName: "France",
+        playerTeamName: "France",
+        playerName: "Kylian Mbappé",
+        isOwnGoal: false,
+        isPenalty: true,
+        provider: "worldcup26.ir",
+        confidence: "high",
+      }
+    ],
+  },
 };
 
 function scorerKey(event: GoalScorerEvent): string {

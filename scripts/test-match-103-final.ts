@@ -130,9 +130,15 @@ async function run() {
     assert.ok(stats.totalGoals > 10, "Total goals should be populated");
   });
 
-  check("Golden Boot standings remain provisional", () => {
-    // Top scorers table must exist, but since Match 104 is not finished, Golden Boot is not final
-    assert.ok(snapshot.topScorers.length > 0, "Top scorers list should not be empty");
+  check("Golden Boot standings remain provisional with correct goals and margin", () => {
+    const mbappe = snapshot.topScorers.find(s => s.playerName === "Kylian Mbappé");
+    const messi = snapshot.topScorers.find(s => s.playerName === "Lionel Messi");
+    assert.ok(mbappe, "Mbappé must exist in top scorers");
+    assert.ok(messi, "Messi must exist in top scorers");
+    assert.strictEqual(mbappe.goals, 10, `Mbappé expected 10 goals, got ${mbappe.goals}`);
+    assert.strictEqual(messi.goals, 8, `Messi expected 8 goals, got ${messi.goals}`);
+    assert.strictEqual(mbappe.goals - messi.goals, 2, `Mbappé must lead by two goals, got ${mbappe.goals - messi.goals}`);
+    assert.strictEqual(archive.isComplete, false, "Golden Boot must remain provisional because Match 104 is unresolved");
   });
 
   // 5. Match 104 is unresolved
@@ -148,8 +154,8 @@ async function run() {
   check("Editorial report exists for Match 103", () => {
     const report = MATCH_EDITORIAL_REPORTS["match-103"];
     assert.ok(report, "Editorial report for Match 103 must be registered");
-    assert.strictEqual(report.editorIdentity, "WorldCupMatchDay Editorial Team", "Should have correct editor team");
-    assert.ok(report.headline.includes("Ten-Goal Thriller"), "Headline should match expected text");
+    assert.strictEqual(report.editorIdentity, "WorldCupMatchDay", "Should have correct publisher");
+    assert.ok(report.headline.includes("Ten-Goal"), "Headline should match expected text");
     assert.ok(report.bodySections.length >= 4, "Should have at least 4 detailed sections");
     assert.strictEqual(report.updatedAt, "2026-07-18T23:00:18Z", "Timestamp must match official completion");
   });

@@ -10,6 +10,7 @@ const VIEWPORTS = [
 ];
 const ROUTES = [
   "/", "/today", "/schedule", "/bracket", "/teams/argentina", "/groups/group-a", "/stats",
+  "/stats/top-scorers",
   "/matches/match-101", "/matches/match-103", "/matches/match-104", "/world-cup-2026/results",
   "/world-cup-third-place-qualification", "/world-cup-2026-data-sources", "/terms",
 ];
@@ -72,16 +73,23 @@ async function main() {
           assert(await page.locator("header nav a").count() > 0 && await page.locator('footer a[href="/terms"]').count() > 0, `[${label}] Terms uses the shared header and footer navigation`);
         }
         if (route === "/stats") {
-          assert(/103\s*\/\s*104/.test(text) && (/Messi/.test(text) || /Mbappé/.test(text)) && /Olise/.test(text), `[${label}] Statistics shows the current snapshot and leaders`);
+          assert(/103\s*\/\s*104/.test(text) && /Olise/.test(text), `[${label}] Statistics shows the current snapshot and leaders`);
+          assert(/Kylian Mbappé/i.test(text) && /10/.test(text), `[${label}] Statistics shows Kylian Mbappé as leader with 10 goals`);
           assert(/Germany/.test(text) && /Netherlands/.test(text) && /France/.test(text) && /Mexico/.test(text) && /Spain/.test(text), `[${label}] Statistics renders tied teams distinctly`);
           assert(/Last updated\s+\d{1,2}\s+\w+\s+2026/i.test(text), `[${label}] Statistics has a full dated timestamp`);
         }
+        if (route === "/stats/top-scorers") {
+          assert(/Kylian Mbappé/i.test(text) && /10/.test(text), `[${label}] Top Scorers shows Mbappé with 10 goals`);
+          assert(/Lionel Messi/i.test(text) && /8/.test(text), `[${label}] Top Scorers shows Messi with 8 goals`);
+          assert(/provisional|tiebreak/i.test(text), `[${label}] Top Scorers page mentions provisional / tiebreak standings`);
+        }
         if (route === "/world-cup-2026") assert(/World Cup 2026/i.test(text), `[${label}] archive hub remains reachable`);
         if (route === "/world-cup-2026/results") assert(/Results/i.test(text), `[${label}] archive results remain reachable`);
-        if (["/", "/today", "/stats"].includes(route)) {
+        if (["/", "/today", "/stats", "/stats/top-scorers"].includes(route)) {
           const screenshotDirectory = join(process.cwd(), "qa-artifacts", "browser");
           mkdirSync(screenshotDirectory, { recursive: true });
-          await page.screenshot({ path: join(screenshotDirectory, `${route === "/" ? "home" : route.slice(1)}-${viewport.width}x${viewport.height}.png`), fullPage: false });
+          const safeName = route === "/" ? "home" : route.slice(1).replace(/\//g, "-");
+          await page.screenshot({ path: join(screenshotDirectory, `${safeName}-${viewport.width}x${viewport.height}.png`), fullPage: false });
         }
         await page.close();
       }

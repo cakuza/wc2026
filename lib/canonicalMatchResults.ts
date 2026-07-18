@@ -183,7 +183,10 @@ export const COMPLETED_KNOCKOUT_RESULTS: Readonly<Record<number, CompletedResult
     awayScore: 6,
     winner: "AWAY_TEAM",
     scoreDuration: "REGULAR",
-    confirmedAt: "2026-07-18T23:00:18.000Z", // Derived from provider's official completion metadata (meta.lastUpdatedAt)
+    // Note: The confirmedAt timestamp '2026-07-18T23:00:18.000Z' represents the provider
+    // snapshot update/canonical reconciliation confirmation time (from ESPN's meta.lastUpdatedAt)
+    // and is not the exact final-whistle time of the match itself.
+    confirmedAt: "2026-07-18T23:00:18.000Z",
   },
 };
 
