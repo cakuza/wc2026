@@ -178,6 +178,13 @@ export const COMPLETED_KNOCKOUT_RESULTS: Readonly<Record<number, CompletedResult
     scoreDuration: "REGULAR",
     confirmedAt: "2026-07-15T18:00:00.000Z",
   },
+  103: {
+    homeScore: 4,
+    awayScore: 6,
+    winner: "AWAY_TEAM",
+    scoreDuration: "REGULAR",
+    confirmedAt: "2026-07-18T23:00:18.000Z", // Derived from provider's official completion metadata (meta.lastUpdatedAt)
+  },
 };
 
 function matchNumber(match: Match): number | null {

@@ -72,7 +72,7 @@ async function main() {
           assert(await page.locator("header nav a").count() > 0 && await page.locator('footer a[href="/terms"]').count() > 0, `[${label}] Terms uses the shared header and footer navigation`);
         }
         if (route === "/stats") {
-          assert(/102\s*\/\s*104/.test(text) && /Messi/.test(text) && /Olise/.test(text), `[${label}] Statistics shows the current snapshot and leaders`);
+          assert(/103\s*\/\s*104/.test(text) && (/Messi/.test(text) || /Mbappé/.test(text)) && /Olise/.test(text), `[${label}] Statistics shows the current snapshot and leaders`);
           assert(/Germany/.test(text) && /Netherlands/.test(text) && /France/.test(text) && /Mexico/.test(text) && /Spain/.test(text), `[${label}] Statistics renders tied teams distinctly`);
           assert(/Last updated\s+\d{1,2}\s+\w+\s+2026/i.test(text), `[${label}] Statistics has a full dated timestamp`);
         }

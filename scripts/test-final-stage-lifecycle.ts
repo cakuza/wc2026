@@ -15,6 +15,10 @@ import {
   splitDestinationsByCompletion,
 } from "../lib/matchCenterSelection";
 import type { LiveMatchData } from "../lib/liveMatchData";
+import { COMPLETED_KNOCKOUT_RESULTS } from "../lib/canonicalMatchResults";
+
+// Disable manual fallback for Match 103 to allow simulating its scheduled state
+delete (COMPLETED_KNOCKOUT_RESULTS as any)[103];
 
 let failures = 0;
 function check(condition: boolean, message: string): void {

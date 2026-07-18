@@ -42,5 +42,16 @@
     "rawSha256": "d171cf933d32a2d98a9ba9966c42bc3838526a485fd10fd5535e15901c1c8b85",
     "parserVersion": "1.0",
     "notes": "Mapped via exact date/team match for match-100"
+  },
+  "760516": {
+    "sourceId": "espn",
+    "name": "ESPN Public API",
+    "endpointPattern": "https://site.api.espn.com/apis/site/v2/sports/soccer/fifa.world/summary?event={eventId}",
+    "accessMethod": "public_json",
+    "fetchedAt": "2026-07-18T23:27:57.706Z",
+    "rawPath": "data/archive/raw/espn/2026/760516.json",
+    "rawSha256": "6af2db2e914da6a6a4797fa97cea4229ed01c7f25eca272ac6cff97ef6149bc8",
+    "parserVersion": "1.0",
+    "notes": "Mapped via exact date/team match for match-103"
   }
 }
