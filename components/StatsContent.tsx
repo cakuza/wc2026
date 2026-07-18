@@ -1,353 +1,111 @@
 "use client";
 
 import Link from "next/link";
-import { useLang } from "@/components/LanguageProvider";
-import type { TournamentStats, TeamLeaderboards, PlayerRankingRecord, PlayerEventLeaderboards, TeamStatLeaderboards } from "@/lib/tournamentStats";
-import { getTiedLeaders } from "@/lib/tournamentStats";
+import { Flag } from "@/components/Flag";
 import { StatsNav } from "./StatsNav";
 import { countryName } from "@/lib/i18n";
-import { Flag } from "@/components/Flag";
-import { teamKeyFromName, teamCodeForKey } from "@/lib/teams";
+import { matchSlug, MATCHES } from "@/lib/matches";
+import { teamCodeForKey } from "@/lib/teams";
+import type { PlayerEventLeaderboards, PlayerRankingRecord, TeamLeaderboard, TeamLeaderboards, TeamStatLeaderboards, TournamentStats } from "@/lib/tournamentStats";
 
-interface Props {
+type Props = {
   tournamentStats: TournamentStats;
   teamLeaderboards: TeamLeaderboards;
   topScorers: PlayerRankingRecord[];
   playerEventLeaderboards: PlayerEventLeaderboards;
   teamStatLeaderboards: TeamStatLeaderboards;
   hasEventData: boolean;
+};
+
+function fullTimestamp(iso: string | null) {
+  if (!iso) return "Last updated from the current tournament archive";
+  const value = new Intl.DateTimeFormat("en-GB", {
+    day: "numeric", month: "long", year: "numeric", hour: "2-digit", minute: "2-digit", timeZone: "UTC", timeZoneName: "short",
+  }).format(new Date(iso)).replace(",", "");
+  return `Last updated ${value}`;
 }
 
-export default function StatsContent({ tournamentStats, teamLeaderboards, topScorers, playerEventLeaderboards, teamStatLeaderboards, hasEventData }: Props) {
-  const { t, country } = useLang();
+function TeamChip({ leader }: { leader: TeamLeaderboard }) {
+  const code = teamCodeForKey(leader.teamKey);
+  const name = countryName(leader.teamKey, "en");
+  return (
+    <Link href={`/teams/${leader.teamKey}`} className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-3 py-2 text-sm font-semibold text-white transition hover:border-accent/70 hover:bg-white/10">
+      <Flag code={code} alt="" width={20} height={14} className="shrink-0" />{name}
+    </Link>
+  );
+}
 
-  const { matchesPlayed, totalGoals, averageGoalsPerMatch,
-          highestScoringMatch, biggestWin, cleanSheets, lastSyncedAt } = tournamentStats;
+function PlayerLeader({ label, player, value, href, note }: { label: string; player: { playerName: string; teamKey: string | null; teamName: string | null }; value: number; href: string; note?: string }) {
+  const teamName = player.teamKey ? countryName(player.teamKey, "en") : player.teamName || "";
+  const code = player.teamKey ? teamCodeForKey(player.teamKey) : null;
+  return (
+    <Link href={href} className="block rounded-xl border border-white/10 bg-navyCard p-4 transition hover:border-accent/70 sm:p-5">
+      <p className="font-heading text-[10px] font-bold uppercase tracking-[0.18em] text-white/55">{label}</p>
+      <div className="mt-4 flex items-center gap-4">
+        <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-accent/15 font-heading text-2xl font-black text-accent">{value}</div>
+        <div className="min-w-0">
+          <div className="flex items-center gap-2">{code ? <Flag code={code} alt="" width={24} height={16} className="shrink-0" /> : null}<p className="truncate text-lg font-bold text-white">{player.playerName}</p></div>
+          <p className="mt-1 text-sm text-white/60">{teamName}{note ? ` · ${note}` : ""}</p>
+        </div>
+      </div>
+      <span className="mt-4 inline-block font-heading text-[11px] font-bold uppercase tracking-widest text-accent">View full leaderboard →</span>
+    </Link>
+  );
+}
 
-  const hasData = matchesPlayed > 0;
-
-  function fmtResult(r: { homeKey: string; awayKey: string; homeScore: number; awayScore: number }) {
-    return `${country(r.homeKey)} ${r.homeScore}–${r.awayScore} ${country(r.awayKey)}`;
-  }
-
-  function fmtSynced(iso: string): string {
-    const d = new Date(iso);
-    const hh = String(d.getUTCHours()).padStart(2, "0");
-    const mm = String(d.getUTCMinutes()).padStart(2, "0");
-    return `${hh}:${mm} UTC`;
-  }
-
-  /** "A" / "A & B" / "A, B & C" — for naming every team/player tied for a leaderboard's top value. */
-  function joinNames(names: string[]): string {
-    if (names.length <= 1) return names[0] ?? "";
-    if (names.length === 2) return `${names[0]} & ${names[1]}`;
-    return `${names.slice(0, -1).join(", ")} & ${names[names.length - 1]}`;
-  }
-
-  const liveStats = hasData
-    ? [
-        { label: "Matches Played",    value: String(matchesPlayed),                             icon: "🏟️" },
-        { label: "Total Goals",       value: String(totalGoals),                                icon: "⚽" },
-        { label: "Avg Goals / Match", value: averageGoalsPerMatch.toFixed(1),                   icon: "📈" },
-        { label: "Clean Sheets",      value: String(cleanSheets),                               icon: "🧤" },
-      ]
-    : null;
-
-  const hasTeamData = teamStatLeaderboards.goalsScored.length > 0;
+export default function StatsContent({ tournamentStats, teamLeaderboards: _teamLeaderboards, topScorers, playerEventLeaderboards, teamStatLeaderboards, hasEventData }: Props) {
+  const { matchesPlayed, totalGoals, averageGoalsPerMatch, highestScoringMatch, biggestWin, cleanSheets, lastSyncedAt } = tournamentStats;
+  const topScorer = hasEventData ? topScorers[0] : null;
+  const assistLeader = hasEventData ? playerEventLeaderboards.assists[0] : null;
+  const goalLeaders = teamStatLeaderboards.goalsScored.filter((leader) => leader.value === teamStatLeaderboards.goalsScored[0]?.value);
+  const cleanSheetLeaders = teamStatLeaderboards.cleanSheets.filter((leader) => leader.value === teamStatLeaderboards.cleanSheets[0]?.value);
+  const recordHref = (record: { homeKey: string; awayKey: string }) => {
+    const match = MATCHES.find((candidate) => candidate.homeKey === record.homeKey && candidate.awayKey === record.awayKey);
+    return match ? `/matches/${matchSlug(match)}` : "/stats/matches";
+  };
+  const result = (record: { homeKey: string; awayKey: string; homeScore: number; awayScore: number } | null) => record ? `${countryName(record.homeKey, "en")} ${record.homeScore}–${record.awayScore} ${countryName(record.awayKey, "en")}` : "No completed record";
+  const glance = [
+    { label: "Matches completed", value: `${matchesPlayed} / 104` },
+    { label: "Total goals", value: String(totalGoals) },
+    { label: "Goals per match", value: averageGoalsPerMatch.toFixed(1) },
+    { label: "Clean sheets", value: String(cleanSheets) },
+  ];
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-10">
-      <div className="mb-6">
-        <p className="font-heading text-sm font-bold uppercase tracking-[0.3em] text-accent">
-          World Cup 2026
-        </p>
-        <h1 className="mt-1 font-heading text-3xl font-extrabold uppercase tracking-tight text-white sm:text-4xl">
-          {t("stats_page_title")}
-        </h1>
-        <p className="mt-2 max-w-3xl text-sm text-white/50">{t("stats_intro")}</p>
-      </div>
-
+    <div className="mx-auto max-w-7xl px-4 py-7 sm:py-9">
+      <header className="mb-5 max-w-4xl">
+        <p className="font-heading text-xs font-bold uppercase tracking-[0.28em] text-accent">2026 World Cup</p>
+        <h1 className="mt-2 font-heading text-3xl font-extrabold uppercase tracking-tight text-white sm:text-4xl">2026 World Cup Statistics</h1>
+        <p className="mt-2 text-sm leading-relaxed text-white/60">Tournament totals, Golden Boot leaders, provider-recorded assists, team records, clean sheets and match records.</p>
+        <p className="mt-3 text-xs font-semibold text-white/45">{fullTimestamp(lastSyncedAt)}</p>
+      </header>
       <StatsNav />
 
-      {/* SECTION A — Tournament Snapshot */}
-      <section className="mb-12">
-        <div className="mb-4 flex items-center gap-3">
-          <h2 className="font-heading text-lg font-extrabold uppercase tracking-widest text-white">
-            Tournament Snapshot
-          </h2>
-          <div className="h-px flex-1 bg-white/10" />
-        </div>
-
-        {hasData && liveStats ? (
-          <>
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-              {liveStats.map((stat) => (
-                <div key={stat.label} className="flex gap-4 rounded-xl border border-white/10 bg-navyCard p-5">
-                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-accent/10 text-2xl">
-                    {stat.icon}
-                  </div>
-                  <div className="min-w-0">
-                    <p className="font-heading text-[10px] font-bold uppercase tracking-widest text-white/50">
-                      {stat.label}
-                    </p>
-                    <p className="mt-1 font-heading text-xl font-extrabold leading-snug text-white">
-                      {stat.value}
-                    </p>
-                  </div>
-                </div>
-              ))}
-            </div>
-            {lastSyncedAt && (
-              <p className="mt-3 font-heading text-[10px] font-bold uppercase tracking-widest text-white/30 text-right">
-                Last synced {fmtSynced(lastSyncedAt)}
-              </p>
-            )}
-          </>
-        ) : (
-          <p className="text-sm text-white/50">Match data will appear here once the tournament begins.</p>
-        )}
+      <section aria-labelledby="tournament-glance" className="mb-7">
+        <div className="mb-3 flex items-center gap-3"><h2 id="tournament-glance" className="font-heading text-base font-extrabold uppercase tracking-widest text-white">Tournament at a glance</h2><div className="h-px flex-1 bg-white/10" /></div>
+        <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">{glance.map((item) => <div key={item.label} className="rounded-xl border border-white/10 bg-navyCard px-4 py-3"><p className="font-heading text-[10px] font-bold uppercase tracking-widest text-white/50">{item.label}</p><p className="mt-1 font-heading text-2xl font-black text-white">{item.value}</p></div>)}</div>
       </section>
 
-      <div className="grid gap-8 lg:grid-cols-2 mb-12">
-        {/* SECTION B — Player Leaders Preview */}
-        <section>
-          <div className="mb-4 flex items-center gap-3">
-            <h2 className="font-heading text-lg font-extrabold uppercase tracking-widest text-white">
-              Player Leaders
-            </h2>
-            <div className="h-px flex-1 bg-white/10" />
-            <Link href="/stats/players" className="shrink-0 font-heading text-[10px] font-bold uppercase tracking-widest text-accent hover:text-white transition">
-              View All →
-            </Link>
-          </div>
-
-          <div className="space-y-4">
-            <div className="rounded-xl border border-white/10 bg-navyCard overflow-hidden">
-              <div className="border-b border-white/10 bg-navy/50 px-4 py-2">
-                <p className="font-heading text-[10px] font-extrabold uppercase tracking-widest text-white/60">
-                  Top Scorer
-                </p>
-              </div>
-              {hasEventData && topScorers.length > 0 ? (() => {
-                const leaders = getTiedLeaders(topScorers, (p) => p.goals);
-                return (
-                  <div className="p-4 flex items-center gap-4">
-                    <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-accent/20 text-accent font-heading text-2xl font-black">
-                      {leaders[0].goals}
-                    </div>
-                    <div className="min-w-0">
-                      {leaders.map((p) => {
-                        const teamCode = p.teamKey ? teamCodeForKey(p.teamKey) : null;
-                        return (
-                          <div key={p.playerName} className="flex items-center gap-2">
-                            {teamCode && <Flag code={teamCode} width={20} height={14} className="shrink-0" alt="" />}
-                            <p className="font-bold text-white">{p.playerName}</p>
-                            <p className="text-sm text-white/50">{p.teamKey ? country(p.teamKey) : (p.teamName ?? "")}</p>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </div>
-                );
-              })() : (
-                <div className="p-4 text-xs text-white/40">Data unavailable</div>
-              )}
-            </div>
-
-            <div className="rounded-xl border border-white/10 bg-navyCard overflow-hidden">
-              <div className="border-b border-white/10 bg-navy/50 px-4 py-2">
-                <p className="font-heading text-[10px] font-extrabold uppercase tracking-widest text-white/60">
-                  Most Assists
-                </p>
-              </div>
-              {hasEventData && playerEventLeaderboards.assists.length > 0 ? (() => {
-                const leaders = getTiedLeaders(playerEventLeaderboards.assists, (p) => p.value);
-                return (
-                  <div className="p-4 flex items-center gap-4">
-                    <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-white/10 text-white font-heading text-2xl font-black">
-                      {leaders[0].value}
-                    </div>
-                    <div className="min-w-0">
-                      {leaders.map((p) => {
-                        const teamCode = p.teamKey ? teamCodeForKey(p.teamKey) : null;
-                        return (
-                          <div key={p.playerName} className="flex items-center gap-2">
-                            {teamCode && <Flag code={teamCode} width={20} height={14} className="shrink-0" alt="" />}
-                            <p className="font-bold text-white">{p.playerName}</p>
-                            <p className="text-sm text-white/50">{p.teamKey ? country(p.teamKey) : (p.teamName ?? "")}</p>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </div>
-                );
-              })() : (
-                <div className="p-4 text-xs text-white/40">Data unavailable</div>
-              )}
-            </div>
+      <div className="grid gap-6 lg:grid-cols-2">
+        <section aria-labelledby="player-leaders-heading">
+          <div className="mb-3 flex items-center justify-between gap-3"><h2 id="player-leaders-heading" className="font-heading text-base font-extrabold uppercase tracking-widest text-white">Player leaders</h2><Link href="/stats/players" className="font-heading text-[11px] font-bold uppercase tracking-widest text-accent">View full leaderboard →</Link></div>
+          <div className="grid gap-3 sm:grid-cols-2">
+            {topScorer ? <PlayerLeader label="Golden Boot leader" player={topScorer} value={topScorer.goals} href="/stats/top-scorers" /> : <p className="rounded-xl border border-white/10 p-4 text-sm text-white/50">Scorer data unavailable.</p>}
+            {assistLeader ? <PlayerLeader label="Most assists" player={assistLeader} value={assistLeader.value} href="/stats/players" note="provider-recorded assists" /> : <p className="rounded-xl border border-white/10 p-4 text-sm text-white/50">Assist data unavailable.</p>}
           </div>
         </section>
-
-        {/* SECTION C — Team Leaders Preview */}
-        <section>
-          <div className="mb-4 flex items-center gap-3">
-            <h2 className="font-heading text-lg font-extrabold uppercase tracking-widest text-white">
-              Team Leaders
-            </h2>
-            <div className="h-px flex-1 bg-white/10" />
-            <Link href="/stats/teams" className="shrink-0 font-heading text-[10px] font-bold uppercase tracking-widest text-accent hover:text-white transition">
-              View All →
-            </Link>
-          </div>
-
-          <div className="space-y-4">
-            <div className="rounded-xl border border-white/10 bg-navyCard overflow-hidden">
-              <div className="border-b border-white/10 bg-navy/50 px-4 py-2">
-                <p className="font-heading text-[10px] font-extrabold uppercase tracking-widest text-white/60">
-                  Most Goals Scored
-                </p>
-              </div>
-              {hasTeamData && teamStatLeaderboards.goalsScored.length > 0 ? (() => {
-                const leaders = getTiedLeaders(teamStatLeaderboards.goalsScored, (t) => t.value);
-                const top = leaders[0];
-                return (
-                  <div className="p-4 flex items-center gap-4">
-                    <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-lg bg-accent/20 text-accent font-heading text-2xl font-black">
-                      {top.value}
-                    </div>
-                    <div className="min-w-0">
-                      <p className="font-bold text-white">{joinNames(leaders.map((l) => countryName(l.teamKey, "en")))}</p>
-                      {(top.matchesCovered ?? 0) > 0 && leaders.every((l) => l.matchesCovered === top.matchesCovered && l.completedMatches === top.completedMatches && l.coverageStatus === top.coverageStatus) && (
-                        <p className="text-xs text-white/50">
-                          {top.coverageStatus === "PARTIAL" ? (
-                            <>
-                              <span className="text-yellow-500/80 mr-1">PARTIAL:</span>
-                              {top.matchesCovered} of {top.completedMatches} matches
-                            </>
-                          ) : (
-                            `in ${top.matchesCovered} matches`
-                          )}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                );
-              })() : (
-                <div className="p-4 text-xs text-white/40">Data unavailable</div>
-              )}
-            </div>
-
-            <div className="rounded-xl border border-white/10 bg-navyCard overflow-hidden">
-              <div className="border-b border-white/10 bg-navy/50 px-4 py-2">
-                <p className="font-heading text-[10px] font-extrabold uppercase tracking-widest text-white/60">
-                  Most Clean Sheets
-                </p>
-              </div>
-              {hasTeamData && teamStatLeaderboards.cleanSheets.length > 0 ? (() => {
-                const leaders = getTiedLeaders(teamStatLeaderboards.cleanSheets, (t) => t.value);
-                const top = leaders[0];
-                return (
-                  <div className="p-4 flex items-center gap-4">
-                    <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-lg bg-white/10 text-white font-heading text-2xl font-black">
-                      {top.value}
-                    </div>
-                    <div className="min-w-0">
-                      <p className="font-bold text-white">{joinNames(leaders.map((l) => countryName(l.teamKey, "en")))}</p>
-                      {(top.matchesCovered ?? 0) > 0 && leaders.every((l) => l.matchesCovered === top.matchesCovered && l.completedMatches === top.completedMatches && l.coverageStatus === top.coverageStatus) && (
-                        <p className="text-xs text-white/50">
-                          {top.coverageStatus === "PARTIAL" ? (
-                            <>
-                              <span className="text-yellow-500/80 mr-1">PARTIAL:</span>
-                              {top.matchesCovered} of {top.completedMatches} matches
-                            </>
-                          ) : (
-                            `in ${top.matchesCovered} matches`
-                          )}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                );
-              })() : (
-                <div className="p-4 text-xs text-white/40">Data unavailable</div>
-              )}
-            </div>
+        <section aria-labelledby="team-leaders-heading">
+          <div className="mb-3 flex items-center justify-between gap-3"><h2 id="team-leaders-heading" className="font-heading text-base font-extrabold uppercase tracking-widest text-white">Team leaders</h2><Link href="/stats/teams" className="font-heading text-[11px] font-bold uppercase tracking-widest text-accent">View full leaderboard →</Link></div>
+          <div className="space-y-3">
+            <div className="rounded-xl border border-white/10 bg-navyCard p-4"><p className="font-heading text-[10px] font-bold uppercase tracking-widest text-white/50">Joint leaders · {goalLeaders[0]?.value ?? 0} goals</p><div className="mt-3 flex flex-wrap gap-2">{goalLeaders.map((leader) => <TeamChip key={leader.teamKey} leader={leader} />)}</div></div>
+            <div className="rounded-xl border border-white/10 bg-navyCard p-4"><p className="font-heading text-[10px] font-bold uppercase tracking-widest text-white/50">Joint leaders · {cleanSheetLeaders[0]?.value ?? 0} clean sheets</p><div className="mt-3 flex flex-wrap gap-2">{cleanSheetLeaders.map((leader) => <TeamChip key={leader.teamKey} leader={leader} />)}</div></div>
           </div>
         </section>
       </div>
 
-      {/* SECTION D — Match Records Preview */}
-      <section className="mb-12">
-        <div className="mb-4 flex items-center gap-3">
-          <h2 className="font-heading text-lg font-extrabold uppercase tracking-widest text-white">
-            Match Records
-          </h2>
-          <div className="h-px flex-1 bg-white/10" />
-          <Link href="/stats/matches" className="shrink-0 font-heading text-[10px] font-bold uppercase tracking-widest text-accent hover:text-white transition">
-            All Records →
-          </Link>
-        </div>
-
-        {hasData ? (
-          <div className="grid gap-4 sm:grid-cols-2">
-            <div className="flex gap-4 rounded-xl border border-white/10 bg-navyCard p-5">
-              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-accent/10 text-2xl">
-                🔥
-              </div>
-              <div className="min-w-0">
-                <p className="font-heading text-[10px] font-bold uppercase tracking-widest text-white/50">
-                  Highest Scoring Match
-                </p>
-                <p className="mt-1 font-heading text-xl font-extrabold leading-snug text-white truncate">
-                  {highestScoringMatch ? fmtResult(highestScoringMatch) : "—"}
-                </p>
-              </div>
-            </div>
-            <div className="flex gap-4 rounded-xl border border-white/10 bg-navyCard p-5">
-              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-accent/10 text-2xl">
-                📊
-              </div>
-              <div className="min-w-0">
-                <p className="font-heading text-[10px] font-bold uppercase tracking-widest text-white/50">
-                  Biggest Win
-                </p>
-                <p className="mt-1 font-heading text-xl font-extrabold leading-snug text-white truncate">
-                  {biggestWin ? fmtResult(biggestWin) : "—"}
-                </p>
-              </div>
-            </div>
-          </div>
-        ) : (
-          <p className="rounded-xl border border-white/10 bg-navyCard p-5 text-sm text-white/50">
-            Match records update after completed matches are synced.
-          </p>
-        )}
-      </section>
-
-      <section>
-        <div className="rounded-xl border border-white/10 bg-navyCard p-6 text-center">
-          <p className="font-heading text-sm font-bold uppercase tracking-widest text-white/50 mb-2">
-            Detailed Standings
-          </p>
-          <Link href="/groups" className="inline-block rounded-full bg-accent px-6 py-2.5 font-heading text-xs font-bold uppercase tracking-widest text-navy transition hover:bg-white">
-            View All Groups
-          </Link>
-        </div>
-      </section>
-
-      {/* SECTION E — Methodology & Coverage */}
-      <section className="mt-12 rounded-xl border border-white/10 bg-navyCard/50 p-6 text-sm text-white/60">
-        <h3 className="font-heading text-xs font-bold uppercase tracking-widest text-white mb-3">Data Coverage</h3>
-        <div className="grid gap-4 sm:grid-cols-2">
-          <div>
-            <ul className="space-y-1">
-              <li>• <strong className="text-white">Completed Matches:</strong> {tournamentStats.matchesPlayed} / 104</li>
-              <li>• <strong className="text-white">Player Event Coverage:</strong> {tournamentStats.playerEventCoverage} matches</li>
-              <li>• <strong className="text-white">Team Stat Coverage:</strong> {tournamentStats.teamStatCoverage} matches</li>
-            </ul>
-          </div>
-
-        </div>
+      <section aria-labelledby="match-records-heading" className="mt-7">
+        <div className="mb-3 flex items-center justify-between gap-3"><h2 id="match-records-heading" className="font-heading text-base font-extrabold uppercase tracking-widest text-white">Match records</h2><Link href="/stats/matches" className="font-heading text-[11px] font-bold uppercase tracking-widest text-accent">View all records →</Link></div>
+        <div className="grid gap-3 sm:grid-cols-2"><Link href={highestScoringMatch ? recordHref(highestScoringMatch) : "/stats/matches"} className="rounded-xl border border-white/10 bg-navyCard p-4 transition hover:border-accent/70"><p className="font-heading text-[10px] font-bold uppercase tracking-widest text-white/50">Highest-scoring match</p><p className="mt-2 font-semibold text-white">{result(highestScoringMatch)}</p></Link><Link href={biggestWin ? recordHref(biggestWin) : "/stats/matches"} className="rounded-xl border border-white/10 bg-navyCard p-4 transition hover:border-accent/70"><p className="font-heading text-[10px] font-bold uppercase tracking-widest text-white/50">Biggest win</p><p className="mt-2 font-semibold text-white">{result(biggestWin)}</p></Link></div>
       </section>
     </div>
   );

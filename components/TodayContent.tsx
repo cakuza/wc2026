@@ -121,6 +121,13 @@ export function TodayContent({
 
       <LiveDataUnavailableNotice show={isFallbackSnapshot} />
 
+      {!showArchiveComplete && !resolved.isExplicitDate && (tournamentPhase === "third_place" || tournamentPhase === "final") && (
+        <div className="mb-5 rounded-xl border border-white/10 bg-navyCard px-4 py-3 text-sm text-white/70">
+          <span className="font-semibold text-white">No World Cup match is being played today.</span>{" "}
+          Final Weekend fixtures and kickoff times are shown next in your selected timezone.
+        </div>
+      )}
+
       {previousMatchday && !showArchiveComplete && (
         <Link
           href={`/today?date=${previousMatchday}&tz=${encodeURIComponent(selectedTimeZone)}`}
@@ -136,7 +143,12 @@ export function TodayContent({
       )}
 
       <div className="mt-8">
-        <MatchCenterContent liveSnapshot={snapshot} mode="current" tournamentPhase={tournamentPhase} />
+        <MatchCenterContent
+          liveSnapshot={snapshot}
+          mode="current"
+          tournamentPhase={tournamentPhase}
+          isTournamentComplete={archiveState.isComplete}
+        />
       </div>
 
       {/* Quick links */}

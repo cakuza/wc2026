@@ -24,3 +24,5 @@ scripts/run-all-tests.ps1
 
 data/archive/raw/espn/
 /out/
+/qa-artifacts/
+P0_QA_*_CHECKPOINT.patch

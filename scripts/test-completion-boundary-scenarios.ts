@@ -205,8 +205,9 @@ console.log("\n=== Source-wiring: completion gate uses the shared archiveState p
     "CountdownClient no longer gates completion on the unaudited `!target` fallback",
   );
   check(
-    grepFile("components/Hero.tsx", /CountdownClient[^>]*isComplete=\{archiveState\.isComplete\}/),
-    "Hero.tsx wires CountdownClient's isComplete prop to the shared archiveState.isComplete",
+    grepFile("components/Hero.tsx", "isTournamentComplete={archiveState.isComplete}") &&
+      grepFile("components/MatchCenterContent.tsx", "isComplete={isTournamentComplete}"),
+    "homepage passes archiveState.isComplete through MatchCenterContent to CountdownClient",
   );
   check(
     grepFile("components/TeamDetail.tsx", "isTournamentComplete") &&

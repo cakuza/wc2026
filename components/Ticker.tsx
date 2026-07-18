@@ -99,9 +99,6 @@ export function Ticker({
   return (
     <div className="overflow-hidden border-b border-white/10 bg-accent">
       <div className="flex items-stretch">
-        <span className="z-10 flex shrink-0 items-center bg-black/25 px-4 font-heading text-sm font-extrabold uppercase tracking-wider text-white">
-          {t("ticker_label")}
-        </span>
         <div className="relative flex-1 overflow-hidden">
           <div ref={trackRef} className="flex w-max items-center py-2">
             <div className="flex items-center">

@@ -28,7 +28,12 @@
     "test:p0-knockout-integrity": "tsx scripts/test-p0-knockout-data-integrity.ts",
     "test:runtime:cold-cache": "tsx scripts/test-cold-cache-runtime.ts",
     "check:readiness": "tsx scripts/check-secondary-provider-readiness.ts",
-    "validate:archive": "npx tsx scripts/archive/validate-archive.ts"
+    "validate:archive": "npx tsx scripts/archive/validate-archive.ts",
+    "browser:install": "playwright install chromium",
+    "test:browser-qa": "node scripts/run-browser-qa.mjs",
+    "verify": "powershell -ExecutionPolicy Bypass -File scripts/verify.ps1",
+    "serve:export": "node scripts/serve-static-export.mjs",
+    "build:p0": "node scripts/run-p0-build.mjs"
   },
   "dependencies": {
     "@vercel/analytics": "^2.0.1",
@@ -46,6 +51,7 @@
     "eslint": "^8.57.1",
     "eslint-config-next": "^15.5.18",
     "jsdom": "^29.1.1",
+    "playwright": "^1.61.1",
     "postcss": "8.5.15",
     "tailwindcss": "3.4.6",
     "tsx": "^4.22.4",
