@@ -20,7 +20,7 @@ const FAQS = [
 
   {
     q: "Where does WorldCupMatchDay get its match data?",
-    a: "Scores normally flow from a primary third-party football data provider via an API. When provider coverage is incomplete or conflicts with verified evidence, we perform documented reconciliation against canonical tournament records and publish a provenance-backed correction.",
+    a: "During the bounded live window, match data is refreshed approximately every 30 seconds. Refreshing begins 15 minutes before kickoff and stops 3 hours after kickoff. When provider coverage is incomplete or conflicts with verified evidence, we perform documented reconciliation against canonical tournament records and publish a provenance-backed correction. Squad lists are static (sourced from officially announced squads at the start of the tournament) and do not update during the competition.",
   },
   {
     q: "How quickly do scores update during a live match?",

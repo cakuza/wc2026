@@ -44,6 +44,7 @@ const ROUTES = [
   "/privacy",
   "/contact",
   "/world-cup-2026-data-sources",
+  "/faq",
   "/stats/compare",
 ];
 
@@ -206,6 +207,12 @@ function runParityTests() {
 
       if (route === "/contact") {
         testAssert(!html.includes("within a few minutes"), "Contact page does not promise minute-level corrections");
+      }
+
+      if (route === "/world-cup-2026-data-sources" || route === "/faq") {
+        testAssert(html.includes("match data is refreshed approximately every 30 seconds"), `${route} contains truthful 30 second polling wording`);
+        testAssert(html.includes("Refreshing begins 15 minutes before kickoff and stops 3 hours after kickoff"), `${route} contains truthful bounded polling window`);
+        testAssert(!html.includes("10–90 seconds") && !html.includes("10-90 seconds"), `${route} does not contain outdated 10-90 seconds intervals`);
       }
 
       if (route === "/stats/compare") {
