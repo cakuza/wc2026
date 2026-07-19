@@ -582,7 +582,7 @@ const VERIFIED_GOAL_CORRECTIONS: Record<string, VerifiedGoalCorrection> = {
         playerName: "Kylian Mbappé",
         isOwnGoal: false,
         isPenalty: true,
-        provider: "worldcup26.ir",
+        provider: "espn",
         confidence: "high",
       }
     ],

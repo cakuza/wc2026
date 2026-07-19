@@ -130,6 +130,22 @@ async function run() {
     assert.ok(stats.totalGoals > 10, "Total goals should be populated");
   });
 
+  check("Match 89 Kylian Mbappé penalty goal has correct provider provenance", () => {
+    const fs = require("node:fs");
+    const path = require("node:path");
+    const events = JSON.parse(fs.readFileSync(path.join(process.cwd(), "data/archive/match-events.json"), "utf8"));
+    const match89Goal = events.find((e: any) => e.matchId === "match-89" && e.playerName === "Kylian Mbappé" && e.eventType === "penalty_goal");
+    assert.ok(match89Goal, "Match 89 Mbappe penalty goal must exist in static events list");
+    assert.strictEqual(match89Goal.sourceId, "repo_verified", "Match 89 Mbappe goal source must be repo_verified");
+  });
+
+  check("Match 89 verified goal correction entry has provider 'espn'", () => {
+    const { applyVerifiedGoalCorrections } = require("../lib/verifiedMatchEventCorrections");
+    const corrected = applyVerifiedGoalCorrections("match-89", []);
+    assert.strictEqual(corrected.length, 1, "Should have 1 corrected event");
+    assert.strictEqual(corrected[0].provider, "espn", "Provider must be espn");
+  });
+
   check("Golden Boot standings remain provisional with correct goals and margin", () => {
     const mbappe = snapshot.topScorers.find(s => s.playerName === "Kylian Mbappé");
     const messi = snapshot.topScorers.find(s => s.playerName === "Lionel Messi");

@@ -13,6 +13,7 @@ const ROUTES = [
   "/stats/top-scorers",
   "/matches/match-101", "/matches/match-103", "/matches/match-104", "/world-cup-2026/results",
   "/world-cup-third-place-qualification", "/world-cup-2026-data-sources", "/terms",
+  "/teams/england", "/teams/france",
 ];
 
 let failures = 0;
@@ -82,6 +83,18 @@ async function main() {
           assert(/Kylian Mbappé/i.test(text) && /10/.test(text), `[${label}] Top Scorers shows Mbappé with 10 goals`);
           assert(/Lionel Messi/i.test(text) && /8/.test(text), `[${label}] Top Scorers shows Messi with 8 goals`);
           assert(/provisional|tiebreak/i.test(text), `[${label}] Top Scorers page mentions provisional / tiebreak standings`);
+        }
+        if (route === "/teams/england") {
+          assert(/Third place/i.test(text), `[${label}] England page shows Third place status`);
+          assert(/None\s*\(campaign completed\)/i.test(text), `[${label}] England page shows campaign completed next match`);
+          assert(/France/i.test(text) && /England/i.test(text) && (/4\s*–\s*6/i.test(text) || /4\s*-\s*6/i.test(text)), `[${label}] England page shows France 4-6 England result`);
+          assert(!/vs\s+France/i.test(text) && !/vs\s+England/i.test(text), `[${label}] England page has no future fixture shown for France vs England`);
+        }
+        if (route === "/teams/france") {
+          assert(/Fourth place/i.test(text), `[${label}] France page shows Fourth place status`);
+          assert(/None\s*\(campaign completed\)/i.test(text), `[${label}] France page shows campaign completed next match`);
+          assert(/France/i.test(text) && /England/i.test(text) && (/4\s*–\s*6/i.test(text) || /4\s*-\s*6/i.test(text)), `[${label}] France page shows France 4-6 England result`);
+          assert(!/vs\s+France/i.test(text) && !/vs\s+England/i.test(text), `[${label}] France page has no future fixture shown for France vs England`);
         }
         if (route === "/world-cup-2026") assert(/World Cup 2026/i.test(text), `[${label}] archive hub remains reachable`);
         if (route === "/world-cup-2026/results") assert(/Results/i.test(text), `[${label}] archive results remain reachable`);
