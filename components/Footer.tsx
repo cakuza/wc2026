@@ -47,7 +47,7 @@ export function Footer() {
             {NAV_LINKS.map((l) => (
               <Link
                 key={l.href}
-                href={l.href === "/today" ? todayHref : l.href}
+                href={l.href}
                 className="font-heading text-xs font-bold uppercase tracking-wide text-white/55 transition hover:text-white"
               >
                 {l.label}
@@ -82,6 +82,8 @@ export function Footer() {
             {[
               { href: "/about",   label: t("footer_about")   },
               { href: "/contact", label: t("footer_contact") },
+              { href: "/editorial-policy", label: "Editorial Policy" },
+              { href: "/corrections-policy", label: "Corrections Policy" },
               { href: "/privacy", label: t("footer_privacy") },
               { href: "/terms",   label: t("footer_terms")   },
             ].map((l) => (

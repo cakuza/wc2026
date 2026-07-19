@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import { LiveSnapshotDebug } from "@/components/LiveSnapshotDebug";
 import type { GoalScorerEvent } from "@/lib/worldcup26Provider";
 import type { MatchCenterLiveSnapshot } from "@/components/MatchCenterContent";
@@ -11,13 +12,9 @@ import { getArchiveState } from "@/lib/archiveLifecycle";
 
 const BASE_URL = "https://www.worldcupmatchday.com";
 
-// Static-first containment mode: removed force-dynamic and cookies() to allow
-// ISR. The page is revalidated hourly at most. Final scores appear on the next
-// ISR revalidation; live polling has been removed to eliminate idle CPU cost.
 export const revalidate = 3600;
 
 export async function generateMetadata(): Promise<Metadata> {
-  const hasDateParam = false;
   const snapshot = await getTournamentLiveSnapshot();
   const resolvedParticipants = buildKnockoutResolution(snapshot.matches);
   const archive = getArchiveState({ matches: MATCHES, liveData: snapshot.liveDataByProviderId, resolvedParticipants, now: new Date(ARCHIVE_DEFAULT_DATE) });
@@ -32,10 +29,7 @@ export async function generateMetadata(): Promise<Metadata> {
   return {
     title,
     description,
-    // A single canonical /today regardless of ?date=/?tz= avoids duplicate
-    // indexable URLs; dated views are explicitly de-indexed.
     alternates: { canonical: `${BASE_URL}/today` },
-    robots: hasDateParam ? { index: false, follow: true } : undefined,
     openGraph: { title, description, url: `${BASE_URL}/today`, type: "website" },
   };
 }
@@ -102,13 +96,15 @@ export default async function TodayPage() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(faqLd) }}
       />
 
-      <TodayClientWrapper
-        snapshot={matchCenterSnapshot}
-        isFallbackSnapshot={isFallbackSnapshot}
-        liveDataUnavailableByMatchId={liveDataUnavailableByMatchId}
-        tournamentPhase={tournamentPhase}
-        archiveState={archiveState}
-      />
+      <Suspense fallback={<div className="min-h-screen bg-navy text-white flex items-center justify-center font-heading font-bold uppercase tracking-widest text-white/50">Loading Match Center...</div>}>
+        <TodayClientWrapper
+          snapshot={matchCenterSnapshot}
+          isFallbackSnapshot={isFallbackSnapshot}
+          liveDataUnavailableByMatchId={liveDataUnavailableByMatchId}
+          tournamentPhase={tournamentPhase}
+          archiveState={archiveState}
+        />
+      </Suspense>
 
       {/* FAQ */}
       <div className="mx-auto max-w-4xl px-4 pb-8">

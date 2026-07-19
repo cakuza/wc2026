@@ -177,7 +177,7 @@ function MobileDrawer({
         </div>
         <nav aria-label="Secondary" className="flex flex-col gap-1 px-3 py-3">
           {getSecondaryLinks(isTournamentComplete).map((l) => {
-            const actualHref = l.href === "/today" ? todayHref : l.href;
+            const actualHref = l.href;
             const active = isActive(pathname, l.href);
             return (
               <Link
@@ -226,7 +226,7 @@ export function Nav({ isTournamentComplete }: { isTournamentComplete: boolean })
           {/* Desktop nav */}
           <nav aria-label="Primary" className="hidden items-center gap-1 lg:flex">
             {getDesktopLinks(isTournamentComplete).map((l) => {
-              const actualHref = l.href === "/today" ? todayHref : l.href;
+              const actualHref = l.href;
               const active = isActive(pathname, l.href);
               return (
                 <Link
@@ -266,7 +266,7 @@ export function Nav({ isTournamentComplete }: { isTournamentComplete: boolean })
       <nav aria-label="Primary" className="border-t border-white/10 bg-navy lg:hidden">
         <div className="mx-auto grid max-w-7xl grid-cols-4">
           {getPrimaryLinks(isTournamentComplete).map((l) => {
-            const actualHref = l.href === "/today" ? todayHref : l.href;
+            const actualHref = l.href;
             const active = isActive(pathname, l.href);
             return (
               <Link

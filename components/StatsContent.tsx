@@ -53,13 +53,22 @@ function PlayerLeader({ label, player, value, href, note }: { label: string; pla
   );
 }
 
+function joinNames(names: string[]): string {
+  if (names.length <= 1) return names[0] ?? "";
+  if (names.length === 2) return `${names[0]} & ${names[1]}`;
+  return `${names.slice(0, -1).join(", ")} & ${names[names.length - 1]}`;
+}
+
 export default function StatsContent({ tournamentStats, teamLeaderboards: _teamLeaderboards, topScorers, playerEventLeaderboards, teamStatLeaderboards, hasEventData }: Props) {
   const { matchesPlayed, totalGoals, averageGoalsPerMatch, highestScoringMatch, biggestWin, cleanSheets, lastSyncedAt } = tournamentStats;
   const topScorer = hasEventData ? topScorers[0] : null;
   const assistLeader = hasEventData ? playerEventLeaderboards.assists[0] : null;
   const goalLeaders = teamStatLeaderboards.goalsScored.filter((leader) => leader.value === teamStatLeaderboards.goalsScored[0]?.value);
   const cleanSheetLeaders = teamStatLeaderboards.cleanSheets.filter((leader) => leader.value === teamStatLeaderboards.cleanSheets[0]?.value);
-  const recordHref = (record: { homeKey: string; awayKey: string }) => {
+  const recordHref = (record: { homeKey: string; awayKey: string; matchId?: string }) => {
+    if (record.matchId) {
+      return `/matches/${record.matchId}`;
+    }
     const match = MATCHES.find((candidate) => candidate.homeKey === record.homeKey && candidate.awayKey === record.awayKey);
     return match ? `/matches/${matchSlug(match)}` : "/stats/matches";
   };
@@ -70,6 +79,16 @@ export default function StatsContent({ tournamentStats, teamLeaderboards: _teamL
     { label: "Goals per match", value: averageGoalsPerMatch.toFixed(1) },
     { label: "Clean sheets", value: String(cleanSheets) },
   ];
+
+  const showGoalsCaption = goalLeaders.length > 0 && (
+    (goalLeaders[0].matchesCovered ?? 0) > 0 &&
+    goalLeaders.every((l) => l.matchesCovered === goalLeaders[0].matchesCovered && l.completedMatches === goalLeaders[0].completedMatches && l.coverageStatus === goalLeaders[0].coverageStatus)
+  );
+
+  const showCleanSheetsCaption = cleanSheetLeaders.length > 0 && (
+    (cleanSheetLeaders[0].matchesCovered ?? 0) > 0 &&
+    cleanSheetLeaders.every((l) => l.matchesCovered === cleanSheetLeaders[0].matchesCovered && l.completedMatches === cleanSheetLeaders[0].completedMatches && l.coverageStatus === cleanSheetLeaders[0].coverageStatus)
+  );
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-7 sm:py-9">
@@ -97,8 +116,52 @@ export default function StatsContent({ tournamentStats, teamLeaderboards: _teamL
         <section aria-labelledby="team-leaders-heading">
           <div className="mb-3 flex items-center justify-between gap-3"><h2 id="team-leaders-heading" className="font-heading text-base font-extrabold uppercase tracking-widest text-white">Team leaders</h2><Link href="/stats/teams" className="font-heading text-[11px] font-bold uppercase tracking-widest text-accent">View full leaderboard →</Link></div>
           <div className="space-y-3">
-            <div className="rounded-xl border border-white/10 bg-navyCard p-4"><p className="font-heading text-[10px] font-bold uppercase tracking-widest text-white/50">Joint leaders · {goalLeaders[0]?.value ?? 0} goals</p><div className="mt-3 flex flex-wrap gap-2">{goalLeaders.map((leader) => <TeamChip key={leader.teamKey} leader={leader} />)}</div></div>
-            <div className="rounded-xl border border-white/10 bg-navyCard p-4"><p className="font-heading text-[10px] font-bold uppercase tracking-widest text-white/50">Joint leaders · {cleanSheetLeaders[0]?.value ?? 0} clean sheets</p><div className="mt-3 flex flex-wrap gap-2">{cleanSheetLeaders.map((leader) => <TeamChip key={leader.teamKey} leader={leader} />)}</div></div>
+            <div className="rounded-xl border border-white/10 bg-navyCard p-4">
+              <p className="font-heading text-[10px] font-bold uppercase tracking-widest text-white/50">
+                {goalLeaders.length > 1 ? "Joint leaders" : "Leader"} · {goalLeaders[0]?.value ?? 0} goals
+              </p>
+              <div className="mt-2 text-lg font-bold text-white">
+                {joinNames(goalLeaders.map(l => countryName(l.teamKey, "en")))}
+              </div>
+              <div className="mt-3 flex flex-wrap gap-2">
+                {goalLeaders.map((leader) => <TeamChip key={leader.teamKey} leader={leader} />)}
+              </div>
+              {showGoalsCaption && (
+                <p className="mt-2 text-xs text-white/50">
+                  {goalLeaders[0].coverageStatus === "PARTIAL" ? (
+                    <>
+                      <span className="text-yellow-500/80 mr-1">PARTIAL:</span>
+                      {goalLeaders[0].matchesCovered} of {goalLeaders[0].completedMatches} matches
+                    </>
+                  ) : (
+                    `in ${goalLeaders[0].matchesCovered} matches`
+                  )}
+                </p>
+              )}
+            </div>
+            <div className="rounded-xl border border-white/10 bg-navyCard p-4">
+              <p className="font-heading text-[10px] font-bold uppercase tracking-widest text-white/50">
+                {cleanSheetLeaders.length > 1 ? "Joint leaders" : "Leader"} · {cleanSheetLeaders[0]?.value ?? 0} clean sheets
+              </p>
+              <div className="mt-2 text-lg font-bold text-white">
+                {joinNames(cleanSheetLeaders.map(l => countryName(l.teamKey, "en")))}
+              </div>
+              <div className="mt-3 flex flex-wrap gap-2">
+                {cleanSheetLeaders.map((leader) => <TeamChip key={leader.teamKey} leader={leader} />)}
+              </div>
+              {showCleanSheetsCaption && (
+                <p className="mt-2 text-xs text-white/50">
+                  {cleanSheetLeaders[0].coverageStatus === "PARTIAL" ? (
+                    <>
+                      <span className="text-yellow-500/80 mr-1">PARTIAL:</span>
+                      {cleanSheetLeaders[0].matchesCovered} of {cleanSheetLeaders[0].completedMatches} matches
+                    </>
+                  ) : (
+                    `in ${cleanSheetLeaders[0].matchesCovered} matches`
+                  )}
+                </p>
+              )}
+            </div>
           </div>
         </section>
       </div>

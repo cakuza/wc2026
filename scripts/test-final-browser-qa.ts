@@ -9,11 +9,32 @@ const VIEWPORTS = [
   { width: 360, height: 800 },
 ];
 const ROUTES = [
-  "/", "/today", "/schedule", "/bracket", "/teams/argentina", "/groups/group-a", "/stats",
+  "/",
+  "/today",
+  "/schedule",
+  "/bracket",
+  "/teams/argentina",
+  "/groups/group-a",
+  "/stats",
   "/stats/top-scorers",
-  "/matches/match-101", "/matches/match-103", "/matches/match-104", "/world-cup-2026/results",
-  "/world-cup-third-place-qualification", "/world-cup-2026-data-sources", "/terms",
-  "/teams/england", "/teams/france",
+  "/matches/match-101",
+  "/matches/match-103",
+  "/matches/match-104",
+  "/world-cup-2026/results",
+  "/world-cup-third-place-qualification",
+  "/world-cup-2026-data-sources",
+  "/terms",
+  "/teams/england",
+  "/teams/france",
+  "/teams",
+  "/teams/spain",
+  "/stats/matches",
+  "/stats/teams",
+  "/about",
+  "/privacy",
+  "/contact",
+  "/editorial-policy",
+  "/corrections-policy"
 ];
 
 let failures = 0;
@@ -23,6 +44,7 @@ function assert(condition: unknown, message: string) {
 }
 
 async function main() {
+  console.log(`Executing browser QA across ${ROUTES.length} routes, ${VIEWPORTS.length} viewports (${ROUTES.length * VIEWPORTS.length} total combinations)`);
   const browser = await chromium.launch({ headless: true });
   try {
     for (const viewport of VIEWPORTS) {
@@ -45,6 +67,7 @@ async function main() {
         assert(warnings.length === 0, `[${label}] ${route} has no hydration warnings`);
         assert(metrics.scrollWidth <= metrics.innerWidth && metrics.bodyWidth <= metrics.innerWidth, `[${label}] ${route} has no horizontal overflow`);
         if (["/", "/schedule", "/matches/match-101"].includes(route)) assert(metrics.h1 === 1, `[${label}] ${route} has exactly one H1`);
+
         if (route === "/") {
           const decidingSection = page.locator('section[aria-labelledby="deciding-matches-heading"]');
           const final = decidingSection.locator('a[href="/matches/match-104"]');
@@ -60,44 +83,103 @@ async function main() {
           await final.scrollIntoViewIfNeeded();
           assert(await final.isVisible() && await final.boundingBox() !== null, `[${label}] Final card is visible and reachable`);
         }
+
         if (route === "/today") assert(/Times shown in/.test(text) && /Final Weekend/.test(text) && !/Destinations/i.test(text), `[${label}] Today resolves timezone-aware Final Weekend copy after hydration`);
+
         if (route === "/world-cup-third-place-qualification") {
           assert(/Final third-place ranking/i.test(text) && /Qualified for Round of 32/i.test(text) && /Did not qualify/i.test(text), `[${label}] third-place ranking is final historical truth`);
           assert(!/current snapshot|current Round of 32 cut line|until all group matches are complete/i.test(text), `[${label}] third-place ranking suppresses provisional copy`);
         }
+
         if (route === "/world-cup-2026-data-sources") {
           assert(/15 minutes before kickoff/i.test(text) && /3 hours after kickoff/i.test(text) && /every 30 seconds/i.test(text), `[${label}] methodology states the bounded live refresh policy`);
           assert(!/10 seconds|12 seconds|90 seconds/i.test(text), `[${label}] methodology has no contradictory polling intervals`);
         }
+
         if (["/matches/match-103", "/matches/match-104"].includes(route)) assert(!/Bracket Destination/i.test(text), `[${label}] ${route} has no false onward destination`);
+
         if (route === "/terms") {
           assert(await page.locator("header nav a").count() > 0 && await page.locator('footer a[href="/terms"]').count() > 0, `[${label}] Terms uses the shared header and footer navigation`);
         }
+
         if (route === "/stats") {
           assert(/103\s*\/\s*104/.test(text) && /Olise/.test(text), `[${label}] Statistics shows the current snapshot and leaders`);
           assert(/Kylian Mbappé/i.test(text) && /10/.test(text), `[${label}] Statistics shows Kylian Mbappé as leader with 10 goals`);
-          assert(/Germany/.test(text) && /Netherlands/.test(text) && /France/.test(text) && /Mexico/.test(text) && /Spain/.test(text), `[${label}] Statistics renders tied teams distinctly`);
+          assert(/England/.test(text) && /France/.test(text) && /Spain/.test(text), `[${label}] Statistics renders tied teams distinctly`);
           assert(/Last updated\s+\d{1,2}\s+\w+\s+2026/i.test(text), `[${label}] Statistics has a full dated timestamp`);
         }
+
         if (route === "/stats/top-scorers") {
           assert(/Kylian Mbappé/i.test(text) && /10/.test(text), `[${label}] Top Scorers shows Mbappé with 10 goals`);
           assert(/Lionel Messi/i.test(text) && /8/.test(text), `[${label}] Top Scorers shows Messi with 8 goals`);
           assert(/provisional|tiebreak/i.test(text), `[${label}] Top Scorers page mentions provisional / tiebreak standings`);
         }
+
         if (route === "/teams/england") {
           assert(/Third place/i.test(text), `[${label}] England page shows Third place status`);
           assert(/None\s*\(campaign completed\)/i.test(text), `[${label}] England page shows campaign completed next match`);
           assert(/France/i.test(text) && /England/i.test(text) && (/4\s*–\s*6/i.test(text) || /4\s*-\s*6/i.test(text)), `[${label}] England page shows France 4-6 England result`);
           assert(!/vs\s+France/i.test(text) && !/vs\s+England/i.test(text), `[${label}] England page has no future fixture shown for France vs England`);
         }
+
         if (route === "/teams/france") {
           assert(/Fourth place/i.test(text), `[${label}] France page shows Fourth place status`);
           assert(/None\s*\(campaign completed\)/i.test(text), `[${label}] France page shows campaign completed next match`);
           assert(/France/i.test(text) && /England/i.test(text) && (/4\s*–\s*6/i.test(text) || /4\s*-\s*6/i.test(text)), `[${label}] France page shows France 4-6 England result`);
           assert(!/vs\s+France/i.test(text) && !/vs\s+England/i.test(text), `[${label}] France page has no future fixture shown for France vs England`);
         }
+
+        if (route === "/teams") {
+          assert(/All 48 national teams that competed at the 2026 World Cup, with their current or final tournament status/i.test(text), `[${label}] /teams default copy describes all 48 teams`);
+          assert(!/Teams that still have a match remaining in the tournament/i.test(text), `[${label}] /teams default copy does not claim all teams are active`);
+          const spainItem = page.locator('a[href="/teams/spain"]');
+          const argItem = page.locator('a[href="/teams/argentina"]');
+          const engItem = page.locator('a[href="/teams/england"]');
+          const fraItem = page.locator('a[href="/teams/france"]');
+          assert(/Finalist/i.test(await spainItem.innerText()) && /Finalist/i.test(await argItem.innerText()), `[${label}] Spain and Argentina are active finalists`);
+          assert(/Third place/i.test(await engItem.innerText()), `[${label}] England is third place`);
+          assert(/Fourth place/i.test(await fraItem.innerText()), `[${label}] France is fourth place`);
+        }
+
+        if (route === "/teams/spain") {
+          assert(/Finalist/i.test(text), `[${label}] Spain has Finalist status`);
+          assert(await page.locator('a[href="/matches/match-104"]').count() > 0 || /Final/i.test(text), `[${label}] Spain shows Match 104 as next match`);
+          assert(!/campaign completed/i.test(text), `[${label}] Spain campaign is not marked completed`);
+        }
+
+        if (route === "/teams/argentina") {
+          assert(/Finalist/i.test(text), `[${label}] Argentina has Finalist status`);
+          assert(await page.locator('a[href="/matches/match-104"]').count() > 0 || /Final/i.test(text), `[${label}] Argentina shows Match 104 as next match`);
+          assert(!/campaign completed/i.test(text), `[${label}] Argentina campaign is not marked completed`);
+        }
+
+        if (route === "/stats/matches") {
+          assert(/France/i.test(text) && /England/i.test(text) && (/4\s*–\s*6/i.test(text) || /4\s*-\s*6/i.test(text)), `[${label}] /stats/matches shows France 4-6 England`);
+          assert(/10\s+goals/i.test(text) || /10/i.test(text), `[${label}] /stats/matches shows 10 total goals`);
+          assert(!/tbd/i.test(text), `[${label}] /stats/matches has no tbd`);
+          assert(await page.locator('a[href="/matches/match-103"]').count() > 0, `[${label}] /stats/matches links to Match 103`);
+        }
+
+        if (route === "/stats/teams") {
+          assert(/France/i.test(text) && /England/i.test(text) && /Spain/i.test(text) && /Argentina/i.test(text), `[${label}] /stats/teams shows France, England, Spain, Argentina`);
+          assert(/20/i.test(text), `[${label}] /stats/teams shows 20 goals for France/England`);
+          assert(/13/i.test(text), `[${label}] /stats/teams shows 13 goals for Spain`);
+          assert(/19/i.test(text), `[${label}] /stats/teams shows 19 goals for Argentina`);
+          assert(!/group-stage-only/i.test(text), `[${label}] /stats/teams has no group-stage-only totals`);
+        }
+
+        if (["/editorial-policy", "/corrections-policy", "/about", "/privacy", "/contact"].includes(route)) {
+          assert(metrics.h1 >= 1, `[${label}] ${route} has meaningful H1`);
+          assert(await page.locator("header nav").count() > 0 && await page.locator("footer").count() > 0, `[${label}] ${route} has header/footer navigation`);
+          assert(!/We use Google AdSense, a third-party advertising service/i.test(text), `[${label}] ${route} has no active-AdSense claim`);
+          assert(!/scores are never manually reconciled/i.test(text), `[${label}] ${route} has no automatic-only score claim`);
+          assert(!/guarantee.*minutes/i.test(text), `[${label}] ${route} has no minute-level correction promise`);
+          assert(!/all ingested data undergoes rigorous developer and editor review/i.test(text), `[${label}] ${route} has no unsupported universal human-review claim`);
+        }
+
         if (route === "/world-cup-2026") assert(/World Cup 2026/i.test(text), `[${label}] archive hub remains reachable`);
         if (route === "/world-cup-2026/results") assert(/Results/i.test(text), `[${label}] archive results remain reachable`);
+
         if (["/", "/today", "/stats", "/stats/top-scorers"].includes(route)) {
           const screenshotDirectory = join(process.cwd(), "qa-artifacts", "browser");
           mkdirSync(screenshotDirectory, { recursive: true });

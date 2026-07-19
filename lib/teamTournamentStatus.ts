@@ -15,6 +15,61 @@ const STAGE_STATUS: Record<string, string> = {
   F: "Finalist",
 };
 
+export function getWinnerSide({
+  homeScore,
+  awayScore,
+  liveWinner,
+  penaltyShootoutScore,
+}: {
+  homeScore: number | null;
+  awayScore: number | null;
+  liveWinner?: "HOME_TEAM" | "AWAY_TEAM" | "DRAW" | null;
+  penaltyShootoutScore?: { home: number | null; away: number | null } | null;
+}): "home" | "away" | null {
+  let side: "home" | "away" | null = null;
+  if (liveWinner === "HOME_TEAM") side = "home";
+  else if (liveWinner === "AWAY_TEAM") side = "away";
+  else {
+    const shootout = penaltyShootoutScore;
+    if (shootout?.home !== null && shootout?.home !== undefined && shootout?.away !== null && shootout?.away !== undefined) {
+      if (shootout.home > shootout.away) side = "home";
+      else if (shootout.away > shootout.home) side = "away";
+    }
+  }
+
+  if (!side && homeScore !== null && awayScore !== null) {
+    if (homeScore > awayScore) side = "home";
+    else if (awayScore > homeScore) side = "away";
+  }
+  return side;
+}
+
+export function getKnockoutWinnerAndLoser(
+  m: SerializableSnapshotMatch,
+  resolvedParticipants?: ResolvedParticipantLookup
+) {
+  const home = m.match.homeKey !== "tbd" ? m.match.homeKey : (getResolvedHomeTeam(m.match, resolvedParticipants) ?? "tbd");
+  const away = m.match.awayKey !== "tbd" ? m.match.awayKey : (getResolvedAwayTeam(m.match, resolvedParticipants) ?? "tbd");
+  if (home === "tbd" || away === "tbd") return null;
+
+  const objWinner = (m as any).winner;
+  let side: "home" | "away" | null = null;
+  if (objWinner === "home") side = "home";
+  else if (objWinner === "away") side = "away";
+  else {
+    side = getWinnerSide({
+      homeScore: m.homeScore,
+      awayScore: m.awayScore,
+      liveWinner: m.live?.winner,
+      penaltyShootoutScore: m.live?.penaltyShootoutScore,
+    });
+  }
+
+  if (side === "home") return { winner: home, loser: away };
+  if (side === "away") return { winner: away, loser: home };
+  return null;
+}
+
 export type TeamClassification =
   | "ACTIVE_KNOCKOUT"
   | "ELIMINATED_KNOCKOUT"
@@ -47,8 +102,8 @@ export function getTeamTournamentStatus({
     .filter((match) =>
       match.homeKey === teamKey ||
       match.awayKey === teamKey ||
-      getResolvedHomeTeam(match, resolvedParticipants) === teamKey ||
-      getResolvedAwayTeam(match, resolvedParticipants) === teamKey,
+      (match.homeKey !== "tbd" ? match.homeKey : getResolvedHomeTeam(match, resolvedParticipants)) === teamKey ||
+      (match.awayKey !== "tbd" ? match.awayKey : getResolvedAwayTeam(match, resolvedParticipants)) === teamKey,
     )
     .sort((a, b) => matchUtcDate(a).getTime() - matchUtcDate(b).getTime());
 
@@ -58,6 +113,7 @@ export function getTeamTournamentStatus({
     unfinished.find((match) => matchUtcDate(match).getTime() >= now.getTime()) ??
     unfinished[0] ??
     null;
+
   const currentKnockoutMatch = nextMatch && "matchNumber" in nextMatch
     ? nextMatch
     : [...listedMatches].reverse().find((match) => "matchNumber" in match);
@@ -65,8 +121,6 @@ export function getTeamTournamentStatus({
   let classification: TeamClassification = "UNKNOWN";
 
   if (!hasKnockoutJourney) {
-    // Check if the team is completely eliminated from group stage
-    // If there is no next match and the group stage is completely over for them, they are eliminated
     if (!nextMatch) {
       const groupStageOver = matches.filter(m => !("matchNumber" in m)).every(m => {
         const slug = matchSlug(m);
@@ -75,16 +129,9 @@ export function getTeamTournamentStatus({
       classification = groupStageOver ? "ELIMINATED_GROUP_STAGE" : "UNKNOWN";
     }
   } else {
-    // They have a knockout journey
     if (nextMatch) {
       classification = "ACTIVE_KNOCKOUT";
     } else {
-      // No more matches. Check the last match to see if they won the final or third place playoff?
-      // Wait, if nextMatch is null, they have no future matches. The tournament might be over,
-      // or they are eliminated in knockouts.
-      // We will consider them ELIMINATED_KNOCKOUT if they have no future matches and they aren't the final winner.
-      // But the requirement says "active knockout team, eliminated knockout team, group-stage eliminated team".
-      // We don't need a "CHAMPION" classification for this phase since it's just the semifinals.
       classification = "ELIMINATED_KNOCKOUT";
     }
   }
@@ -93,12 +140,34 @@ export function getTeamTournamentStatus({
     ? STAGE_STATUS[currentKnockoutMatch.stage] ?? null
     : null;
 
-  const tpFinished = snapshotMatches["match-103"]?.status === "FINISHED";
-  if (tpFinished) {
-    if (teamKey === "england") {
-      currentStageLabel = "Third place";
-    } else if (teamKey === "france") {
-      currentStageLabel = "Fourth place";
+  const match104 = snapshotMatches["match-104"];
+  const match103 = snapshotMatches["match-103"];
+
+  if (match104) {
+    const finalHome = match104.match.homeKey !== "tbd" ? match104.match.homeKey : (getResolvedHomeTeam(match104.match, resolvedParticipants) ?? "tbd");
+    const finalAway = match104.match.awayKey !== "tbd" ? match104.match.awayKey : (getResolvedAwayTeam(match104.match, resolvedParticipants) ?? "tbd");
+    if (finalHome !== "tbd" && finalAway !== "tbd") {
+      if (match104.status === "FINISHED") {
+        const res = getKnockoutWinnerAndLoser(match104, resolvedParticipants);
+        if (res) {
+          if (teamKey === res.winner) currentStageLabel = "Champion";
+          if (teamKey === res.loser) currentStageLabel = "Runner-up";
+        }
+      } else {
+        if (teamKey === finalHome || teamKey === finalAway) {
+          currentStageLabel = "Finalist";
+        }
+      }
+    }
+  }
+
+  if (match103) {
+    if (match103.status === "FINISHED") {
+      const res = getKnockoutWinnerAndLoser(match103, resolvedParticipants);
+      if (res) {
+        if (teamKey === res.winner) currentStageLabel = "Third place";
+        if (teamKey === res.loser) currentStageLabel = "Fourth place";
+      }
     }
   }
 
@@ -109,4 +178,61 @@ export function getTeamTournamentStatus({
     currentStageLabel,
     classification,
   };
+}
+
+export function getTeamStatusLabel(
+  teamKey: string,
+  status: TeamTournamentStatus,
+  snapshotMatches: Record<string, SerializableSnapshotMatch>,
+  resolvedParticipants?: ResolvedParticipantLookup
+): string {
+  const match104 = snapshotMatches["match-104"];
+  const match103 = snapshotMatches["match-103"];
+
+  if (match104) {
+    const home = match104.match.homeKey !== "tbd" ? match104.match.homeKey : (getResolvedHomeTeam(match104.match, resolvedParticipants) ?? "tbd");
+    const away = match104.match.awayKey !== "tbd" ? match104.match.awayKey : (getResolvedAwayTeam(match104.match, resolvedParticipants) ?? "tbd");
+    if (home !== "tbd" && away !== "tbd") {
+      if (match104.status === "FINISHED") {
+        const res = getKnockoutWinnerAndLoser(match104, resolvedParticipants);
+        if (res) {
+          if (teamKey === res.winner) return "Champion";
+          if (teamKey === res.loser) return "Runner-up";
+        }
+      } else {
+        if (teamKey === home || teamKey === away) {
+          return "Finalist";
+        }
+      }
+    }
+  }
+
+  if (match103) {
+    if (match103.status === "FINISHED") {
+      const res = getKnockoutWinnerAndLoser(match103, resolvedParticipants);
+      if (res) {
+        if (teamKey === res.winner) return "Third place";
+        if (teamKey === res.loser) return "Fourth place";
+      }
+    }
+  }
+
+  if (status.classification === "ELIMINATED_GROUP_STAGE") {
+    return "Eliminated in group stage";
+  }
+
+  const knockoutMatches = status.listedMatches.filter(m => "matchNumber" in m);
+  if (knockoutMatches.length === 0) {
+    return "Eliminated in group stage";
+  }
+
+  const lastMatch = knockoutMatches[knockoutMatches.length - 1];
+  const stage = lastMatch.stage;
+  if (stage === "R32") return "Eliminated in Round of 32";
+  if (stage === "R16") return "Eliminated in Round of 16";
+  if (stage === "QF") return "Eliminated in Quarter-finals";
+  if (stage === "SF" || stage === "3P") {
+    return "Semifinalist";
+  }
+  return "Eliminated";
 }

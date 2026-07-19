@@ -18,7 +18,15 @@ const FILTERS: Array<{ key: Filter; label: string }> = [
   { key: "ELIMINATED_GROUP_STAGE", label: "Eliminated" },
 ];
 
-export function TeamsDirectory({ classifications, finalists }: { classifications: Record<string, TeamClassification>; finalists: string[] }) {
+export function TeamsDirectory({
+  classifications,
+  finalists,
+  statusLabels,
+}: {
+  classifications: Record<string, TeamClassification>;
+  finalists: string[];
+  statusLabels: Record<string, string>;
+}) {
   const { country } = useLang();
   const [filter, setFilter] = useState<Filter>("ALL");
   const [confederation, setConfederation] = useState("ALL");
@@ -26,6 +34,21 @@ export function TeamsDirectory({ classifications, finalists }: { classifications
     (filter === "ALL" || (filter === "FINALISTS" ? finalists.includes(team.key) : classifications[team.key] === filter))
     && (confederation === "ALL" || CONFEDERATION_BY_TEAM[team.key] === confederation)
   )), [classifications, confederation, filter, finalists]);
+
+  const explanationCopy = (() => {
+    switch (filter) {
+      case "FINALISTS":
+        return "The two finalist teams competing for the World Cup trophy.";
+      case "ACTIVE_KNOCKOUT":
+        return "Active teams that still have a match remaining in the tournament.";
+      case "ELIMINATED_KNOCKOUT":
+        return "Teams that reached the knockout stage but have completed their campaigns.";
+      case "ELIMINATED_GROUP_STAGE":
+        return "Teams eliminated during the group stage.";
+      default:
+        return "All 48 national teams that competed at the 2026 World Cup, with their current or final tournament status.";
+    }
+  })();
 
   return <>
     <div className="mb-5 space-y-3 rounded-xl border border-white/10 bg-navyCard p-4">
@@ -37,11 +60,11 @@ export function TeamsDirectory({ classifications, finalists }: { classifications
         {CONFEDERATIONS.map((conf) => <button key={conf.code} type="button" onClick={() => setConfederation(conf.code)} className={`text-xs ${confederation === conf.code ? "text-accent" : "text-white/45 hover:text-white"}`}>{conf.name}</button>)}
       </div>
     </div>
-    <p className="mb-3 text-xs text-white/45">Teams that still have a match remaining in the tournament.</p>
+    <p className="mb-3 text-xs text-white/45">{explanationCopy}</p>
     <div className="grid gap-2 sm:grid-cols-2">
       {teams.map((team) => {
         const status = classifications[team.key];
-        const label = status === "ACTIVE_KNOCKOUT" ? "Active" : status === "ELIMINATED_KNOCKOUT" ? "Knockout" : "Eliminated";
+        const label = statusLabels[team.key] || (status === "ACTIVE_KNOCKOUT" ? "Active" : status === "ELIMINATED_KNOCKOUT" ? "Knockout" : "Eliminated");
         return <Link key={team.key} href={`/teams/${slugFor(team.key)}`} className="flex items-center gap-3 rounded-lg border border-white/10 bg-navyCard px-4 py-3 transition hover:border-white/30 hover:bg-white/5">
           <Flag code={team.code} alt="" width={28} height={20} />
           <span className="min-w-0 flex-1 truncate font-semibold text-white">{country(team.key)}</span>

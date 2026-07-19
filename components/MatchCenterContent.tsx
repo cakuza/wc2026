@@ -10,12 +10,14 @@ import { useTimezone } from "@/components/TimezoneProvider";
 import { matchSlug, ARCHIVE_DEFAULT_DATE, MATCHES, type Match } from "@/lib/matches";
 import { getHomepageMatchCenterSnapshot, getMatchCenterSnapshot, type TournamentPhase } from "@/lib/matchCenterSelection";
 import { getMatchPresentation, getMatchStatusLabel } from "@/lib/matchPresentation";
-import { getParticipantDisplay, type ResolvedParticipantLookup } from "@/lib/participant-resolution";
+import { getParticipantDisplay, getResolvedHomeTeam, getResolvedAwayTeam, type ResolvedParticipantLookup } from "@/lib/participant-resolution";
 import type { LiveMatchData } from "@/lib/liveMatchData";
 import type { GoalScorerEvent } from "@/lib/worldcup26Provider";
 import { reconcileGoalEvents } from "@/lib/scoreReconciliation";
 import { formatGoalEventDisplay } from "@/lib/canonicalArchiveEvents";
 import { CountdownClient } from "@/components/CountdownClient";
+import { getDecidingMatchRecap } from "@/lib/resultSummary";
+import { getKnockoutWinnerAndLoser, getWinnerSide } from "@/lib/teamTournamentStatus";
 
 export type MatchCenterLiveSnapshot = {
   snapshotId: string;
@@ -44,7 +46,7 @@ function DecidingMatchCard({ m, live, resolvedParticipants, primary }: {
   resolvedParticipants: ResolvedParticipantLookup;
   primary: boolean;
 }) {
-  const { lang } = useLang();
+  const { lang, country } = useLang();
   const { timeZone } = useTimezone();
   const home = getParticipantDisplay(m, "home", resolvedParticipants, lang);
   const away = getParticipantDisplay(m, "away", resolvedParticipants, lang);
@@ -52,6 +54,60 @@ function DecidingMatchCard({ m, live, resolvedParticipants, primary }: {
   const isFinal = "stage" in m && m.stage === "F";
   const stage = isFinal ? "2026 World Cup Final" : "Third-place playoff";
   const city = venueCity(m.venue);
+
+  const isFinished = presentation.state === "final";
+  if (isFinished) {
+    const isThird = "stage" in m && m.stage === "3P";
+    const homeKey = m.homeKey !== "tbd" ? m.homeKey : (getResolvedHomeTeam(m, resolvedParticipants) ?? "tbd");
+    const awayKey = m.awayKey !== "tbd" ? m.awayKey : (getResolvedAwayTeam(m, resolvedParticipants) ?? "tbd");
+    const hScore = presentation.homeScore ?? null;
+    const aScore = presentation.awayScore ?? null;
+
+    const winnerSide = getWinnerSide({
+      homeScore: hScore,
+      awayScore: aScore,
+      liveWinner: live?.winner,
+      penaltyShootoutScore: live?.penaltyShootoutScore,
+    });
+
+    const { subTitle, winNote } = getDecidingMatchRecap({
+      stage: isThird ? "3P" : "F",
+      homeName: country(homeKey),
+      awayName: country(awayKey),
+      homeScore: hScore,
+      awayScore: aScore,
+      winnerKey: winnerSide,
+      penaltyShootoutScore: live?.penaltyShootoutScore,
+    });
+
+    return (
+      <Link href={`/matches/${matchSlug(m)}`} prefetch={false} aria-label={`View ${stage} report: ${home.label} ${presentation.homeScore}-${presentation.awayScore} ${away.label}`}
+        className="block rounded-xl border border-white/10 bg-navyCard/60 p-4 transition hover:border-accent/80 sm:p-5">
+        <div className="flex items-center justify-between gap-3">
+          <span className="font-heading text-[11px] font-extrabold uppercase tracking-[0.18em] text-white/40">
+            {isFinal ? "FINAL" : "THIRD-PLACE PLAYOFF"} · FT
+          </span>
+          <span className="text-[11px] font-bold text-accent">{subTitle}</span>
+        </div>
+        <div className="mt-4 flex items-center justify-center gap-6">
+          <div className="flex items-center gap-2">
+            {home.teamCode ? <Flag code={home.teamCode} alt="" width={24} height={18} className="shadow-sm" /> : null}
+            <span className="font-heading font-bold text-white text-sm sm:text-base">{home.label}</span>
+          </div>
+          <span className="font-heading font-black text-white text-lg sm:text-xl">
+            {presentation.homeScore}–{presentation.awayScore}
+          </span>
+          <div className="flex items-center gap-2">
+            <span className="font-heading font-bold text-white text-sm sm:text-base">{away.label}</span>
+            {away.teamCode ? <Flag code={away.teamCode} alt="" width={24} height={18} className="shadow-sm" /> : null}
+          </div>
+        </div>
+        <div className="mt-4 text-center text-xs text-white/50 border-t border-white/5 pt-2">
+          {winNote}
+        </div>
+      </Link>
+    );
+  }
 
   return (
     <Link href={`/matches/${matchSlug(m)}`} prefetch={false} aria-label={`View ${stage}: ${home.label} vs ${away.label}`}

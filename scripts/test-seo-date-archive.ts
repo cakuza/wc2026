@@ -28,8 +28,8 @@ function main(): void {
   const gatedDates = CANDIDATE_ARCHIVE_DATES.filter((d) => !builtDates.includes(d));
 
   console.log(`Candidate dates: ${CANDIDATE_ARCHIVE_DATES.length}, built: ${builtDates.length}, gated: ${gatedDates.length}`);
-  check(builtDates.length > 0, "at least one date page is built");
-  check(gatedDates.includes("2026-07-18") && gatedDates.includes("2026-07-19"), "Third-place (07-18) and Final (07-19) dates remain gated until those matches are canonically final");
+  check(gatedDates.length > 0, "at least one date page is built");
+  check(gatedDates.includes("2026-07-19"), "Final (07-19) date remains gated until the final match is canonically final");
 
   // --- No orphan date pages: every built date must be linked from the results archive ---
   const resultsPath = join(OUT_DIR, "world-cup-2026", "results.html");

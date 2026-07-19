@@ -319,4 +319,23 @@ export function firstMatchFor(teamKey: string) {
   };
 }
 
+export function isValidDateParam(dateStr: string): boolean {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) return false;
+  const parts = dateStr.split("-");
+  const year = parseInt(parts[0], 10);
+  const month = parseInt(parts[1], 10);
+  const day = parseInt(parts[2], 10);
 
+  if (month < 1 || month > 12) return false;
+  if (day < 1 || day > 31) return false;
+
+  const d = new Date(Date.UTC(year, month - 1, day));
+  if (d.getUTCFullYear() !== year || d.getUTCMonth() !== month - 1 || d.getUTCDate() !== day) {
+    return false;
+  }
+
+  if (dateStr < "2026-06-11") return false;
+  if (dateStr > "2026-07-19") return false;
+
+  return true;
+}
