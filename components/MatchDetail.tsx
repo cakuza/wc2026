@@ -736,7 +736,7 @@ export function MatchDetail({
           </EventSection>
 
           {report && (
-            <EventSection title="Editorial Match Report" icon="✍️">
+            <EventSection title="Editorial Match Report" icon="✍">
               <div className="space-y-4">
                 <h3 className="font-heading text-base font-extrabold uppercase tracking-wide text-white">
                   {report.headline}
