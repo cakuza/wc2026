@@ -17,9 +17,10 @@ export const metadata: Metadata = {
 };
 
 const FAQS = [
+
   {
     q: "Where does WorldCupMatchDay get its match data?",
-    a: "Match results, scores, and status are pulled from a third-party football data provider via an API. The data covers all 104 World Cup 2026 matches. We do not manually enter scores - data flows automatically once the provider syncs it after each match event.",
+    a: "Scores normally flow from a primary third-party football data provider via an API. When provider coverage is incomplete or conflicts with verified evidence, we perform documented reconciliation against canonical tournament records and publish a provenance-backed correction.",
   },
   {
     q: "How quickly do scores update during a live match?",
@@ -86,9 +87,8 @@ export default function DataSourcesPage() {
 
         <Section title="Match Data and Scores">
           <p>
-            Live scores, match status, and results are sourced from a third-party football data provider via an API.
-            This covers all 104 World Cup 2026 matches. We do not manually enter scores or results; data flows
-            automatically once the provider syncs it after each match event.
+            Live scores, match status, and results normally flow from a primary third-party football data provider via an API.
+            This covers all 104 World Cup 2026 matches. When provider coverage is incomplete or conflicts with verified evidence, we perform documented reconciliation against canonical tournament records and publish a provenance-backed correction.
           </p>
           <p>
             Refreshing begins 15 minutes before kickoff and stops 3 hours after kickoff. While a match is live,

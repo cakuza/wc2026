@@ -62,7 +62,7 @@ export default function PrivacyPage() {
         PRIVACY POLICY
       </h1>
       <p className="mb-8 font-heading text-xs font-bold tracking-widest text-white/30">
-        EFFECTIVE: 13 JUNE 2026
+        EFFECTIVE: 19 JULY 2026
       </p>
 
       <div className="space-y-7">

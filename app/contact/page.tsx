@@ -54,8 +54,7 @@ export default function ContactPage() {
               match record or a broadcaster report)</li>
           </ul>
           <p className="mt-2 text-sm text-white/50">
-            Confirmed corrections are applied to our verified corrections file and take effect on the
-            next data sync — usually within a few minutes of confirmation.
+            Confirmed corrections are applied to our verified corrections file and take effect across our pages in the next verified rebuild or data-sync cycle.
           </p>
         </div>
 
