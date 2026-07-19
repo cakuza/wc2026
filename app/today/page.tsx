@@ -96,7 +96,7 @@ export default async function TodayPage() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(faqLd) }}
       />
 
-      <Suspense fallback={<div className="min-h-screen bg-navy text-white flex items-center justify-center font-heading font-bold uppercase tracking-widest text-white/50">Loading Match Center...</div>}>
+      <Suspense fallback={<div className="min-h-screen bg-navy text-white flex items-center justify-center font-heading font-bold uppercase tracking-widest text-white/50">Preparing the Match Center for your local timezone.</div>}>
         <TodayClientWrapper
           snapshot={matchCenterSnapshot}
           isFallbackSnapshot={isFallbackSnapshot}

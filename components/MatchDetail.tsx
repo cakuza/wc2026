@@ -539,7 +539,7 @@ export function MatchDetail({
         <div className="space-y-1.5">
           <div className="rounded-lg border border-white/8 bg-navyCard/60 px-4 py-3">
             <p className="font-heading text-[11px] font-extrabold uppercase tracking-wide text-white/40">
-              {t("match_qa_when")}
+              {isConfirmedFinished ? "When was this match?" : t("match_qa_when")}
             </p>
             <p className="mt-1 text-sm text-white/80">
               {match.time ? (
@@ -648,7 +648,7 @@ export function MatchDetail({
                   ))}
                 </ul>
               ) : (
-                <EmptyEvents note={t("match_noEvents")} />
+                <p className="text-sm text-white/50">{isConfirmedFinished ? "No cards were shown." : t("match_noEvents")}</p>
               )}
             </EventSection>
 

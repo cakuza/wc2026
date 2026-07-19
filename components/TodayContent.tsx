@@ -134,8 +134,7 @@ export function TodayContent({
             </>
           ) : (
             <>
-              <span className="font-semibold text-white">Final Weekend fixture availability is resolving for your timezone.</span>{" "}
-              Kickoff times will update once your local date is available.
+              <span className="font-semibold text-white">Preparing the Match Center for your local timezone.</span>
             </>
           )}
         </div>

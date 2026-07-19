@@ -34,7 +34,14 @@ const ROUTES = [
   "/privacy",
   "/contact",
   "/editorial-policy",
-  "/corrections-policy"
+  "/corrections-policy",
+  "/faq",
+  "/stats/compare",
+  "/stats/compare?team1=spain&team2=argentina",
+  "/stats/compare?team1=invalid&team2=argentina",
+  "/stats/compare?team1=spain&team2=spain",
+  "/stats/compare?team1=spain",
+  "/stats/compare?team2=argentina"
 ];
 
 let failures = 0;
@@ -59,7 +66,7 @@ async function main() {
           if (message.type() === "warning" && /hydration|did not match/i.test(message.text())) warnings.push(message.text());
         });
         const response = await page.goto(`${BASE_URL}${route}`, { waitUntil: "domcontentloaded" });
-        await page.waitForTimeout(200);
+        await page.waitForTimeout(800);
         const text = await page.locator("body").innerText();
         const metrics = await page.evaluate(() => ({ h1: document.querySelectorAll("h1").length, scrollWidth: document.documentElement.scrollWidth, bodyWidth: document.body.scrollWidth, innerWidth: window.innerWidth }));
         assert(response?.ok(), `[${label}] ${route} loads`);
@@ -175,6 +182,25 @@ async function main() {
           assert(!/scores are never manually reconciled/i.test(text), `[${label}] ${route} has no automatic-only score claim`);
           assert(!/guarantee.*minutes/i.test(text), `[${label}] ${route} has no minute-level correction promise`);
           assert(!/all ingested data undergoes rigorous developer and editor review/i.test(text), `[${label}] ${route} has no unsupported universal human-review claim`);
+        }
+
+        if (route === "/faq") {
+          assert(!/We do not manually enter scores or results/i.test(text), `[${label}] FAQ has no automatic-only score claim`);
+          assert(!/scores are never manually reconciled/i.test(text), `[${label}] FAQ has no contradiction with corrections policy`);
+        }
+
+        if (route.startsWith("/stats/compare")) {
+          if (route === "/stats/compare?team1=spain&team2=argentina") {
+            assert(/Spain\s*vs\s*Argentina|Spain\s*-\s*Argentina/i.test(text), `[${label}] valid pair shows Spain vs Argentina`);
+            assert(/13/.test(text) && /1/.test(text), `[${label}] valid pair shows Spain GF 13 and GA 1`);
+            assert(/19/.test(text) && /7/.test(text), `[${label}] valid pair shows Argentina GF 19 and GA 7`);
+            assert(!/France\s*vs|vs\s*Spain/i.test(text), `[${label}] valid pair shows no wrong-pair flash`);
+            const metaCount = await page.locator('meta[name="robots"][content="noindex,follow"]').count();
+            assert(metaCount > 0, `[${label}] valid pair has supplemental noindex,follow`);
+          } else {
+            assert(!/France\s*vs|vs\s*Spain/i.test(text), `[${label}] invalid/incomplete pair shows no France vs Spain`);
+            assert(!/13/.test(text) || !/19/.test(text), `[${label}] invalid/incomplete pair has neutral selection/validation state`);
+          }
         }
 
         if (route === "/world-cup-2026") assert(/World Cup 2026/i.test(text), `[${label}] archive hub remains reachable`);

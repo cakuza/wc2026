@@ -10,8 +10,7 @@ interface Props {
   teamStatLeaderboards: TeamStatLeaderboards;
 }
 
-export const DEFAULT_COMPARE_TEAMS = { team1: "france", team2: "spain" } as const;
-
+export const DEFAULT_COMPARE_TEAMS = { team1: "", team2: "" } as const;
 export type CompareQueryReader = Pick<URLSearchParams, "get"> | null | undefined;
 
 export function resolveCompareTeams(
@@ -23,9 +22,11 @@ export function resolveCompareTeams(
   );
   const requestedTeam1 = searchParams?.get("team1") ?? null;
   const requestedTeam2 = searchParams?.get("team2") ?? null;
+  const req1 = hasTeam(requestedTeam1) ? requestedTeam1 : "";
+  const req2 = hasTeam(requestedTeam2) ? requestedTeam2 : "";
   return {
-    team1: hasTeam(requestedTeam1) ? requestedTeam1 : DEFAULT_COMPARE_TEAMS.team1,
-    team2: hasTeam(requestedTeam2) ? requestedTeam2 : DEFAULT_COMPARE_TEAMS.team2,
+    team1: req1,
+    team2: req1 !== req2 ? req2 : "",
   };
 }
 
@@ -204,13 +205,16 @@ function TeamCompareInner({ teamsList, teamStatLeaderboards }: Props) {
   };
 
   return (
-    <TeamCompareShell
-      teamsList={teamsList}
-      teamStatLeaderboards={teamStatLeaderboards}
-      t1={t1}
-      t2={t2}
-      onSelect={handleSelect}
-    />
+    <>
+      {!!(t1 || t2) && <meta name="robots" content="noindex,follow" />}
+      <TeamCompareShell
+        teamsList={teamsList}
+        teamStatLeaderboards={teamStatLeaderboards}
+        t1={t1}
+        t2={t2}
+        onSelect={handleSelect}
+      />
+    </>
   );
 }
 
