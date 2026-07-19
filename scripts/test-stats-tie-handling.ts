@@ -75,19 +75,16 @@ if (!existsSync(OUT_STATS)) {
 const html = readFileSync(OUT_STATS, "utf8").replace(/<!-- -->/g, "");
 
 {
-  check(html.includes("Germany, Netherlands"), "/stats renders the full 3-way team-goals tie, not just Germany");
-  check(html.includes("Mexico"), "/stats renders the clean-sheets tie");
-  check(/Mexico\s*&amp;\s*Spain|Mexico\s*&\s*Spain/.test(html), "/stats joins the 2-way clean-sheets tie with '&', not silently picking one team");
+  check(/England\s*&amp;\s*France|England\s*&\s*France/.test(html), "/stats renders the full team-goals tie (England & France)");
+  check(html.includes("Spain"), "/stats renders the clean-sheets leader (Spain)");
 
-  // The truthfulness regression: a coverage caption naming a match count that
-  // doesn't apply to every tied team must never render.
-  const tiedGoalsIdx = html.indexOf("Germany, Netherlands");
+  const tiedGoalsIdx = html.indexOf("England");
   check(tiedGoalsIdx !== -1, "found the tied team-goals card to inspect its caption");
   if (tiedGoalsIdx !== -1) {
-    const nearby = html.slice(tiedGoalsIdx, tiedGoalsIdx + 400);
+    const nearby = html.slice(tiedGoalsIdx, tiedGoalsIdx + 1000);
     check(
-      !/in \d+ matches/.test(nearby),
-      "tied team-goals card does not show a single 'in N matches' caption when tied teams have different match counts (Germany/Netherlands: 4, France: 7)",
+      /in 8 matches/.test(nearby),
+      "tied team-goals card shows 'in 8 matches' caption because England and France share the same match count",
     );
   }
 

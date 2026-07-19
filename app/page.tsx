@@ -28,11 +28,21 @@ export async function generateMetadata(): Promise<Metadata> {
   const thirdHome = thirdPlace ? getResolvedHomeTeam(thirdPlace, resolvedParticipants) : null;
   const thirdAway = thirdPlace ? getResolvedAwayTeam(thirdPlace, resolvedParticipants) : null;
   const finalTeams = finalHome && finalAway ? `${countryName(finalHome, "en")} vs ${countryName(finalAway, "en")}` : "2026 World Cup Final";
-  const thirdTeams = thirdHome && thirdAway ? `${countryName(thirdHome, "en")} vs ${countryName(thirdAway, "en")} Third-Place Playoff` : "Third-Place Playoff";
-  const title = archive.isComplete ? `WorldCupMatchDay — ${archive.champion} Win the 2026 World Cup` : `2026 World Cup Final: ${finalTeams} & ${thirdTeams}`;
+  const thirdTeams = thirdHome && thirdAway ? `${countryName(thirdHome, "en")} vs ${countryName(thirdAway, "en")} Third-place playoff` : "Third-place playoff";
+
+  const isThirdPlaceFinished = snapshot.matches["match-103"]?.status === "FINISHED";
+
+  const title = archive.isComplete
+    ? `WorldCupMatchDay — ${archive.champion} Win the 2026 World Cup`
+    : isThirdPlaceFinished
+      ? `2026 World Cup Final: ${finalTeams} (England Clinch Third)`
+      : `2026 World Cup Final: ${finalTeams} & ${thirdTeams}`;
+
   const description = archive.isComplete
     ? `${archive.champion} won the 2026 FIFA World Cup, beating ${archive.runnerUp} ${archive.finalResult?.homeScore}-${archive.finalResult?.awayScore} in the Final. Full results, bracket, stats and teams archive.`
-    : `${finalTeams} in the 2026 World Cup Final, with ${thirdHome && thirdAway ? `${countryName(thirdHome, "en")} vs ${countryName(thirdAway, "en")}` : "the Third-place playoff"}. See kickoff times, venues, semifinal results and the full bracket.`;
+    : isThirdPlaceFinished
+      ? `${finalTeams} in the 2026 World Cup Final. England secured third place with a 6–4 victory over France. See kickoff times, venues, Final preview and the full bracket.`
+      : `${finalTeams} in the 2026 World Cup Final, with ${thirdHome && thirdAway ? `${countryName(thirdHome, "en")} vs ${countryName(thirdAway, "en")}` : "the Third-place playoff"}. See kickoff times, venues, semifinal results and the full bracket.`;
 
   return { title, description, alternates: { canonical: BASE_URL }, openGraph: { title, description, url: BASE_URL, type: "website" } };
 }

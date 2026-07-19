@@ -35,7 +35,7 @@ export default function ContactPage() {
             worldcupmatchday@proton.me
           </a>
           <p className="mt-3 text-xs text-white/40">
-            We review messages as time allows during the tournament period (11 June – 19 July 2026).
+            Response times vary. During active tournament release cycles, we aim to review critical data correction reports within a few hours. General inquiries may take longer depending on release schedules and developer availability.
           </p>
         </div>
 

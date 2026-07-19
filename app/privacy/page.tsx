@@ -18,11 +18,11 @@ const SECTIONS = [
   },
   {
     heading: "COOKIES",
-    body: "This site may use cookies or similar technologies through third-party services, including Google AdSense. You can opt out of personalised advertising by visiting Google's Ads Settings at adssettings.google.com.",
+    body: "This site may use cookies or similar technologies through third-party services, including Google AdSense if enabled. You can opt out of personalised advertising by visiting Google's Ads Settings at adssettings.google.com.",
   },
   {
     heading: "GOOGLE ADSENSE",
-    body: "We use Google AdSense, a third-party advertising service provided by Google LLC. Google may use cookies and web beacons to collect information about your visits to this and other websites in order to provide advertisements that may be of interest to you. For more information about Google's privacy practices, please visit google.com/policies/privacy.",
+    body: "We may use Google AdSense or similar advertising services if advertising is enabled. Google may use cookies and web beacons to collect information about your visits to this and other websites in order to provide advertisements that may be of interest to you. For more information about Google's privacy practices, please visit google.com/policies/privacy.",
   },
   {
     heading: "ANALYTICS",
@@ -51,6 +51,8 @@ const SECTIONS = [
 ];
 
 export default function PrivacyPage() {
+  const sections = SECTIONS;
+
   return (
     <div className="mx-auto max-w-2xl px-4 py-12">
       <p className="mb-2 font-heading text-sm font-bold tracking-[0.3em] text-accent">
@@ -64,7 +66,7 @@ export default function PrivacyPage() {
       </p>
 
       <div className="space-y-7">
-        {SECTIONS.map((s) => (
+        {sections.map((s) => (
           <section key={s.heading}>
             <h2 className="mb-2 font-heading text-sm font-extrabold tracking-widest text-white">
               {s.heading}

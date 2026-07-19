@@ -53,6 +53,40 @@ function DecidingMatchCard({ m, live, resolvedParticipants, primary }: {
   const stage = isFinal ? "2026 World Cup Final" : "Third-place playoff";
   const city = venueCity(m.venue);
 
+  const isFinished = presentation.state === "final";
+  if (isFinished) {
+    const isThird = "stage" in m && m.stage === "3P";
+    const subTitle = isThird ? "England third · France fourth" : "Champion determined";
+    const winNote = isThird ? "England secured third place with a 6–4 victory." : "Final completed.";
+    return (
+      <Link href={`/matches/${matchSlug(m)}`} prefetch={false} aria-label={`View ${stage} report: ${home.label} ${presentation.homeScore}-${presentation.awayScore} ${away.label}`}
+        className="block rounded-xl border border-white/10 bg-navyCard/60 p-4 transition hover:border-accent/80 sm:p-5">
+        <div className="flex items-center justify-between gap-3">
+          <span className="font-heading text-[11px] font-extrabold uppercase tracking-[0.18em] text-white/40">
+            {isFinal ? "FINAL" : "THIRD-PLACE PLAYOFF"} · FT
+          </span>
+          <span className="text-[11px] font-bold text-accent">{subTitle}</span>
+        </div>
+        <div className="mt-4 flex items-center justify-center gap-6">
+          <div className="flex items-center gap-2">
+            {home.teamCode ? <Flag code={home.teamCode} alt="" width={24} height={18} className="shadow-sm" /> : null}
+            <span className="font-heading font-bold text-white text-sm sm:text-base">{home.label}</span>
+          </div>
+          <span className="font-heading font-black text-white text-lg sm:text-xl">
+            {presentation.homeScore}–{presentation.awayScore}
+          </span>
+          <div className="flex items-center gap-2">
+            <span className="font-heading font-bold text-white text-sm sm:text-base">{away.label}</span>
+            {away.teamCode ? <Flag code={away.teamCode} alt="" width={24} height={18} className="shadow-sm" /> : null}
+          </div>
+        </div>
+        <div className="mt-4 text-center text-xs text-white/50 border-t border-white/5 pt-2">
+          {winNote}
+        </div>
+      </Link>
+    );
+  }
+
   return (
     <Link href={`/matches/${matchSlug(m)}`} prefetch={false} aria-label={`View ${stage}: ${home.label} vs ${away.label}`}
       className={`block rounded-xl border transition hover:border-accent/80 ${primary ? "border-accent/70 bg-gradient-to-br from-accent/20 via-navyCard to-navyCard p-5 shadow-[0_18px_50px_rgba(232,0,28,0.18)] sm:p-6" : "border-white/15 bg-navyCard p-4 sm:p-5"}`}>

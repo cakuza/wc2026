@@ -32,7 +32,7 @@ export function AboutContent() {
         <p>{t("about_p5")}</p>
       </div>
 
-      <div className="mt-10 flex gap-4 text-sm">
+      <div className="mt-10 flex flex-wrap gap-x-4 gap-y-2 text-sm">
         <Link href="/privacy" className="font-heading font-bold uppercase tracking-wide text-white/40 hover:text-white/80 transition">
           {t("about_link_privacy")}
         </Link>
@@ -43,6 +43,14 @@ export function AboutContent() {
         <span className="text-white/20">·</span>
         <Link href="/contact" className="font-heading font-bold uppercase tracking-wide text-white/40 hover:text-white/80 transition">
           {t("about_link_contact")}
+        </Link>
+        <span className="text-white/20">·</span>
+        <Link href="/editorial-policy" className="font-heading font-bold uppercase tracking-wide text-white/40 hover:text-white/80 transition">
+          Editorial Policy
+        </Link>
+        <span className="text-white/20">·</span>
+        <Link href="/corrections-policy" className="font-heading font-bold uppercase tracking-wide text-white/40 hover:text-white/80 transition">
+          Corrections Policy
         </Link>
       </div>
     </div>

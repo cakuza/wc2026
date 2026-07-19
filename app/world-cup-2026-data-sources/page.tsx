@@ -136,7 +136,11 @@ export default function DataSourcesPage() {
         <Section title="Independence Disclosure">
           <p>
             WorldCupMatchDay is an independent fan project. We are not affiliated with FIFA, any national football
-            federation, stadium, broadcaster, or official sponsor.
+            federation, stadium, broadcaster, or official sponsor. For details on our publisher independence and factual verification, see our{" "}
+            <Link href="/editorial-policy" className="text-accent underline font-semibold">
+              Editorial Policy
+            </Link>
+            .
           </p>
         </Section>
 
@@ -146,7 +150,11 @@ export default function DataSourcesPage() {
             <a href="mailto:worldcupmatchday@proton.me" className="font-semibold text-accent underline-offset-2 hover:underline">
               worldcupmatchday@proton.me
             </a>
-            . Include the match name, the issue, and a source for the correction where possible.
+            . Include the match name, the issue, and a source for the correction where possible. You can read more about how corrections are processed and applied in our{" "}
+            <Link href="/corrections-policy" className="text-accent underline font-semibold">
+              Corrections Policy
+            </Link>
+            .
           </p>
         </Section>
 
@@ -163,6 +171,8 @@ export default function DataSourcesPage() {
           {[
             { href: "/contact", label: "Contact Us" },
             { href: "/about", label: "About" },
+            { href: "/editorial-policy", label: "Editorial Policy" },
+            { href: "/corrections-policy", label: "Corrections Policy" },
             { href: "/faq", label: "FAQ" },
             { href: "/privacy", label: "Privacy" },
           ].map((l) => (

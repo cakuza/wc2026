@@ -65,6 +65,10 @@ export function TeamDetail({
   const { listedMatches, hasKnockoutJourney, nextMatch: nextListedMatch } = tournamentStatus;
   const teamRow = standingsRows?.find((row) => row.teamKey === team.key);
   const hasPlayed = Boolean(teamRow && teamRow.played > 0);
+  const allGroupMatchesFinished = groupMatches.length === 6 && groupMatches.every((m) => {
+    const snap = snapshotMatches[matchSlug(m)];
+    return snap && snap.status === "FINISHED";
+  });
   const teamDisplayName = country(team.key);
 
   const getParticipantName = (m: Match, side: "home" | "away") => {
@@ -326,7 +330,9 @@ export function TeamDetail({
         <div className="mt-3 rounded-lg border border-white/10 bg-navyCard/70 px-4 py-3 text-sm text-white/70">
           <span className="font-semibold text-white">{teamDisplayName}</span>
           {" "}{playedSummary?.slice(teamDisplayName.length).trim()}
-          {" "}Group order is provisional when teams are level on available criteria.
+          {" "}{allGroupMatchesFinished
+            ? "The group stage is complete. This table preserves the final standings."
+            : "Group order is provisional when teams are level on available criteria."}
         </div>
       ) : nextListedMatch && (() => {
         const isHome = nextListedMatch.homeKey === team.key;

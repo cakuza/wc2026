@@ -76,7 +76,7 @@ async function main() {
         if (route === "/stats") {
           assert(/103\s*\/\s*104/.test(text) && /Olise/.test(text), `[${label}] Statistics shows the current snapshot and leaders`);
           assert(/Kylian Mbappé/i.test(text) && /10/.test(text), `[${label}] Statistics shows Kylian Mbappé as leader with 10 goals`);
-          assert(/Germany/.test(text) && /Netherlands/.test(text) && /France/.test(text) && /Mexico/.test(text) && /Spain/.test(text), `[${label}] Statistics renders tied teams distinctly`);
+          assert(/England/.test(text) && /France/.test(text) && /Spain/.test(text), `[${label}] Statistics renders tied teams distinctly`);
           assert(/Last updated\s+\d{1,2}\s+\w+\s+2026/i.test(text), `[${label}] Statistics has a full dated timestamp`);
         }
         if (route === "/stats/top-scorers") {

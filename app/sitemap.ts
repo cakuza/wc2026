@@ -100,6 +100,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${BASE}/contact`,       lastModified: STATIC_DATE, changeFrequency: "monthly", priority: 0.4 },
     { url: `${BASE}/privacy`,       lastModified: STATIC_DATE, changeFrequency: "monthly", priority: 0.3 },
     { url: `${BASE}/terms`,         lastModified: STATIC_DATE, changeFrequency: "monthly", priority: 0.3 },
+    { url: `${BASE}/editorial-policy`, lastModified: STATIC_DATE, changeFrequency: "monthly", priority: 0.4 },
+    { url: `${BASE}/corrections-policy`, lastModified: STATIC_DATE, changeFrequency: "monthly", priority: 0.4 },
 
     // Cornerstone editorial guides
     { url: `${BASE}/world-cup-2026-format-explained`,           lastModified: STATIC_DATE, changeFrequency: "monthly", priority: 0.7 },

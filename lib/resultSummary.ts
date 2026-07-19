@@ -55,11 +55,13 @@ function normalizeTeamName(name: string | null | undefined): string {
 }
 
 function minutePhrase(goal: LiveMatchEvent) {
-  return goal.minute != null ? ` in the ${ordinal(goal.minute)} minute` : "";
-}
-
-function isStoppageTime(goal: LiveMatchEvent) {
-  return typeof goal.stoppageTime === "number" && goal.stoppageTime > 0;
+  if (goal.minute != null) {
+    if (typeof goal.stoppageTime === "number" && goal.stoppageTime > 0) {
+      return ` at ${goal.minute}+${goal.stoppageTime}'`;
+    }
+    return ` in the ${ordinal(goal.minute)} minute`;
+  }
+  return "";
 }
 
 function neutralScorerSentence(goals: LiveMatchEvent[]) {
@@ -126,14 +128,20 @@ export function buildScorerSentence(
     const winnerName = finalHome > finalAway ? homeName : finalAway > finalHome ? awayName : null;
     const winnerKey = finalHome > finalAway ? homeKey : finalAway > finalHome ? awayKey : "";
     const isWinnerGoal = teamKey === winnerKey;
-    const finalScore = `${finalHome}–${finalAway}`;
+    const finalScore = finalHome > finalAway ? `${finalHome}–${finalAway}` : `${finalAway}–${finalHome}`;
 
     if (ownGoal && wasLevel && scorerNowLeads) {
       const early = goal.minute != null && goal.minute <= 15 ? "An early " : "";
       clauses.push(`${early}${playerName} own goal gave ${teamName} the lead${minutePhrase(goal)}`);
     } else if (!ownGoal && playerGoals > 1 && !summarizedBrace.has(playerName)) {
       summarizedBrace.add(playerName);
-      clauses.push(`${playerName} scored twice`);
+      if (playerGoals === 2) {
+        clauses.push(`${playerName} scored twice`);
+      } else if (playerGoals === 3) {
+        clauses.push(`${playerName} scored a hat-trick`);
+      } else {
+        clauses.push(`${playerName} scored ${playerGoals} goals`);
+      }
     } else if (!ownGoal && playerGoals > 1 && summarizedBrace.has(playerName)) {
       continue;
     } else if (
@@ -143,7 +151,7 @@ export function buildScorerSentence(
       isWinnerGoal &&
       ((isHome && beforeHome > beforeAway) || (isAway && beforeAway > beforeHome))
     ) {
-      clauses.push(`${playerName} completed the ${finalScore} win${isStoppageTime(goal) ? " in stoppage time" : minutePhrase(goal)}`);
+      clauses.push(`${playerName} completed the ${finalScore} win${minutePhrase(goal)}`);
     } else if (!ownGoal && scorerWasBehind && !isLevel) {
       clauses.push(`${playerName} pulled one back for ${teamName}${minutePhrase(goal)}`);
     } else if (wasLevel && scorerNowLeads) {

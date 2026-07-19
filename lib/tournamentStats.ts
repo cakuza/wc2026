@@ -3,9 +3,9 @@
  * Player stats only computed when provider event data is available.
  */
 
-import { MATCHES } from "./matches";
+import { MATCHES, type Match } from "./matches";
 import type { LiveMatchData } from "./liveMatchData";
-import { buildKnockoutResolution } from "./knockoutResolution";
+import { buildKnockoutResolution, buildKnockoutResolutionFromLiveData } from "./knockoutResolution";
 import { getResolvedAwayTeam, getResolvedHomeTeam } from "./participant-resolution";
 import type { StandingRow } from "./groupStandings";
 import { teamKeyFromName } from "./teams";
@@ -16,6 +16,8 @@ export type MatchResult = {
   awayKey: string;
   homeScore: number;
   awayScore: number;
+  matchId?: string;
+  stage?: string;
 };
 
 export type TournamentStats = {
@@ -123,6 +125,16 @@ export function getTiedLeaders<T>(sortedDescending: T[], getValue: (item: T) => 
   return sortedDescending.filter((item) => getValue(item) === max);
 }
 
+const getStageDisplay = (stageCode: string) => {
+  if (stageCode === "F") return "final";
+  if (stageCode === "3P") return "third-place playoff";
+  if (stageCode === "SF") return "semi-final";
+  if (stageCode === "QF") return "quarter-final";
+  if (stageCode === "R16") return "round of 16";
+  if (stageCode === "R32") return "round of 32";
+  return stageCode;
+};
+
 export function computeTournamentStats(
   liveData: ReadonlyMap<number, LiveMatchData>,
   matches?: Record<string, import("./liveSnapshot").SerializableSnapshotMatch>
@@ -139,6 +151,8 @@ export function computeTournamentStats(
   let conflictedCompletedMatches = 0;
   let playerEventCoverage = 0;
   let teamStatCoverage = 0;
+
+  const resolvedParticipants = buildKnockoutResolutionFromLiveData(liveData);
 
   for (const match of MATCHES) {
     const pid = match.providerIds?.footballData;
@@ -162,17 +176,24 @@ export function computeTournamentStats(
     if (live.eventDataAvailable) playerEventCoverage++;
     if (live.teamStats) teamStatCoverage++;
 
+    const resolvedHomeKey = getResolvedHomeTeam(match, resolvedParticipants) ?? match.homeKey;
+    const resolvedAwayKey = getResolvedAwayTeam(match, resolvedParticipants) ?? match.awayKey;
+    const matchId = 'matchNumber' in match ? `match-${match.matchNumber}` : `group-${match.group}-${match.homeKey}-${match.awayKey}`;
+    const stage = 'matchNumber' in match ? getStageDisplay(match.stage) : `Group ${match.group}`;
+
     if (!highestScoringMatch || total > highestScoringMatch.totalGoals) {
       highestScoringMatch = {
-        homeKey: match.homeKey, awayKey: match.awayKey,
+        homeKey: resolvedHomeKey, awayKey: resolvedAwayKey,
         homeScore: hg, awayScore: ag, totalGoals: total,
+        matchId, stage,
       };
     }
 
     if (margin > 0 && (!biggestWin || margin > biggestWin.margin)) {
       biggestWin = {
-        homeKey: match.homeKey, awayKey: match.awayKey,
+        homeKey: resolvedHomeKey, awayKey: resolvedAwayKey,
         homeScore: hg, awayScore: ag, margin,
+        matchId, stage,
       };
     }
 
@@ -347,7 +368,7 @@ export function computeTeamStatLeaderboards(liveData: ReadonlyMap<number, LiveMa
     }
   };
 
-  const resolvedParticipants = buildKnockoutResolution(matches);
+  const resolvedParticipants = buildKnockoutResolutionFromLiveData(liveData);
 
   for (const match of Object.values(matches)) {
     if (match.status !== "FINISHED") continue;
@@ -413,7 +434,7 @@ export function computeTeamStatLeaderboards(liveData: ReadonlyMap<number, LiveMa
           coverageStatus: (covered === total ? "COMPLETE" : "PARTIAL") as "COMPLETE" | "PARTIAL"
         };
       })
-      .sort((a, b) => b.value - a.value);
+      .sort((a, b) => b.value - a.value || a.teamKey.localeCompare(b.teamKey));
   };
 
   const getAllAvg = (getter: (team: string) => number, covGetter: (team: string) => number) => {
@@ -431,15 +452,25 @@ export function computeTeamStatLeaderboards(liveData: ReadonlyMap<number, LiveMa
           coverageStatus: (covered === total ? "COMPLETE" : "PARTIAL") as "COMPLETE" | "PARTIAL"
         };
       })
-      .sort((a, b) => b.value - a.value);
+      .sort((a, b) => b.value - a.value || a.teamKey.localeCompare(b.teamKey));
+  };
+
+  const getResolvedTeam = (m: Match, side: "home" | "away") => {
+    return side === "home"
+      ? getResolvedHomeTeam(m, resolvedParticipants) ?? m.homeKey
+      : getResolvedAwayTeam(m, resolvedParticipants) ?? m.awayKey;
   };
 
   return {
     goalsScored: getAll(t => {
       let g = 0;
       for (const m of Object.values(matches)) {
-        if (m.status === "FINISHED" && m.match.homeKey === t && m.homeScore !== null) g += m.homeScore;
-        if (m.status === "FINISHED" && m.match.awayKey === t && m.awayScore !== null) g += m.awayScore;
+        if (m.status === "FINISHED") {
+          const homeResolved = getResolvedTeam(m.match, "home");
+          const awayResolved = getResolvedTeam(m.match, "away");
+          if (homeResolved === t && m.homeScore !== null) g += m.homeScore;
+          if (awayResolved === t && m.awayScore !== null) g += m.awayScore;
+        }
       }
       return g;
     }, t => cov.scores.get(t) || 0),
@@ -454,16 +485,24 @@ export function computeTeamStatLeaderboards(liveData: ReadonlyMap<number, LiveMa
     cleanSheets: getAll(t => {
       let c = 0;
       for (const m of Object.values(matches)) {
-        if (m.status === "FINISHED" && m.match.homeKey === t && m.awayScore === 0) c++;
-        if (m.status === "FINISHED" && m.match.awayKey === t && m.homeScore === 0) c++;
+        if (m.status === "FINISHED") {
+          const homeResolved = getResolvedTeam(m.match, "home");
+          const awayResolved = getResolvedTeam(m.match, "away");
+          if (homeResolved === t && m.awayScore === 0) c++;
+          if (awayResolved === t && m.homeScore === 0) c++;
+        }
       }
       return c;
     }, t => cov.scores.get(t) || 0),
     goalsConceded: getAll(t => {
       let gc = 0;
       for (const m of Object.values(matches)) {
-        if (m.status === "FINISHED" && m.match.homeKey === t && m.awayScore !== null) gc += m.awayScore;
-        if (m.status === "FINISHED" && m.match.awayKey === t && m.homeScore !== null) gc += m.homeScore;
+        if (m.status === "FINISHED") {
+          const homeResolved = getResolvedTeam(m.match, "home");
+          const awayResolved = getResolvedTeam(m.match, "away");
+          if (homeResolved === t && m.awayScore !== null) gc += m.awayScore;
+          if (awayResolved === t && m.homeScore !== null) gc += m.homeScore;
+        }
       }
       return gc;
     }, t => cov.scores.get(t) || 0),

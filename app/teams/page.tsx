@@ -5,7 +5,7 @@ import { TEAMS } from "@/lib/teams";
 import { MATCHES } from "@/lib/matches";
 import { getTournamentLiveSnapshot } from "@/lib/liveSnapshot";
 import { buildKnockoutResolution } from "@/lib/knockoutResolution";
-import { getTeamTournamentStatus } from "@/lib/teamTournamentStatus";
+import { getTeamTournamentStatus, getTeamStatusLabel } from "@/lib/teamTournamentStatus";
 
 const BASE_URL = "https://www.worldcupmatchday.com";
 
@@ -29,6 +29,7 @@ export default async function TeamsPage() {
   const statuses = Object.fromEntries(TEAMS.map((team) => [team.key, getTeamTournamentStatus({ teamKey: team.key, matches: MATCHES, snapshotMatches: snapshot.matches, resolvedParticipants })]));
   const classifications = Object.fromEntries(Object.entries(statuses).map(([key, status]) => [key, status.classification]));
   const finalists = Object.entries(statuses).filter(([, status]) => status.currentStageLabel === "Finalist").map(([key]) => key);
+  const statusLabels = Object.fromEntries(TEAMS.map((team) => [team.key, getTeamStatusLabel(team.key, statuses[team.key], snapshot.matches)]));
   return (
     <div className="mx-auto max-w-4xl px-4 py-8">
       <h1 className="mb-2 font-heading text-4xl font-extrabold uppercase tracking-wide text-white">
@@ -38,7 +39,7 @@ export default async function TeamsPage() {
         Follow the remaining teams first, then explore every World Cup side by knockout status or confederation.
       </p>
 
-      <TeamsDirectory classifications={classifications} finalists={finalists} />
+      <TeamsDirectory classifications={classifications} finalists={finalists} statusLabels={statusLabels} />
 
       <div className="mt-8 flex flex-wrap gap-3 text-sm">
         {[

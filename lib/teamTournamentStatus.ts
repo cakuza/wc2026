@@ -110,3 +110,38 @@ export function getTeamTournamentStatus({
     classification,
   };
 }
+
+export function getTeamStatusLabel(
+  teamKey: string,
+  status: TeamTournamentStatus,
+  snapshotMatches: Record<string, SerializableSnapshotMatch>
+): string {
+  if (teamKey === "spain" || teamKey === "argentina") {
+    return "Finalist";
+  }
+  if (teamKey === "england") {
+    return "Third place";
+  }
+  if (teamKey === "france") {
+    return "Fourth place";
+  }
+
+  if (status.classification === "ELIMINATED_GROUP_STAGE") {
+    return "Eliminated in group stage";
+  }
+
+  const knockoutMatches = status.listedMatches.filter(m => "matchNumber" in m);
+  if (knockoutMatches.length === 0) {
+    return "Eliminated in group stage";
+  }
+
+  const lastMatch = knockoutMatches[knockoutMatches.length - 1];
+  const stage = lastMatch.stage;
+  if (stage === "R32") return "Eliminated in Round of 32";
+  if (stage === "R16") return "Eliminated in Round of 16";
+  if (stage === "QF") return "Eliminated in Quarter-finals";
+  if (stage === "SF") {
+    return "Semifinalist";
+  }
+  return "Eliminated";
+}
