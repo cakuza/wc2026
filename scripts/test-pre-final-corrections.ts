@@ -9,7 +9,7 @@ import { getTeamStatusLabel, getTeamTournamentStatus } from "../lib/teamTourname
 import { computeTournamentStats, computeTeamStatLeaderboards } from "../lib/tournamentStats";
 import { getTournamentLiveSnapshot } from "../lib/liveSnapshot";
 import { buildKnockoutResolution } from "../lib/knockoutResolution";
-import { MATCHES } from "../lib/matches";
+import { MATCHES, isValidDateParam } from "../lib/matches";
 import { isValidTimeZone } from "../lib/timezone";
 import type { LiveMatchData } from "../lib/liveMatchData";
 
@@ -32,7 +32,7 @@ async function runTests() {
 
   // 1. Test scorer sentence updates (hat-trick, stoppage time, winner-oriented scores)
   console.log("--- Result Summary / Scorer Phrasing Tests ---");
-  
+
   // Double goal (brace)
   const braceSentence = buildScorerSentence(
     [
@@ -96,7 +96,7 @@ async function runTests() {
       { type: "GOAL", minute: 20, playerName: "Mbappe", teamName: "France" },
       { type: "GOAL", minute: 30, playerName: "Mbappe", teamName: "France" },
       { type: "GOAL", minute: 40, playerName: "Mbappe", teamName: "France" },
-      
+
       { type: "GOAL", minute: 15, playerName: "Bellingham", teamName: "England" },
       { type: "GOAL", minute: 25, playerName: "Bellingham", teamName: "England" },
       { type: "GOAL", minute: 35, playerName: "Bellingham", teamName: "England" },
@@ -139,14 +139,24 @@ async function runTests() {
 
   const turkeyStatus = getStatus("turkey");
   console.log("Turkey classification:", turkeyStatus.classification);
-  assert(getTeamStatusLabel("turkey", turkeyStatus, snapshot.matches) === "Eliminated in group stage", "Turkey status label is Eliminated in group stage");
+  assert(getTeamStatusLabel("turkey", turkeyStatus, snapshot.matches, resolvedParticipants) === "Eliminated in group stage", "Turkey status label is Eliminated in group stage");
 
-  // 3. Test Timezone validation helper
-  console.log("\n--- Timezone Validation Tests ---");
+  // 3. Test Timezone and Date validation helpers
+  console.log("\n--- Timezone & Date Validation Tests ---");
   assert(isValidTimeZone("America/New_York"), "America/New_York is valid timezone");
   assert(isValidTimeZone("Europe/London"), "Europe/London is valid timezone");
   assert(!isValidTimeZone("Invalid/Timezone"), "Invalid/Timezone is invalid");
   assert(!isValidTimeZone(""), "Empty string is invalid");
+
+  assert(isValidDateParam("2026-06-11"), "valid opening date");
+  assert(isValidDateParam("2026-07-19"), "valid final date");
+  assert(isValidDateParam("2026-06-25"), "valid intermediate date");
+  assert(!isValidDateParam("2026-6-11"), "invalid format");
+  assert(!isValidDateParam("2026-13-11"), "invalid month");
+  assert(!isValidDateParam("2026-06-31"), "June 31 is invalid");
+  assert(!isValidDateParam("2026-02-30"), "February 30 is invalid");
+  assert(!isValidDateParam("2026-06-10"), "before-range date");
+  assert(!isValidDateParam("2026-07-20"), "after-range date");
 
   // 4. Test TournamentStats and TeamStatLeaderboards calculations
   console.log("\n--- Tournament Stats & Leaderboard Tests ---");
@@ -154,34 +164,155 @@ async function runTests() {
     Object.entries(snapshot.liveDataByProviderId).map(([id, val]) => [Number(id), val])
   );
   const stats = computeTournamentStats(liveDataMap);
-  console.log("Calculated matchesPlayed:", stats.matchesPlayed);
-  console.log("Calculated totalGoals:", stats.totalGoals);
-  assert(stats.matchesPlayed > 0, "Canonical matchesPlayed is greater than 0");
-  assert(stats.totalGoals > 0, "Canonical totalGoals is greater than 0");
-  
-  // Check match-103 statistics keys are resolved correctly to names (not 'tbd')
-  assert(stats.highestScoringMatch?.homeKey === "france", "highestScoringMatch homeKey is france");
-  assert(stats.highestScoringMatch?.awayKey === "england", "highestScoringMatch awayKey is england");
-  assert(stats.highestScoringMatch?.matchId === "match-103", "highestScoringMatch matchId is match-103");
-  assert(stats.highestScoringMatch?.stage === "third-place playoff", "highestScoringMatch stage is third-place playoff");
+
+  assert(stats.matchesPlayed === 103, "completed matches is exactly 103");
+  assert(stats.totalGoals === 307, "total completed-match goals is exactly 307");
 
   const leaderboards = computeTeamStatLeaderboards(liveDataMap, snapshot.matches);
-  const goalsScored = leaderboards.goalsScored;
-  const englandStats = goalsScored.find(t => t.teamKey === "england");
-  console.log("England goals value:", englandStats?.value);
-  assert(englandStats?.value !== undefined && englandStats.value > 0, "England total tournament goals is credited");
 
-  const franceStats = goalsScored.find(t => t.teamKey === "france");
-  console.log("France goals value:", franceStats?.value);
-  assert(franceStats?.value !== undefined && franceStats.value > 0, "France total tournament goals is credited");
+  const getGoalsFor = (team: string) => leaderboards.goalsScored.find(t => t.teamKey === team)?.value;
+  const getGoalsAgainst = (team: string) => leaderboards.goalsConceded.find(t => t.teamKey === team)?.value;
+  const getCleanSheets = (team: string) => leaderboards.cleanSheets.find(t => t.teamKey === team)?.value;
 
-  const spainStats = goalsScored.find(t => t.teamKey === "spain");
-  console.log("Spain goals value:", spainStats?.value);
-  assert(spainStats?.value !== undefined && spainStats.value > 0, "Spain total tournament goals is credited");
+  // France
+  assert(getGoalsFor("france") === 20, "France goals for is 20");
+  assert(getGoalsAgainst("france") === 10, "France goals against is 10");
+  assert(getCleanSheets("france") === 4, "France clean sheets is 4");
 
-  const argentinaStats = goalsScored.find(t => t.teamKey === "argentina");
-  console.log("Argentina goals value:", argentinaStats?.value);
-  assert(argentinaStats?.value !== undefined && argentinaStats.value > 0, "Argentina total tournament goals is credited");
+  // England
+  assert(getGoalsFor("england") === 20, "England goals for is 20");
+  assert(getGoalsAgainst("england") === 12, "England goals against is 12");
+  assert(getCleanSheets("england") === 2, "England clean sheets is 2");
+
+  // Spain
+  assert(getGoalsFor("spain") === 13, "Spain goals for is 13");
+  assert(getGoalsAgainst("spain") === 1, "Spain goals against is 1");
+  assert(getCleanSheets("spain") === 6, "Spain clean sheets is 6");
+
+  // Argentina
+  assert(getGoalsFor("argentina") === 19, "Argentina goals for is 19");
+  assert(getGoalsAgainst("argentina") === 7, "Argentina goals against is 7");
+  assert(getCleanSheets("argentina") === 2, "Argentina clean sheets is 2");
+
+  // Highest scoring match
+  assert(stats.highestScoringMatch?.matchId === "match-103", "highest-scoring match is Match 103");
+  assert(stats.highestScoringMatch?.homeKey === "france" && stats.highestScoringMatch?.awayKey === "england", "participants are France and England");
+  assert(stats.highestScoringMatch?.homeScore === 4 && stats.highestScoringMatch?.awayScore === 6, "score is 4-6");
+  assert(stats.highestScoringMatch?.totalGoals === 10, "total is 10");
+  assert(stats.highestScoringMatch?.stage === "third-place playoff", "stage is third-place playoff");
+
+  // Biggest win
+  assert(stats.biggestWin?.homeKey === "canada" && stats.biggestWin?.awayKey === "qatar", "biggest win is Canada 6-0 Qatar");
+  assert(stats.biggestWin?.margin === 6, "margin is 6");
+
+  // Deterministic goals ordering
+  const goalsOrderCorrect = leaderboards.goalsScored.every((item, i) => {
+    if (i === 0) return true;
+    const prev = leaderboards.goalsScored[i - 1];
+    if (prev.value !== item.value) return prev.value > item.value;
+    return prev.teamKey.localeCompare(item.teamKey) < 0;
+  });
+  assert(goalsOrderCorrect, "goals-scored ordering is deterministic (by value descending, then teamKey alphabetically)");
+
+  // 5. Test getTeamStatusLabel with synthetic lifecycle states (pre-final, third-place completed, final completed)
+  console.log("\n--- Synthetic Lifecycle Status Tests ---");
+
+  // A. Pre-final status (Match 104 upcoming, Match 103 upcoming)
+  const mockSnapshotPre: Record<string, any> = {
+    "match-103": {
+      match: { matchNumber: 103, homeKey: "france", awayKey: "england", stage: "3P", date: "2026-07-18" },
+      status: "UPCOMING",
+      homeScore: null,
+      awayScore: null,
+      winner: null
+    },
+    "match-104": {
+      match: { matchNumber: 104, homeKey: "spain", awayKey: "argentina", stage: "F", date: "2026-07-19" },
+      status: "UPCOMING",
+      homeScore: null,
+      awayScore: null,
+      winner: null
+    }
+  };
+
+  const mockStatusSpainPre = getTeamTournamentStatus({ teamKey: "spain", matches: MATCHES, snapshotMatches: mockSnapshotPre, resolvedParticipants });
+  const mockStatusEnglandPre = getTeamTournamentStatus({ teamKey: "england", matches: MATCHES, snapshotMatches: mockSnapshotPre, resolvedParticipants });
+  const labelSpainPre = getTeamStatusLabel("spain", mockStatusSpainPre, mockSnapshotPre, resolvedParticipants);
+  const labelEnglandPre = getTeamStatusLabel("england", mockStatusEnglandPre, mockSnapshotPre, resolvedParticipants);
+  assert(labelSpainPre === "Finalist", `Pre-final Spain label is Finalist: "${labelSpainPre}"`);
+  assert(labelEnglandPre === "Semifinalist", `Pre-final England label is Semifinalist: "${labelEnglandPre}"`);
+
+  // B. Third-place completed, final upcoming
+  const mockSnapshotThirdCompleted: Record<string, any> = {
+    "match-103": {
+      match: { matchNumber: 103, homeKey: "france", awayKey: "england", stage: "3P", date: "2026-07-18" },
+      status: "FINISHED",
+      homeScore: 4,
+      awayScore: 6,
+      winner: "away"
+    },
+    "match-104": {
+      match: { matchNumber: 104, homeKey: "spain", awayKey: "argentina", stage: "F", date: "2026-07-19" },
+      status: "UPCOMING",
+      homeScore: null,
+      awayScore: null,
+      winner: null
+    }
+  };
+  const mockStatusEnglandThird = getTeamTournamentStatus({ teamKey: "england", matches: MATCHES, snapshotMatches: mockSnapshotThirdCompleted, resolvedParticipants });
+  const mockStatusFranceThird = getTeamTournamentStatus({ teamKey: "france", matches: MATCHES, snapshotMatches: mockSnapshotThirdCompleted, resolvedParticipants });
+  const labelEnglandThird = getTeamStatusLabel("england", mockStatusEnglandThird, mockSnapshotThirdCompleted, resolvedParticipants);
+  const labelFranceThird = getTeamStatusLabel("france", mockStatusFranceThird, mockSnapshotThirdCompleted, resolvedParticipants);
+  assert(labelEnglandThird === "Third place", `Third-place completed England label is Third place: "${labelEnglandThird}"`);
+  assert(labelFranceThird === "Fourth place", `Third-place completed France label is Fourth place: "${labelFranceThird}"`);
+
+  // C. Final completed (Spain wins)
+  const mockSnapshotFinalCompleted: Record<string, any> = {
+    "match-103": {
+      match: { matchNumber: 103, homeKey: "france", awayKey: "england", stage: "3P", date: "2026-07-18" },
+      status: "FINISHED",
+      homeScore: 4,
+      awayScore: 6,
+      winner: "away"
+    },
+    "match-104": {
+      match: { matchNumber: 104, homeKey: "spain", awayKey: "argentina", stage: "F", date: "2026-07-19" },
+      status: "FINISHED",
+      homeScore: 2,
+      awayScore: 1,
+      winner: "home"
+    }
+  };
+  const mockStatusSpainFinal = getTeamTournamentStatus({ teamKey: "spain", matches: MATCHES, snapshotMatches: mockSnapshotFinalCompleted, resolvedParticipants });
+  const mockStatusArgentinaFinal = getTeamTournamentStatus({ teamKey: "argentina", matches: MATCHES, snapshotMatches: mockSnapshotFinalCompleted, resolvedParticipants });
+  const labelSpainFinal = getTeamStatusLabel("spain", mockStatusSpainFinal, mockSnapshotFinalCompleted, resolvedParticipants);
+  const labelArgentinaFinal = getTeamStatusLabel("argentina", mockStatusArgentinaFinal, mockSnapshotFinalCompleted, resolvedParticipants);
+  assert(labelSpainFinal === "Champion", `Final completed Spain label is Champion: "${labelSpainFinal}"`);
+  assert(labelArgentinaFinal === "Runner-up", `Final completed Argentina label is Runner-up: "${labelArgentinaFinal}"`);
+
+  // D. Alternate resolved teams (e.g. Brazil and Italy in final, Brazil wins)
+  const mockSnapshotAlt: Record<string, any> = {
+    "match-103": {
+      match: { matchNumber: 103, homeKey: "france", awayKey: "england", stage: "3P", date: "2026-07-18" },
+      status: "FINISHED",
+      homeScore: 4,
+      awayScore: 6,
+      winner: "away"
+    },
+    "match-104": {
+      match: { matchNumber: 104, homeKey: "brazil", awayKey: "italy", stage: "F", date: "2026-07-19" },
+      status: "FINISHED",
+      homeScore: 3,
+      awayScore: 4,
+      winner: "away"
+    }
+  };
+  const mockStatusBrazilAlt = getTeamTournamentStatus({ teamKey: "brazil", matches: MATCHES, snapshotMatches: mockSnapshotAlt, resolvedParticipants });
+  const mockStatusItalyAlt = getTeamTournamentStatus({ teamKey: "italy", matches: MATCHES, snapshotMatches: mockSnapshotAlt, resolvedParticipants });
+  const labelBrazilAlt = getTeamStatusLabel("brazil", mockStatusBrazilAlt, mockSnapshotAlt, resolvedParticipants);
+  const labelItalyAlt = getTeamStatusLabel("italy", mockStatusItalyAlt, mockSnapshotAlt, resolvedParticipants);
+  assert(labelBrazilAlt === "Runner-up", `Alt final Brazil is Runner-up: "${labelBrazilAlt}"`);
+  assert(labelItalyAlt === "Champion", `Alt final Italy is Champion: "${labelItalyAlt}"`);
 
   console.log(`\nTests finished: ${passed} passed, ${failed} failed.`);
   if (failed > 0) {

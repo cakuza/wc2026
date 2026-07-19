@@ -29,7 +29,7 @@ export default async function TeamsPage() {
   const statuses = Object.fromEntries(TEAMS.map((team) => [team.key, getTeamTournamentStatus({ teamKey: team.key, matches: MATCHES, snapshotMatches: snapshot.matches, resolvedParticipants })]));
   const classifications = Object.fromEntries(Object.entries(statuses).map(([key, status]) => [key, status.classification]));
   const finalists = Object.entries(statuses).filter(([, status]) => status.currentStageLabel === "Finalist").map(([key]) => key);
-  const statusLabels = Object.fromEntries(TEAMS.map((team) => [team.key, getTeamStatusLabel(team.key, statuses[team.key], snapshot.matches)]));
+  const statusLabels = Object.fromEntries(TEAMS.map((team) => [team.key, getTeamStatusLabel(team.key, statuses[team.key], snapshot.matches, resolvedParticipants)]));
   return (
     <div className="mx-auto max-w-4xl px-4 py-8">
       <h1 className="mb-2 font-heading text-4xl font-extrabold uppercase tracking-wide text-white">

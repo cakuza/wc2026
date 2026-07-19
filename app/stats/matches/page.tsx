@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { getTournamentLiveSnapshot } from "@/lib/liveSnapshot";
 import { StatsNav } from "@/components/StatsNav";
 import { BreadcrumbNav } from "@/components/BreadcrumbNav";
@@ -67,7 +68,13 @@ export default async function MatchesStatsPage() {
                   Highest Scoring Match
                 </p>
                 <p className="mt-1 font-heading text-lg font-extrabold leading-snug text-white">
-                  {highestScoringMatch ? fmtResult(highestScoringMatch) : "—"}
+                  {highestScoringMatch ? (
+                    highestScoringMatch.matchId ? (
+                      <Link href={`/matches/${highestScoringMatch.matchId}`} className="hover:underline">
+                        {fmtResult(highestScoringMatch)}
+                      </Link>
+                    ) : fmtResult(highestScoringMatch)
+                  ) : "—"}
                 </p>
                 {highestScoringMatch && (
                   <p className="text-xs text-white/40 mt-1">{highestScoringMatch.totalGoals} total goals</p>
@@ -83,7 +90,13 @@ export default async function MatchesStatsPage() {
                   Biggest Win
                 </p>
                 <p className="mt-1 font-heading text-lg font-extrabold leading-snug text-white">
-                  {biggestWin ? fmtResult(biggestWin) : "—"}
+                  {biggestWin ? (
+                    biggestWin.matchId ? (
+                      <Link href={`/matches/${biggestWin.matchId}`} className="hover:underline">
+                        {fmtResult(biggestWin)}
+                      </Link>
+                    ) : fmtResult(biggestWin)
+                  ) : "—"}
                 </p>
                 {biggestWin && (
                   <p className="text-xs text-white/40 mt-1">{biggestWin.margin}-goal margin</p>

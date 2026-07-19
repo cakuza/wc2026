@@ -46,7 +46,7 @@ export function TeamsDirectory({
       case "ELIMINATED_GROUP_STAGE":
         return "Teams eliminated during the group stage.";
       default:
-        return "Teams that still have a match remaining in the tournament.";
+        return "All 48 national teams that competed at the 2026 World Cup, with their current or final tournament status.";
     }
   })();
 

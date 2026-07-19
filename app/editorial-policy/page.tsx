@@ -50,7 +50,7 @@ export default function EditorialPolicyPage() {
             Human-in-the-Loop Review
           </h2>
           <p>
-            While we utilize automated pipelines to fetch and format real-time score feeds, all ingested data undergoes rigorous developer and editor review. A human-in-the-loop validation process checks every result, bracket advancement, and statistical total to prevent automated errors from reaching public pages.
+            Automation assists data collection, normalization and drafting. Material corrections, canonical fallbacks and original editorial reports are reviewed against cited evidence before publication.
           </p>
         </section>
 

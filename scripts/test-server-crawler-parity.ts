@@ -28,6 +28,8 @@ const ROUTES = [
   "/schedule",
   "/groups",
   "/stats",
+  "/stats/matches",
+  "/stats/teams",
   "/bracket",
   "/teams",
   "/teams/france",
@@ -35,9 +37,13 @@ const ROUTES = [
   "/teams/spain",
   "/teams/argentina",
   "/matches/match-103",
+  "/matches/match-104",
   "/editorial-policy",
   "/corrections-policy",
   "/about",
+  "/privacy",
+  "/contact",
+  "/world-cup-2026-data-sources",
 ];
 
 let passed = 0;
@@ -89,6 +95,20 @@ function runParityTests() {
       // 5. No search/timezone hydration placeholders
       testAssert(!html.includes("Loading matchday") && !html.includes("Loading timezone"), `${route} contains no raw JS-stale placeholders`);
 
+      // 6. Global anti-regression assertions on HTML
+      testAssert(!/tbd\s*[64]–[64]\s*tbd/i.test(html), `${route} has no unresolved 'tbd 4-6 tbd' scorecard`);
+      testAssert(!html.includes("scores are never manually reconciled"), `${route} does not claim scores are never manually reconciled`);
+      testAssert(!html.includes("we do not produce editorial content"), `${route} does not claim we do not produce editorial content`);
+      testAssert(!/guarantee\s+(?:to\s+)?(?:update|correct|publish|reconcile).*\bminutes/i.test(html), `${route} does not make minute-level correction guarantees`);
+      testAssert(!/NEXT_PUBLIC_ADSENSE_CLIENT_ID/.test(html), `${route} does not contain unrendered env variables`);
+
+      // Clearly document that query-specific noindex is client-injected and not in static HTML
+      if (route === "/today") {
+        testAssert(!html.includes("noindex,follow"), `/today static HTML has no query-specific noindex/follow (injected on client side)`);
+        const canonicalMatch = html.match(/<link[^>]*rel="canonical"[^>]*href="([^"]+)"/);
+        testAssert(canonicalMatch !== null && canonicalMatch[1] === "https://www.worldcupmatchday.com/today", "/today server canonical is exactly /today");
+      }
+
       // Route-specific assertions
       if (route === "/") {
         testAssert(html.includes("Spain vs Argentina") || html.includes("Spain"), "Homepage lists Spain vs Argentina as the Finalists");
@@ -107,11 +127,69 @@ function runParityTests() {
         testAssert(html.includes("Finalist"), "Teams directory displays 'Finalist' label");
         testAssert(html.includes("Third place"), "Teams directory displays 'Third place' label");
         testAssert(html.includes("Fourth place"), "Teams directory displays 'Fourth place' label");
+        testAssert(!html.includes("Teams that still have a match remaining in the tournament."), "All-teams filter copy does not claim all teams are active");
+        testAssert(html.includes("All 48 national teams that competed at the 2026 World Cup, with their current or final tournament status."), "All-teams filter copy is truthful");
+      }
+
+      if (route === "/teams/spain") {
+        testAssert(html.includes("Finalist"), "/teams/spain lists status as Finalist");
+        testAssert(html.includes("match-104") || html.includes("Final"), "/teams/spain lists Match 104 as next/active match");
+        testAssert(!html.includes("Campaign completed"), "/teams/spain campaign is not marked completed");
+      }
+
+      if (route === "/teams/argentina") {
+        testAssert(html.includes("Finalist"), "/teams/argentina lists status as Finalist");
+        testAssert(html.includes("match-104") || html.includes("Final"), "/teams/argentina lists Match 104 as next/active match");
+        testAssert(!html.includes("Campaign completed"), "/teams/argentina campaign is not marked completed");
+      }
+
+      if (route === "/teams/england") {
+        testAssert(html.includes("Third place"), "/teams/england lists status as Third place");
+        testAssert(html.toLowerCase().includes("campaign completed"), "/teams/england campaign is marked completed");
+      }
+
+      if (route === "/teams/france") {
+        testAssert(html.includes("Fourth place"), "/teams/france lists status as Fourth place");
+        testAssert(html.toLowerCase().includes("campaign completed"), "/teams/france campaign is marked completed");
+      }
+
+      if (route === "/matches/match-104") {
+        testAssert(html.includes("Spain") && html.includes("Argentina"), "Match 104 shows Spain vs Argentina");
+        testAssert(html.includes("Upcoming") || html.includes("UPCOMING") || html.includes("vs"), "Match 104 remains upcoming");
+      }
+
+      if (route === "/matches/match-103") {
+        testAssert(html.includes("England") && html.includes("France"), "Match 103 shows England vs France");
+        testAssert(html.includes("6–4") || html.includes("6-4"), "Match 103 shows completed 6-4 score");
+      }
+
+      if (route === "/stats/matches") {
+        testAssert(html.includes("France") && html.includes("England"), "/stats/matches lists France vs England");
+        testAssert(html.includes("6–4") || html.includes("4–6") || html.includes("6-4"), "/stats/matches lists the 6-4 score");
+        testAssert(html.includes("10"), "/stats/matches lists 10 total goals for the match");
+        testAssert(html.includes("match-103") || html.includes("france-vs-england"), "/stats/matches links to Match 103");
+      }
+
+      if (route === "/stats/teams") {
+        testAssert(html.includes("France") && html.includes("England"), "/stats/teams lists France and England");
+        testAssert(html.includes("20"), "/stats/teams lists France and England goal totals (20)");
+        testAssert(html.includes("13"), "/stats/teams lists Spain goal total (13)");
+        testAssert(html.includes("19"), "/stats/teams lists Argentina goal total (19)");
+        testAssert(!html.includes("group-stage-only"), "/stats/teams does not display group-stage-only totals");
+      }
+
+      if (route === "/privacy") {
+        testAssert(html.includes("We may use Google AdSense or similar advertising services if advertising is enabled"), "Privacy page has truthful conditional AdSense copy");
+        testAssert(!html.includes("We use Google AdSense, a third-party advertising service"), "Privacy page does not claim active-AdSense");
       }
 
       if (route === "/editorial-policy") {
         testAssert(html.includes("Editorial Policy"), "Editorial policy page rendered correctly");
         testAssert(html.includes("WorldCupMatchDay"), "Editorial policy attributes WorldCupMatchDay");
+        testAssert(html.includes("independent digital publication"), "Editorial policy asserts independent publisher identity");
+        testAssert(html.includes("sources (including FIFA.com)"), "Editorial policy attributes FIFA.com as a source");
+        testAssert(html.includes("Automation assists data collection, normalization and drafting. Material corrections, canonical fallbacks and original editorial reports are reviewed against cited evidence before publication."), "Editorial policy has truthful review copy");
+        testAssert(!html.includes("all ingested data undergoes rigorous developer and editor review"), "Editorial policy has no universal manual review claim");
       }
 
       if (route === "/corrections-policy") {
