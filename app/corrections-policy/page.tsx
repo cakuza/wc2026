@@ -32,7 +32,7 @@ export default function CorrectionsPolicyPage() {
             Correction Protocols
           </h2>
           <p>
-            When a data inconsistency is identified, our developers and editors verify the correction against canonical tournament resources. Verified corrections are updated directly in our structured data repository. Changes take effect across our pages on the next automated rebuild or revalidation cycle, typically within minutes of verification.
+            When a data inconsistency is identified, our developers and editors verify the correction against canonical tournament resources. Verified corrections are updated directly in our structured data repository. Changes take effect across our pages in the next verified rebuild, data-sync cycle or reviewed release.
           </p>
         </section>
 

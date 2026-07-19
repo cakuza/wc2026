@@ -15,6 +15,35 @@ const STAGE_STATUS: Record<string, string> = {
   F: "Finalist",
 };
 
+export function getWinnerSide({
+  homeScore,
+  awayScore,
+  liveWinner,
+  penaltyShootoutScore,
+}: {
+  homeScore: number | null;
+  awayScore: number | null;
+  liveWinner?: "HOME_TEAM" | "AWAY_TEAM" | "DRAW" | null;
+  penaltyShootoutScore?: { home: number | null; away: number | null } | null;
+}): "home" | "away" | null {
+  let side: "home" | "away" | null = null;
+  if (liveWinner === "HOME_TEAM") side = "home";
+  else if (liveWinner === "AWAY_TEAM") side = "away";
+  else {
+    const shootout = penaltyShootoutScore;
+    if (shootout?.home !== null && shootout?.home !== undefined && shootout?.away !== null && shootout?.away !== undefined) {
+      if (shootout.home > shootout.away) side = "home";
+      else if (shootout.away > shootout.home) side = "away";
+    }
+  }
+
+  if (!side && homeScore !== null && awayScore !== null) {
+    if (homeScore > awayScore) side = "home";
+    else if (awayScore > homeScore) side = "away";
+  }
+  return side;
+}
+
 export function getKnockoutWinnerAndLoser(
   m: SerializableSnapshotMatch,
   resolvedParticipants?: ResolvedParticipantLookup
@@ -28,21 +57,12 @@ export function getKnockoutWinnerAndLoser(
   if (objWinner === "home") side = "home";
   else if (objWinner === "away") side = "away";
   else {
-    const providerWinner = m.live?.winner;
-    if (providerWinner === "HOME_TEAM") side = "home";
-    else if (providerWinner === "AWAY_TEAM") side = "away";
-    else {
-      const shootout = m.live?.penaltyShootoutScore;
-      if (shootout?.home !== null && shootout?.home !== undefined && shootout?.away !== null && shootout?.away !== undefined) {
-        if (shootout.home > shootout.away) side = "home";
-        else if (shootout.away > shootout.home) side = "away";
-      }
-    }
-  }
-
-  if (!side && m.homeScore !== null && m.awayScore !== null) {
-    if (m.homeScore > m.awayScore) side = "home";
-    else if (m.awayScore > m.homeScore) side = "away";
+    side = getWinnerSide({
+      homeScore: m.homeScore,
+      awayScore: m.awayScore,
+      liveWinner: m.live?.winner,
+      penaltyShootoutScore: m.live?.penaltyShootoutScore,
+    });
   }
 
   if (side === "home") return { winner: home, loser: away };

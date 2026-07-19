@@ -474,12 +474,32 @@ async function runTests() {
     snapshotMatches: postSnapshotMatches,
     resolvedParticipants: resolvedParticipantsObj
   });
+  const postStatusArgentina = getTeamTournamentStatus({
+    teamKey: "argentina",
+    matches: MATCHES,
+    snapshotMatches: postSnapshotMatches,
+    resolvedParticipants: resolvedParticipantsObj
+  });
   const postLabelSpain = getTeamStatusLabel("spain", postStatusSpain, postSnapshotMatches, resolvedParticipantsObj);
-  const postLabelArgentina = getTeamStatusLabel("argentina", postStatusSpain, postSnapshotMatches, resolvedParticipantsObj);
+  const postLabelArgentina = getTeamStatusLabel("argentina", postStatusArgentina, postSnapshotMatches, resolvedParticipantsObj);
 
   assert(postLabelSpain === "Champion", `Post-final Spain card label is "Champion": "${postLabelSpain}"`);
   assert(postLabelArgentina === "Runner-up", `Post-final Argentina card label is "Runner-up": "${postLabelArgentina}"`);
   assert(postStatusSpain.classification === "ELIMINATED_KNOCKOUT", "Post-final Spain is classified as ELIMINATED_KNOCKOUT (not active)");
+  assert(postStatusArgentina.classification === "ELIMINATED_KNOCKOUT", "Post-final Argentina is classified as ELIMINATED_KNOCKOUT (not active)");
+
+  // both remain in the historical Finalists collection
+  const postFinalistsResult = getFinalistsForMatch104Snapshot({
+    status: "FINISHED",
+    homeScore: 2,
+    awayScore: 1,
+    winner: "home",
+  });
+  assert(postFinalistsResult.includes("spain") && postFinalistsResult.includes("argentina"), "Both Spain and Argentina remain in finalists collection after final");
+
+  // neither remains in the Active filter after the final
+  assert(postStatusSpain.classification !== "ACTIVE_KNOCKOUT", "Spain is not active after final");
+  assert(postStatusArgentina.classification !== "ACTIVE_KNOCKOUT", "Argentina is not active after final");
 
   console.log(`\nTests finished: ${passed} passed, ${failed} failed.`);
   if (failed > 0) {

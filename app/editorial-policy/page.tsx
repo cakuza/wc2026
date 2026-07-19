@@ -32,7 +32,7 @@ export default function EditorialPolicyPage() {
             Factual Verification
           </h2>
           <p>
-            Accuracy is our highest priority. All scores, goal scorers, statistics, standings, and tournament brackets published on this site are verified using primary official sources (including FIFA.com) and reputable international sports media organizations.
+            Accuracy is our highest priority. Published scores, goal events, statistics, standings and bracket outcomes are sourced from documented providers and canonical tournament records. Material conflicts and corrections are reviewed against cited evidence.
           </p>
         </section>
 
