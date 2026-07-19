@@ -6,6 +6,7 @@ import { MATCHES } from "@/lib/matches";
 import { getTournamentLiveSnapshot } from "@/lib/liveSnapshot";
 import { buildKnockoutResolution } from "@/lib/knockoutResolution";
 import { getTeamTournamentStatus, getTeamStatusLabel } from "@/lib/teamTournamentStatus";
+import { getResolvedAwayTeam, getResolvedHomeTeam } from "@/lib/participant-resolution";
 
 const BASE_URL = "https://www.worldcupmatchday.com";
 
@@ -28,7 +29,15 @@ export default async function TeamsPage() {
   const resolvedParticipants = buildKnockoutResolution(snapshot.matches);
   const statuses = Object.fromEntries(TEAMS.map((team) => [team.key, getTeamTournamentStatus({ teamKey: team.key, matches: MATCHES, snapshotMatches: snapshot.matches, resolvedParticipants })]));
   const classifications = Object.fromEntries(Object.entries(statuses).map(([key, status]) => [key, status.classification]));
-  const finalists = Object.entries(statuses).filter(([, status]) => status.currentStageLabel === "Finalist").map(([key]) => key);
+
+  const match104 = snapshot.matches["match-104"];
+  const finalists: string[] = [];
+  if (match104) {
+    const finalHome = match104.match.homeKey !== "tbd" ? match104.match.homeKey : (getResolvedHomeTeam(match104.match, resolvedParticipants) ?? "tbd");
+    const finalAway = match104.match.awayKey !== "tbd" ? match104.match.awayKey : (getResolvedAwayTeam(match104.match, resolvedParticipants) ?? "tbd");
+    if (finalHome !== "tbd") finalists.push(finalHome);
+    if (finalAway !== "tbd") finalists.push(finalAway);
+  }
   const statusLabels = Object.fromEntries(TEAMS.map((team) => [team.key, getTeamStatusLabel(team.key, statuses[team.key], snapshot.matches, resolvedParticipants)]));
   return (
     <div className="mx-auto max-w-4xl px-4 py-8">

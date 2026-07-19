@@ -10,12 +10,14 @@ import { useTimezone } from "@/components/TimezoneProvider";
 import { matchSlug, ARCHIVE_DEFAULT_DATE, MATCHES, type Match } from "@/lib/matches";
 import { getHomepageMatchCenterSnapshot, getMatchCenterSnapshot, type TournamentPhase } from "@/lib/matchCenterSelection";
 import { getMatchPresentation, getMatchStatusLabel } from "@/lib/matchPresentation";
-import { getParticipantDisplay, type ResolvedParticipantLookup } from "@/lib/participant-resolution";
+import { getParticipantDisplay, getResolvedHomeTeam, getResolvedAwayTeam, type ResolvedParticipantLookup } from "@/lib/participant-resolution";
 import type { LiveMatchData } from "@/lib/liveMatchData";
 import type { GoalScorerEvent } from "@/lib/worldcup26Provider";
 import { reconcileGoalEvents } from "@/lib/scoreReconciliation";
 import { formatGoalEventDisplay } from "@/lib/canonicalArchiveEvents";
 import { CountdownClient } from "@/components/CountdownClient";
+import { getDecidingMatchRecap } from "@/lib/resultSummary";
+import { getKnockoutWinnerAndLoser } from "@/lib/teamTournamentStatus";
 
 export type MatchCenterLiveSnapshot = {
   snapshotId: string;
@@ -44,7 +46,7 @@ function DecidingMatchCard({ m, live, resolvedParticipants, primary }: {
   resolvedParticipants: ResolvedParticipantLookup;
   primary: boolean;
 }) {
-  const { lang } = useLang();
+  const { lang, country } = useLang();
   const { timeZone } = useTimezone();
   const home = getParticipantDisplay(m, "home", resolvedParticipants, lang);
   const away = getParticipantDisplay(m, "away", resolvedParticipants, lang);
@@ -56,8 +58,59 @@ function DecidingMatchCard({ m, live, resolvedParticipants, primary }: {
   const isFinished = presentation.state === "final";
   if (isFinished) {
     const isThird = "stage" in m && m.stage === "3P";
-    const subTitle = isThird ? "England third · France fourth" : "Champion determined";
-    const winNote = isThird ? "England secured third place with a 6–4 victory." : "Final completed.";
+
+    const serializableMatch = {
+      match: m,
+      homeScore: presentation.homeScore ?? null,
+      awayScore: presentation.awayScore ?? null,
+      live: live ?? null,
+    } as any;
+
+    const outcome = getKnockoutWinnerAndLoser(serializableMatch, resolvedParticipants);
+    let subTitle = "";
+    let winNote = "";
+
+    if (outcome) {
+      const winnerName = country(outcome.winner);
+      const loserName = country(outcome.loser);
+      const homeKey = m.homeKey !== "tbd" ? m.homeKey : (getResolvedHomeTeam(m, resolvedParticipants) ?? "tbd");
+      const winnerIsHome = outcome.winner === homeKey;
+
+      const wScore = winnerIsHome ? presentation.homeScore : presentation.awayScore;
+      const lScore = winnerIsHome ? presentation.awayScore : presentation.homeScore;
+
+      const shootout = live?.penaltyShootoutScore;
+      const isPens = shootout?.home !== null && shootout?.home !== undefined && shootout?.away !== null && shootout?.away !== undefined;
+
+      if (isThird) {
+        subTitle = `${winnerName} third · ${loserName} fourth`;
+        if (isPens) {
+          const wPens = winnerIsHome ? shootout.home : shootout.away;
+          const lPens = winnerIsHome ? shootout.away : shootout.home;
+          winNote = `${winnerName} secured third place with a ${wPens}–${lPens} penalty shootout victory after a ${wScore}–${lScore} draw.`;
+        } else {
+          winNote = `${winnerName} secured third place with a ${wScore}–${lScore} victory.`;
+        }
+      } else {
+        subTitle = `${winnerName} Champion · ${loserName} Runner-up`;
+        if (isPens) {
+          const wPens = winnerIsHome ? shootout.home : shootout.away;
+          const lPens = winnerIsHome ? shootout.away : shootout.home;
+          winNote = `${winnerName} secured the World Cup title with a ${wPens}–${lPens} penalty shootout victory after a ${wScore}–${lScore} draw.`;
+        } else {
+          winNote = `${winnerName} secured the World Cup title with a ${wScore}–${lScore} victory.`;
+        }
+      }
+    } else {
+      if (isThird) {
+        subTitle = "Third-place playoff completed";
+        winNote = "Result pending verification.";
+      } else {
+        subTitle = "Final completed";
+        winNote = "Result pending verification.";
+      }
+    }
+
     return (
       <Link href={`/matches/${matchSlug(m)}`} prefetch={false} aria-label={`View ${stage} report: ${home.label} ${presentation.homeScore}-${presentation.awayScore} ${away.label}`}
         className="block rounded-xl border border-white/10 bg-navyCard/60 p-4 transition hover:border-accent/80 sm:p-5">

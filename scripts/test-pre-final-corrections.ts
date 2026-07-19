@@ -12,6 +12,7 @@ import { buildKnockoutResolution } from "../lib/knockoutResolution";
 import { MATCHES, isValidDateParam } from "../lib/matches";
 import { isValidTimeZone } from "../lib/timezone";
 import type { LiveMatchData } from "../lib/liveMatchData";
+import { getResolvedAwayTeam, getResolvedHomeTeam } from "../lib/participant-resolution";
 
 let passed = 0;
 let failed = 0;
@@ -313,6 +314,172 @@ async function runTests() {
   const labelItalyAlt = getTeamStatusLabel("italy", mockStatusItalyAlt, mockSnapshotAlt, resolvedParticipants);
   assert(labelBrazilAlt === "Runner-up", `Alt final Brazil is Runner-up: "${labelBrazilAlt}"`);
   assert(labelItalyAlt === "Champion", `Alt final Italy is Champion: "${labelItalyAlt}"`);
+
+  // 5. Deciding match completed-recap dynamic text derivation tests
+  console.log("\n--- Deciding Match Completed-Recap Tests ---");
+
+  const { getDecidingMatchRecap } = require("../lib/resultSummary");
+
+  // Test 1: Italy third, Brazil fourth (Brazil 3-4 Italy, Italy wins in regular time)
+  const alt3P_1 = getDecidingMatchRecap({
+    stage: "3P",
+    homeName: "Brazil",
+    awayName: "Italy",
+    homeScore: 3,
+    awayScore: 4,
+    winnerKey: "away",
+    penaltyShootoutScore: null,
+  });
+  assert(alt3P_1.subTitle === "Italy third · Brazil fourth", `3P recap subTitle is "Italy third · Brazil fourth": "${alt3P_1.subTitle}"`);
+  assert(alt3P_1.winNote === "Italy secured third place with a 4–3 victory.", `3P recap winNote is "Italy secured third place with a 4–3 victory.": "${alt3P_1.winNote}"`);
+
+  // Test 2: Japan third, Mexico fourth (Japan 2-1 Mexico, Japan wins as home team)
+  const alt3P_2 = getDecidingMatchRecap({
+    stage: "3P",
+    homeName: "Japan",
+    awayName: "Mexico",
+    homeScore: 2,
+    awayScore: 1,
+    winnerKey: "home",
+    penaltyShootoutScore: null,
+  });
+  assert(alt3P_2.subTitle === "Japan third · Mexico fourth", `3P recap subTitle is "Japan third · Mexico fourth": "${alt3P_2.subTitle}"`);
+  assert(alt3P_2.winNote === "Japan secured third place with a 2–1 victory.", `3P recap winNote is "Japan secured third place with a 2–1 victory.": "${alt3P_2.winNote}"`);
+
+  // Test 3: Shootout victory (e.g. Germany 1-1 Argentina, Germany wins 5-3 on pens)
+  const alt3P_3 = getDecidingMatchRecap({
+    stage: "3P",
+    homeName: "Germany",
+    awayName: "Argentina",
+    homeScore: 1,
+    awayScore: 1,
+    winnerKey: "home",
+    penaltyShootoutScore: { home: 5, away: 3 },
+  });
+  assert(alt3P_3.subTitle === "Germany third · Argentina fourth", `Shootout subTitle matches: "${alt3P_3.subTitle}"`);
+  assert(alt3P_3.winNote === "Germany secured third place with a 5–3 penalty shootout victory after a 1–1 draw.", `Shootout winNote matches: "${alt3P_3.winNote}"`);
+
+  // Test 4: Final Match completed-recap (e.g. Spain 2-1 Argentina, Spain wins)
+  const altFinal = getDecidingMatchRecap({
+    stage: "F",
+    homeName: "Spain",
+    awayName: "Argentina",
+    homeScore: 2,
+    awayScore: 1,
+    winnerKey: "home",
+    penaltyShootoutScore: null,
+  });
+  assert(altFinal.subTitle === "Spain Champion · Argentina Runner-up", `Final recap subTitle is "Spain Champion · Argentina Runner-up": "${altFinal.subTitle}"`);
+  assert(altFinal.winNote === "Spain secured the World Cup title with a 2–1 victory.", `Final recap winNote is "Spain secured the World Cup title with a 2–1 victory.": "${altFinal.winNote}"`);
+
+  // Assert no literal "England", "France", or "6-4" / "6–4" in getDecidingMatchRecap source implementation
+  const fs = require("node:fs");
+  const path = require("node:path");
+  const resultSummarySource = fs.readFileSync(path.join(__dirname, "../lib/resultSummary.ts"), "utf8");
+  const matchRecapImpl = resultSummarySource.match(/export function getDecidingMatchRecap[\s\S]+/)?.[0] ?? "";
+  assert(!/England|France|6[–-]4/.test(matchRecapImpl), "No hardcoded 'England', 'France', or '6-4' in getDecidingMatchRecap source code");
+
+  // 6. Finalists filter regression tests (app/teams/page.tsx data logic)
+  console.log("\n--- Finalists Filter Pre/Post Final Regression Tests ---");
+
+  function getFinalistsForMatch104Snapshot(match104Snap: any) {
+    const mockSnap = {
+      matches: {
+        "match-104": {
+          match: { matchNumber: 104, homeKey: "spain", awayKey: "argentina", stage: "F", date: "2026-07-19" },
+          ...match104Snap,
+        }
+      }
+    };
+    const res = buildKnockoutResolution(mockSnap.matches);
+    const m104 = mockSnap.matches["match-104"];
+    const extractedFinalists: string[] = [];
+    if (m104) {
+      const finalHome = m104.match.homeKey !== "tbd" ? m104.match.homeKey : (getResolvedHomeTeam(m104.match, res) ?? "tbd");
+      const finalAway = m104.match.awayKey !== "tbd" ? m104.match.awayKey : (getResolvedAwayTeam(m104.match, res) ?? "tbd");
+      if (finalHome !== "tbd") extractedFinalists.push(finalHome);
+      if (finalAway !== "tbd") extractedFinalists.push(finalAway);
+    }
+    return extractedFinalists;
+  }
+
+  // Pre-final state (Match 104 UPCOMING)
+  const preFinalists = getFinalistsForMatch104Snapshot({
+    status: "UPCOMING",
+    homeScore: null,
+    awayScore: null,
+    winner: null,
+  });
+  assert(preFinalists.includes("spain") && preFinalists.includes("argentina") && preFinalists.length === 2, "Before final: Finalists filter contains both participants");
+
+  // Post-final state (Match 104 FINISHED, Spain wins 2-1)
+  const postFinalists = getFinalistsForMatch104Snapshot({
+    status: "FINISHED",
+    homeScore: 2,
+    awayScore: 1,
+    winner: "home",
+  });
+  assert(postFinalists.includes("spain") && postFinalists.includes("argentina") && postFinalists.length === 2, "After final: Finalists filter still contains both participants");
+
+  // Validate active filter and labels pre/post final
+  const mockAllMatchesFinishedSnapshot: Record<string, any> = {};
+  const { matchSlug } = require("../lib/matches");
+  for (const m of MATCHES) {
+    const isAwayWin = "matchNumber" in m && (m.matchNumber === 93 || m.matchNumber === 101);
+    mockAllMatchesFinishedSnapshot[matchSlug(m)] = {
+      match: m,
+      status: "FINISHED",
+      homeScore: isAwayWin ? 0 : 1,
+      awayScore: isAwayWin ? 1 : 0,
+    };
+  }
+
+  const resolvedParticipantsObj = buildKnockoutResolution(mockAllMatchesFinishedSnapshot);
+
+  // Pre-final snapshot
+  const preSnapshotMatches = { ...mockAllMatchesFinishedSnapshot };
+  preSnapshotMatches["match-104"] = {
+    match: { matchNumber: 104, homeKey: "spain", awayKey: "argentina", stage: "F", date: "2026-07-19" },
+    status: "UPCOMING",
+    homeScore: null,
+    awayScore: null,
+    winner: null,
+  };
+
+  // Pre-final label & active status check
+  const preStatusSpain = getTeamTournamentStatus({
+    teamKey: "spain",
+    matches: MATCHES,
+    snapshotMatches: preSnapshotMatches,
+    resolvedParticipants: resolvedParticipantsObj
+  });
+  const preLabelSpain = getTeamStatusLabel("spain", preStatusSpain, preSnapshotMatches, resolvedParticipantsObj);
+  assert(preLabelSpain === "Finalist", `Pre-final Spain card label is "Finalist": "${preLabelSpain}"`);
+  assert(preStatusSpain.classification === "ACTIVE_KNOCKOUT", "Pre-final Spain is classified as ACTIVE_KNOCKOUT");
+
+  // Post-final snapshot
+  const postSnapshotMatches = { ...mockAllMatchesFinishedSnapshot };
+  postSnapshotMatches["match-104"] = {
+    match: { matchNumber: 104, homeKey: "spain", awayKey: "argentina", stage: "F", date: "2026-07-19" },
+    status: "FINISHED",
+    homeScore: 2,
+    awayScore: 1,
+    winner: "home",
+  };
+
+  // Post-final label & active status check
+  const postStatusSpain = getTeamTournamentStatus({
+    teamKey: "spain",
+    matches: MATCHES,
+    snapshotMatches: postSnapshotMatches,
+    resolvedParticipants: resolvedParticipantsObj
+  });
+  const postLabelSpain = getTeamStatusLabel("spain", postStatusSpain, postSnapshotMatches, resolvedParticipantsObj);
+  const postLabelArgentina = getTeamStatusLabel("argentina", postStatusSpain, postSnapshotMatches, resolvedParticipantsObj);
+
+  assert(postLabelSpain === "Champion", `Post-final Spain card label is "Champion": "${postLabelSpain}"`);
+  assert(postLabelArgentina === "Runner-up", `Post-final Argentina card label is "Runner-up": "${postLabelArgentina}"`);
+  assert(postStatusSpain.classification === "ELIMINATED_KNOCKOUT", "Post-final Spain is classified as ELIMINATED_KNOCKOUT (not active)");
 
   console.log(`\nTests finished: ${passed} passed, ${failed} failed.`);
   if (failed > 0) {

@@ -142,7 +142,7 @@ async function main() {
   assert(existsSync(teamsDirectory), teamsDirectory + ' exists');
   if (existsSync(teamsDirectory)) {
     const html = readFileSync(teamsDirectory, 'utf8').replace(/<!-- -->/g, '');
-    assert(html.includes('Teams that still have a match remaining in the tournament.'), 'Teams directory contains exact active text');
+    assert(html.includes('All 48 national teams that competed at the 2026 World Cup, with their current or final tournament status.'), 'Teams directory contains truthful default copy');
   }
 
   const topScorersOut = join(outDir, 'stats', 'top-scorers.html');

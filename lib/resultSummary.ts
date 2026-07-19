@@ -167,3 +167,83 @@ export function buildScorerSentence(
   if (clauses.length === 2) return `${clauses[0]} before ${clauses[1]}.`;
   return `${clauses.slice(0, -1).join(", ")}, and ${clauses[clauses.length - 1]}.`;
 }
+
+export function getDecidingMatchRecap({
+  stage,
+  homeName,
+  awayName,
+  homeScore,
+  awayScore,
+  winnerKey,
+  penaltyShootoutScore,
+}: {
+  stage: "3P" | "F";
+  homeName: string;
+  awayName: string;
+  homeScore: number | null;
+  awayScore: number | null;
+  winnerKey: "home" | "away" | null;
+  penaltyShootoutScore?: { home: number | null; away: number | null } | null;
+}): { subTitle: string; winNote: string } {
+  const isThird = stage === "3P";
+  if (homeScore === null || awayScore === null) {
+    return {
+      subTitle: isThird ? "Third-place playoff completed" : "Final completed",
+      winNote: "Result pending verification.",
+    };
+  }
+
+  let winnerSide: "home" | "away" | null = winnerKey;
+  if (!winnerSide) {
+    if (homeScore > awayScore) winnerSide = "home";
+    else if (awayScore > homeScore) winnerSide = "away";
+  }
+
+  if (!winnerSide) {
+    const shootout = penaltyShootoutScore;
+    if (shootout?.home !== null && shootout?.home !== undefined && shootout?.away !== null && shootout?.away !== undefined) {
+      if (shootout.home > shootout.away) winnerSide = "home";
+      else if (shootout.away > shootout.home) winnerSide = "away";
+    }
+  }
+
+  if (!winnerSide) {
+    return {
+      subTitle: isThird ? "Third-place playoff completed" : "Final completed",
+      winNote: "Result pending verification.",
+    };
+  }
+
+  const winnerName = winnerSide === "home" ? homeName : awayName;
+  const loserName = winnerSide === "home" ? awayName : homeName;
+  const wScore = winnerSide === "home" ? homeScore : awayScore;
+  const lScore = winnerSide === "home" ? awayScore : homeScore;
+
+  const shootout = penaltyShootoutScore;
+  const isPens = shootout?.home !== null && shootout?.home !== undefined && shootout?.away !== null && shootout?.away !== undefined;
+
+  let subTitle = "";
+  let winNote = "";
+
+  if (isThird) {
+    subTitle = `${winnerName} third · ${loserName} fourth`;
+    if (isPens) {
+      const wPens = winnerSide === "home" ? shootout.home : shootout.away;
+      const lPens = winnerSide === "home" ? shootout.away : shootout.home;
+      winNote = `${winnerName} secured third place with a ${wPens}–${lPens} penalty shootout victory after a ${wScore}–${lScore} draw.`;
+    } else {
+      winNote = `${winnerName} secured third place with a ${wScore}–${lScore} victory.`;
+    }
+  } else {
+    subTitle = `${winnerName} Champion · ${loserName} Runner-up`;
+    if (isPens) {
+      const wPens = winnerSide === "home" ? shootout.home : shootout.away;
+      const lPens = winnerSide === "home" ? shootout.away : shootout.home;
+      winNote = `${winnerName} secured the World Cup title with a ${wPens}–${lPens} penalty shootout victory after a ${wScore}–${lScore} draw.`;
+    } else {
+      winNote = `${winnerName} secured the World Cup title with a ${wScore}–${lScore} victory.`;
+    }
+  }
+
+  return { subTitle, winNote };
+}

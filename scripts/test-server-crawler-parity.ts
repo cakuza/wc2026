@@ -60,7 +60,8 @@ function testAssert(condition: boolean, msg: string) {
 }
 
 function runParityTests() {
-  console.log("=== Running Server-Crawler Parity Tests ===\n");
+  console.log("=== Running Server-Crawler Parity Tests ===");
+  console.log(`Executing server-crawler parity check across ${ROUTES.length} routes...\n`);
 
   if (!fs.existsSync(outDirectory)) {
     console.error(`Error: 'out/' directory not found. Please build the project first.`);
