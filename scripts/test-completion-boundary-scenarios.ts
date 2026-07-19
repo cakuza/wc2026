@@ -34,8 +34,12 @@ import { MATCHES, ARCHIVE_DEFAULT_DATE, matchUtcDate } from "../lib/matches";
 import { getArchiveState } from "../lib/archiveLifecycle";
 import { getTournamentPhase, getHomepageMatchCenterSnapshot } from "../lib/matchCenterSelection";
 import type { LiveMatchData } from "../lib/liveMatchData";
+import { COMPLETED_KNOCKOUT_RESULTS } from "../lib/canonicalMatchResults";
+import assert from "node:assert";
 
+const originalMatch103 = (COMPLETED_KNOCKOUT_RESULTS as any)[103];
 let failures = 0;
+
 function check(condition: boolean, message: string): void {
   if (condition) {
     console.log(`PASS ${message}`);
@@ -44,6 +48,10 @@ function check(condition: boolean, message: string): void {
     failures += 1;
   }
 }
+
+try {
+  // Disable manual fallback for Match 103 to allow simulating its scheduled/upcoming states
+  delete (COMPLETED_KNOCKOUT_RESULTS as any)[103];
 
 function grepFile(relPath: string, pattern: string | RegExp): boolean {
   const src = readFileSync(join(process.cwd(), relPath), "utf8");
@@ -225,4 +233,14 @@ if (failures > 0) {
   process.exitCode = 1;
 } else {
   console.log("\nALL COMPLETION-BOUNDARY SCENARIO CHECKS PASSED.");
+}
+} finally {
+  if (originalMatch103) {
+    (COMPLETED_KNOCKOUT_RESULTS as any)[103] = originalMatch103;
+  } else {
+    delete (COMPLETED_KNOCKOUT_RESULTS as any)[103];
+  }
+  const restoredValue = (COMPLETED_KNOCKOUT_RESULTS as any)[103];
+  assert.deepStrictEqual(restoredValue, originalMatch103, "Canonical results registry must be restored after tests");
+  console.log("CONFIRM: Canonical results registry for Match 103 has been successfully restored.");
 }

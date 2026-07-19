@@ -25,6 +25,7 @@
 import { MATCHES, matchSlug } from "./matches";
 import { countryName } from "./i18n";
 import type { WorldCup26Game, GoalScorerEvent } from "./worldcup26Provider";
+import { getResolvedHomeTeam, getResolvedAwayTeam } from "./participant-resolution";
 
 // ── Name normalisation (mirrors liveSnapshot.ts, kept local to avoid circular dep) ──
 
@@ -185,7 +186,7 @@ export function validateProviderPayload(
     }
   }
 
-  // ── 3. Map canonical group matches → provider ─────────────────────────────
+  // ── 3. Map canonical matches → provider ─────────────────────────────
 
   const mapped   = new Set<string>();
   const gameForSlug = new Map<string, WorldCup26Game>();
@@ -202,8 +203,31 @@ export function validateProviderPayload(
     }
   }
 
-  const mappedCount  = mapped.size;
-  const unmappedCount = totalCanonical - mappedCount;
+  // Also resolve and map completed knockout matches using COMPLETED_KNOCKOUT_RESULTS
+  const knockoutMatches = MATCHES.filter(
+    (m) => "stage" in m && m.stage !== "group" && m.stage !== undefined,
+  );
+  for (const match of knockoutMatches) {
+    const slug = matchSlug(match);
+    if (completedSlugs.has(slug)) {
+      const homeKey = getResolvedHomeTeam(match);
+      const awayKey = getResolvedAwayTeam(match);
+      if (homeKey && awayKey && homeKey !== "tbd" && awayKey !== "tbd") {
+        const homeDisp = countryName(homeKey, "en");
+        const awayDisp = countryName(awayKey, "en");
+        const lookupKey = `${normalizeForMatching(homeDisp)}|${normalizeForMatching(awayDisp)}`;
+        const candidates = gamesByKey.get(lookupKey);
+        if (candidates && candidates.length >= 1) {
+          mapped.add(slug);
+          gameForSlug.set(slug, candidates[0]);
+        }
+      }
+    }
+  }
+
+  const groupMappedCount = canonicalMatches.filter((m) => mapped.has(matchSlug(m))).length;
+  const mappedCount  = groupMappedCount;
+  const unmappedCount = totalCanonical - groupMappedCount;
 
   // ── 4. Total payload count ────────────────────────────────────────────────
 

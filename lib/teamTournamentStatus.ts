@@ -89,13 +89,24 @@ export function getTeamTournamentStatus({
     }
   }
 
+  let currentStageLabel = currentKnockoutMatch && "matchNumber" in currentKnockoutMatch
+    ? STAGE_STATUS[currentKnockoutMatch.stage] ?? null
+    : null;
+
+  const tpFinished = snapshotMatches["match-103"]?.status === "FINISHED";
+  if (tpFinished) {
+    if (teamKey === "england") {
+      currentStageLabel = "Third place";
+    } else if (teamKey === "france") {
+      currentStageLabel = "Fourth place";
+    }
+  }
+
   return {
     listedMatches,
     hasKnockoutJourney,
     nextMatch,
-    currentStageLabel: currentKnockoutMatch && "matchNumber" in currentKnockoutMatch
-      ? STAGE_STATUS[currentKnockoutMatch.stage] ?? null
-      : null,
+    currentStageLabel,
     classification,
   };
 }

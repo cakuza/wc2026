@@ -94,7 +94,11 @@ function run() {
         const espnEvents = payload.keyEvents || [];
 
         // Check goals conflict
-        const espnGoals = espnEvents.filter((e: any) => e.type?.text?.toLowerCase().includes('goal'));
+        const espnGoals = espnEvents.filter((e: any) => {
+            const typeText = e.type?.text?.toLowerCase() || '';
+            const typeType = e.type?.type || '';
+            return typeText.includes('goal') || typeText.includes('penalty - scored') || typeType === 'penalty---scored';
+        });
         const repoGoalsCount = verifiedExists ? verifiedEvents.length : 0;
 
         if (verifiedExists && espnGoals.length !== repoGoalsCount) {
@@ -125,7 +129,7 @@ function run() {
                 });
             }
 
-            if (t.includes('goal')) {
+            if (t.includes('goal') || t.includes('penalty - scored') || e.type?.type === 'penalty---scored') {
                 const isPenalty = txt.includes('penalty');
                 const isOwnGoal = txt.includes('own goal') || e.type?.type === 'own-goal';
                 let eventType = isPenalty ? 'penalty_goal' : (isOwnGoal ? 'own_goal' : 'goal');

@@ -178,6 +178,16 @@ export const COMPLETED_KNOCKOUT_RESULTS: Readonly<Record<number, CompletedResult
     scoreDuration: "REGULAR",
     confirmedAt: "2026-07-15T18:00:00.000Z",
   },
+  103: {
+    homeScore: 4,
+    awayScore: 6,
+    winner: "AWAY_TEAM",
+    scoreDuration: "REGULAR",
+    // Note: The confirmedAt timestamp '2026-07-18T23:00:18.000Z' represents the provider
+    // snapshot update/canonical reconciliation confirmation time (from ESPN's meta.lastUpdatedAt)
+    // and is not the exact final-whistle time of the match itself.
+    confirmedAt: "2026-07-18T23:00:18.000Z",
+  },
 };
 
 function matchNumber(match: Match): number | null {

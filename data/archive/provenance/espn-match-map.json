@@ -1025,9 +1025,9 @@
     "home": "tbd",
     "away": "tbd",
     "stage": "Knockout",
-    "espnEventId": null,
-    "mappingConfidence": "unresolved",
-    "mappingBasis": "unresolved"
+    "espnEventId": "760516",
+    "mappingConfidence": "exact",
+    "mappingBasis": "manual"
   },
   {
     "internalMatchId": "match-104",

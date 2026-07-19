@@ -30,6 +30,7 @@ import {
 import { isCanonicalComplete } from "@/lib/liveRefreshPolicy";
 import type { GoalScorerEvent } from "@/lib/worldcup26Provider";
 import { slugFor } from "@/lib/teams";
+import { MATCH_EDITORIAL_REPORTS } from "@/lib/matchEditorialRegistry";
 
 interface Props {
   match: Match;
@@ -198,6 +199,7 @@ export function MatchDetail({
   const { timeZone } = useTimezone();
   const tz = timeZone || "UTC";
   const todayHref = getTodayHref(tz);
+  const report = MATCH_EDITORIAL_REPORTS[matchSlug(match)];
   void events;
 
   const liveState = {
@@ -732,6 +734,72 @@ export function MatchDetail({
               {winnerText} in the {stageLabel}.{scorers ? ` ${scorers}` : ""}
             </p>
           </EventSection>
+
+          {report && (
+            <EventSection title="Editorial Match Report" icon="✍">
+              <div className="space-y-4">
+                <h3 className="font-heading text-base font-extrabold uppercase tracking-wide text-white">
+                  {report.headline}
+                </h3>
+                <p className="text-sm font-semibold italic text-white/60">
+                  {report.dek}
+                </p>
+                <div className="space-y-4 text-sm leading-relaxed text-white/70">
+                  {report.bodySections.map((sec, i) => (
+                    <div key={i} className="space-y-2">
+                      {sec.title && (
+                        <h4 className="font-heading text-sm font-bold uppercase text-white mt-4">
+                          {sec.title}
+                        </h4>
+                      )}
+                      {sec.paragraphs.map((p, j) => (
+                        <p key={j}>{p}</p>
+                      ))}
+                    </div>
+                  ))}
+                </div>
+                {report.factualHighlights.length > 0 && (
+                  <div className="mt-6 rounded-xl border border-white/10 bg-navy/20 p-4">
+                    <h5 className="font-heading text-xs font-extrabold uppercase tracking-wider text-accent mb-2">
+                      Factual Highlights
+                    </h5>
+                    <ul className="list-disc list-inside space-y-1.5 text-xs text-white/70">
+                      {report.factualHighlights.map((h, i) => (
+                        <li key={i}>{h}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+                <div className="mt-6 flex flex-wrap justify-between items-center gap-4 text-xs text-white/40 border-t border-white/5 pt-4">
+                  <div>
+                    {report.editorIdentity && (
+                      <span>Published by {report.editorIdentity}</span>
+                    )}
+                    {report.editorIdentity && report.updatedAt && <span> · </span>}
+                    {report.updatedAt && (
+                      <span>Updated: {new Date(report.updatedAt).toUTCString()}</span>
+                    )}
+                  </div>
+                  {report.sourceLinks.length > 0 && (
+                    <div className="flex gap-3">
+                      <span>Sources:</span>
+                      {report.sourceLinks.map((s, i) => (
+                        <a
+                          key={i}
+                          href={s.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="underline text-accent hover:text-white"
+                        >
+                          {s.label}
+                        </a>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+            </EventSection>
+          )}
 
           {isGroupStage && (homeStanding || awayStanding) && (
             <EventSection title="What this result means" icon="📊">

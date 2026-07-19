@@ -77,10 +77,13 @@ export function TeamDetail({
   const nextFixtureLabel = nextListedMatch
     ? `${getParticipantName(nextListedMatch, "home")} ${t("vs")} ${getParticipantName(nextListedMatch, "away")}`
     : null;
-  // "No next match" means two different things: the whole tournament is over
-  // (accurate to say "Tournament complete"), or just this team was eliminated
-  // while the tournament continues — those must not share the same copy.
-  const noNextMatchLabel = isTournamentComplete ? "Tournament complete" : "Eliminated";
+  const tpFinished = snapshotMatches?.["match-103"]?.status === "FINISHED";
+  const isEnglandOrFrance = team.key === "england" || team.key === "france";
+  const noNextMatchLabel = isTournamentComplete
+    ? "Tournament complete"
+    : (isEnglandOrFrance && tpFinished)
+      ? "None (campaign completed)"
+      : "Eliminated";
   const playedSummary = teamRow
     ? playedGroupSummary({
         teamName: teamDisplayName,
