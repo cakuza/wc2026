@@ -1,22 +1,86 @@
 import fs from 'fs';
 import path from 'path';
-import { formatEventDisplayMinute, getCanonicalArchiveEventsForMatch } from './canonicalArchiveEvents';
+import { formatEventDisplayMinute, getCanonicalArchiveEventsForMatch, type CanonicalArchiveEvent } from './canonicalArchiveEvents';
 import type { LiveMatchData, LiveMatchEvent } from './liveMatchData';
 import { MATCHES, matchSlug } from './matches';
 
-export function readStaticArchiveData(): Map<number, LiveMatchData> {
+interface RawMatchStats {
+  readonly matchId: string;
+  readonly possession?: { readonly home: number; readonly away: number };
+  readonly shots?: { readonly home: number; readonly away: number };
+  readonly shotsOnTarget?: { readonly home: number; readonly away: number };
+  readonly corners?: { readonly home: number; readonly away: number };
+  readonly fouls?: { readonly home: number; readonly away: number };
+  readonly yellowCards?: { readonly home: number; readonly away: number };
+  readonly redCards?: { readonly home: number; readonly away: number };
+  readonly saves?: { readonly home: number; readonly away: number };
+  readonly offsides?: { readonly home: number; readonly away: number };
+}
+
+class ReadonlyArchiveMap implements ReadonlyMap<number, LiveMatchData> {
+  private readonly map: Map<number, LiveMatchData>;
+  constructor(map: Map<number, LiveMatchData>) {
+    this.map = map;
+  }
+  get(key: number) { return this.map.get(key); }
+  has(key: number) { return this.map.has(key); }
+  get size() { return this.map.size; }
+  forEach(callbackfn: (value: LiveMatchData, key: number, map: ReadonlyMap<number, LiveMatchData>) => void, thisArg?: any): void {
+    this.map.forEach((value, key) => callbackfn.call(thisArg, value, key, this));
+  }
+  entries() { return this.map.entries(); }
+  keys() { return this.map.keys(); }
+  values() { return this.map.values(); }
+  [Symbol.iterator]() { return this.map.entries(); }
+}
+
+function deepFreeze<T>(obj: T): T {
+  if (obj === null || typeof obj !== 'object') {
+    return obj;
+  }
+  Object.freeze(obj);
+  for (const key of Object.getOwnPropertyNames(obj)) {
+    const prop = (obj as any)[key];
+    if (prop !== null && typeof prop === 'object' && !Object.isFrozen(prop)) {
+      deepFreeze(prop);
+    }
+  }
+  return obj;
+}
+
+let cachedLiveDataMap: ReadonlyMap<number, LiveMatchData> | null = null;
+// Each element of this array is Object.freeze()-d so no caller can mutate it
+let cachedEventsArray: ReadonlyArray<CanonicalArchiveEvent> | null = null;
+
+export function readStaticMatchEvents(): ReadonlyArray<CanonicalArchiveEvent> {
+  if (cachedEventsArray) {
+    return cachedEventsArray;
+  }
   const eventsPath = path.join(process.cwd(), 'data/archive/match-events.json');
+  let raw: CanonicalArchiveEvent[];
+  if (fs.existsSync(eventsPath)) {
+    raw = JSON.parse(fs.readFileSync(eventsPath, 'utf8')) as CanonicalArchiveEvent[];
+  } else {
+    raw = [];
+  }
+  // Freeze each element recursively and the array so no caller can mutate shared objects.
+  cachedEventsArray = Object.freeze(raw.map(e => deepFreeze(e))) as ReadonlyArray<CanonicalArchiveEvent>;
+  return cachedEventsArray;
+}
+
+export function readStaticArchiveData(): ReadonlyMap<number, LiveMatchData> {
+  if (cachedLiveDataMap) {
+    return cachedLiveDataMap;
+  }
+
   const statsPath = path.join(process.cwd(), 'data/archive/match-stats.json');
   
-  let events: any[] = [];
-  let stats: any[] = [];
+  const events = readStaticMatchEvents();
+  let stats: RawMatchStats[] = [];
   
   try {
-    if (fs.existsSync(eventsPath)) {
-      events = JSON.parse(fs.readFileSync(eventsPath, 'utf8'));
-    }
     if (fs.existsSync(statsPath)) {
-      stats = JSON.parse(fs.readFileSync(statsPath, 'utf8'));
+      stats = JSON.parse(fs.readFileSync(statsPath, 'utf8')) as RawMatchStats[];
     }
   } catch (e) {
     console.error("Failed to read static archive data", e);
@@ -101,20 +165,21 @@ export function readStaticArchiveData(): Map<number, LiveMatchData> {
       substitutions,
       shootoutAttempts,
       teamStats: matchStats ? {
-        possession: matchStats.possession,
-        shots: matchStats.shots,
-        shotsOnTarget: matchStats.shotsOnTarget,
-        corners: matchStats.corners,
-        fouls: matchStats.fouls,
-        yellowCards: matchStats.yellowCards,
-        redCards: matchStats.redCards,
-        saves: matchStats.saves,
-        offsides: matchStats.offsides,
+        possession: matchStats.possession ? { home: matchStats.possession.home, away: matchStats.possession.away } : { home: 0, away: 0 },
+        shots: matchStats.shots ? { home: matchStats.shots.home, away: matchStats.shots.away } : { home: 0, away: 0 },
+        shotsOnTarget: matchStats.shotsOnTarget ? { home: matchStats.shotsOnTarget.home, away: matchStats.shotsOnTarget.away } : { home: 0, away: 0 },
+        corners: matchStats.corners ? { home: matchStats.corners.home, away: matchStats.corners.away } : { home: 0, away: 0 },
+        fouls: matchStats.fouls ? { home: matchStats.fouls.home, away: matchStats.fouls.away } : { home: 0, away: 0 },
+        yellowCards: matchStats.yellowCards ? { home: matchStats.yellowCards.home, away: matchStats.yellowCards.away } : { home: 0, away: 0 },
+        redCards: matchStats.redCards ? { home: matchStats.redCards.home, away: matchStats.redCards.away } : { home: 0, away: 0 },
+        saves: matchStats.saves ? { home: matchStats.saves.home, away: matchStats.saves.away } : { home: 0, away: 0 },
+        offsides: matchStats.offsides ? { home: matchStats.offsides.home, away: matchStats.offsides.away } : { home: 0, away: 0 },
       } : undefined
     };
     
-    liveDataMap.set(providerId, liveMatch);
+    liveDataMap.set(providerId, deepFreeze(liveMatch));
   }
 
-  return liveDataMap;
+  cachedLiveDataMap = new ReadonlyArchiveMap(liveDataMap);
+  return cachedLiveDataMap;
 }

@@ -10,8 +10,9 @@ import { matchBySlug, MATCHES, matchSlug, matchUtcDate } from "@/lib/matches";
 import { getResolvedHomeTeam, getResolvedAwayTeam, getParticipantDisplayLabel, isKnockoutMatch, knockoutSlotLabel, matchStageLabel } from "@/lib/participant-resolution";
 import { buildKnockoutResolution } from "@/lib/knockoutResolution";
 import { buildScheduledKnockoutPreviewData } from "@/lib/scheduledKnockoutPreview";
-import matchEventsData from "@/data/archive/match-events.json";
 import type { MatchEvents } from "@/lib/matchEvents";
+import { readStaticMatchEvents } from "@/lib/staticArchiveReader";
+
 
 export const revalidate = 60;
 // export const dynamic = "force-dynamic"; // removed for ISR
@@ -274,6 +275,13 @@ export default async function MatchPage({
     ],
   };
 
+  const allMatchEvents = readStaticMatchEvents();
+  const providerId = match.providerIds?.footballData ? String(match.providerIds.footballData) : null;
+  // Frozen cached events filtered to this match only.
+  const archiveEvents = allMatchEvents.filter(
+    (e) => (e.providerMatchId !== undefined && String(e.providerMatchId) === providerId) || e.matchId === matchId
+  );
+
   return (
     <>
       <LiveSnapshotDebug snapshotId={snapshot.snapshotId} generatedAt={snapshot.generatedAt} />
@@ -299,7 +307,7 @@ export default async function MatchPage({
       </div>
       <MatchDetail
         match={match}
-        events={(matchEventsData as unknown as Record<string, MatchEvents>)[matchId] ?? null}
+        archiveEvents={archiveEvents}
         live={live}
         status={snap?.status ?? "SCHEDULED"}
         liveDataUnavailable={snap?.liveDataUnavailable ?? false}

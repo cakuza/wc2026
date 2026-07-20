@@ -1,4 +1,4 @@
-﻿import { chromium } from "playwright";
+import { chromium } from "playwright";
 import { mkdirSync } from "node:fs";
 import { join } from "node:path";
 
@@ -20,7 +20,9 @@ const ROUTES = [
   "/matches/match-101",
   "/matches/match-103",
   "/matches/match-104",
+  "/world-cup-2026",
   "/world-cup-2026/results",
+  "/world-cup-2026/results/2026-07-19",
   "/world-cup-third-place-qualification",
   "/world-cup-2026-data-sources",
   "/terms",
@@ -46,9 +48,30 @@ const ROUTES = [
 ];
 
 let failures = 0;
+let assertionsCount = 0;
+let passesCount = 0;
+let consoleErrorsCount = 0;
+let pageErrorsCount = 0;
+let hydrationWarningsCount = 0;
+let overflowFailuresCount = 0;
+
 function assert(condition: unknown, message: string) {
-  if (condition) console.log(`PASS ${message}`);
-  else { console.error(`FAIL ${message}`); failures += 1; }
+  assertionsCount++;
+  if (condition) {
+    passesCount++;
+    console.log(`PASS ${message}`);
+  } else {
+    failures += 1;
+    console.error(`FAIL ${message}`);
+    if (message.includes("console/page errors")) {
+      consoleErrorsCount++;
+      pageErrorsCount++;
+    } else if (message.includes("hydration warnings")) {
+      hydrationWarningsCount++;
+    } else if (message.includes("horizontal overflow")) {
+      overflowFailuresCount++;
+    }
+  }
 }
 
 async function main() {
@@ -57,7 +80,7 @@ async function main() {
   const browser = await chromium.launch({ headless: true });
   try {
     for (const viewport of VIEWPORTS) {
-      const label = `${viewport.width}Ã—${viewport.height}`;
+      const label = `${viewport.width}x${viewport.height}`;
       for (const route of ROUTES) {
         const page = await browser.newPage({ viewport });
         const errors: string[] = [];
@@ -91,17 +114,17 @@ async function main() {
           const thirdPlace = decidingSection.locator('a[href="/matches/match-103"]');
           const semifinalHeading = page.getByRole("heading", { name: "Semifinal results" });
           await decidingSection.waitFor({ state: "visible" });
-          assert(await decidingSection.isVisible() && /final weekend/i.test(text), `[${label}] Final Weekend remains after hydration`);
-          assert(await final.isVisible() && await thirdPlace.isVisible(), `[${label}] Final Weekend exposes both deciding matches`);
+          assert(await decidingSection.isVisible() && /Tournament Complete/i.test(text), `[${label}] Tournament Complete remains after hydration`);
+          assert(await final.isVisible() && await thirdPlace.isVisible(), `[${label}] Tournament Complete exposes both deciding matches`);
           assert(!/(?:Destinations|UPCOMING.*NEXT 7 DAYS)/i.test(text), `[${label}] homepage suppresses obsolete lifecycle copy`);
           const decidingBox = await decidingSection.boundingBox();
           const semifinalBox = await semifinalHeading.boundingBox();
-          assert(!!decidingBox && !!semifinalBox && decidingBox.y < semifinalBox.y, `[${label}] Final Weekend precedes semifinal history`);
+          assert(!!decidingBox && !!semifinalBox && decidingBox.y < semifinalBox.y, `[${label}] Tournament Complete precedes semifinal history`);
           await final.scrollIntoViewIfNeeded();
           assert(await final.isVisible() && await final.boundingBox() !== null, `[${label}] Final card is visible and reachable`);
         }
 
-        if (route === "/today") assert(/Times shown in/.test(text) && /Final Weekend/.test(text) && !/Destinations/i.test(text), `[${label}] Today resolves timezone-aware Final Weekend copy after hydration`);
+        if (route === "/today") assert(/Times shown in/.test(text) && /Is Complete/i.test(text) && !/Destinations/i.test(text), `[${label}] Today resolves timezone-aware Completed copy after hydration`);
 
         if (route === "/world-cup-third-place-qualification") {
           assert(/Final third-place ranking/i.test(text) && /Qualified for Round of 32/i.test(text) && /Did not qualify/i.test(text), `[${label}] third-place ranking is final historical truth`);
@@ -113,36 +136,66 @@ async function main() {
           assert(!/10 seconds|12 seconds|90 seconds/i.test(text), `[${label}] methodology has no contradictory polling intervals`);
         }
 
-        if (["/matches/match-103", "/matches/match-104"].includes(route)) assert(!/Bracket Destination/i.test(text), `[${label}] ${route} has no false onward destination`);
+        if (route === "/matches/match-103") {
+          assert(!/Bracket Destination/i.test(text), `[${label}] ${route} has no false onward destination`);
+        }
+
+        if (route === "/matches/match-104") {
+          assert(!/Bracket Destination/i.test(text), `[${label}] ${route} has no false onward destination`);
+          assert(/Spain/i.test(text), `[${label}] ${route} contains Spain`);
+          assert(/Argentina/i.test(text), `[${label}] ${route} contains Argentina`);
+          assert(/1\s*–\s*0|1\s*-\s*0/i.test(text), `[${label}] ${route} has score 1–0`);
+          assert(/FINAL/i.test(text), `[${label}] ${route} is FINAL`);
+          assert(/AET|after extra time/i.test(text), `[${label}] ${route} contains AET / after extra time`);
+          assert(/Ferran Torres/i.test(text), `[${label}] ${route} contains Ferran Torres`);
+          assert(/106'/.test(text), `[${label}] ${route} contains 106'`);
+          assert(/Enzo Fernández/i.test(text), `[${label}] ${route} contains Enzo Fernández`);
+          assert(/90\+3'/.test(text), `[${label}] ${route} contains 90+3'`);
+          assert(/Champion/i.test(text), `[${label}] ${route} contains Champion`);
+          assert(/Runner-up/i.test(text), `[${label}] ${route} contains Runner-up`);
+          assert(/Spain Crowned World Champions After Extra Time Thriller Against Argentina/i.test(text), `[${label}] ${route} contains editorial report headline`);
+          assert(!/upcoming/i.test(text), `[${label}] ${route} has no upcoming status`);
+          assert(!/countdown|starts in/i.test(text), `[${label}] ${route} has no countdown`);
+          assert(!/tbd/i.test(text), `[${label}] ${route} has no tbd`);
+        }
+
+        if (route === "/world-cup-2026/results/2026-07-19") {
+          assert(/Spain\s*1\s*–\s*0\s*Argentina|Spain\s*1\s*-\s*0\s*Argentina/i.test(text), `[${label}] July 19 results show Spain 1–0 Argentina`);
+          assert(/after extra time/i.test(text), `[${label}] July 19 results show after extra time`);
+          assert(await page.locator('a[href="/matches/match-104"]').count() > 0, `[${label}] July 19 results has Match 104 link`);
+          const hasNoIndex = await page.locator('meta[name="robots"][content*="noindex"]').count() > 0;
+          assert(!hasNoIndex, `[${label}] July 19 results has no indexability gate (no noindex)`);
+          assert(!/upcoming/i.test(text), `[${label}] July 19 results has no upcoming copy`);
+        }
 
         if (route === "/terms") {
           assert(await page.locator("header nav a").count() > 0 && await page.locator('footer a[href="/terms"]').count() > 0, `[${label}] Terms uses the shared header and footer navigation`);
         }
 
         if (route === "/stats") {
-          assert(/103\s*\/\s*104/.test(text) && /Olise/.test(text), `[${label}] Statistics shows the current snapshot and leaders`);
-          assert(/Kylian MbappÃ©/i.test(text) && /10/.test(text), `[${label}] Statistics shows Kylian MbappÃ© as leader with 10 goals`);
+          assert(/104\s*\/\s*104/.test(text) && /Olise/.test(text), `[${label}] Statistics shows the current snapshot and leaders`);
+          assert(/Kylian Mbappé/i.test(text) && /10/.test(text), `[${label}] Statistics shows Kylian Mbappé as leader with 10 goals`);
           assert(/England/.test(text) && /France/.test(text) && /Spain/.test(text), `[${label}] Statistics renders tied teams distinctly`);
           assert(/Last updated\s+\d{1,2}\s+\w+\s+2026/i.test(text), `[${label}] Statistics has a full dated timestamp`);
         }
 
         if (route === "/stats/top-scorers") {
-          assert(/Kylian MbappÃ©/i.test(text) && /10/.test(text), `[${label}] Top Scorers shows MbappÃ© with 10 goals`);
+          assert(/Kylian Mbappé/i.test(text) && /10/.test(text), `[${label}] Top Scorers shows Mbappé with 10 goals`);
           assert(/Lionel Messi/i.test(text) && /8/.test(text), `[${label}] Top Scorers shows Messi with 8 goals`);
-          assert(/provisional|tiebreak/i.test(text), `[${label}] Top Scorers page mentions provisional / tiebreak standings`);
+          assert(!/provisional/i.test(text), `[${label}] Top Scorers page has no stale provisional messaging`);
         }
 
         if (route === "/teams/england") {
           assert(/Third place/i.test(text), `[${label}] England page shows Third place status`);
-          assert(/None\s*\(campaign completed\)/i.test(text), `[${label}] England page shows campaign completed next match`);
-          assert(/France/i.test(text) && /England/i.test(text) && (/4\s*â€“\s*6/i.test(text) || /4\s*-\s*6/i.test(text)), `[${label}] England page shows France 4-6 England result`);
+          assert(/Tournament complete/i.test(text) || /None\s*\(campaign completed\)/i.test(text), `[${label}] England page shows campaign completed next match`);
+          assert(/France/i.test(text) && /England/i.test(text) && (/4\s*–\s*6/i.test(text) || /4\s*-\s*6/i.test(text)), `[${label}] England page shows France 4-6 England result`);
           assert(!/vs\s+France/i.test(text) && !/vs\s+England/i.test(text), `[${label}] England page has no future fixture shown for France vs England`);
         }
 
         if (route === "/teams/france") {
           assert(/Fourth place/i.test(text), `[${label}] France page shows Fourth place status`);
-          assert(/None\s*\(campaign completed\)/i.test(text), `[${label}] France page shows campaign completed next match`);
-          assert(/France/i.test(text) && /England/i.test(text) && (/4\s*â€“\s*6/i.test(text) || /4\s*-\s*6/i.test(text)), `[${label}] France page shows France 4-6 England result`);
+          assert(/Tournament complete/i.test(text) || /None\s*\(campaign completed\)/i.test(text), `[${label}] France page shows campaign completed next match`);
+          assert(/France/i.test(text) && /England/i.test(text) && (/4\s*–\s*6/i.test(text) || /4\s*-\s*6/i.test(text)), `[${label}] France page shows France 4-6 England result`);
           assert(!/vs\s+France/i.test(text) && !/vs\s+England/i.test(text), `[${label}] France page has no future fixture shown for France vs England`);
         }
 
@@ -153,25 +206,25 @@ async function main() {
           const argItem = page.locator('a[href="/teams/argentina"]');
           const engItem = page.locator('a[href="/teams/england"]');
           const fraItem = page.locator('a[href="/teams/france"]');
-          assert(/Finalist/i.test(await spainItem.innerText()) && /Finalist/i.test(await argItem.innerText()), `[${label}] Spain and Argentina are active finalists`);
+          assert(/Champion/i.test(await spainItem.innerText()) && /Runner-up/i.test(await argItem.innerText()), `[${label}] Spain is Champion and Argentina is Runner-up`);
           assert(/Third place/i.test(await engItem.innerText()), `[${label}] England is third place`);
           assert(/Fourth place/i.test(await fraItem.innerText()), `[${label}] France is fourth place`);
         }
 
         if (route === "/teams/spain") {
-          assert(/Finalist/i.test(text), `[${label}] Spain has Finalist status`);
-          assert(await page.locator('a[href="/matches/match-104"]').count() > 0 || /Final/i.test(text), `[${label}] Spain shows Match 104 as next match`);
-          assert(!/campaign completed/i.test(text), `[${label}] Spain campaign is not marked completed`);
+          assert(/Champion/i.test(text), `[${label}] Spain has Champion status`);
+          assert(await page.locator('a[href="/matches/match-104"]').count() > 0 || /Final/i.test(text), `[${label}] Spain shows Match 104`);
+          assert(/Tournament complete|campaign completed/i.test(text), `[${label}] Spain campaign is marked completed`);
         }
 
         if (route === "/teams/argentina") {
-          assert(/Finalist/i.test(text), `[${label}] Argentina has Finalist status`);
-          assert(await page.locator('a[href="/matches/match-104"]').count() > 0 || /Final/i.test(text), `[${label}] Argentina shows Match 104 as next match`);
-          assert(!/campaign completed/i.test(text), `[${label}] Argentina campaign is not marked completed`);
+          assert(/Runner-up/i.test(text), `[${label}] Argentina has Runner-up status`);
+          assert(await page.locator('a[href="/matches/match-104"]').count() > 0 || /Final/i.test(text), `[${label}] Argentina shows Match 104`);
+          assert(/Tournament complete|campaign completed/i.test(text), `[${label}] Argentina campaign is marked completed`);
         }
 
         if (route === "/stats/matches") {
-          assert(/France/i.test(text) && /England/i.test(text) && (/4\s*â€“\s*6/i.test(text) || /4\s*-\s*6/i.test(text)), `[${label}] /stats/matches shows France 4-6 England`);
+          assert(/France/i.test(text) && /England/i.test(text) && (/4\s*–\s*6/i.test(text) || /4\s*-\s*6/i.test(text)), `[${label}] /stats/matches shows France 4-6 England`);
           assert(/10\s+goals/i.test(text) || /10/i.test(text), `[${label}] /stats/matches shows 10 total goals`);
           assert(!/tbd/i.test(text), `[${label}] /stats/matches has no tbd`);
           assert(await page.locator('a[href="/matches/match-103"]').count() > 0, `[${label}] /stats/matches links to Match 103`);
@@ -180,7 +233,7 @@ async function main() {
         if (route === "/stats/teams") {
           assert(/France/i.test(text) && /England/i.test(text) && /Spain/i.test(text) && /Argentina/i.test(text), `[${label}] /stats/teams shows France, England, Spain, Argentina`);
           assert(/20/i.test(text), `[${label}] /stats/teams shows 20 goals for France/England`);
-          assert(/13/i.test(text), `[${label}] /stats/teams shows 13 goals for Spain`);
+          assert(/14/i.test(text), `[${label}] /stats/teams shows 14 goals for Spain`);
           assert(/19/i.test(text), `[${label}] /stats/teams shows 19 goals for Argentina`);
           assert(!/group-stage-only/i.test(text), `[${label}] /stats/teams has no group-stage-only totals`);
         }
@@ -202,8 +255,8 @@ async function main() {
         if (route.startsWith("/stats/compare")) {
           if (route === "/stats/compare?team1=spain&team2=argentina") {
             assert(/Spain\s*vs\s*Argentina|Spain\s*-\s*Argentina/i.test(text), `[${label}] valid pair shows Spain vs Argentina`);
-            assert(/Goals Scored\s+19/i.test(text) || (/13/.test(text) && /19/.test(text) && /Goals Scored/i.test(text)), `[${label}] valid pair shows Goals Scored: Spain 13 / Argentina 19`);
-            assert(/Goals Conceded\s+7/i.test(text) || (/1/.test(text) && /7/.test(text) && /Goals Conceded/i.test(text)), `[${label}] valid pair shows Goals Conceded: Spain 1 / Argentina 7`);
+            assert(/Goals Scored\s+19/i.test(text) || (/14/.test(text) && /19/.test(text) && /Goals Scored/i.test(text)), `[${label}] valid pair shows Goals Scored: Spain 14 / Argentina 19`);
+            assert(/Goals Conceded\s+8/i.test(text) || (/1/.test(text) && /8/.test(text) && /Goals Conceded/i.test(text)), `[${label}] valid pair shows Goals Conceded: Spain 1 / Argentina 8`);
             assert(!/France\s*vs|vs\s*Spain/i.test(text), `[${label}] valid pair shows no wrong-pair flash`);
             await page.waitForFunction(() => document.querySelectorAll('meta[name="robots"][content="noindex,follow"]').length > 0, { timeout: 2000 }).catch(() => {});
             const metaCount = await page.locator('meta[name="robots"][content="noindex,follow"]').count();
@@ -236,13 +289,16 @@ async function main() {
         await page.close();
       }
 
-      console.log(`\nRunning Interaction Test: Compare Dropdowns [${viewport.width}Ã—${viewport.height}]`);
+      console.log(`\nRunning Interaction Test: Compare Dropdowns [${viewport.width}x${viewport.height}]`);
       const interactionPage = await browser.newPage({ viewport });
       await interactionPage.goto(`${BASE_URL}/stats/compare`, { waitUntil: "domcontentloaded" });
       await interactionPage.getByText(/Select two teams to view head-to-head tournament statistics/i).waitFor({ state: "visible", timeout: 2000 });
 
       const selects = interactionPage.locator('select');
+      // Wait for both selects to be present and visible before interacting
+      await selects.nth(0).waitFor({ state: 'visible', timeout: 3000 });
       await selects.nth(0).selectOption('spain');
+
 
       await interactionPage.waitForFunction(() => {
         const selects = document.querySelectorAll('select');
@@ -266,6 +322,19 @@ async function main() {
       assert(interactionPage.url().includes("team2=argentina"), `[Interaction] Argentina selected successfully`);
       await interactionPage.close();
     }
+    console.log(`\n=============================================`);
+    console.log(`Browser QA Summary:`);
+    console.log(`  Routes tested:      ${ROUTES.length}`);
+    console.log(`  Viewports tested:   ${VIEWPORTS.length}`);
+    console.log(`  Total combinations: ${ROUTES.length * VIEWPORTS.length}`);
+    console.log(`  Total assertions:   ${assertionsCount}`);
+    console.log(`  Passed assertions:  ${passesCount}`);
+    console.log(`  Failed assertions:  ${failures}`);
+    console.log(`  Console errors:     ${consoleErrorsCount}`);
+    console.log(`  Page errors:        ${pageErrorsCount}`);
+    console.log(`  Hydration warnings: ${hydrationWarningsCount}`);
+    console.log(`  Overflow failures:  ${overflowFailuresCount}`);
+    console.log(`=============================================\n`);
   } finally { await browser.close(); }
   if (failures > 0) process.exitCode = 1;
 }

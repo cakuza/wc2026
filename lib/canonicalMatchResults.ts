@@ -188,6 +188,15 @@ export const COMPLETED_KNOCKOUT_RESULTS: Readonly<Record<number, CompletedResult
     // and is not the exact final-whistle time of the match itself.
     confirmedAt: "2026-07-18T23:00:18.000Z",
   },
+  104: {
+    homeScore: 1,
+    awayScore: 0,
+    winner: "HOME_TEAM",
+    scoreDuration: "EXTRA_TIME",
+    confirmedAt: "2026-07-19T23:30:00.000Z",
+    regularTimeScore: { home: 0, away: 0 },
+    extraTimeScore: { home: 1, away: 0 }
+  },
 };
 
 function matchNumber(match: Match): number | null {

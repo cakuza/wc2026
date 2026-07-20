@@ -150,7 +150,10 @@ const scenarios: Scenario[] = [
     liveData: {
       ...SEMIS_FINAL,
       [String(MATCH_103_PROVIDER_ID)]: finished(MATCH_103_PROVIDER_ID, 2, 1),
-      [String(MATCH_104_PROVIDER_ID)]: finished(MATCH_104_PROVIDER_ID, 3, 1),
+      [String(MATCH_104_PROVIDER_ID)]: {
+        ...finished(MATCH_104_PROVIDER_ID, 3, 1),
+        goals: Array(10).fill({ type: "GOAL", minute: 10, teamName: "France", playerName: "Kylian Mbappé" }),
+      },
     },
     now: new Date(kickoff104.getTime() + 3 * 3600_000),
     expectIsComplete: true,

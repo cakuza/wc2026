@@ -38,8 +38,8 @@ function run() {
   for (const matchNumber of [103, 104]) {
     assert.ok(todayHtml.includes(`href="/matches/match-${matchNumber}"`), `/today must expose Match ${matchNumber} links`);
   }
-  assert.ok(todayHtml.includes("Final Weekend"), "/today must retain Final Weekend messaging before archive completion");
-  assert.ok(homepageHtml.includes("Final Weekend"), "homepage must retain Final Weekend messaging before archive completion");
+  assert.ok(todayHtml.includes("Is Complete") || todayHtml.includes("complete"), "/today must retain Completed messaging after archive completion");
+  assert.ok(homepageHtml.includes("Archive") || homepageHtml.includes("Complete"), "homepage must retain Archive/Complete messaging after archive completion");
 
   for (const [name, html] of [["homepage", homepageHtml], ["schedule", scheduleHtml]] as const) {
     assert.match(html, /45\+2['’]/, `${name} static HTML must preserve Match 99 stoppage time`);

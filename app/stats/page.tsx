@@ -78,6 +78,7 @@ export default async function StatsPage() {
         playerEventLeaderboards={snapshot.playerEventLeaderboards}
         teamStatLeaderboards={snapshot.teamStatLeaderboards}
         hasEventData={hasEventData}
+        awards={archive.awards}
       />
     </>
   );

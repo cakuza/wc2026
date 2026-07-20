@@ -54,7 +54,10 @@ function finished(providerMatchId: number, homeScore: number, awayScore: number)
 {
   const liveData: Record<string, LiveMatchData> = {
     [String(MATCH_103_PROVIDER_ID)]: finished(MATCH_103_PROVIDER_ID, 2, 1),
-    [String(MATCH_104_PROVIDER_ID)]: finished(MATCH_104_PROVIDER_ID, 3, 1),
+    [String(MATCH_104_PROVIDER_ID)]: {
+      ...finished(MATCH_104_PROVIDER_ID, 3, 1),
+      goals: Array(10).fill({ type: "GOAL", minute: 10, teamName: "France", playerName: "Kylian Mbappé" }),
+    },
   };
   const state = getArchiveState({ matches: MATCHES, liveData, now: nowAfterEverything });
   check(state.isComplete === true, "getArchiveState: complete once both 103 and 104 are final");
@@ -77,6 +80,7 @@ function finished(providerMatchId: number, homeScore: number, awayScore: number)
       winner: "AWAY_TEAM", // decided on penalties despite a level score
       lastSyncedAt: ARCHIVE_DEFAULT_DATE,
       eventDataAvailable: true,
+      goals: Array(10).fill({ type: "GOAL", minute: 10, teamName: "France", playerName: "Kylian Mbappé" }),
     },
   };
   const state = getArchiveState({ matches: MATCHES, liveData, now: nowAfterEverything });

@@ -72,5 +72,24 @@
     "ingestionCommand": "curl.exe -s \"https://site.api.espn.com/apis/site/v2/sports/soccer/fifa.world/summary?event=760516\" -o data/archive/raw/espn/2026/760516.json",
     "exclusionPolicy": "This raw provider response is excluded from repository version control by the .gitignore rules.",
     "notes": "Mapped via exact date/team match for match-103"
+  },  "760517": {
+    "sourceId": "espn",
+    "name": "ESPN Public API",
+    "endpointUrl": "https://site.api.espn.com/apis/site/v2/sports/soccer/fifa.world/summary?event=760517",
+    "accessMethod": "public_json",
+    "fetchedAt": "2026-07-20T08:27:59.000Z",
+    "rawPath": "data/archive/raw/espn/2026/760517.json",
+    "rawSha256": "83cc63b0055b3d209c32d1ef9df94d66c42fc9fd4ebeef9c2884dea71d33b5e7",
+    "parserVersion": "1.0",
+    "mappingConfidence": "high",
+    "mappingBasis": "exact match on date and teams (Spain vs Argentina)",
+    "ingestionCommand": "curl.exe -s \"https://site.api.espn.com/apis/site/v2/sports/soccer/fifa.world/summary?event=760517\" -o data/archive/raw/espn/2026/760517.json",
+    "exclusionPolicy": "This raw provider response is excluded from repository version control by the .gitignore rules.",
+    "notes": "Mapped via exact date/team match for match-104 (Final). Manual verification of 106' goal and red card included.",
+    "fieldLevelReconciliation": {
+      "matchId": "Internal match-104 maps to ESPN 760517",
+      "goals": "Ferran Torres goal mapped to 106'",
+      "cards": "Enzo Fernández two yellow cards mapped to 82' and 90+3'"
+    }
   }
 }

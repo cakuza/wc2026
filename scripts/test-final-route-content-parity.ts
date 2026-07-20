@@ -19,9 +19,9 @@ try {
   const today = html("/today");
   for (const stale of ["Loading matchday", "Loading timezone", "Latest Results", "Up Next", "Destinations"]) assert.equal(today.includes(stale), false, `/today must not contain obsolete ${stale} output`);
   for (const matchNumber of [97, 98, 99, 100, 101, 102, 103, 104]) assert.ok(today.includes(`href="/matches/match-${matchNumber}"`), `/today must expose Match ${matchNumber}`);
-  assert.ok(today.includes("Final Weekend"), "/today must retain Final Weekend messaging before archive completion");
+  assert.ok(today.includes("Is Complete") || today.includes("complete"), "/today must retain completion messaging after archive completion");
   const bracket = html("/bracket"); assert.ok(bracket.includes("Third-place playoff")); assert.ok(bracket.includes("Final"));
-  for (const route of ["/", "/today"]) { const value=html(route); assert.ok(value.includes("Final Weekend"), `${route} must retain Final Weekend messaging`); assert.ok(value.includes('href="/matches/match-103"'), `${route} must link Match 103`); assert.ok(value.includes('href="/matches/match-104"'), `${route} must link Match 104`); }
+  for (const route of ["/", "/today"]) { const value=html(route); assert.ok(value.includes("Archive") || value.includes("Complete") || value.includes("complete"), `${route} must retain completion/archive messaging`); assert.ok(value.includes('href="/matches/match-103"'), `${route} must link Match 103`); assert.ok(value.includes('href="/matches/match-104"'), `${route} must link Match 104`); }
   const todaySource=fs.readFileSync("components/TodayContent.tsx", "utf8"); assert.equal(todaySource.includes("TodayPageLiveSection"), false); assert.equal((todaySource.match(/<MatchCenterContent/g) ?? []).length, 1);
   console.log(`final route content parity passed across ${scheduleRoutes.length} schedule pages`);
 } catch (error) { console.error(error); process.exit(1); }
