@@ -25,6 +25,7 @@ import {
   formatEventDisplayMinute,
   getCanonicalArchiveEventsForMatch,
   getCanonicalGoalScoringTeam,
+  type CanonicalArchiveEvent,
 } from "@/lib/canonicalArchiveEvents";
 import { isCanonicalComplete } from "@/lib/liveRefreshPolicy";
 import type { GoalScorerEvent } from "@/lib/worldcup26Provider";
@@ -33,7 +34,7 @@ import { MATCH_EDITORIAL_REPORTS } from "@/lib/matchEditorialRegistry";
 
 interface Props {
   match: Match;
-  archiveEvents?: GoalScorerEvent[] | null;
+  archiveEvents?: CanonicalArchiveEvent[] | null;
   live?: LiveMatchData | null;
   status: SnapshotMatchStatus;
   /** Cold-start fallback: kickoff has passed but the result is unknown (not SCHEDULED). */

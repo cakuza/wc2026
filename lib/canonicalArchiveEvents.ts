@@ -1,15 +1,21 @@
 import { normalizeTeamName } from "./scoreReconciliation";
 
-type CanonicalArchiveEvent = {
-  matchId: string;
-  eventType: string;
-  minute?: number;
-  stoppageMinute?: number;
-  teamKey?: string;
-  playerName: string;
-  assistPlayerName?: string;
-  relatedPlayerName?: string;
-};
+export interface CanonicalArchiveEvent {
+  readonly id?: string;
+  readonly matchId: string;
+  readonly eventType: string;
+  readonly minute?: number;
+  readonly stoppageMinute?: number;
+  readonly teamKey?: string;
+  readonly playerName: string;
+  readonly assistPlayerName?: string;
+  readonly relatedPlayerName?: string;
+  readonly period?: string;
+  readonly sourceId?: string;
+  readonly confidence?: string;
+  readonly providerMatchId?: number | string;
+}
+
 
 /**
  * Archive own-goal rows name the player's team, not the team credited with

@@ -157,22 +157,56 @@ async function run() {
 
     // 7. Nested object mutation cannot corrupt later reads (key spec requirement)
     const eventsForNested = readStaticMatchEvents();
-    const firstEvent = eventsForNested[0] as Record<string, unknown>;
+    const firstEvent = eventsForNested[0] as any;
     const originalPlayerName = firstEvent.playerName;
     // The element is frozen; any attempt to assign a property must be silently
     // ignored (non-strict) or throw (strict).  Either way the cache value must
     // remain unchanged.
-    try { (firstEvent as Record<string, unknown>).playerName = "NestedCorruptor"; } catch (_) {}
+    try { firstEvent.playerName = "NestedCorruptor"; } catch (_) {}
     const freshEventsAfterNested = readStaticMatchEvents();
     assertEq(
-      (freshEventsAfterNested[0] as Record<string, unknown>).playerName,
+      freshEventsAfterNested[0].playerName,
       originalPlayerName,
       "nested object mutation cannot corrupt the cache"
     );
 
+    // Assert flat structure of allMatchEvents
+    for (const ev of allMatchEvents) {
+      for (const [key, val] of Object.entries(ev)) {
+        assertOk(val === null || typeof val !== 'object', "archive events are flat: " + key);
+      }
+    }
+
+    // 8. LiveMatchData cache isolation and nested mutation prevention
+    const providerId = 537390; // Match 104 provider ID
+    const map1 = readStaticArchiveData();
+    const value1 = map1.get(providerId);
+    assertOk(value1, "Value exists in first read");
+
+    if (value1) {
+      const originalGoalPlayerName = value1.goals?.[0]?.playerName;
+      const originalBookingLength = value1.bookings?.length ?? 0;
+      const originalPossessionHome = value1.teamStats?.possession?.home;
+
+      // Attempt nested mutations
+      try { if (value1.goals?.[0]) { (value1.goals[0] as any).playerName = "MutatedPlayer"; } } catch (_) {}
+      try { value1.bookings?.push({ type: "YELLOW_CARD", minute: 90, teamName: "Argentina", playerName: "Mutated" }); } catch (_) {}
+      try { if (value1.teamStats?.possession) { (value1.teamStats.possession as any).home = 99; } } catch (_) {}
+
+      const map2 = readStaticArchiveData();
+      const value2 = map2.get(providerId);
+      assertOk(value2, "Value exists in second read");
+
+      if (value2) {
+        assertEq(value2.goals?.[0]?.playerName, originalGoalPlayerName, "Nested goal player name remains unchanged");
+        assertEq(value2.bookings?.length ?? 0, originalBookingLength, "Nested bookings array length remains unchanged");
+        assertEq(value2.teamStats?.possession?.home, originalPossessionHome, "Nested teamStats possession remains unchanged");
+      }
+    }
+
     const initialDataMap = readStaticArchiveData();
     const mapSize = initialDataMap.size;
-    initialDataMap.clear();
+    try { (initialDataMap as any).clear(); } catch (_) {}
     const freshDataMap = readStaticArchiveData();
     assertEq(freshDataMap.size, mapSize, "clearing Map shell does not affect the cache");
   });
@@ -377,7 +411,8 @@ async function run() {
     const fifaAwardsLink = report.sourceLinks.find(l => l.url === "https://www.fifa.com/en/tournaments/mens/worldcup/canadamexicousa2026/articles/award-winners");
 
     assertOk(espnLink, "Contains ESPN 760517 source link");
-    assertOk(fifaReportLink, "Contains FIFA Final Report link");
+    assertOk(fifaReportLink, "Contains FIFA Match Centre link");
+    assertEq(fifaReportLink?.label, "FIFA Match Centre", "FIFA Match Centre is truthfully labeled");
     assertOk(fifaAwardsLink, "Contains FIFA Official Awards link");
 
     const updatedAt = new Date(report.updatedAt).getTime();

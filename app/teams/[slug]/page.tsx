@@ -241,7 +241,7 @@ export default async function TeamPage({ params }: { params: Promise<{ slug: str
 
   const allMatchEvents = readStaticMatchEvents();
   const teamProviderMatchIds = teamMatches.map(m => m.providerIds?.footballData).filter(Boolean).map(String);
-  const teamEvents = allMatchEvents.filter((e: any) => teamProviderMatchIds.includes(String(e.providerMatchId)));
+  const teamEvents = allMatchEvents.filter((e) => e.providerMatchId !== undefined && teamProviderMatchIds.includes(String(e.providerMatchId)));
 
   return (
     <>

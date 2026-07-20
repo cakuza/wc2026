@@ -16,9 +16,9 @@ export const revalidate = 60;
 
 export const metadata: Metadata = {
   title: "World Cup 2026 Top Scorers — Golden Boot Standings",
-  description: "Live World Cup 2026 Golden Boot standings. Track leading scorers, goals, penalties and team by team in the 2026 FIFA World Cup.",
+  description: "Final 2026 FIFA World Cup top scorers and Golden Boot standings. Track leading scorers, goals, penalties and team by team in the completed tournament.",
   alternates: { canonical: `${BASE}/stats/top-scorers` },
-  openGraph: { title: "World Cup 2026 Top Scorers — Golden Boot Standings", description: "Live World Cup 2026 Golden Boot standings. Track leading scorers, goals, penalties and team.", url: `${BASE}/stats/top-scorers`, type: "website" },
+  openGraph: { title: "World Cup 2026 Top Scorers — Golden Boot Standings", description: "Final 2026 FIFA World Cup top scorers and Golden Boot standings. Track leading scorers, goals, penalties and team.", url: `${BASE}/stats/top-scorers`, type: "website" },
 };
 
 const breadcrumbs = [{ label: "Home", href: "/" }, { label: "Stats", href: "/stats" }, { label: "Top Scorers" }];
@@ -48,8 +48,8 @@ export default async function TopScorersPage() {
       <BreadcrumbNav items={breadcrumbs} />
       <p className="mb-1 font-heading text-sm font-bold uppercase tracking-[0.3em] text-accent">World Cup 2026</p>
       <h1 className="mb-1 font-heading text-3xl font-extrabold uppercase tracking-wide text-white sm:text-4xl">Top Scorers</h1>
-      <p className="mb-2 text-sm text-white/50">Golden Boot standings.</p>
-      <p className="mb-4 text-sm leading-relaxed text-white/60">The FIFA World Cup Golden Boot is awarded to the tournament&apos;s leading goal scorer. Every completed tournament match counts. Players tied on goals stay level here unless the available, complete tiebreak information separates them.</p>
+      <p className="mb-2 text-sm text-white/50">Final Golden Boot standings.</p>
+      <p className="mb-4 text-sm leading-relaxed text-white/60">The final FIFA World Cup Golden Boot standings. Kylian Mbappé won the Golden Boot with 10 goals. Players tied on goals stay level here unless the available, complete tiebreak information separates them.</p>
       <StatsNav />
       {hasData ? <><TopScorersTable rows={topScorers} /><p className="-mt-3 mb-4 text-xs leading-relaxed text-white/45">Assist markers are provider-recorded event data, not official FIFA assist awards. An asterisk means the available assist or minutes coverage is incomplete and is not used to break a goals tie.</p><LastUpdated isoTimestamp={snapshot.updatedAt} label="Scorer data last synced" /></> : !snapshot.isFallback ? <div className="mb-6 rounded-xl border border-white/10 bg-navyCard px-4 py-4 text-sm text-white/50">No scorer data available yet. This table populates once enriched goal events from completed matches are synced.</div> : null}
       <div className="mt-6 flex flex-wrap gap-3">

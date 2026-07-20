@@ -278,8 +278,8 @@ export default async function MatchPage({
   const allMatchEvents = readStaticMatchEvents();
   const providerId = match.providerIds?.footballData ? String(match.providerIds.footballData) : null;
   // Frozen cached events filtered to this match only.
-  const archiveEvents = (allMatchEvents as any[]).filter(
-    (e: any) => String(e.providerMatchId) === providerId || e.matchId === matchId
+  const archiveEvents = allMatchEvents.filter(
+    (e) => (e.providerMatchId !== undefined && String(e.providerMatchId) === providerId) || e.matchId === matchId
   );
 
   return (

@@ -20,7 +20,9 @@ const ROUTES = [
   "/matches/match-101",
   "/matches/match-103",
   "/matches/match-104",
+  "/world-cup-2026",
   "/world-cup-2026/results",
+  "/world-cup-2026/results/2026-07-19",
   "/world-cup-third-place-qualification",
   "/world-cup-2026-data-sources",
   "/terms",
@@ -134,7 +136,37 @@ async function main() {
           assert(!/10 seconds|12 seconds|90 seconds/i.test(text), `[${label}] methodology has no contradictory polling intervals`);
         }
 
-        if (["/matches/match-103", "/matches/match-104"].includes(route)) assert(!/Bracket Destination/i.test(text), `[${label}] ${route} has no false onward destination`);
+        if (route === "/matches/match-103") {
+          assert(!/Bracket Destination/i.test(text), `[${label}] ${route} has no false onward destination`);
+        }
+
+        if (route === "/matches/match-104") {
+          assert(!/Bracket Destination/i.test(text), `[${label}] ${route} has no false onward destination`);
+          assert(/Spain/i.test(text), `[${label}] ${route} contains Spain`);
+          assert(/Argentina/i.test(text), `[${label}] ${route} contains Argentina`);
+          assert(/1\s*–\s*0|1\s*-\s*0/i.test(text), `[${label}] ${route} has score 1–0`);
+          assert(/FINAL/i.test(text), `[${label}] ${route} is FINAL`);
+          assert(/AET|after extra time/i.test(text), `[${label}] ${route} contains AET / after extra time`);
+          assert(/Ferran Torres/i.test(text), `[${label}] ${route} contains Ferran Torres`);
+          assert(/106'/.test(text), `[${label}] ${route} contains 106'`);
+          assert(/Enzo Fernández/i.test(text), `[${label}] ${route} contains Enzo Fernández`);
+          assert(/90\+3'/.test(text), `[${label}] ${route} contains 90+3'`);
+          assert(/Champion/i.test(text), `[${label}] ${route} contains Champion`);
+          assert(/Runner-up/i.test(text), `[${label}] ${route} contains Runner-up`);
+          assert(/Spain Crowned World Champions After Extra Time Thriller Against Argentina/i.test(text), `[${label}] ${route} contains editorial report headline`);
+          assert(!/upcoming/i.test(text), `[${label}] ${route} has no upcoming status`);
+          assert(!/countdown|starts in/i.test(text), `[${label}] ${route} has no countdown`);
+          assert(!/tbd/i.test(text), `[${label}] ${route} has no tbd`);
+        }
+
+        if (route === "/world-cup-2026/results/2026-07-19") {
+          assert(/Spain\s*1\s*–\s*0\s*Argentina|Spain\s*1\s*-\s*0\s*Argentina/i.test(text), `[${label}] July 19 results show Spain 1–0 Argentina`);
+          assert(/after extra time/i.test(text), `[${label}] July 19 results show after extra time`);
+          assert(await page.locator('a[href="/matches/match-104"]').count() > 0, `[${label}] July 19 results has Match 104 link`);
+          const hasNoIndex = await page.locator('meta[name="robots"][content*="noindex"]').count() > 0;
+          assert(!hasNoIndex, `[${label}] July 19 results has no indexability gate (no noindex)`);
+          assert(!/upcoming/i.test(text), `[${label}] July 19 results has no upcoming copy`);
+        }
 
         if (route === "/terms") {
           assert(await page.locator("header nav a").count() > 0 && await page.locator('footer a[href="/terms"]').count() > 0, `[${label}] Terms uses the shared header and footer navigation`);

@@ -92,7 +92,7 @@ export const MATCH_EDITORIAL_REPORTS: Record<string, MatchEditorialReport> = {
     ],
     sourceLinks: [
       { label: "ESPN Match Center", url: "https://www.espn.com/soccer/match/_/gameId/760517" },
-      { label: "FIFA Official Final Report", url: "https://www.fifa.com/en/tournaments/mens/worldcup/canadamexicousa2026/match-centre" },
+      { label: "FIFA Match Centre", url: "https://www.fifa.com/en/tournaments/mens/worldcup/canadamexicousa2026/match-centre" },
       { label: "FIFA Official Awards", url: "https://www.fifa.com/en/tournaments/mens/worldcup/canadamexicousa2026/articles/award-winners" }
     ],
     editorIdentity: "WorldCupMatchDay",
