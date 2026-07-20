@@ -46,9 +46,30 @@ const ROUTES = [
 ];
 
 let failures = 0;
+let assertionsCount = 0;
+let passesCount = 0;
+let consoleErrorsCount = 0;
+let pageErrorsCount = 0;
+let hydrationWarningsCount = 0;
+let overflowFailuresCount = 0;
+
 function assert(condition: unknown, message: string) {
-  if (condition) console.log(`PASS ${message}`);
-  else { console.error(`FAIL ${message}`); failures += 1; }
+  assertionsCount++;
+  if (condition) {
+    passesCount++;
+    console.log(`PASS ${message}`);
+  } else {
+    failures += 1;
+    console.error(`FAIL ${message}`);
+    if (message.includes("console/page errors")) {
+      consoleErrorsCount++;
+      pageErrorsCount++;
+    } else if (message.includes("hydration warnings")) {
+      hydrationWarningsCount++;
+    } else if (message.includes("horizontal overflow")) {
+      overflowFailuresCount++;
+    }
+  }
 }
 
 async function main() {
@@ -242,7 +263,10 @@ async function main() {
       await interactionPage.getByText(/Select two teams to view head-to-head tournament statistics/i).waitFor({ state: "visible", timeout: 2000 });
 
       const selects = interactionPage.locator('select');
+      // Wait for both selects to be present and visible before interacting
+      await selects.nth(0).waitFor({ state: 'visible', timeout: 3000 });
       await selects.nth(0).selectOption('spain');
+
 
       await interactionPage.waitForFunction(() => {
         const selects = document.querySelectorAll('select');
@@ -266,6 +290,19 @@ async function main() {
       assert(interactionPage.url().includes("team2=argentina"), `[Interaction] Argentina selected successfully`);
       await interactionPage.close();
     }
+    console.log(`\n=============================================`);
+    console.log(`Browser QA Summary:`);
+    console.log(`  Routes tested:      ${ROUTES.length}`);
+    console.log(`  Viewports tested:   ${VIEWPORTS.length}`);
+    console.log(`  Total combinations: ${ROUTES.length * VIEWPORTS.length}`);
+    console.log(`  Total assertions:   ${assertionsCount}`);
+    console.log(`  Passed assertions:  ${passesCount}`);
+    console.log(`  Failed assertions:  ${failures}`);
+    console.log(`  Console errors:     ${consoleErrorsCount}`);
+    console.log(`  Page errors:        ${pageErrorsCount}`);
+    console.log(`  Hydration warnings: ${hydrationWarningsCount}`);
+    console.log(`  Overflow failures:  ${overflowFailuresCount}`);
+    console.log(`=============================================\n`);
   } finally { await browser.close(); }
   if (failures > 0) process.exitCode = 1;
 }

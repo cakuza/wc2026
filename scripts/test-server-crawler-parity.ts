@@ -137,25 +137,25 @@ function runParityTests() {
       }
 
       if (route === "/teams/spain") {
-        testAssert(html.includes("Finalist"), "/teams/spain lists status as Finalist");
-        testAssert(html.includes("match-104") || html.includes("Final"), "/teams/spain lists Match 104 as next/active match");
-        testAssert(!html.includes("Campaign completed"), "/teams/spain campaign is not marked completed");
+        testAssert(html.includes("Champion"), "/teams/spain lists status as Champion");
+        testAssert(html.includes("match-104") || html.includes("Final"), "/teams/spain lists Match 104");
+        testAssert(html.includes("Tournament complete"), "/teams/spain campaign is marked completed");
       }
 
       if (route === "/teams/argentina") {
-        testAssert(html.includes("Finalist"), "/teams/argentina lists status as Finalist");
-        testAssert(html.includes("match-104") || html.includes("Final"), "/teams/argentina lists Match 104 as next/active match");
-        testAssert(!html.includes("Campaign completed"), "/teams/argentina campaign is not marked completed");
+        testAssert(html.includes("Runner-up"), "/teams/argentina lists status as Runner-up");
+        testAssert(html.includes("match-104") || html.includes("Final"), "/teams/argentina lists Match 104");
+        testAssert(html.includes("Tournament complete"), "/teams/argentina campaign is marked completed");
       }
 
       if (route === "/teams/england") {
         testAssert(html.includes("Third place"), "/teams/england lists status as Third place");
-        testAssert(html.toLowerCase().includes("campaign completed"), "/teams/england campaign is marked completed");
+        testAssert(html.includes("Tournament complete"), "/teams/england campaign is marked completed");
       }
 
       if (route === "/teams/france") {
         testAssert(html.includes("Fourth place"), "/teams/france lists status as Fourth place");
-        testAssert(html.toLowerCase().includes("campaign completed"), "/teams/france campaign is marked completed");
+        testAssert(html.includes("Tournament complete"), "/teams/france campaign is marked completed");
       }
 
       if (route === "/matches/match-104") {
