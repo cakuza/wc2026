@@ -4,17 +4,42 @@ import { formatEventDisplayMinute, getCanonicalArchiveEventsForMatch } from './c
 import type { LiveMatchData, LiveMatchEvent } from './liveMatchData';
 import { MATCHES, matchSlug } from './matches';
 
-export function readStaticArchiveData(): Map<number, LiveMatchData> {
+let cachedLiveDataMap: Map<number, LiveMatchData> | null = null;
+// Each element of this array is Object.freeze()-d so shallow-copying the array
+// is sufficient to prevent callers from mutating shared state via a reference
+// into the cached collection.  Deep-cloning 5 MB on every page-gen call would
+// defeat the purpose of the cache.
+let cachedEventsArray: ReadonlyArray<Readonly<Record<string, unknown>>> | null = null;
+
+export function readStaticMatchEvents(): ReadonlyArray<Readonly<Record<string, unknown>>> {
+  if (cachedEventsArray) {
+    // Return the frozen array directly – callers cannot push/pop/assign
+    // because the array itself is frozen.
+    return cachedEventsArray;
+  }
   const eventsPath = path.join(process.cwd(), 'data/archive/match-events.json');
+  let raw: Record<string, unknown>[];
+  if (fs.existsSync(eventsPath)) {
+    raw = JSON.parse(fs.readFileSync(eventsPath, 'utf8')) as Record<string, unknown>[];
+  } else {
+    raw = [];
+  }
+  // Freeze each element and the array so no caller can mutate shared objects.
+  cachedEventsArray = Object.freeze(raw.map(e => Object.freeze(e))) as ReadonlyArray<Readonly<Record<string, unknown>>>;
+  return cachedEventsArray;
+}
+
+export function readStaticArchiveData(): Map<number, LiveMatchData> {
+  if (cachedLiveDataMap) {
+    return new Map(cachedLiveDataMap);
+  }
+
   const statsPath = path.join(process.cwd(), 'data/archive/match-stats.json');
   
-  let events: any[] = [];
+  let events: ReadonlyArray<Readonly<Record<string, unknown>>> = readStaticMatchEvents();
   let stats: any[] = [];
   
   try {
-    if (fs.existsSync(eventsPath)) {
-      events = JSON.parse(fs.readFileSync(eventsPath, 'utf8'));
-    }
     if (fs.existsSync(statsPath)) {
       stats = JSON.parse(fs.readFileSync(statsPath, 'utf8'));
     }
@@ -116,5 +141,6 @@ export function readStaticArchiveData(): Map<number, LiveMatchData> {
     liveDataMap.set(providerId, liveMatch);
   }
 
-  return liveDataMap;
+  cachedLiveDataMap = liveDataMap;
+  return new Map(liveDataMap);
 }

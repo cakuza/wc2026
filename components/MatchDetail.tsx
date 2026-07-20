@@ -21,7 +21,6 @@ import { buildScorerSentence, formatCanonicalResultSummary } from "@/lib/resultS
 import { missingScorerDetailText, type GoalEventCompleteness } from "@/lib/goalEventCompleteness";
 import { type SnapshotMatchStatus } from "@/lib/liveSnapshot";
 import { reconcileGoalEvents, isMatchInReconciliationWindow } from "@/lib/scoreReconciliation";
-import matchEventsData from "@/data/archive/match-events.json";
 import {
   formatEventDisplayMinute,
   getCanonicalArchiveEventsForMatch,
@@ -34,11 +33,11 @@ import { MATCH_EDITORIAL_REPORTS } from "@/lib/matchEditorialRegistry";
 
 interface Props {
   match: Match;
-  events?: MatchEvents | null;
+  archiveEvents?: GoalScorerEvent[] | null;
   live?: LiveMatchData | null;
   status: SnapshotMatchStatus;
   /** Cold-start fallback: kickoff has passed but the result is unknown (not SCHEDULED). */
-  liveDataUnavailable?: boolean;
+  liveDataUnavailable: boolean;
   homeScore: number | null;
   awayScore: number | null;
   scorers: GoalScorerEvent[];
@@ -178,7 +177,7 @@ const VENUE_CITIES: Record<string, string> = {
 
 export function MatchDetail({
   match,
-  events,
+  archiveEvents,
   live,
   status: initialStatus,
   liveDataUnavailable: initialLiveDataUnavailable = false,
@@ -200,7 +199,7 @@ export function MatchDetail({
   const tz = timeZone || "UTC";
   const todayHref = getTodayHref(tz);
   const report = MATCH_EDITORIAL_REPORTS[matchSlug(match)];
-  void events;
+  void archiveEvents;
 
   const liveState = {
     status: initialStatus,
@@ -301,7 +300,7 @@ export function MatchDetail({
   const homeEnglish = homeKey ? countryName(homeKey, "en") : homeName;
   const awayEnglish = awayKey ? countryName(awayKey, "en") : awayName;
 
-  const allStaticEvents = getCanonicalArchiveEventsForMatch(matchEventsData, matchSlug(match));
+  const allStaticEvents = getCanonicalArchiveEventsForMatch(archiveEvents || [], matchSlug(match));
 
   const staticGoalEvents: LiveMatchEvent[] = allStaticEvents
     .filter(e => e.eventType === 'goal' || e.eventType === 'own_goal' || e.eventType === 'penalty_goal')

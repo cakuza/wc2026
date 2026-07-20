@@ -9,7 +9,9 @@ import { countryName } from "@/lib/i18n";
 import { getTournamentLiveSnapshot } from "@/lib/liveSnapshot";
 import { matchSlug } from "@/lib/matches";
 import { firstMatchResultSentence } from "@/lib/teamCopy";
-import matchEventsData from "@/data/archive/match-events.json";
+import type { MatchEvents } from "@/lib/matchEvents";
+import { readStaticMatchEvents } from "@/lib/staticArchiveReader";
+
 import { buildKnockoutResolution } from "@/lib/knockoutResolution";
 import { getResolvedAwayTeam, getResolvedHomeTeam } from "@/lib/participant-resolution";
 import { getTeamTournamentStatus } from "@/lib/teamTournamentStatus";
@@ -237,6 +239,10 @@ export default async function TeamPage({ params }: { params: Promise<{ slug: str
     mainEntity: faqEntities,
   };
 
+  const allMatchEvents = readStaticMatchEvents();
+  const teamProviderMatchIds = teamMatches.map(m => m.providerIds?.footballData).filter(Boolean).map(String);
+  const teamEvents = allMatchEvents.filter((e: any) => teamProviderMatchIds.includes(String(e.providerMatchId)));
+
   return (
     <>
       <script
@@ -259,7 +265,7 @@ export default async function TeamPage({ params }: { params: Promise<{ slug: str
         teamMatches={teamMatches}
         standingsRows={snapshot.standingsByGroup[team.group]}
         snapshotMatches={snapshot.matches}
-        eventsArchive={matchEventsData}
+        eventsArchive={teamEvents}
         resolvedParticipants={resolvedParticipants}
         isTournamentComplete={archiveState.isComplete}
       />
