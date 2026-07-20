@@ -7,6 +7,7 @@ import { countryName } from "@/lib/i18n";
 import { matchSlug, MATCHES } from "@/lib/matches";
 import { teamCodeForKey } from "@/lib/teams";
 import type { PlayerEventLeaderboards, PlayerRankingRecord, TeamLeaderboard, TeamLeaderboards, TeamStatLeaderboards, TournamentStats } from "@/lib/tournamentStats";
+import type { TournamentAward } from "@/lib/tournamentAwards";
 
 type Props = {
   tournamentStats: TournamentStats;
@@ -15,6 +16,7 @@ type Props = {
   playerEventLeaderboards: PlayerEventLeaderboards;
   teamStatLeaderboards: TeamStatLeaderboards;
   hasEventData: boolean;
+  awards?: TournamentAward[] | null;
 };
 
 function fullTimestamp(iso: string | null) {
@@ -59,7 +61,7 @@ function joinNames(names: string[]): string {
   return `${names.slice(0, -1).join(", ")} & ${names[names.length - 1]}`;
 }
 
-export default function StatsContent({ tournamentStats, teamLeaderboards: _teamLeaderboards, topScorers, playerEventLeaderboards, teamStatLeaderboards, hasEventData }: Props) {
+export default function StatsContent({ tournamentStats, teamLeaderboards: _teamLeaderboards, topScorers, playerEventLeaderboards, teamStatLeaderboards, hasEventData, awards }: Props) {
   const { matchesPlayed, totalGoals, averageGoalsPerMatch, highestScoringMatch, biggestWin, cleanSheets, lastSyncedAt } = tournamentStats;
   const topScorer = hasEventData ? topScorers[0] : null;
   const assistLeader = hasEventData ? playerEventLeaderboards.assists[0] : null;
@@ -104,6 +106,31 @@ export default function StatsContent({ tournamentStats, teamLeaderboards: _teamL
         <div className="mb-3 flex items-center gap-3"><h2 id="tournament-glance" className="font-heading text-base font-extrabold uppercase tracking-widest text-white">Tournament at a glance</h2><div className="h-px flex-1 bg-white/10" /></div>
         <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">{glance.map((item) => <div key={item.label} className="rounded-xl border border-white/10 bg-navyCard px-4 py-3"><p className="font-heading text-[10px] font-bold uppercase tracking-widest text-white/50">{item.label}</p><p className="mt-1 font-heading text-2xl font-black text-white">{item.value}</p></div>)}</div>
       </section>
+
+      {awards && awards.length > 0 ? (
+        <section aria-labelledby="official-awards-heading" className="mb-7">
+          <div className="mb-3 flex items-center gap-3">
+            <h2 id="official-awards-heading" className="font-heading text-base font-extrabold uppercase tracking-widest text-white">Official Tournament Awards</h2>
+            <div className="h-px flex-1 bg-white/10" />
+          </div>
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            {awards.map((award) => {
+              const code = teamCodeForKey(award.teamKey);
+              return (
+                <div key={award.awardId} className="rounded-xl border border-white/10 bg-navyCard p-4">
+                  <p className="font-heading text-[10px] font-bold uppercase tracking-widest text-white/50">{award.displayName}</p>
+                  <p className="mt-2 text-lg font-bold text-white">{award.winnerName}</p>
+                  <div className="mt-1 flex items-center gap-2">
+                    {code && <Flag code={code} alt="" width={16} height={11} className="shrink-0" />}
+                    <span className="text-xs text-white/60">{countryName(award.teamKey, "en")}</span>
+                    {award.metric && <span className="text-xs text-white/45">· {award.metric}</span>}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </section>
+      ) : null}
 
       <div className="grid gap-6 lg:grid-cols-2">
         <section aria-labelledby="player-leaders-heading">

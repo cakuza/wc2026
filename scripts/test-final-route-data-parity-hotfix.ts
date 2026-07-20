@@ -110,7 +110,7 @@ async function run() {
     assert.equal(today.includes(stale), false, `/today must not contain ${stale}`);
   }
   const todayIds = [...today.matchAll(/href="\/matches\/match-(\d+)"/g)].map((match) => Number(match[1]));
-  assert.ok(today.includes("Final Weekend"), "/today must retain Final Weekend messaging before archive completion");
+  assert.ok(today.includes("Is Complete") || today.includes("complete"), "/today must retain Completed messaging after archive completion");
   assert.deepEqual([...new Set(todayIds)], [104, 103, 102, 101, 97, 98, 99, 100]);
   const todaySource = fs.readFileSync("components/TodayContent.tsx", "utf8");
   assert.equal(todaySource.includes("TodayPageLiveSection"), false, "query parameters must not select a second Match Center list");

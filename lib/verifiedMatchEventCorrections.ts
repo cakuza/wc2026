@@ -587,7 +587,62 @@ const VERIFIED_GOAL_CORRECTIONS: Record<string, VerifiedGoalCorrection> = {
       }
     ],
   },
+  "match-104": {
+    note: "Verified: Ferran Torres 106' goal.",
+    events: [
+      {
+        type: "GOAL",
+        minute: 106,
+        minuteLabel: "106'",
+        teamName: "Spain",
+        playerTeamName: "Spain",
+        playerName: "Ferran Torres",
+        isOwnGoal: false,
+        isPenalty: false,
+        provider: "espn",
+        confidence: "high",
+      }
+    ],
+  },
 };
+
+export type VerifiedMatchEvent =
+  | {
+      type: "GOAL" | "PENALTY_GOAL";
+      playerKey: string;
+      teamKey: string;
+      minute: number;
+      stoppageTime?: number;
+    }
+  | {
+      type: "YELLOW_CARD" | "SECOND_YELLOW_RED" | "DIRECT_RED";
+      playerKey: string;
+      teamKey: string;
+      minute: number;
+      stoppageTime?: number;
+    };
+
+export const VERIFIED_DISCIPLINARY_CORRECTIONS: Record<string, VerifiedMatchEvent[]> = {
+  "match-104": [
+    {
+      type: "YELLOW_CARD",
+      playerKey: "enzofernandez",
+      teamKey: "argentina",
+      minute: 82,
+    },
+    {
+      type: "SECOND_YELLOW_RED",
+      playerKey: "enzofernandez",
+      teamKey: "argentina",
+      minute: 90,
+      stoppageTime: 3,
+    }
+  ]
+};
+
+export function getVerifiedDisciplinaryEvents(internalMatchId: string): VerifiedMatchEvent[] {
+  return VERIFIED_DISCIPLINARY_CORRECTIONS[internalMatchId] ?? [];
+}
 
 function scorerKey(event: GoalScorerEvent): string {
   return `${event.teamName.toLowerCase()}|${event.minute ?? ""}|${event.stoppageTime ?? ""}|${event.playerName.toLowerCase()}|${event.isOwnGoal ? "og" : ""}`;

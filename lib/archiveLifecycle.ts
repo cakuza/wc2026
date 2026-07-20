@@ -4,6 +4,7 @@ import { getMatchPresentation } from "./matchPresentation";
 import { getParticipantDisplay, type ResolvedParticipantLookup } from "./participant-resolution";
 import { computeTournamentStats, type TournamentStats } from "./tournamentStats";
 import type { LiveMatchData } from "./liveMatchData";
+import { getPublishedAwards, type TournamentAward } from "./tournamentAwards";
 
 export interface ArchiveMatchResult {
   match: Match & { matchNumber: number };
@@ -25,6 +26,7 @@ export interface ArchiveState {
   runnerUp: string | null;
   thirdPlace: string | null;
   fourthPlace: string | null;
+  awards: TournamentAward[] | null;
 }
 
 function buildMatchResult({
@@ -90,6 +92,7 @@ export function getArchiveState({
     runnerUp: isComplete && finalResult ? finalResult.loserLabel : null,
     thirdPlace: isComplete && thirdPlaceResult ? thirdPlaceResult.winnerLabel : null,
     fourthPlace: isComplete && thirdPlaceResult ? thirdPlaceResult.loserLabel : null,
+    awards: isComplete ? getPublishedAwards(liveData) : null,
   };
 }
 
