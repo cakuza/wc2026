@@ -407,6 +407,9 @@ export function MatchDetail({
               <span className="font-heading text-lg font-extrabold uppercase leading-tight text-white transition-colors duration-300 group-hover:text-accent sm:text-xl">
                 {homeName}
               </span>
+              {("matchNumber" in match) && match.matchNumber === 104 && isConfirmedFinished && (
+                <span className="mt-1 rounded bg-accent/20 px-2 py-0.5 font-heading text-[10px] font-extrabold uppercase tracking-widest text-accent">Champion</span>
+              )}
             </Link>
 
             {/* Score / VS */}
@@ -450,6 +453,9 @@ export function MatchDetail({
               <span className="font-heading text-lg font-extrabold uppercase leading-tight text-white transition-colors duration-300 group-hover:text-accent sm:text-xl">
                 {awayName}
               </span>
+              {("matchNumber" in match) && match.matchNumber === 104 && isConfirmedFinished && (
+                <span className="mt-1 rounded bg-white/10 px-2 py-0.5 font-heading text-[10px] font-extrabold uppercase tracking-widest text-white/60">Runner-up</span>
+              )}
             </Link>
           </div>
 

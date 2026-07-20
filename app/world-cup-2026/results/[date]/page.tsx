@@ -123,6 +123,8 @@ export default async function ResultsByDatePage({ params }: { params: Promise<{ 
               >
                 <span className="font-semibold text-white">
                   {home.label} {pres.state === "final" ? `${pres.homeScore}–${pres.awayScore}` : "vs"} {away.label}
+                  {pres.state === "final" && pres.scoreDuration === "EXTRA_TIME" && " (after extra time)"}
+                  {pres.state === "final" && pres.scoreDuration === "PENALTY_SHOOTOUT" && pres.penaltyHome !== null && pres.penaltyAway !== null && ` (after extra time, ${pres.penaltyHome}–${pres.penaltyAway} on penalties)`}
                 </span>
                 <span className="text-xs text-white/50">{matchStageLabel(match)} · {match.venue}</span>
               </Link>

@@ -133,6 +133,8 @@ export default async function WorldCup2026ResultsPage() {
                 >
                   <span className="font-semibold text-white">
                     {home.label} {pres.state === "final" ? `${pres.homeScore}–${pres.awayScore}` : "vs"} {away.label}
+                    {pres.state === "final" && pres.scoreDuration === "EXTRA_TIME" && " (after extra time)"}
+                    {pres.state === "final" && pres.scoreDuration === "PENALTY_SHOOTOUT" && pres.penaltyHome !== null && pres.penaltyAway !== null && ` (after extra time, ${pres.penaltyHome}–${pres.penaltyAway} on penalties)`}
                   </span>
                   <span className="flex items-center gap-2 text-xs text-white/50">
                     <span>{match.venue}</span>
