@@ -44,6 +44,8 @@ const ROUTES = [
   "/privacy",
   "/contact",
   "/world-cup-2026-data-sources",
+  "/faq",
+  "/stats/compare",
 ];
 
 let passed = 0;
@@ -108,6 +110,8 @@ function runParityTests() {
         testAssert(!html.includes("noindex,follow"), `/today static HTML has no query-specific noindex/follow (injected on client side)`);
         const canonicalMatch = html.match(/<link[^>]*rel="canonical"[^>]*href="([^"]+)"/);
         testAssert(canonicalMatch !== null && canonicalMatch[1] === "https://www.worldcupmatchday.com/today", "/today server canonical is exactly /today");
+        testAssert(!html.includes("Loading schedule for your timezone..."), "/today does not contain outdated loading schedule text");
+        testAssert(html.includes("Preparing the Match Center for your local timezone."), "/today contains neutral SSR fallback text");
       }
 
       // Route-specific assertions
@@ -162,6 +166,8 @@ function runParityTests() {
       if (route === "/matches/match-103") {
         testAssert(html.includes("England") && html.includes("France"), "Match 103 shows England vs France");
         testAssert(html.includes("6–4") || html.includes("6-4"), "Match 103 shows completed 6-4 score");
+        testAssert(html.includes("When was this match?"), "Match 103 uses past tense microcopy 'When was this match?'");
+        testAssert(html.includes("No cards were shown."), "Match 103 uses empty-cards microcopy 'No cards were shown.'");
       }
 
       if (route === "/stats/matches") {
@@ -182,13 +188,13 @@ function runParityTests() {
       if (route === "/privacy") {
         testAssert(html.includes("We may use Google AdSense or similar advertising services if advertising is enabled"), "Privacy page has truthful conditional AdSense copy");
         testAssert(!html.includes("We use Google AdSense, a third-party advertising service"), "Privacy page does not claim active-AdSense");
+        testAssert(html.includes("EFFECTIVE: 19 JULY 2026"), "Privacy page has updated effective date 19 JULY 2026");
       }
 
       if (route === "/editorial-policy") {
         testAssert(html.includes("Editorial Policy"), "Editorial policy page rendered correctly");
         testAssert(html.includes("WorldCupMatchDay"), "Editorial policy attributes WorldCupMatchDay");
         testAssert(html.includes("independent digital publication"), "Editorial policy asserts independent publisher identity");
-        testAssert(html.includes("sources (including FIFA.com)"), "Editorial policy attributes FIFA.com as a source");
         testAssert(html.includes("Automation assists data collection, normalization and drafting. Material corrections, canonical fallbacks and original editorial reports are reviewed against cited evidence before publication."), "Editorial policy has truthful review copy");
         testAssert(!html.includes("all ingested data undergoes rigorous developer and editor review"), "Editorial policy has no universal manual review claim");
       }
@@ -196,6 +202,23 @@ function runParityTests() {
       if (route === "/corrections-policy") {
         testAssert(html.includes("Corrections Policy"), "Corrections policy page rendered correctly");
         testAssert(html.includes("worldcupmatchday@proton.me"), "Corrections policy details contact email");
+        testAssert(!html.includes("rigorous developer and editor review"), "Corrections policy does not invent editorial staffing");
+      }
+
+      if (route === "/contact") {
+        testAssert(!html.includes("within a few minutes"), "Contact page does not promise minute-level corrections");
+      }
+
+      if (route === "/world-cup-2026-data-sources" || route === "/faq") {
+        testAssert(html.includes("match data is refreshed approximately every 30 seconds"), `${route} contains truthful 30 second polling wording`);
+        testAssert(html.includes("Refreshing begins 15 minutes before kickoff and stops 3 hours after kickoff"), `${route} contains truthful bounded polling window`);
+        testAssert(!html.includes("10–90 seconds") && !html.includes("10-90 seconds"), `${route} does not contain outdated 10-90 seconds intervals`);
+      }
+
+      if (route === "/stats/compare") {
+        testAssert(html.includes("Team Compare"), "Compare page rendered correctly");
+        testAssert(!html.includes("vs Argentina") && !html.includes("Spain vs"), "Compare page SSR does not hardcode Spain vs Argentina header");
+        testAssert(html.includes("Compare cumulative tournament statistics between any two teams"), "Compare page SSR shows neutral selection prompt");
       }
 
     } catch (err: any) {

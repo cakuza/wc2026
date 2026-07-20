@@ -10,8 +10,7 @@ interface Props {
   teamStatLeaderboards: TeamStatLeaderboards;
 }
 
-export const DEFAULT_COMPARE_TEAMS = { team1: "france", team2: "spain" } as const;
-
+export const DEFAULT_COMPARE_TEAMS = { team1: "", team2: "" } as const;
 export type CompareQueryReader = Pick<URLSearchParams, "get"> | null | undefined;
 
 export function resolveCompareTeams(
@@ -23,9 +22,11 @@ export function resolveCompareTeams(
   );
   const requestedTeam1 = searchParams?.get("team1") ?? null;
   const requestedTeam2 = searchParams?.get("team2") ?? null;
+  const req1 = hasTeam(requestedTeam1) ? requestedTeam1 : "";
+  const req2 = hasTeam(requestedTeam2) ? requestedTeam2 : "";
   return {
-    team1: hasTeam(requestedTeam1) ? requestedTeam1 : DEFAULT_COMPARE_TEAMS.team1,
-    team2: hasTeam(requestedTeam2) ? requestedTeam2 : DEFAULT_COMPARE_TEAMS.team2,
+    team1: req1,
+    team2: req1 !== req2 ? req2 : "",
   };
 }
 
@@ -97,7 +98,7 @@ export function TeamCompareShell({
           >
             <option value="">Select Team...</option>
             {teamsList.map((t) => (
-              <option key={t.key} value={t.key}>{t.name}</option>
+              <option key={t.key} value={t.key} disabled={t.key === t2}>{t.name}</option>
             ))}
           </select>
         </div>
@@ -110,7 +111,7 @@ export function TeamCompareShell({
           >
             <option value="">Select Team...</option>
             {teamsList.map((t) => (
-              <option key={t.key} value={t.key}>{t.name}</option>
+              <option key={t.key} value={t.key} disabled={t.key === t1}>{t.name}</option>
             ))}
           </select>
         </div>
@@ -190,27 +191,40 @@ function TeamCompareInner({ teamsList, teamStatLeaderboards }: Props) {
   }, [searchParams, teamsList]);
 
   const handleSelect = (which: 1 | 2, val: string) => {
-    if (which === 1) setT1(val);
-    else setT2(val);
+    let newT1 = which === 1 ? val : t1;
+    let newT2 = which === 2 ? val : t2;
+
+    if (newT1 && newT1 === newT2) {
+      if (which === 1) newT2 = "";
+      else newT1 = "";
+    }
+
+    setT1(newT1);
+    setT2(newT2);
 
     const url = new URL(window.location.href);
-    if (which === 1 && val) url.searchParams.set("team1", val);
-    else if (which === 1) url.searchParams.delete("team1");
+    if (newT1) url.searchParams.set("team1", newT1);
+    else url.searchParams.delete("team1");
 
-    if (which === 2 && val) url.searchParams.set("team2", val);
-    else if (which === 2) url.searchParams.delete("team2");
+    if (newT2) url.searchParams.set("team2", newT2);
+    else url.searchParams.delete("team2");
 
     router.replace(url.pathname + url.search);
   };
 
+  const hasCompareQuery = searchParams ? (searchParams.has("team1") || searchParams.has("team2")) : false;
+
   return (
-    <TeamCompareShell
-      teamsList={teamsList}
-      teamStatLeaderboards={teamStatLeaderboards}
-      t1={t1}
-      t2={t2}
-      onSelect={handleSelect}
-    />
+    <>
+      {hasCompareQuery && <meta name="robots" content="noindex,follow" />}
+      <TeamCompareShell
+        teamsList={teamsList}
+        teamStatLeaderboards={teamStatLeaderboards}
+        t1={t1}
+        t2={t2}
+        onSelect={handleSelect}
+      />
+    </>
   );
 }
 

@@ -63,7 +63,7 @@ const match103Html = text(join("out", "matches", "match-103.html"));
 const match104Html = text(join("out", "matches", "match-104.html"));
 const termsHtml = text(join("out", "terms.html"));
 
-check(todayHtml.includes("Final Weekend fixture availability is resolving for your timezone.") && !todayHtml.includes("No World Cup match is being played today."), "Today SSR fallback is timezone-neutral until hydration");
+check(todayHtml.includes("Preparing the Match Center for your local timezone.") && !todayHtml.includes("No World Cup match is being played today."), "Today SSR fallback is timezone-neutral until hydration");
 check(thirdPlaceHtml.includes("Final third-place ranking") && thirdPlaceHtml.includes("Qualified for the Round of 32") && thirdPlaceHtml.includes("Did not qualify") && thirdPlaceHtml.includes("preserved as tournament history"), "third-place page uses final historical copy");
 check(!/current snapshot|current Round of 32 cut line|until all group matches are complete/i.test(thirdPlaceHtml), "third-place page removes provisional group-stage copy");
 check(methodologyHtml.includes("15 minutes before kickoff") && methodologyHtml.includes("3 hours after kickoff") && methodologyHtml.includes("every 30 seconds"), "methodology states the bounded 30-second live policy");

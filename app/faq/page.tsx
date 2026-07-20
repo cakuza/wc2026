@@ -66,7 +66,7 @@ const FAQS: { q: string; a: string }[] = [
   },
   {
     q: "How accurate is the data on WorldCupMatchDay?",
-    a: "Scores and standings come from a third-party data provider and update every 10–90 seconds depending on whether a match is live. We do not manually enter scores. Data may have a 30–90 second delay from real-time. Squad lists are static (sourced from officially announced squads at the start of the tournament) and do not update during the competition.",
+    a: "During the bounded live window, match data is refreshed approximately every 30 seconds. Refreshing begins 15 minutes before kickoff and stops 3 hours after kickoff. When provider coverage is incomplete or conflicts with verified evidence, we perform documented reconciliation against canonical tournament records and publish a provenance-backed correction. Squad lists are static (sourced from officially announced squads at the start of the tournament) and do not update during the competition.",
   },
   {
     q: "How do I see the schedule in my local time?",

@@ -69,9 +69,9 @@ function assertRecentFormCutoff(): void {
 
 function assertCompareContract(): void {
   const productionTeams = TEAMS.map(({ key }) => ({ key }));
-  assert(DEFAULT_COMPARE_TEAMS.team1 === "france" && DEFAULT_COMPARE_TEAMS.team2 === "spain", "Compare static defaults use canonical France and Spain team keys");
+  assert(DEFAULT_COMPARE_TEAMS.team1 === "" && DEFAULT_COMPARE_TEAMS.team2 === "", "Compare static defaults use neutral empty team keys");
   const defaults = resolveCompareTeams(new URLSearchParams(), productionTeams);
-  assert(defaults.team1 === "france" && defaults.team2 === "spain", "Compare resolves production defaults to France vs Spain");
+  assert(defaults.team1 === "" && defaults.team2 === "", "Compare resolves production defaults to empty");
   const query = new URLSearchParams("team1=argentina&team2=spain");
   assert(resolveCompareTeams(query, productionTeams).team1 === "argentina", "Compare query is parsed separately from static defaults after hydration");
   const invalid = resolveCompareTeams(new URLSearchParams("team1=invalid&team2=argentina"), productionTeams);
