@@ -129,7 +129,7 @@ async function main() {
         if (route === "/stats/top-scorers") {
           assert(/Kylian Mbappé/i.test(text) && /10/.test(text), `[${label}] Top Scorers shows Mbappé with 10 goals`);
           assert(/Lionel Messi/i.test(text) && /8/.test(text), `[${label}] Top Scorers shows Messi with 8 goals`);
-          assert(/provisional|tiebreak/i.test(text), `[${label}] Top Scorers page mentions provisional / tiebreak standings`);
+          assert(!/provisional/i.test(text), `[${label}] Top Scorers page has no stale provisional messaging`);
         }
 
         if (route === "/teams/england") {

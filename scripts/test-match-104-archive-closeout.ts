@@ -7,6 +7,8 @@ import { buildKnockoutResolution } from "../lib/knockoutResolution";
 import { getTeamTournamentStatus } from "../lib/teamTournamentStatus";
 import { getPublishedAwards } from "../lib/tournamentAwards";
 import { computeGroupStandings } from "../lib/groupStandings";
+import * as fs from "fs";
+import * as path from "path";
 
 let passed = 0;
 let failed = 0;
@@ -90,6 +92,10 @@ async function run() {
     assert.strictEqual(m104.awayScore, 0, "Argentina score must be 0");
     assert.strictEqual(m104.status, "FINISHED", "Match 104 must be finished");
     assert.strictEqual(m104.live?.scoreDuration, "EXTRA_TIME", "Match 104 must be extra time");
+
+    const goals = m104.live?.goals ?? [];
+    const torresGoal = goals.find(g => g.playerName === "Ferran Torres" && g.minute === 106);
+    assert.ok(torresGoal, "Ferran Torres goal at 106' should exist");
   });
 
   // 4. Enzo Fernández card events
@@ -147,6 +153,18 @@ async function run() {
     assert.strictEqual(findGoals("france"), 20, `France goals expected 20, got ${findGoals("france")}`);
 
     assert.strictEqual(findCleanSheets("spain"), 7, `Spain clean sheets expected 7, got ${findCleanSheets("spain")}`);
+  });
+
+  // 7. Provenance Mapping
+  check("Match 104 ESPN provenance mapping is complete", () => {
+    const mapPath = path.resolve(__dirname, "../data/archive/provenance/espn-match-map.json");
+    const mapping = JSON.parse(fs.readFileSync(mapPath, "utf-8"));
+    const m104Map = mapping.find((m: any) => m.internalMatchId === "match-104");
+    assert.ok(m104Map, "Match 104 mapping must exist");
+    assert.strictEqual(m104Map.home, "spain", "Home team must be spain");
+    assert.strictEqual(m104Map.away, "argentina", "Away team must be argentina");
+    assert.strictEqual(m104Map.stage, "Final", "Stage must be Final");
+    assert.strictEqual(m104Map.espnEventId, "760517", "ESPN Event ID must be 760517");
   });
 
   console.log(`\nResults: ${passed} passed, ${failed} failed`);

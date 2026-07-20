@@ -57,5 +57,43 @@ export const MATCH_EDITORIAL_REPORTS: Record<string, MatchEditorialReport> = {
     ],
     editorIdentity: "WorldCupMatchDay",
     updatedAt: "2026-07-18T23:00:18Z"
+  },
+  "match-104": {
+    matchId: "match-104",
+    headline: "Spain Crowned World Champions After Extra Time Thriller Against Argentina",
+    dek: "Ferran Torres's 106th-minute strike secured Spain's second World Cup title, defeating ten-man Argentina 1-0 in a tense final at MetLife Stadium.",
+    bodySections: [
+      {
+        title: "A Tactical Masterclass and Tense Regulation",
+        paragraphs: [
+          "The 2026 World Cup Final delivered a fiercely contested battle between two footballing giants. Regulation time saw both Spain and Argentina prioritize defensive solidity, resulting in a scoreless 90 minutes. Spain controlled possession in typical fashion, while Argentina remained dangerous on the counterattack. The intensity peaked late in the second half when Argentina's Enzo Fernández received a second yellow card in the 90+3rd minute, reducing the reigning champions to ten men just before extra time.",
+        ]
+      },
+      {
+        title: "Torres Breaks the Deadlock in Extra Time",
+        paragraphs: [
+          "With the numerical advantage, Spain intensified their pressure in extra time. The decisive moment arrived in the 106th minute when Ferran Torres found the back of the net, breaking the deadlock and sending the Spanish supporters into raptures. The 1-0 lead proved insurmountable for a fatigued Argentine side, as Spain's defense expertly managed the remaining minutes to secure the victory.",
+        ]
+      },
+      {
+        title: "Tournament Legacy and Awards",
+        paragraphs: [
+          "The victory marks Spain's second World Cup title, their first since 2010, cementing their status at the pinnacle of world football. Outstanding individual performances were recognized with official tournament awards: Spain's Rodri was awarded the Golden Ball, Unai Simón took the Golden Glove, and Pau Cubarsí was named Best Young Player. France's Kylian Mbappé won the Golden Boot with 10 goals.",
+        ]
+      }
+    ],
+    factualHighlights: [
+      "Match 104 ended Spain 1–0 Argentina after extra time on July 19, 2026.",
+      "Ferran Torres scored the winning goal in the 106th minute.",
+      "Argentina's Enzo Fernández was sent off with a second yellow card in the 90+3rd minute.",
+      "Spain secured their second FIFA World Cup title.",
+      "Rodri (Golden Ball), Unai Simón (Golden Glove), and Pau Cubarsí (Best Young Player) claimed official awards."
+    ],
+    sourceLinks: [
+      { label: "ESPN Match Center", url: "https://www.espn.com/soccer/match/_/gameId/760517" },
+      { label: "FIFA World Cup Official", url: "https://www.fifa.com/en/tournaments/mens/worldcup/2026" }
+    ],
+    editorIdentity: "WorldCupMatchDay",
+    updatedAt: "2026-07-20T12:00:00Z"
   }
 };

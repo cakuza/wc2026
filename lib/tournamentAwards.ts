@@ -81,17 +81,26 @@ export function getPublishedAwards(liveData?: Record<string, LiveMatchData>): To
     return identity?.key === "france:kylianmbappe" || p.playerName === "Kylian Mbappé";
   });
 
-  if (mbappeRecord) {
-    return awards.map((award) => {
-      if (award.awardId === "golden_boot") {
-        return {
-          ...award,
-          metric: `${mbappeRecord.goals} goals`,
-        };
-      }
-      return award;
-    });
+  if (!mbappeRecord) {
+    throw new Error("CRITICAL: Golden Boot winner Kylian Mbappé not found in top scorers. Failing closed.");
   }
 
-  return awards;
+  if (mbappeRecord.goals !== 10) {
+    throw new Error(`CRITICAL: Golden Boot winner Kylian Mbappé has ${mbappeRecord.goals} goals in computed stats, but official award requires 10. Failing closed.`);
+  }
+
+  // Ensure he is actually the top scorer
+  if (topScorers.length > 0 && topScorers[0].goals > 10) {
+    throw new Error(`CRITICAL: Another player has more than 10 goals. Official Golden Boot winner is Kylian Mbappé with 10. Failing closed.`);
+  }
+
+  return awards.map((award) => {
+    if (award.awardId === "golden_boot") {
+      return {
+        ...award,
+        metric: `${mbappeRecord.goals} goals`,
+      };
+    }
+    return award;
+  });
 }
