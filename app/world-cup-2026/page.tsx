@@ -7,7 +7,6 @@ import { buildKnockoutResolution } from "@/lib/knockoutResolution";
 import { getArchiveState } from "@/lib/archiveLifecycle";
 import { getParticipantDisplay } from "@/lib/participant-resolution";
 import { matchSlug, MATCHES, ARCHIVE_DEFAULT_DATE, TOURNAMENT_FINAL_DATE } from "@/lib/matches";
-import { websiteSchema } from "@/lib/schema";
 import { getTiedLeaders } from "@/lib/tournamentStats";
 
 /** "A" / "A & B" / "A, B & C" — for naming every player tied for a leaderboard's top value. */
@@ -73,7 +72,6 @@ export default async function WorldCup2026Page() {
     <div className="mx-auto max-w-5xl px-4 py-8">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd(breadcrumbs, BASE)) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(collectionLd) }} />
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteSchema()) }} />
       <BreadcrumbNav items={breadcrumbs} />
 
       <p className="mb-1 font-heading text-sm font-bold uppercase tracking-[0.3em] text-accent">FIFA World Cup 2026</p>
