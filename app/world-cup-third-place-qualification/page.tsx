@@ -2,11 +2,18 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { LiveSnapshotDebug } from "@/components/LiveSnapshotDebug";
 import { ThirdPlaceTable } from "@/components/ThirdPlaceTable";
+import { BreadcrumbNav, breadcrumbLd } from "@/components/BreadcrumbNav";
 import { getTournamentLiveSnapshot } from "@/lib/liveSnapshot";
 
 export const revalidate = 60;
 
 const BASE_URL = "https://www.worldcupmatchday.com";
+
+const breadcrumbs = [
+  { label: "Home", href: "/" },
+  { label: "Groups", href: "/groups" },
+  { label: "Third-Place Qualification" },
+];
 
 export const metadata: Metadata = {
   title: "World Cup 2026 Final Third-Place Ranking & Qualification History",
@@ -56,8 +63,10 @@ export default async function ThirdPlaceQualificationPage() {
     <>
       <LiveSnapshotDebug snapshotId={snapshot.snapshotId} generatedAt={snapshot.generatedAt} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd(breadcrumbs, BASE_URL)) }} />
 
       <div className="mx-auto max-w-3xl px-4 py-8">
+        <BreadcrumbNav items={breadcrumbs} />
         <p className="mb-2 font-heading text-sm font-bold uppercase tracking-[0.3em] text-accent">World Cup 2026</p>
         <h1 className="mb-2 font-heading text-4xl font-extrabold uppercase tracking-wide text-white">
           Final third-place ranking

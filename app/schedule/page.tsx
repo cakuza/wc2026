@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { LiveDataAutoRefresh } from "@/components/LiveDataAutoRefresh";
 import { LiveSnapshotDebug } from "@/components/LiveSnapshotDebug";
 import { LiveDataUnavailableNotice } from "@/components/LiveDataUnavailableNotice";
+import { BreadcrumbNav, breadcrumbLd } from "@/components/BreadcrumbNav";
 import { ScheduleContent } from "./ScheduleContent";
 import { getLiveRefreshPolicy } from "@/lib/liveRefreshPolicy";
 import { getTournamentLiveSnapshot } from "@/lib/liveSnapshot";
@@ -12,6 +13,11 @@ import { getArchiveState } from "@/lib/archiveLifecycle";
 export const revalidate = 60;
 
 const BASE_URL = "https://www.worldcupmatchday.com";
+
+const breadcrumbs = [
+  { label: "Home", href: "/" },
+  { label: "Schedule" },
+];
 
 export const metadata: Metadata = {
   title: "World Cup 2026 Results Archive — Scores & Local Kickoff Times",
@@ -63,7 +69,12 @@ export default async function SchedulePage() {
           <LiveDataUnavailableNotice show />
         </div>
       ) : null}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd(breadcrumbs, BASE_URL)) }}
+      />
       <div className="mx-auto w-full max-w-7xl px-4 pt-8 sm:px-6 lg:px-8 pb-2">
+        <BreadcrumbNav items={breadcrumbs} />
         <h1 className="font-heading text-4xl font-extrabold uppercase tracking-wide text-white">World Cup 2026 Match Schedule</h1>
       </div>
       <ScheduleContent
