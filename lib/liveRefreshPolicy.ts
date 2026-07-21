@@ -1,4 +1,4 @@
-import { MATCHES, matchUtcDate, type KnockoutMatch, type Match } from "./matches";
+import { MATCHES, matchSlug, matchUtcDate, type KnockoutMatch, type Match } from "./matches";
 import type { SnapshotMatchStatus } from "./liveSnapshot";
 import type { GoalEventCompleteness } from "./goalEventCompleteness";
 import type { LiveMatchData } from "./liveMatchData";
@@ -98,8 +98,14 @@ export function getLiveRefreshPolicy(
   }
 
   const matchesRecord: Record<string, any> = {};
-  activeCandidates.forEach((c, idx) => {
-    matchesRecord[idx] = c;
+  candidates.forEach((c) => {
+    matchesRecord[matchSlug(c.match)] = {
+      match: c.match,
+      homeScore: c.homeScore ?? c.live?.homeScore,
+      awayScore: c.awayScore ?? c.live?.awayScore,
+      status: c.status,
+      live: c.live,
+    };
   });
   const resolvedParticipants = buildKnockoutResolution(matchesRecord);
 

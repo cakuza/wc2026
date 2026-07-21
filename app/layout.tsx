@@ -41,11 +41,11 @@ const BUILD_COMMIT =
 export const metadata: Metadata = {
   metadataBase: new URL(BASE_URL),
   title: {
-    default: "World Cup 2026 Matchday Guide – Fixtures, Groups, Teams & Kickoff Times",
+    default: "World Cup 2026 Archive — Results, Teams, Bracket & Statistics",
     template: "%s | WorldCupMatchDay"
   },
   description:
-    "Follow the World Cup 2026 with today's matches, full schedule, groups, teams, local-time kickoff pages, bracket tools and fan-made tournament explainers.",
+    "Complete 2026 FIFA World Cup archive with all 104 results, final standings, teams, bracket, statistics, match reports and local-time schedules.",
   keywords: [
     "FIFA World Cup 2026", "World Cup 2026", "WC2026", "football", "soccer",
     "World Cup fixtures", "World Cup schedule", "World Cup squads", "World Cup groups",
@@ -57,23 +57,23 @@ export const metadata: Metadata = {
     type: "website",
     siteName: "WorldCupMatchDay",
     url: BASE_URL,
-    title: "World Cup 2026 Matchday Guide – Fixtures, Groups, Teams & Kickoff Times",
+    title: "World Cup 2026 Archive — Results, Teams, Bracket & Statistics",
     description:
-      "Follow the World Cup 2026 with today's matches, full schedule, groups, teams, local-time kickoff pages, bracket tools and fan-made tournament explainers.",
+      "Complete 2026 FIFA World Cup archive with all 104 results, final standings, teams, bracket, statistics, match reports and local-time schedules.",
     images: [
       {
         url: `${BASE_URL}/og-default.png`,
         width: 1200,
         height: 630,
-        alt: "WorldCupMatchDay - FIFA World Cup 2026"
+        alt: "WorldCupMatchDay - FIFA World Cup 2026 Archive"
       }
     ]
   },
   twitter: {
     card: "summary_large_image",
-    title: "World Cup 2026 Matchday Guide – Fixtures, Groups, Teams & Kickoff Times",
+    title: "World Cup 2026 Archive — Results, Teams, Bracket & Statistics",
     description:
-      "Today's matches, full schedule, groups, teams, local-time kickoff pages and fan-made World Cup 2026 explainers.",
+      "Complete 2026 FIFA World Cup archive with all 104 results, final standings, teams, bracket, statistics, match reports and local-time schedules.",
     images: [`${BASE_URL}/og-default.png`]
   },
   alternates: {

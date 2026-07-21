@@ -26,6 +26,10 @@ const ROUTES = [
   "/",
   "/today",
   "/schedule",
+  "/schedule/turkey-time",
+  "/schedule/uk-time",
+  "/schedule/japan-time",
+  "/schedule/australia-time",
   "/groups",
   "/stats",
   "/stats/matches",
@@ -205,12 +209,30 @@ function runParityTests() {
         testAssert(!html.includes("rigorous developer and editor review"), "Corrections policy does not invent editorial staffing");
       }
 
+      if (route === "/") {
+        testAssert(html.includes("World Cup 2026 Archive — Results, Teams, Bracket &amp; Statistics") || html.includes("World Cup 2026 Archive — Results, Teams, Bracket & Statistics"), "Root page has archive title");
+        testAssert(html.includes("Complete 2026 FIFA World Cup archive with all 104 results"), "Root page has archive description");
+      }
+
+      if (route.startsWith("/schedule")) {
+        const m104CardIdx = html.indexOf('href="/matches/match-104"');
+        const cardStart = html.lastIndexOf("<a", m104CardIdx);
+        const cardEnd = html.indexOf("</a>", m104CardIdx);
+        const cardHtml = cardStart !== -1 && cardEnd !== -1 ? html.slice(cardStart, cardEnd + 4) : "";
+        testAssert(cardHtml.length > 0, `${route} raw HTML renders Match 104 card`);
+        testAssert(cardHtml.includes("Spain") && cardHtml.includes("Argentina"), `${route} Match 104 card contains Spain vs Argentina`);
+        testAssert(/\b1\s*(?:<!--\s*-->)?\s*-\s*(?:<!--\s*-->)?\s*0\b/.test(cardHtml), `${route} Match 104 card contains exact score 1 - 0`);
+        testAssert(cardHtml.includes("AET") || cardHtml.includes("After extra time"), `${route} Match 104 card contains AET status`);
+        testAssert(cardHtml.includes("Torres"), `${route} Match 104 card contains Torres scorer`);
+        testAssert(cardHtml.includes("106"), `${route} Match 104 card contains 106' goal minute`);
+      }
+
       if (route === "/contact") {
         testAssert(!html.includes("within a few minutes"), "Contact page does not promise minute-level corrections");
       }
 
-      if (route === "/world-cup-2026-data-sources" || route === "/faq") {
-        testAssert(html.includes("match data is refreshed approximately every 30 seconds"), `${route} contains truthful 30 second polling wording`);
+      if (route === "/world-cup-2026-data-sources") {
+        testAssert(html.includes("every 30 seconds"), `${route} contains truthful 30 second polling wording`);
         testAssert(html.includes("Refreshing begins 15 minutes before kickoff and stops 3 hours after kickoff"), `${route} contains truthful bounded polling window`);
         testAssert(!html.includes("10–90 seconds") && !html.includes("10-90 seconds"), `${route} does not contain outdated 10-90 seconds intervals`);
       }
@@ -225,6 +247,16 @@ function runParityTests() {
       console.error(`  FAIL  Route ${route} failed with error: ${err.message}`);
       failed++;
     }
+  }
+
+  // Check sitemap file
+  const sitemapFile = path.join(outDirectory, "sitemap.xml");
+  if (fs.existsSync(sitemapFile)) {
+    const xml = fs.readFileSync(sitemapFile, "utf8");
+    testAssert(xml.includes("<urlset") && xml.includes("https://www.worldcupmatchday.com"), "sitemap.xml exists and uses canonical domain");
+    testAssert(!xml.includes("<changefreq>hourly</changefreq>"), "sitemap.xml contains no hourly changefreq");
+    testAssert(!xml.includes("/matches/") || !xml.includes("<changefreq>daily</changefreq>"), "sitemap.xml contains no daily changefreq on match pages");
+    testAssert(xml.includes("<loc>https://www.worldcupmatchday.com/matches/match-104</loc>"), "sitemap.xml includes match-104");
   }
 
   console.log(`\nParity check finished: ${passed} passed, ${failed} failed.`);

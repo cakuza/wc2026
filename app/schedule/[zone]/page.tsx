@@ -2,16 +2,14 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { TimezoneSchedulePageContent } from "@/components/TimezoneSchedulePageContent";
 import { TIMEZONE_SLUGS, timezoneBySlug } from "@/lib/timezones";
-import { MATCHES } from "@/lib/matches";
+import { MATCHES, ARCHIVE_DEFAULT_DATE } from "@/lib/matches";
 import { getTournamentLiveSnapshot } from "@/lib/liveSnapshot";
-import type { LiveMatchData } from "@/lib/liveMatchData";
-import type { GoalScorerEvent } from "@/lib/worldcup26Provider";
 import { buildKnockoutResolution } from "@/lib/knockoutResolution";
+import { getArchiveState } from "@/lib/archiveLifecycle";
 
 const BASE_URL = "https://www.worldcupmatchday.com";
 
 export const dynamicParams = false;
-// export const dynamic = "force-dynamic"; // removed for ISR
 export const revalidate = 60;
 
 export function generateStaticParams() {
@@ -50,20 +48,15 @@ export default async function TimezoneSchedulePage({
 
   const fixtureCount = MATCHES.length;
   const snapshot = await getTournamentLiveSnapshot();
-  const liveScores: Record<number, Pick<LiveMatchData, "status" | "homeScore" | "awayScore" | "scoreDuration" | "penaltyShootoutScore">> = {};
-  for (const [id, data] of Object.entries(snapshot.liveDataByProviderId)) {
-    liveScores[Number(id)] = {
-      status: data.status,
-      homeScore: data.homeScore,
-      awayScore: data.awayScore,
-      scoreDuration: data.scoreDuration,
-      penaltyShootoutScore: data.penaltyShootoutScore ?? undefined,
-    };
-  }
-  const scorerLines: Record<string, GoalScorerEvent[]> = {};
-  for (const [id, entry] of Object.entries(snapshot.matches)) {
-    if (entry.scorers.length > 0) scorerLines[id] = entry.scorers;
-  }
+  const evalNow = new Date(ARCHIVE_DEFAULT_DATE);
+  const resolvedParticipants = buildKnockoutResolution(snapshot.matches);
+
+  const archiveState = getArchiveState({
+    matches: MATCHES,
+    liveData: snapshot.liveDataByProviderId,
+    resolvedParticipants,
+    now: evalNow,
+  });
 
   // FAQ structured data is kept in English for SEO (independent of the visible, localized FAQ).
   const faqs = [
@@ -72,16 +65,16 @@ export default async function TimezoneSchedulePage({
       a: `Every kickoff on this page is shown in ${z.zoneNote}.`,
     },
     {
-      q: "When does the 2026 World Cup start?",
-      a: "The tournament begins on 11 June 2026 with Mexico vs South Africa at Estadio Azteca.",
+      q: "Are all completed tournament results archived here?",
+      a: `Yes — all 104 completed matches, scores, scorers and knockout results are archived with kickoff times converted to ${z.zoneNote}.`,
     },
     {
-      q: "Are knockout matches included?",
-      a: "Yes — this page now shows all 104 tournament fixtures, including the 32 knockout matches from the Round of 32 through to the Final on 19 July.",
+      q: "Are there any remaining fixtures?",
+      a: "No — the 2026 World Cup has concluded. All 104 matches from the opening game on 11 June through to the Final on 19 July are final.",
     },
     {
-      q: "Where can I see today's matches?",
-      a: "The today page shows the current day's fixtures (or the next upcoming matchday) with kickoff times and venues.",
+      q: "Where can I view match statistics and reports?",
+      a: "Click on any completed match to view full match details, goal scorers, cards, lineups and statistics.",
     },
     {
       q: "Is WorldCupMatchDay affiliated with FIFA?",
@@ -108,9 +101,9 @@ export default async function TimezoneSchedulePage({
       <TimezoneSchedulePageContent
         zone={z}
         fixtureCount={fixtureCount}
-        liveScores={liveScores}
-        scorerLines={scorerLines}
-        resolvedParticipants={buildKnockoutResolution(snapshot.matches)}
+        matchesProjection={snapshot.matches}
+        resolvedParticipants={resolvedParticipants}
+        isTournamentComplete={archiveState.isComplete}
       />
     </>
   );

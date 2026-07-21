@@ -5,8 +5,6 @@ import { useLang } from "@/components/LanguageProvider";
 import { ScheduleContent } from "@/app/schedule/ScheduleContent";
 import { TIMEZONES, type TimezoneConfig } from "@/lib/timezones";
 import { getTodayHref } from "@/lib/todaySelection";
-import type { LiveMatchData } from "@/lib/liveMatchData";
-import type { GoalScorerEvent } from "@/lib/worldcup26Provider";
 import type { ResolvedParticipantLookup } from "@/lib/participant-resolution";
 
 // Client-rendered visible chrome for /schedule/[zone]. The server page keeps metadata, static
@@ -16,17 +14,19 @@ import type { ResolvedParticipantLookup } from "@/lib/participant-resolution";
 // intro reuse the localized `tz_*` keys; per-zone context and FAQ have dedicated keys. Technical
 // values (zoneNote like "EDT, UTC−4 · America/New_York") stay as-is.
 
+import type { SerializableSnapshotMatch } from "@/lib/liveSnapshot";
+
 export function TimezoneSchedulePageContent({
   zone: z,
   fixtureCount,
-  liveScores,
-  scorerLines,
+  matchesProjection,
   resolvedParticipants,
+  isTournamentComplete,
 }: {
   zone: TimezoneConfig;
   fixtureCount: number;
-  liveScores?: Record<number, Pick<LiveMatchData, "status" | "homeScore" | "awayScore" | "scoreDuration" | "penaltyShootoutScore">>;
-  scorerLines?: Record<string, GoalScorerEvent[]>;
+  matchesProjection: Record<string, SerializableSnapshotMatch>;
+  isTournamentComplete: boolean;
   resolvedParticipants?: ResolvedParticipantLookup;
 }) {
   const { t } = useLang();
@@ -83,10 +83,10 @@ export function TimezoneSchedulePageContent({
       </div>
 
       <ScheduleContent
-        liveScores={liveScores}
-        scorerLines={scorerLines}
+        matchesProjection={matchesProjection}
         resolvedParticipants={resolvedParticipants}
         timeZone={z.iana}
+        isTournamentComplete={isTournamentComplete}
       />
 
       {/* Internal links */}
