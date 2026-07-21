@@ -45,7 +45,7 @@ export default async function TeamsPage() {
         All Teams
       </h1>
       <p className="mb-6 max-w-3xl text-sm text-white/55">
-        Follow the remaining teams first, then explore every World Cup side by knockout status or confederation.
+        Explore every World Cup side by final tournament standing, knockout status or confederation.
       </p>
 
       <TeamsDirectory classifications={classifications} finalists={finalists} statusLabels={statusLabels} />

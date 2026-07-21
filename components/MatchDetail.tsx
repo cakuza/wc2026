@@ -337,6 +337,7 @@ export function MatchDetail({
     .filter(e => e.eventType === 'yellow_card' || e.eventType === 'red_card' || e.eventType === 'second_yellow')
     .map(e => ({
       minute: e.minute,
+      stoppageTime: e.stoppageMinute || null,
       type: e.eventType === 'yellow_card' ? 'YELLOW_CARD' : e.eventType === 'second_yellow' ? 'SECOND_YELLOW' : 'RED_CARD',
       playerName: e.playerName,
       teamName: e.teamKey,
@@ -347,6 +348,7 @@ export function MatchDetail({
     .filter(e => e.eventType === 'substitution')
     .map(e => ({
       minute: e.minute,
+      stoppageTime: e.stoppageMinute || null,
       playerName: e.playerName,
       detail: e.relatedPlayerName,
       teamName: e.teamKey,
@@ -632,8 +634,8 @@ export function MatchDetail({
                 <ul className="space-y-2">
                   {cardsSource.map((b, i) => (
                     <li key={i} className="flex items-center gap-3 text-sm">
-                      <span className="w-8 shrink-0 text-right font-heading font-bold tabular-nums text-white/50">
-                        {b.minute != null ? `${b.minute}'` : "—"}
+                      <span className="w-8 shrink-0 text-right font-heading font-bold tabular-nums text-white/50 text-xs">
+                        {b.minute != null ? (b.stoppageTime ? `${b.minute}+${b.stoppageTime}'` : `${b.minute}'`) : "—"}
                       </span>
                       {b.teamName && (
                         <span className="text-white/60 mr-1">{country(b.teamName)} — </span>
@@ -664,8 +666,8 @@ export function MatchDetail({
                 <ul className="space-y-2">
                   {subsSource.map((s, i) => (
                     <li key={i} className="flex items-center gap-3 text-sm">
-                      <span className="w-8 shrink-0 text-right font-heading font-bold tabular-nums text-white/50">
-                        {s.minute != null ? `${s.minute}'` : "—"}
+                      <span className="w-8 shrink-0 text-right font-heading font-bold tabular-nums text-white/50 text-xs">
+                        {s.minute != null ? (s.stoppageTime ? `${s.minute}+${s.stoppageTime}'` : `${s.minute}'`) : "—"}
                       </span>
                       {s.teamName && (
                         <span className="text-white/60 mr-1">{country(s.teamName)} — </span>

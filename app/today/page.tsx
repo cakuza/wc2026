@@ -37,15 +37,15 @@ export async function generateMetadata(): Promise<Metadata> {
 const FAQS: { q: string; a: string }[] = [
   {
     q: "What matches are happening in the World Cup?",
-    a: "When games are scheduled, the Match Center lists upcoming matches with their kickoff times, groups and venues.",
+    a: "The 2026 World Cup has concluded. The Match Center lists all completed match results, goal scorers, and brackets.",
   },
   {
-    q: "What time are the World Cup matches?",
-    a: "Kickoff times are shown in your selected timezone (defaults to your device's timezone, with US Eastern as the fallback, and can be changed using the timezone selector). The tournament's opening match kicked off at 3:00 PM ET / 1:00 PM Mexico City time on 11 June 2026.",
+    q: "What time did the World Cup matches kick off?",
+    a: "Kickoff times are shown in your selected timezone (defaults to your device's timezone, with US Eastern as the fallback, and can be changed using the timezone selector). The tournament's opening match kicked off on 11 June 2026, and the Final concluded on 19 July 2026.",
   },
   {
     q: "Where can I see the full World Cup schedule?",
-    a: "The complete fixture list is on the schedule page, and the 12 groups with standings are on the groups page.",
+    a: "The complete fixture list and results are on the schedule page, and the final groups with standings are on the groups page.",
   },
   {
     q: "Is WorldCupMatchDay affiliated with FIFA?",

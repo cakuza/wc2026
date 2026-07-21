@@ -62,7 +62,7 @@ export const MATCH_EDITORIAL_REPORTS: Record<string, MatchEditorialReport> = {
   "match-104": {
     matchId: "match-104",
     headline: "Spain Crowned World Champions After Extra Time Thriller Against Argentina",
-    dek: "Ferran Torres's 106th-minute strike secured Spain's second World Cup title, defeating ten-man Argentina 1-0 in a tense final at New York New Jersey Stadium.",
+    dek: "Ferran Torres's 106th-minute strike secured Spain's second World Cup title, defeating ten-man Argentina 1-0 in a tense final at New York New Jersey Stadium (MetLife Stadium).",
     bodySections: [
       {
         title: "A Tense Regulation",
