@@ -1,7 +1,18 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { BreadcrumbNav, breadcrumbLd } from "@/components/BreadcrumbNav";
+import { articleSchema } from "@/lib/schema";
 
 const BASE_URL = "https://www.worldcupmatchday.com";
+const PAGE_URL = `${BASE_URL}/world-cup-2026-data-sources`;
+// Dates from real git history (git log --follow -- app/world-cup-2026-data-sources/page.tsx), not invented.
+const ARTICLE_DATE_PUBLISHED = "2026-06-27T04:05:15+03:00";
+const ARTICLE_DATE_MODIFIED = "2026-07-21T11:34:56+03:00";
+
+const breadcrumbs = [
+  { label: "Home", href: "/" },
+  { label: "Data Sources & Methodology" },
+];
 
 export const metadata: Metadata = {
   title: "WorldCupMatchDay - Data Sources, Methodology and Corrections",
@@ -54,13 +65,13 @@ const faqLd = {
   })),
 };
 
-const webPageLd = {
-  "@context": "https://schema.org",
-  "@type": "WebPage",
-  name: "WorldCupMatchDay - Data Sources, Methodology and Corrections",
+const articleLd = articleSchema({
+  headline: "WorldCupMatchDay - Data Sources, Methodology and Corrections",
   description: "How WorldCupMatchDay sources, processes, and displays World Cup 2026 match data.",
-  url: `${BASE_URL}/world-cup-2026-data-sources`,
-};
+  url: PAGE_URL,
+  datePublished: ARTICLE_DATE_PUBLISHED,
+  dateModified: ARTICLE_DATE_MODIFIED,
+});
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
@@ -75,9 +86,11 @@ export default function DataSourcesPage() {
   return (
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqLd) }} />
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(webPageLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(articleLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd(breadcrumbs, BASE_URL)) }} />
 
       <div className="mx-auto max-w-3xl px-4 py-8">
+        <BreadcrumbNav items={breadcrumbs} />
         <p className="mb-2 font-heading text-sm font-bold uppercase tracking-[0.3em] text-accent">About WorldCupMatchDay</p>
         <h1 className="mb-3 font-heading text-4xl font-extrabold uppercase tracking-wide text-white">Data Sources &amp; Methodology</h1>
         <p className="mb-8 max-w-2xl text-sm text-white/55">
