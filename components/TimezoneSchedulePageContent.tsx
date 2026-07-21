@@ -25,9 +25,9 @@ export function TimezoneSchedulePageContent({
 }: {
   zone: TimezoneConfig;
   fixtureCount: number;
-  matchesProjection?: Record<string, SerializableSnapshotMatch>;
+  matchesProjection: Record<string, SerializableSnapshotMatch>;
+  isTournamentComplete: boolean;
   resolvedParticipants?: ResolvedParticipantLookup;
-  isTournamentComplete?: boolean;
 }) {
   const { t } = useLang();
 

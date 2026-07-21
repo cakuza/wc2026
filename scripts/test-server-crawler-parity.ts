@@ -221,7 +221,7 @@ function runParityTests() {
         const cardHtml = cardStart !== -1 && cardEnd !== -1 ? html.slice(cardStart, cardEnd + 4) : "";
         testAssert(cardHtml.length > 0, `${route} raw HTML renders Match 104 card`);
         testAssert(cardHtml.includes("Spain") && cardHtml.includes("Argentina"), `${route} Match 104 card contains Spain vs Argentina`);
-        testAssert(/\b1\s*-\s*0\b/.test(cardHtml), `${route} Match 104 card contains exact score 1 - 0`);
+        testAssert(/\b1\s*(?:<!--\s*-->)?\s*-\s*(?:<!--\s*-->)?\s*0\b/.test(cardHtml), `${route} Match 104 card contains exact score 1 - 0`);
         testAssert(cardHtml.includes("AET") || cardHtml.includes("After extra time"), `${route} Match 104 card contains AET status`);
         testAssert(cardHtml.includes("Torres"), `${route} Match 104 card contains Torres scorer`);
         testAssert(cardHtml.includes("106"), `${route} Match 104 card contains 106' goal minute`);

@@ -21,6 +21,7 @@ import type { GoalScorerEvent } from "@/lib/worldcup26Provider";
 import { getMatchPresentation } from "@/lib/matchPresentation";
 import { formatGoalEventDisplay } from "@/lib/canonicalArchiveEvents";
 import type { SerializableSnapshotMatch } from "@/lib/liveSnapshot";
+import { assertScheduleArchiveConsistency } from "@/lib/scheduleArchiveConsistency";
 
 const STAGE_LABELS: Record<string, string> = {
   R32: "Round of 32",
@@ -32,8 +33,8 @@ const STAGE_LABELS: Record<string, string> = {
 };
 
 interface Props {
-  matchesProjection?: Record<string, SerializableSnapshotMatch>;
-  isTournamentComplete?: boolean;
+  matchesProjection: Record<string, SerializableSnapshotMatch>;
+  isTournamentComplete: boolean;
   resolvedParticipants?: ResolvedParticipantLookup;
   /** Route-owned timezone for static timezone schedule pages. */
   timeZone?: string;
@@ -81,7 +82,7 @@ function ScorerText({ events }: { events: GoalScorerEvent[] }) {
 
 export function ScheduleContent({
   matchesProjection,
-  isTournamentComplete: explicitIsTournamentComplete,
+  isTournamentComplete,
   resolvedParticipants,
   timeZone: fixedTimeZone,
 }: Props) {
@@ -143,20 +144,13 @@ export function ScheduleContent({
   completedDays.forEach(day => day.matches.reverse());
   const upcomingDays = groupMatchesByCalendarDate(upcoming, tz);
 
-  const isTournamentComplete = explicitIsTournamentComplete ?? (upcoming.length === 0);
-
-  // Defensive invariant check
-  if (isTournamentComplete) {
-    if (live.length > 0 || syncing.length > 0 || upcoming.length > 0 || completed.length !== 104) {
-      console.error("DEFENSIVE INVARIANT DISAGREEMENT: isTournamentComplete is true but match grouping disagrees:", {
-        isTournamentComplete,
-        live: live.length,
-        syncing: syncing.length,
-        upcoming: upcoming.length,
-        completed: completed.length,
-      });
-    }
-  }
+  assertScheduleArchiveConsistency(isTournamentComplete, {
+    live: live.length,
+    syncing: syncing.length,
+    upcoming: upcoming.length,
+    completed: completed.length,
+    total: MATCHES.length,
+  });
 
   const longDate = (iso: string) =>
     new Intl.DateTimeFormat(locale, {
