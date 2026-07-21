@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { TeamDetail } from "@/components/TeamDetail";
 import { LiveDataUnavailableNotice } from "@/components/LiveDataUnavailableNotice";
+import { BreadcrumbNav, breadcrumbLd } from "@/components/BreadcrumbNav";
 import { TEAMS, slugFor, teamBySlug, teamsInGroup, withArticle } from "@/lib/teams";
 import { MATCHES, matchesInGroup, ARCHIVE_DEFAULT_DATE } from "@/lib/matches";
 import { squadFor } from "@/lib/squads";
@@ -16,6 +17,8 @@ import { buildKnockoutResolution } from "@/lib/knockoutResolution";
 import { getResolvedAwayTeam, getResolvedHomeTeam } from "@/lib/participant-resolution";
 import { getTeamTournamentStatus } from "@/lib/teamTournamentStatus";
 import { getArchiveState } from "@/lib/archiveLifecycle";
+
+const BASE_URL = "https://www.worldcupmatchday.com";
 
 export function generateStaticParams() {
   return TEAMS.map((t) => ({ slug: slugFor(t.key) }));
@@ -154,6 +157,12 @@ export default async function TeamPage({ params }: { params: Promise<{ slug: str
   const hasReachedKnockoutStage = tournamentStatus.hasKnockoutJourney;
   const name = countryName(team.key, "en");
 
+  const breadcrumbs = [
+    { label: "Home", href: "/" },
+    { label: "Teams", href: "/teams" },
+    { label: name },
+  ];
+
   // Team's first match (sorted ascending → first entry)
   const teamFirstMatch = groupMatches
     .filter((m) => m.homeKey === team.key || m.awayKey === team.key)
@@ -253,6 +262,13 @@ export default async function TeamPage({ params }: { params: Promise<{ slug: str
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(faqLd) }}
       />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd(breadcrumbs, BASE_URL)) }}
+      />
+      <div className="mx-auto max-w-4xl px-4 pt-6">
+        <BreadcrumbNav items={breadcrumbs} />
+      </div>
       {snapshot.isFallback ? (
         <div className="mx-auto max-w-4xl px-4 pt-6">
           <LiveDataUnavailableNotice show />

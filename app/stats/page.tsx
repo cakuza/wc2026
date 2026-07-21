@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { LiveDataAutoRefresh } from "@/components/LiveDataAutoRefresh";
 import { LiveSnapshotDebug } from "@/components/LiveSnapshotDebug";
 import { LiveDataUnavailableNotice } from "@/components/LiveDataUnavailableNotice";
+import { BreadcrumbNav, breadcrumbLd } from "@/components/BreadcrumbNav";
 import StatsContent from "@/components/StatsContent";
 import { getLiveRefreshPolicy } from "@/lib/liveRefreshPolicy";
 import { getTournamentLiveSnapshot } from "@/lib/liveSnapshot";
@@ -11,6 +12,11 @@ import { ARCHIVE_DEFAULT_DATE, MATCHES } from "@/lib/matches";
 import { getTiedLeaders } from "@/lib/tournamentStats";
 
 const BASE = "https://www.worldcupmatchday.com";
+
+const breadcrumbs = [
+  { label: "Home", href: "/" },
+  { label: "Statistics" },
+];
 
 export const revalidate = 60;
 // export const dynamic = "force-dynamic"; // removed for ISR
@@ -66,6 +72,13 @@ export default async function StatsPage() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd(breadcrumbs, BASE)) }}
+      />
+      <div className="mx-auto max-w-5xl px-4 pt-6">
+        <BreadcrumbNav items={breadcrumbs} />
+      </div>
       {snapshot.isFallback ? (
         <div className="mx-auto max-w-5xl px-4 pt-6">
           <LiveDataUnavailableNotice show />

@@ -1,7 +1,19 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { BreadcrumbNav, breadcrumbLd } from "@/components/BreadcrumbNav";
+import { articleSchema } from "@/lib/schema";
 
 const BASE_URL = "https://www.worldcupmatchday.com";
+const PAGE_URL = `${BASE_URL}/world-cup-2026-prize-money`;
+// Dates from real git history (git log --follow -- app/world-cup-2026-prize-money/page.tsx), not invented.
+const ARTICLE_DATE_PUBLISHED = "2026-06-07T23:22:30+03:00";
+const ARTICLE_DATE_MODIFIED = "2026-06-09T21:33:02+03:00";
+
+const breadcrumbs = [
+  { label: "Home", href: "/" },
+  { label: "World Cup 2026", href: "/world-cup-2026" },
+  { label: "Prize Money" },
+];
 
 export const metadata: Metadata = {
   title: "World Cup 2026 Prize Money Breakdown",
@@ -50,6 +62,15 @@ const faqLd = {
   mainEntity: FAQS.map((f) => ({ "@type": "Question", name: f.q, acceptedAnswer: { "@type": "Answer", text: f.a } })),
 };
 
+const articleLd = articleSchema({
+  headline: "World Cup 2026 Prize Money Breakdown",
+  description:
+    "World Cup 2026 prize money: USD 655 million shared among 48 teams, USD 50 million for the champions, plus the payout by finishing position and guaranteed minimums.",
+  url: PAGE_URL,
+  datePublished: ARTICLE_DATE_PUBLISHED,
+  dateModified: ARTICLE_DATE_MODIFIED,
+});
+
 function Table({ caption, rows, head }: { caption: string; head: [string, string]; rows: { a: string; b: string }[] }) {
   return (
     <div className="overflow-hidden rounded-xl border border-white/10 bg-navyCard">
@@ -80,8 +101,11 @@ export default function PrizeMoneyPage() {
   return (
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(articleLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd(breadcrumbs, BASE_URL)) }} />
 
       <div className="mx-auto max-w-3xl px-4 py-8">
+        <BreadcrumbNav items={breadcrumbs} />
         <p className="mb-2 font-heading text-sm font-bold uppercase tracking-[0.3em] text-accent">FIFA World Cup 2026</p>
         <h1 className="mb-2 font-heading text-4xl font-extrabold uppercase tracking-wide text-white">
           World Cup 2026 Prize Money

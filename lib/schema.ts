@@ -1,32 +1,52 @@
 const BASE_URL = "https://www.worldcupmatchday.com";
 
+/**
+ * Rendered exactly once, on the canonical homepage only (see app/page.tsx).
+ * A WebSite node on every route (the prior root-layout placement) is invalid
+ * per schema.org guidance — there is one WebSite, not one per page.
+ */
 export function websiteSchema() {
   return {
     "@context": "https://schema.org",
     "@type": "WebSite",
     "@id": `${BASE_URL}/#website`,
     name: "WorldCupMatchDay",
-    url: BASE_URL,
+    alternateName: "World Cup Matchday",
+    url: `${BASE_URL}/`,
     description:
-      "FIFA World Cup 2026 matchday command center: fixtures, group standings, squads and fan context for all 48 teams.",
-    inLanguage: ["en", "tr", "de", "fr", "es", "pt", "ar", "ja"],
-    potentialAction: {
-      "@type": "SearchAction",
-      target: { "@type": "EntryPoint", urlTemplate: `${BASE_URL}/teams?q={search_term_string}` },
-      "query-input": "required name=search_term_string",
-    },
+      "Complete 2026 FIFA World Cup archive with all 104 results, final standings, teams, bracket, statistics and match reports.",
+    inLanguage: "en",
   };
 }
 
-export function breadcrumbSchema(items: { name: string; url: string }[]) {
+/**
+ * For substantial, original-editorial pages only (explainer guides), never
+ * for thin utility/table pages. datePublished/dateModified must come from
+ * real git history, never invented — see callers.
+ */
+export function articleSchema({
+  headline,
+  description,
+  url,
+  datePublished,
+  dateModified,
+}: {
+  headline: string;
+  description: string;
+  url: string;
+  datePublished: string;
+  dateModified: string;
+}) {
   return {
     "@context": "https://schema.org",
-    "@type": "BreadcrumbList",
-    itemListElement: items.map((item, i) => ({
-      "@type": "ListItem",
-      position: i + 1,
-      name: item.name,
-      item: item.url,
-    })),
+    "@type": "Article",
+    headline,
+    description,
+    mainEntityOfPage: { "@type": "WebPage", "@id": url },
+    image: `${BASE_URL}/og-default.png`,
+    author: { "@type": "Organization", name: "WorldCupMatchDay" },
+    publisher: { "@type": "Organization", name: "WorldCupMatchDay" },
+    datePublished,
+    dateModified,
   };
 }

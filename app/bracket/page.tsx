@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { BracketContent } from "./BracketContent";
+import { BreadcrumbNav, breadcrumbLd } from "@/components/BreadcrumbNav";
 import { getTournamentLiveSnapshot } from "@/lib/liveSnapshot";
 import { buildKnockoutResolution } from "@/lib/knockoutResolution";
 import { ARCHIVE_DEFAULT_DATE, MATCHES } from "@/lib/matches";
@@ -7,6 +8,11 @@ import { getTournamentPhase } from "@/lib/matchCenterSelection";
 import { getArchiveState } from "@/lib/archiveLifecycle";
 
 const BASE_URL = "https://www.worldcupmatchday.com";
+
+const breadcrumbs = [
+  { label: "Home", href: "/" },
+  { label: "Bracket" },
+];
 
 // export const dynamic = "force-dynamic"; // removed for ISR
 export const revalidate = 60;
@@ -38,5 +44,16 @@ export default async function BracketPage() {
     liveData: snapshot.liveDataByProviderId,
     now: new Date(snapshot.generatedAt),
   });
-  return <BracketContent resolvedParticipants={buildKnockoutResolution(snapshot.matches)} tournamentPhase={tournamentPhase} />;
+  return (
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd(breadcrumbs, BASE_URL)) }}
+      />
+      <div className="mx-auto max-w-7xl px-4 pt-8">
+        <BreadcrumbNav items={breadcrumbs} />
+      </div>
+      <BracketContent resolvedParticipants={buildKnockoutResolution(snapshot.matches)} tournamentPhase={tournamentPhase} />
+    </>
+  );
 }

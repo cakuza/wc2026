@@ -6,7 +6,6 @@ import { LanguageProvider } from "@/components/LanguageProvider";
 import { TimezoneProvider } from "@/components/TimezoneProvider";
 import { Nav } from "@/components/Nav";
 import { Footer } from "@/components/Footer";
-import { SchemaScripts } from "@/components/SchemaScripts";
 import { getTournamentLiveSnapshot } from "@/lib/liveSnapshot";
 import { buildKnockoutResolution } from "@/lib/knockoutResolution";
 import { getArchiveState } from "@/lib/archiveLifecycle";
@@ -112,7 +111,6 @@ export default async function RootLayout({ children }: { children: React.ReactNo
     <html lang="en" dir="ltr">
       {/* Preconnect to flag CDN so flag images resolve faster (low-risk LCP aid) */}
       <link rel="preconnect" href="https://flagcdn.com" />
-      <SchemaScripts />
       {ADSENSE_CLIENT_ID ? (
         <Script
           id="google-adsense"

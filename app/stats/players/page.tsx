@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { getTournamentLiveSnapshot } from "@/lib/liveSnapshot";
 import { StatsNav } from "@/components/StatsNav";
-import { BreadcrumbNav } from "@/components/BreadcrumbNav";
+import { BreadcrumbNav, breadcrumbLd } from "@/components/BreadcrumbNav";
 import { countryName } from "@/lib/i18n";
 import { LiveDataUnavailableNotice } from "@/components/LiveDataUnavailableNotice";
 import { Flag } from "@/components/Flag";
@@ -41,6 +41,10 @@ export default async function PlayersStatsPage() {
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-8">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd(breadcrumbs, "https://www.worldcupmatchday.com")) }}
+      />
       <BreadcrumbNav items={breadcrumbs} />
 
       <div className="mb-6 mt-4">

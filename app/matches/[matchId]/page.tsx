@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { LiveSnapshotDebug } from "@/components/LiveSnapshotDebug";
 import { LiveDataUnavailableNotice } from "@/components/LiveDataUnavailableNotice";
+import { BreadcrumbNav, breadcrumbLd } from "@/components/BreadcrumbNav";
 import { MatchDetail } from "@/components/MatchDetail";
 import { countryName } from "@/lib/i18n";
 import { getGoalEventCompleteness } from "@/lib/goalEventCompleteness";
@@ -20,6 +21,8 @@ export const revalidate = 60;
 export function generateStaticParams() {
   return MATCHES.map((match) => ({ matchId: matchSlug(match) }));
 }
+
+const BASE_URL = "https://www.worldcupmatchday.com";
 
 // ── Stage string tables ──────────────────────────────────────────────────────
 
@@ -221,6 +224,13 @@ export default async function MatchPage({
 
   const homeName = resolvedTeamName(match, "home");
   const awayName = resolvedTeamName(match, "away");
+
+  const breadcrumbs = [
+    { label: "Home", href: "/" },
+    { label: "Schedule", href: "/schedule" },
+    { label: `${homeName} vs ${awayName}` },
+  ];
+
   const eventName = isCompleted && snap?.homeScore !== null && snap?.awayScore !== null
     ? `${homeName} ${snap?.homeScore}–${snap?.awayScore} ${awayName}`
     : `${homeName} vs ${awayName}`;
@@ -293,12 +303,17 @@ export default async function MatchPage({
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(faqLd) }}
       />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd(breadcrumbs, BASE_URL)) }}
+      />
       {snapshot.isFallback ? (
         <div className="mx-auto max-w-4xl px-4 pt-6">
           <LiveDataUnavailableNotice show />
         </div>
       ) : null}
       <div className="mx-auto max-w-4xl px-4 pt-6 pb-2 text-center">
+        <BreadcrumbNav items={breadcrumbs} />
         <h1 className="font-heading text-2xl font-extrabold uppercase text-white">
           {snap?.status === "FINISHED"
             ? `${resolvedTeamName(match, "home")} ${snap.homeScore ?? 0}–${snap.awayScore ?? 0} ${resolvedTeamName(match, "away")}`

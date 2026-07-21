@@ -1,10 +1,17 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { TeamsByConfederation } from "@/components/TeamsByConfederation";
+import { BreadcrumbNav, breadcrumbLd } from "@/components/BreadcrumbNav";
 import { getTodayHref } from "@/lib/todaySelection";
 import { DEFAULT_TIMEZONE } from "@/lib/timezone";
 
 const BASE_URL = "https://www.worldcupmatchday.com";
+
+const breadcrumbs = [
+  { label: "Home", href: "/" },
+  { label: "Teams", href: "/teams" },
+  { label: "By Confederation" },
+];
 
 export const metadata: Metadata = {
   title: "World Cup 2026 Teams by Confederation — UEFA, AFC, CAF, CONMEBOL & More",
@@ -38,8 +45,10 @@ export default function TeamsByConfederationPage() {
   return (
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd(breadcrumbs, BASE_URL)) }} />
 
       <div className="mx-auto max-w-4xl px-4 py-8">
+        <BreadcrumbNav items={breadcrumbs} />
         <p className="mb-2 font-heading text-sm font-bold uppercase tracking-[0.3em] text-accent">World Cup 2026</p>
         <h1 className="mb-2 font-heading text-4xl font-extrabold uppercase tracking-wide text-white">
           World Cup 2026 Teams by Confederation

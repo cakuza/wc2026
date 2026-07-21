@@ -4,8 +4,15 @@ import { TIMEZONES } from "@/lib/timezones";
 import { MATCHES } from "@/lib/matches";
 import { getTodayHref } from "@/lib/todaySelection";
 import { DEFAULT_TIMEZONE } from "@/lib/timezone";
+import { BreadcrumbNav, breadcrumbLd } from "@/components/BreadcrumbNav";
 
 const BASE_URL = "https://www.worldcupmatchday.com";
+
+const breadcrumbs = [
+  { label: "Home", href: "/" },
+  { label: "Schedule", href: "/schedule" },
+  { label: "Local Time" },
+];
 
 export const metadata: Metadata = {
   title: "World Cup 2026 Schedule in Your Local Time",
@@ -25,10 +32,16 @@ export default function LocalTimeHubPage() {
   const fixtureCount = MATCHES.length;
 
   return (
-    <div className="mx-auto max-w-4xl px-4 py-8">
-      <p className="mb-2 font-heading text-sm font-bold uppercase tracking-[0.3em] text-accent">
-        FIFA World Cup 2026
-      </p>
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd(breadcrumbs, BASE_URL)) }}
+      />
+      <div className="mx-auto max-w-4xl px-4 py-8">
+        <BreadcrumbNav items={breadcrumbs} />
+        <p className="mb-2 font-heading text-sm font-bold uppercase tracking-[0.3em] text-accent">
+          FIFA World Cup 2026
+        </p>
       <h1 className="mb-2 font-heading text-4xl font-extrabold uppercase tracking-wide text-white">
         World Cup 2026 Schedule in Your Local Time
       </h1>
@@ -91,6 +104,7 @@ export default function LocalTimeHubPage() {
           </Link>
         ))}
       </div>
-    </div>
+      </div>
+    </>
   );
 }

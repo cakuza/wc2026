@@ -1,7 +1,19 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { BreadcrumbNav, breadcrumbLd } from "@/components/BreadcrumbNav";
+import { articleSchema } from "@/lib/schema";
 
 const BASE_URL = "https://www.worldcupmatchday.com";
+const PAGE_URL = `${BASE_URL}/world-cup-2026-knockout-bracket-explained`;
+// Dates from real git history (git log --follow -- app/world-cup-2026-knockout-bracket-explained/page.tsx), not invented.
+const ARTICLE_DATE_PUBLISHED = "2026-06-27T04:05:15+03:00";
+const ARTICLE_DATE_MODIFIED = "2026-06-27T13:14:14+03:00";
+
+const breadcrumbs = [
+  { label: "Home", href: "/" },
+  { label: "World Cup 2026", href: "/world-cup-2026" },
+  { label: "Knockout Bracket Explained" },
+];
 
 export const metadata: Metadata = {
   title: "World Cup 2026 Knockout Bracket Explained — Rounds, Dates, Format",
@@ -58,14 +70,14 @@ const faqLd = {
   })),
 };
 
-const webPageLd = {
-  "@context": "https://schema.org",
-  "@type": "WebPage",
-  name: "World Cup 2026 Knockout Bracket Explained",
+const articleLd = articleSchema({
+  headline: "World Cup 2026 Knockout Bracket Explained",
   description:
     "Guide to the 2026 World Cup knockout bracket: rounds, dates, extra time rules, and how matchups are determined.",
-  url: `${BASE_URL}/world-cup-2026-knockout-bracket-explained`,
-};
+  url: PAGE_URL,
+  datePublished: ARTICLE_DATE_PUBLISHED,
+  dateModified: ARTICLE_DATE_MODIFIED,
+});
 
 const ROUNDS = [
   {
@@ -116,9 +128,11 @@ export default function KnockoutBracketExplainedPage() {
   return (
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqLd) }} />
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(webPageLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(articleLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd(breadcrumbs, BASE_URL)) }} />
 
       <div className="mx-auto max-w-3xl px-4 py-8">
+        <BreadcrumbNav items={breadcrumbs} />
         <p className="mb-2 font-heading text-sm font-bold uppercase tracking-[0.3em] text-accent">
           FIFA World Cup 2026
         </p>

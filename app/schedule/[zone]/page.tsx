@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import { BreadcrumbNav, breadcrumbLd } from "@/components/BreadcrumbNav";
 import { TimezoneSchedulePageContent } from "@/components/TimezoneSchedulePageContent";
 import { TIMEZONE_SLUGS, timezoneBySlug } from "@/lib/timezones";
 import { MATCHES, ARCHIVE_DEFAULT_DATE } from "@/lib/matches";
@@ -45,6 +46,12 @@ export default async function TimezoneSchedulePage({
   const { zone } = await params;
   const z = timezoneBySlug(zone);
   if (!z) notFound();
+
+  const breadcrumbs = [
+    { label: "Home", href: "/" },
+    { label: "Schedule", href: "/schedule" },
+    { label: z.label },
+  ];
 
   const fixtureCount = MATCHES.length;
   const snapshot = await getTournamentLiveSnapshot();
@@ -98,6 +105,13 @@ export default async function TimezoneSchedulePage({
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(faqLd) }}
       />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd(breadcrumbs, BASE_URL)) }}
+      />
+      <div className="mx-auto max-w-4xl px-4 pt-6">
+        <BreadcrumbNav items={breadcrumbs} />
+      </div>
       <TimezoneSchedulePageContent
         zone={z}
         fixtureCount={fixtureCount}
