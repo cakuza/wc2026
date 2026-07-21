@@ -2,16 +2,14 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { TimezoneSchedulePageContent } from "@/components/TimezoneSchedulePageContent";
 import { TIMEZONE_SLUGS, timezoneBySlug } from "@/lib/timezones";
-import { MATCHES } from "@/lib/matches";
+import { MATCHES, ARCHIVE_DEFAULT_DATE } from "@/lib/matches";
 import { getTournamentLiveSnapshot } from "@/lib/liveSnapshot";
-import type { LiveMatchData } from "@/lib/liveMatchData";
-import type { GoalScorerEvent } from "@/lib/worldcup26Provider";
 import { buildKnockoutResolution } from "@/lib/knockoutResolution";
+import { getArchiveState } from "@/lib/archiveLifecycle";
 
 const BASE_URL = "https://www.worldcupmatchday.com";
 
 export const dynamicParams = false;
-// export const dynamic = "force-dynamic"; // removed for ISR
 export const revalidate = 60;
 
 export function generateStaticParams() {
@@ -50,6 +48,15 @@ export default async function TimezoneSchedulePage({
 
   const fixtureCount = MATCHES.length;
   const snapshot = await getTournamentLiveSnapshot();
+  const evalNow = new Date(ARCHIVE_DEFAULT_DATE);
+  const resolvedParticipants = buildKnockoutResolution(snapshot.matches);
+
+  const archiveState = getArchiveState({
+    matches: MATCHES,
+    liveData: snapshot.liveDataByProviderId,
+    resolvedParticipants,
+    now: evalNow,
+  });
 
   // FAQ structured data is kept in English for SEO (independent of the visible, localized FAQ).
   const faqs = [
@@ -95,7 +102,8 @@ export default async function TimezoneSchedulePage({
         zone={z}
         fixtureCount={fixtureCount}
         matchesProjection={snapshot.matches}
-        resolvedParticipants={buildKnockoutResolution(snapshot.matches)}
+        resolvedParticipants={resolvedParticipants}
+        isTournamentComplete={archiveState.isComplete}
       />
     </>
   );

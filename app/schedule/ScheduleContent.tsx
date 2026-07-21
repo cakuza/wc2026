@@ -20,6 +20,7 @@ import {
 import type { GoalScorerEvent } from "@/lib/worldcup26Provider";
 import { getMatchPresentation } from "@/lib/matchPresentation";
 import { formatGoalEventDisplay } from "@/lib/canonicalArchiveEvents";
+import type { SerializableSnapshotMatch } from "@/lib/liveSnapshot";
 
 const STAGE_LABELS: Record<string, string> = {
   R32: "Round of 32",
@@ -30,12 +31,9 @@ const STAGE_LABELS: Record<string, string> = {
   F: "Final",
 };
 
-import type { SerializableSnapshotMatch } from "@/lib/liveSnapshot";
-
 interface Props {
   matchesProjection?: Record<string, SerializableSnapshotMatch>;
-  liveScores?: Record<string | number, Pick<LiveMatchData, "status" | "homeScore" | "awayScore" | "scoreDuration" | "penaltyShootoutScore">>;
-  scorerLines?: Record<string, GoalScorerEvent[]>;
+  isTournamentComplete?: boolean;
   resolvedParticipants?: ResolvedParticipantLookup;
   /** Route-owned timezone for static timezone schedule pages. */
   timeZone?: string;
@@ -81,7 +79,12 @@ function ScorerText({ events }: { events: GoalScorerEvent[] }) {
   return <>{events.map(formatGoalEventDisplay).join(" • ")}</>;
 }
 
-export function ScheduleContent({ matchesProjection, liveScores, scorerLines, resolvedParticipants, timeZone: fixedTimeZone }: Props) {
+export function ScheduleContent({
+  matchesProjection,
+  isTournamentComplete: explicitIsTournamentComplete,
+  resolvedParticipants,
+  timeZone: fixedTimeZone,
+}: Props) {
   const { t, country, formatDate, locale, lang } = useLang();
   const { timeZone } = useTimezone();
   const tz = fixedTimeZone ?? timeZone ?? "UTC";
@@ -108,17 +111,13 @@ export function ScheduleContent({ matchesProjection, liveScores, scorerLines, re
         lastSyncedAt: snap.providerUpdatedAt ?? evalNow.toISOString(),
       };
       const pres = getMatchPresentation({ match: m, liveData, timeZone: tz, now: evalNow });
-      const events = snap.scorers && snap.scorers.length > 0 ? snap.scorers : scorerLines?.[slug];
+      const events = snap.scorers && snap.scorers.length > 0 ? snap.scorers : undefined;
       const penaltyShootoutScore = snapLive?.penaltyShootoutScore ?? undefined;
       return { pres, events, penaltyShootoutScore };
     }
 
-    const pid = m.providerIds?.footballData;
-    const score = pid ? liveScores?.[pid] : undefined;
-    const pres = getMatchPresentation({ match: m, liveData: score as LiveMatchData, timeZone: tz, now: evalNow });
-    const events = scorerLines?.[slug];
-    const penaltyShootoutScore = score?.penaltyShootoutScore ?? undefined;
-    return { pres, events, penaltyShootoutScore };
+    const pres = getMatchPresentation({ match: m, liveData: undefined, timeZone: tz, now: evalNow });
+    return { pres, events: undefined, penaltyShootoutScore: undefined };
   };
 
   const live = MATCHES.filter((m) => {
@@ -144,7 +143,20 @@ export function ScheduleContent({ matchesProjection, liveScores, scorerLines, re
   completedDays.forEach(day => day.matches.reverse());
   const upcomingDays = groupMatchesByCalendarDate(upcoming, tz);
 
-  const isTournamentComplete = upcoming.length === 0;
+  const isTournamentComplete = explicitIsTournamentComplete ?? (upcoming.length === 0);
+
+  // Defensive invariant check
+  if (isTournamentComplete) {
+    if (live.length > 0 || syncing.length > 0 || upcoming.length > 0 || completed.length !== 104) {
+      console.error("DEFENSIVE INVARIANT DISAGREEMENT: isTournamentComplete is true but match grouping disagrees:", {
+        isTournamentComplete,
+        live: live.length,
+        syncing: syncing.length,
+        upcoming: upcoming.length,
+        completed: completed.length,
+      });
+    }
+  }
 
   const longDate = (iso: string) =>
     new Intl.DateTimeFormat(locale, {
@@ -261,15 +273,17 @@ export function ScheduleContent({ matchesProjection, liveScores, scorerLines, re
 
   return (
     <div className="mx-auto w-full max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-      {/* Archive Header Notice */}
-      <div className="mb-6 rounded-xl border border-white/10 bg-navyCard p-4">
-        <h2 className="font-heading text-lg font-bold text-accent uppercase tracking-wide">
-          Completed Results
-        </h2>
-        <p className="mt-1 text-sm text-white/70">
-          Browse all 104 completed matches with kickoff times converted to your selected timezone.
-        </p>
-      </div>
+      {/* Archive Header Notice - rendered only when isTournamentComplete is true */}
+      {isTournamentComplete && (
+        <div className="mb-6 rounded-xl border border-white/10 bg-navyCard p-4">
+          <h2 className="font-heading text-lg font-bold text-accent uppercase tracking-wide">
+            Completed Results
+          </h2>
+          <p className="mt-1 text-sm text-white/70">
+            Browse all 104 completed matches with kickoff times converted to your selected timezone.
+          </p>
+        </div>
+      )}
 
       {/* TABS */}
       <div className="mb-6 flex gap-4 border-b border-white/10">
@@ -284,7 +298,7 @@ export function ScheduleContent({ matchesProjection, liveScores, scorerLines, re
       </div>
 
       <div className="space-y-12">
-        {liveDays.length > 0 && (
+        {!isTournamentComplete && liveDays.length > 0 && (
           <section id="live" className="scroll-mt-24">
             <h2 className="mb-6 font-heading text-xl font-extrabold uppercase tracking-widest text-red-400">
               Live Now
@@ -302,8 +316,7 @@ export function ScheduleContent({ matchesProjection, liveScores, scorerLines, re
           </section>
         )}
 
-        {/* SYNCING */}
-        {syncingDays.length > 0 && (
+        {!isTournamentComplete && syncingDays.length > 0 && (
           <section id="syncing" className="scroll-mt-24">
             <h2 className="mb-6 font-heading text-xl font-extrabold uppercase tracking-widest text-[#f5a623]">
               {t("state_syncing") || "Awaiting update"}
@@ -343,27 +356,21 @@ export function ScheduleContent({ matchesProjection, liveScores, scorerLines, re
           )}
         </section>
 
-        {!isTournamentComplete && (
+        {!isTournamentComplete && upcomingDays.length > 0 && (
           <section id="upcoming" className="scroll-mt-24">
             <h2 className="mb-6 font-heading text-xl font-extrabold uppercase tracking-widest text-white/40">
               Upcoming Matches
             </h2>
-            {upcomingDays.length > 0 ? (
-              <div className="space-y-8">
-                {upcomingDays.map((group) => (
-                  <div key={group.date}>
-                    <h3 className="mb-3 border-b border-white/10 pb-2 font-heading text-lg font-bold uppercase tracking-wide text-accent">
-                      {longDate(group.date)}
-                    </h3>
-                    {renderMatches(group.matches)}
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="rounded-xl border border-white/10 bg-navyCard p-8 text-center text-white/60">
-                <p>No upcoming matches — the tournament is complete.</p>
-              </div>
-            )}
+            <div className="space-y-8">
+              {upcomingDays.map((group) => (
+                <div key={group.date}>
+                  <h3 className="mb-3 border-b border-white/10 pb-2 font-heading text-lg font-bold uppercase tracking-wide text-accent">
+                    {longDate(group.date)}
+                  </h3>
+                  {renderMatches(group.matches)}
+                </div>
+              ))}
+            </div>
           </section>
         )}
       </div>

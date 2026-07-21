@@ -142,12 +142,10 @@ async function main() {
             assert(/AET/i.test(m104Text), `[${label}] ${route} Match 104 shows AET status`);
             assert(/Torres/i.test(m104Text) && /106/i.test(m104Text), `[${label}] ${route} Match 104 shows Torres 106' goal`);
           }
+          const archiveHeaderNotice = page.getByText("Browse all 104 completed matches with kickoff times converted");
+          assert(await archiveHeaderNotice.isVisible(), `[${label}] ${route} displays archive header notice`);
           const upcomingSection = page.locator("#upcoming");
-          const upcomingCount = await upcomingSection.count();
-          if (upcomingCount > 0) {
-            const upcomingM104 = upcomingSection.locator('a[href="/matches/match-104"]');
-            assert((await upcomingM104.count()) === 0, `[${label}] ${route} does not show Match 104 under Upcoming`);
-          }
+          assert((await upcomingSection.count()) === 0, `[${label}] ${route} hides Upcoming section completely when complete`);
         }
 
         if (route === "/world-cup-third-place-qualification") {

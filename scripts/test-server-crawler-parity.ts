@@ -215,15 +215,16 @@ function runParityTests() {
       }
 
       if (route.startsWith("/schedule")) {
-        const compIdx = html.indexOf('id="completed"');
-        const upIdx = html.indexOf('id="upcoming"');
-        const completedChunk = compIdx !== -1 ? (upIdx !== -1 && upIdx > compIdx ? html.slice(compIdx, upIdx) : html.slice(compIdx)) : "";
-        testAssert(completedChunk.includes("match-104"), `${route} raw HTML contains Match 104 under Completed`);
-        testAssert(completedChunk.includes("Spain") && completedChunk.includes("Argentina"), `${route} raw HTML contains Spain vs Argentina`);
-        testAssert(completedChunk.includes("1") && completedChunk.includes("0"), `${route} raw HTML contains 1-0 score`);
-        testAssert(completedChunk.includes("AET") || completedChunk.includes("After extra time"), `${route} raw HTML contains AET status`);
-        testAssert(completedChunk.includes("Torres"), `${route} raw HTML contains Torres scorer`);
-        testAssert(completedChunk.includes("106"), `${route} raw HTML contains 106' goal minute`);
+        const m104CardIdx = html.indexOf('href="/matches/match-104"');
+        const cardStart = html.lastIndexOf("<a", m104CardIdx);
+        const cardEnd = html.indexOf("</a>", m104CardIdx);
+        const cardHtml = cardStart !== -1 && cardEnd !== -1 ? html.slice(cardStart, cardEnd + 4) : "";
+        testAssert(cardHtml.length > 0, `${route} raw HTML renders Match 104 card`);
+        testAssert(cardHtml.includes("Spain") && cardHtml.includes("Argentina"), `${route} Match 104 card contains Spain vs Argentina`);
+        testAssert(/\b1\s*-\s*0\b/.test(cardHtml), `${route} Match 104 card contains exact score 1 - 0`);
+        testAssert(cardHtml.includes("AET") || cardHtml.includes("After extra time"), `${route} Match 104 card contains AET status`);
+        testAssert(cardHtml.includes("Torres"), `${route} Match 104 card contains Torres scorer`);
+        testAssert(cardHtml.includes("106"), `${route} Match 104 card contains 106' goal minute`);
       }
 
       if (route === "/contact") {
