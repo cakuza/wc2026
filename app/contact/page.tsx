@@ -35,7 +35,7 @@ export default function ContactPage() {
             worldcupmatchday@proton.me
           </a>
           <p className="mt-3 text-xs text-white/40">
-            Response times vary. During active tournament release cycles, we aim to review critical data correction reports within a few hours. General inquiries may take longer depending on release schedules and developer availability.
+            Response times vary. Since the tournament has concluded, we review messages and apply data corrections periodically. General inquiries may take longer depending on developer availability.
           </p>
         </div>
 

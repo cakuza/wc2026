@@ -20,15 +20,15 @@ const FAQS = [
 
   {
     q: "Where does WorldCupMatchDay get its match data?",
-    a: "During the bounded live window, match data is refreshed approximately every 30 seconds. Refreshing begins 15 minutes before kickoff and stops 3 hours after kickoff. When provider coverage is incomplete or conflicts with verified evidence, we perform documented reconciliation against canonical tournament records and publish a provenance-backed correction. Squad lists are static (sourced from officially announced squads at the start of the tournament) and do not update during the competition.",
+    a: "WorldCupMatchDay primarily uses documented sports-data providers. When provider coverage is incomplete or contradictory, verified reconciliation and canonical corrections may be applied with recorded provenance. Squad lists are static (sourced from officially announced squads at the start of the tournament) and do not update during the competition.",
   },
   {
     q: "How quickly do scores update during a live match?",
-    a: "For eligible live matches, WorldCupMatchDay refreshes for updates every 30 seconds. Refreshing begins 15 minutes before kickoff and stops 3 hours after kickoff; cached and verified data remains available outside that window.",
+    a: "For eligible live matches, WorldCupMatchDay refreshes for updates every 30 seconds during active match windows. Bounded verification checks may occur before kickoff or while final data is being reconciled.",
   },
   {
     q: "How often do standings update?",
-    a: "Group standings are calculated automatically from completed, synced match results.",
+    a: "Group standings are calculated from completed, synced match results.",
   },
   {
     q: "Is WorldCupMatchDay affiliated with FIFA or any official body?",
