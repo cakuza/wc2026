@@ -84,7 +84,7 @@ export function TeamDetail({
   const tpFinished = snapshotMatches?.["match-103"]?.status === "FINISHED";
   const isEnglandOrFrance = team.key === "england" || team.key === "france";
   const noNextMatchLabel = isTournamentComplete
-    ? "Tournament complete"
+    ? "None (campaign completed)"
     : (isEnglandOrFrance && tpFinished)
       ? "None (campaign completed)"
       : "Eliminated";
@@ -140,8 +140,9 @@ export function TeamDetail({
     if (ours > theirs) acc.wins++; else if (ours === theirs) acc.draws++; else acc.losses++;
     acc.goalsFor += ours;
     acc.goalsAgainst += theirs;
+    if (theirs === 0) acc.cleanSheets++;
     return acc;
-  }, { wins: 0, draws: 0, losses: 0, goalsFor: 0, goalsAgainst: 0 });
+  }, { wins: 0, draws: 0, losses: 0, goalsFor: 0, goalsAgainst: 0, cleanSheets: 0 });
   const leadingScorers = Object.entries(completedMatches.flatMap((match) => getCanonicalArchiveEventsForMatch(eventsArchive, matchSlug(match)))
     .filter((event) => (event.eventType === "goal" || event.eventType === "penalty_goal") && event.teamKey?.toLowerCase() === teamDisplayName.toLowerCase())
     .reduce<Record<string, number>>((totals, event) => ({ ...totals, [event.playerName]: (totals[event.playerName] ?? 0) + 1 }), {}))
@@ -242,7 +243,7 @@ export function TeamDetail({
            );
          })() : <p className="mt-1 font-heading text-sm font-extrabold text-white">—</p>}</div>
          <div className="rounded-xl border border-white/10 bg-navyCard p-4"><p className="text-[10px] font-bold uppercase tracking-widest text-white/50">Next match</p>{nextListedMatch ? <Link href={`/matches/${matchSlug(nextListedMatch)}`} className="mt-1 block font-heading text-sm font-extrabold text-accent hover:text-white">{fixtureStage(nextListedMatch)}: {nextFixtureLabel}</Link> : <p className="mt-1 font-heading text-sm font-extrabold text-white">{noNextMatchLabel}</p>}</div>
-         <div className="rounded-xl border border-white/10 bg-navyCard p-4"><p className="text-[10px] font-bold uppercase tracking-widest text-white/50">Tournament record</p><p className="mt-1 font-heading text-sm font-extrabold text-white">{form.wins}-{form.draws}-{form.losses} <span className="text-white/45">GF {form.goalsFor} GA {form.goalsAgainst}</span></p></div>
+         <div className="rounded-xl border border-white/10 bg-navyCard p-4"><p className="text-[10px] font-bold uppercase tracking-widest text-white/50">Tournament record</p><p className="mt-1 font-heading text-sm font-extrabold text-white">{form.wins}-{form.draws}-{form.losses} <span className="text-white/45">GF {form.goalsFor} GA {form.goalsAgainst} CS {form.cleanSheets}</span></p></div>
        </section> : null}
        {hasKnockoutJourney && leadingScorers.length > 0 ? <section className="mt-3 rounded-xl border border-white/10 bg-navyCard px-4 py-3"><p className="text-[10px] font-bold uppercase tracking-widest text-white/50">Leading scorers</p><p className="mt-1 text-sm text-white">{leadingScorers.map(([player, goals]) => `${player} (${goals})`).join(" · ")}</p></section> : null}
 

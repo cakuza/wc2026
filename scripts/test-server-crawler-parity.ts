@@ -139,23 +139,23 @@ function runParityTests() {
       if (route === "/teams/spain") {
         testAssert(html.includes("Champion"), "/teams/spain lists status as Champion");
         testAssert(html.includes("match-104") || html.includes("Final"), "/teams/spain lists Match 104");
-        testAssert(html.includes("Tournament complete"), "/teams/spain campaign is marked completed");
+        testAssert(html.includes("None (campaign completed)"), "/teams/spain campaign is marked completed");
       }
 
       if (route === "/teams/argentina") {
         testAssert(html.includes("Runner-up"), "/teams/argentina lists status as Runner-up");
         testAssert(html.includes("match-104") || html.includes("Final"), "/teams/argentina lists Match 104");
-        testAssert(html.includes("Tournament complete"), "/teams/argentina campaign is marked completed");
+        testAssert(html.includes("None (campaign completed)"), "/teams/argentina campaign is marked completed");
       }
 
       if (route === "/teams/england") {
         testAssert(html.includes("Third place"), "/teams/england lists status as Third place");
-        testAssert(html.includes("Tournament complete"), "/teams/england campaign is marked completed");
+        testAssert(html.includes("None (campaign completed)"), "/teams/england campaign is marked completed");
       }
 
       if (route === "/teams/france") {
         testAssert(html.includes("Fourth place"), "/teams/france lists status as Fourth place");
-        testAssert(html.includes("Tournament complete"), "/teams/france campaign is marked completed");
+        testAssert(html.includes("None (campaign completed)"), "/teams/france campaign is marked completed");
       }
 
       if (route === "/matches/match-104") {

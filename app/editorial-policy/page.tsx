@@ -41,7 +41,7 @@ export default function EditorialPolicyPage() {
             Source Attribution
           </h2>
           <p>
-            We attribute our data and information transparently. Match event streams and statistics are sourced from authorized sports providers, supplemented by public official statements, and cross-referenced with multiple independent broadcasters.
+            We attribute our data and information transparently. Match event streams and statistics are sourced from documented sports-data providers, supplemented by public official statements, and cross-referenced with multiple independent broadcasters.
           </p>
         </section>
 

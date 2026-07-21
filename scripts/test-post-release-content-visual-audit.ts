@@ -9,13 +9,18 @@ import { buildKnockoutResolution } from "../lib/knockoutResolution";
 import { buildTournamentLiveSnapshot } from "../lib/liveSnapshot";
 import { readStaticArchiveData } from "../lib/staticArchiveReader";
 
-const auditNow = new Date(ARCHIVE_DEFAULT_DATE);
+const auditNow = new Date("2026-07-12T12:00:00Z");
 
 async function run() {
+  const fullLiveData = readStaticArchiveData();
+  const semiStateLiveData = new Map(fullLiveData);
+  // Omit SF (101, 102), 3P (103), F (104) to simulate pre-semifinal state
+  [537387, 537388, 537389, 537390].forEach((id) => semiStateLiveData.delete(id));
+
   const snapshot = await buildTournamentLiveSnapshot({
-    liveData: readStaticArchiveData(),
+    liveData: semiStateLiveData,
     worldcupGames: null,
-    generatedAt: ARCHIVE_DEFAULT_DATE,
+    generatedAt: "2026-07-12T12:00:00Z",
     primaryProviderOk: false,
     secondaryProviderOk: false,
     primaryProviderFetchedAt: null,

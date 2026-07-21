@@ -58,7 +58,7 @@ export const MATCHES: Match[] = [
   { homeKey: "bosnia", homeCode: "ba", awayKey: "qatar", awayCode: "qa", date: "2026-06-24", time: "12:00", venue: "Lumen Field", group: "B", utcOffset: -7, providerIds: { footballData: 537338 } },
 
   // ── Group C ──────────────────────────────────────────────────────────────
-  { homeKey: "brazil", homeCode: "br", awayKey: "morocco", awayCode: "ma", date: "2026-06-13", time: "18:00", venue: "MetLife Stadium", group: "C", utcOffset: -4, providerIds: { footballData: 537339 } },
+  { homeKey: "brazil", homeCode: "br", awayKey: "morocco", awayCode: "ma", date: "2026-06-13", time: "18:00", venue: "New York New Jersey Stadium (MetLife Stadium)", group: "C", utcOffset: -4, providerIds: { footballData: 537339 } },
   { homeKey: "haiti", homeCode: "ht", awayKey: "scotland", awayCode: "gb-sct", date: "2026-06-13", time: "21:00", venue: "Gillette Stadium", group: "C", utcOffset: -4, providerIds: { footballData: 537340 } },
   { homeKey: "scotland", homeCode: "gb-sct", awayKey: "morocco", awayCode: "ma", date: "2026-06-19", time: "18:00", venue: "Gillette Stadium", group: "C", utcOffset: -4, providerIds: { footballData: 537342 } },
   { homeKey: "brazil", homeCode: "br", awayKey: "haiti", awayCode: "ht", date: "2026-06-19", time: "20:30", venue: "Lincoln Financial Field", group: "C", utcOffset: -4, providerIds: { footballData: 537341 } },
@@ -79,7 +79,7 @@ export const MATCHES: Match[] = [
   { homeKey: "germany", homeCode: "de", awayKey: "ivoryCoast", awayCode: "ci", date: "2026-06-20", time: "16:00", venue: "BMO Field", group: "E", utcOffset: -4, providerIds: { footballData: 537353 } },
   { homeKey: "ecuador", homeCode: "ec", awayKey: "curacao", awayCode: "cw", date: "2026-06-20", time: "19:00", venue: "Arrowhead Stadium", group: "E", utcOffset: -5, providerIds: { footballData: 537354 } },
   { homeKey: "curacao", homeCode: "cw", awayKey: "ivoryCoast", awayCode: "ci", date: "2026-06-25", time: "16:00", venue: "Lincoln Financial Field", group: "E", utcOffset: -4, providerIds: { footballData: 537356 } },
-  { homeKey: "ecuador", homeCode: "ec", awayKey: "germany", awayCode: "de", date: "2026-06-25", time: "16:00", venue: "MetLife Stadium", group: "E", utcOffset: -4, providerIds: { footballData: 537355 } },
+  { homeKey: "ecuador", homeCode: "ec", awayKey: "germany", awayCode: "de", date: "2026-06-25", time: "16:00", venue: "New York New Jersey Stadium (MetLife Stadium)", group: "E", utcOffset: -4, providerIds: { footballData: 537355 } },
 
   // ── Group F ──────────────────────────────────────────────────────────────
   { homeKey: "netherlands", homeCode: "nl", awayKey: "japan", awayCode: "jp", date: "2026-06-14", time: "15:00", venue: "AT&T Stadium", group: "F", utcOffset: -5, providerIds: { footballData: 537357 } },
@@ -106,10 +106,10 @@ export const MATCHES: Match[] = [
   { homeKey: "uruguay", homeCode: "uy", awayKey: "spain", awayCode: "es", date: "2026-06-26", time: "18:00", venue: "Estadio Akron", group: "H", utcOffset: -6, providerIds: { footballData: 537373 } },
 
   // ── Group I ──────────────────────────────────────────────────────────────
-  { homeKey: "france", homeCode: "fr", awayKey: "senegal", awayCode: "sn", date: "2026-06-16", time: "15:00", venue: "MetLife Stadium", group: "I", utcOffset: -4, providerIds: { footballData: 537391 } },
+  { homeKey: "france", homeCode: "fr", awayKey: "senegal", awayCode: "sn", date: "2026-06-16", time: "15:00", venue: "New York New Jersey Stadium (MetLife Stadium)", group: "I", utcOffset: -4, providerIds: { footballData: 537391 } },
   { homeKey: "iraq", homeCode: "iq", awayKey: "norway", awayCode: "no", date: "2026-06-16", time: "18:00", venue: "Gillette Stadium", group: "I", utcOffset: -4, providerIds: { footballData: 537392 } },
   { homeKey: "france", homeCode: "fr", awayKey: "iraq", awayCode: "iq", date: "2026-06-22", time: "17:00", venue: "Lincoln Financial Field", group: "I", utcOffset: -4, providerIds: { footballData: 537393 } },
-  { homeKey: "norway", homeCode: "no", awayKey: "senegal", awayCode: "sn", date: "2026-06-22", time: "20:00", venue: "MetLife Stadium", group: "I", utcOffset: -4, providerIds: { footballData: 537394 } },
+  { homeKey: "norway", homeCode: "no", awayKey: "senegal", awayCode: "sn", date: "2026-06-22", time: "20:00", venue: "New York New Jersey Stadium (MetLife Stadium)", group: "I", utcOffset: -4, providerIds: { footballData: 537394 } },
   { homeKey: "norway", homeCode: "no", awayKey: "france", awayCode: "fr", date: "2026-06-26", time: "15:00", venue: "Gillette Stadium", group: "I", utcOffset: -4, providerIds: { footballData: 537395 } },
   { homeKey: "senegal", homeCode: "sn", awayKey: "iraq", awayCode: "iq", date: "2026-06-26", time: "15:00", venue: "BMO Field", group: "I", utcOffset: -4, providerIds: { footballData: 537396 } },
 
@@ -134,13 +134,13 @@ export const MATCHES: Match[] = [
   { homeKey: "ghana", homeCode: "gh", awayKey: "panama", awayCode: "pa", date: "2026-06-17", time: "19:00", venue: "BMO Field", group: "L", utcOffset: -4, providerIds: { footballData: 537410 } },
   { homeKey: "england", homeCode: "gb-eng", awayKey: "ghana", awayCode: "gh", date: "2026-06-23", time: "16:00", venue: "Gillette Stadium", group: "L", utcOffset: -4, providerIds: { footballData: 537411 } },
   { homeKey: "panama", homeCode: "pa", awayKey: "croatia", awayCode: "hr", date: "2026-06-23", time: "19:00", venue: "BMO Field", group: "L", utcOffset: -4, providerIds: { footballData: 537412 } },
-  { homeKey: "panama", homeCode: "pa", awayKey: "england", awayCode: "gb-eng", date: "2026-06-27", time: "17:00", venue: "MetLife Stadium", group: "L", utcOffset: -4, providerIds: { footballData: 537413 } },
+  { homeKey: "panama", homeCode: "pa", awayKey: "england", awayCode: "gb-eng", date: "2026-06-27", time: "17:00", venue: "New York New Jersey Stadium (MetLife Stadium)", group: "L", utcOffset: -4, providerIds: { footballData: 537413 } },
   { homeKey: "croatia", homeCode: "hr", awayKey: "ghana", awayCode: "gh", date: "2026-06-27", time: "17:00", venue: "Lincoln Financial Field", group: "L", utcOffset: -4, providerIds: { footballData: 537414 } },
   { stage: "R32", matchNumber: 73, homeKey: "tbd", homeCode: "tbd", awayKey: "tbd", awayCode: "tbd", date: "2026-06-28", time: "12:00", venue: "SoFi Stadium", utcOffset: -7, homeSlot: { kind: "groupSlot", group: "A", place: 2 }, awaySlot: { kind: "groupSlot", group: "B", place: 2 }, providerIds: { footballData: 537417 } },
   { stage: "R32", matchNumber: 74, homeKey: "tbd", homeCode: "tbd", awayKey: "tbd", awayCode: "tbd", date: "2026-06-29", time: "16:30", venue: "Gillette Stadium", utcOffset: -4, homeSlot: { kind: "groupSlot", group: "E", place: 1 }, awaySlot: { kind: "bestThird", groups: ["A", "B", "C", "D", "F"] }, providerIds: { footballData: 537415 } },
   { stage: "R32", matchNumber: 75, homeKey: "tbd", homeCode: "tbd", awayKey: "tbd", awayCode: "tbd", date: "2026-06-29", time: "19:00", venue: "Estadio BBVA", utcOffset: -6, homeSlot: { kind: "groupSlot", group: "F", place: 1 }, awaySlot: { kind: "groupSlot", group: "C", place: 2 }, providerIds: { footballData: 537418 } },
   { stage: "R32", matchNumber: 76, homeKey: "tbd", homeCode: "tbd", awayKey: "tbd", awayCode: "tbd", date: "2026-06-29", time: "12:00", venue: "NRG Stadium", utcOffset: -5, homeSlot: { kind: "groupSlot", group: "C", place: 1 }, awaySlot: { kind: "groupSlot", group: "F", place: 2 }, providerIds: { footballData: 537423 } },
-  { stage: "R32", matchNumber: 77, homeKey: "tbd", homeCode: "tbd", awayKey: "tbd", awayCode: "tbd", date: "2026-06-30", time: "17:00", venue: "MetLife Stadium", utcOffset: -4, homeSlot: { kind: "groupSlot", group: "I", place: 1 }, awaySlot: { kind: "bestThird", groups: ["C", "D", "F", "G", "H"] }, providerIds: { footballData: 537416 } },
+  { stage: "R32", matchNumber: 77, homeKey: "tbd", homeCode: "tbd", awayKey: "tbd", awayCode: "tbd", date: "2026-06-30", time: "17:00", venue: "New York New Jersey Stadium (MetLife Stadium)", utcOffset: -4, homeSlot: { kind: "groupSlot", group: "I", place: 1 }, awaySlot: { kind: "bestThird", groups: ["C", "D", "F", "G", "H"] }, providerIds: { footballData: 537416 } },
   { stage: "R32", matchNumber: 78, homeKey: "tbd", homeCode: "tbd", awayKey: "tbd", awayCode: "tbd", date: "2026-06-30", time: "12:00", venue: "AT&T Stadium", utcOffset: -5, homeSlot: { kind: "groupSlot", group: "E", place: 2 }, awaySlot: { kind: "groupSlot", group: "I", place: 2 }, providerIds: { footballData: 537424 } },
   { stage: "R32", matchNumber: 79, homeKey: "tbd", homeCode: "tbd", awayKey: "tbd", awayCode: "tbd", date: "2026-06-30", time: "19:00", venue: "Estadio Azteca", utcOffset: -6, homeSlot: { kind: "groupSlot", group: "A", place: 1 }, awaySlot: { kind: "bestThird", groups: ["C", "E", "F", "H", "I"] }, providerIds: { footballData: 537425 } },
   { stage: "R32", matchNumber: 80, homeKey: "tbd", homeCode: "tbd", awayKey: "tbd", awayCode: "tbd", date: "2026-07-01", time: "12:00", venue: "Mercedes-Benz Stadium", utcOffset: -4, homeSlot: { kind: "groupSlot", group: "L", place: 1 }, awaySlot: { kind: "bestThird", groups: ["E", "H", "I", "J", "K"] }, providerIds: { footballData: 537426 } },
@@ -154,7 +154,7 @@ export const MATCHES: Match[] = [
   { stage: "R32", matchNumber: 88, homeKey: "tbd", homeCode: "tbd", awayKey: "tbd", awayCode: "tbd", date: "2026-07-03", time: "13:00", venue: "AT&T Stadium", utcOffset: -5, homeSlot: { kind: "groupSlot", group: "D", place: 2 }, awaySlot: { kind: "groupSlot", group: "G", place: 2 }, providerIds: { footballData: 537428 } },
   { stage: "R16", matchNumber: 89, homeKey: "tbd", homeCode: "tbd", awayKey: "tbd", awayCode: "tbd", date: "2026-07-04", time: "17:00", venue: "Lincoln Financial Field", utcOffset: -4, homeSlot: { kind: "winnerOf", matchNumber: 74 }, awaySlot: { kind: "winnerOf", matchNumber: 77 }, providerIds: { footballData: 537375 } },
   { stage: "R16", matchNumber: 90, homeKey: "tbd", homeCode: "tbd", awayKey: "tbd", awayCode: "tbd", date: "2026-07-04", time: "12:00", venue: "NRG Stadium", utcOffset: -5, homeSlot: { kind: "winnerOf", matchNumber: 73 }, awaySlot: { kind: "winnerOf", matchNumber: 75 }, providerIds: { footballData: 537376 } },
-  { stage: "R16", matchNumber: 91, homeKey: "tbd", homeCode: "tbd", awayKey: "tbd", awayCode: "tbd", date: "2026-07-05", time: "16:00", venue: "MetLife Stadium", utcOffset: -4, homeSlot: { kind: "winnerOf", matchNumber: 76 }, awaySlot: { kind: "winnerOf", matchNumber: 78 }, providerIds: { footballData: 537377 } },
+  { stage: "R16", matchNumber: 91, homeKey: "tbd", homeCode: "tbd", awayKey: "tbd", awayCode: "tbd", date: "2026-07-05", time: "16:00", venue: "New York New Jersey Stadium (MetLife Stadium)", utcOffset: -4, homeSlot: { kind: "winnerOf", matchNumber: 76 }, awaySlot: { kind: "winnerOf", matchNumber: 78 }, providerIds: { footballData: 537377 } },
   { stage: "R16", matchNumber: 92, homeKey: "tbd", homeCode: "tbd", awayKey: "tbd", awayCode: "tbd", date: "2026-07-05", time: "18:00", venue: "Estadio Azteca", utcOffset: -6, homeSlot: { kind: "winnerOf", matchNumber: 79 }, awaySlot: { kind: "winnerOf", matchNumber: 80 }, providerIds: { footballData: 537378 } },
   { stage: "R16", matchNumber: 93, homeKey: "tbd", homeCode: "tbd", awayKey: "tbd", awayCode: "tbd", date: "2026-07-06", time: "14:00", venue: "AT&T Stadium", utcOffset: -5, homeSlot: { kind: "winnerOf", matchNumber: 83 }, awaySlot: { kind: "winnerOf", matchNumber: 84 }, providerIds: { footballData: 537379 } },
   { stage: "R16", matchNumber: 94, homeKey: "tbd", homeCode: "tbd", awayKey: "tbd", awayCode: "tbd", date: "2026-07-06", time: "17:00", venue: "Lumen Field", utcOffset: -7, homeSlot: { kind: "winnerOf", matchNumber: 81 }, awaySlot: { kind: "winnerOf", matchNumber: 82 }, providerIds: { footballData: 537380 } },
@@ -167,7 +167,7 @@ export const MATCHES: Match[] = [
   { stage: "SF", matchNumber: 101, homeKey: "tbd", homeCode: "tbd", awayKey: "tbd", awayCode: "tbd", date: "2026-07-14", time: "14:00", venue: "AT&T Stadium", utcOffset: -5, homeSlot: { kind: "winnerOf", matchNumber: 97 }, awaySlot: { kind: "winnerOf", matchNumber: 98 }, providerIds: { footballData: 537387 } },
   { stage: "SF", matchNumber: 102, homeKey: "tbd", homeCode: "tbd", awayKey: "tbd", awayCode: "tbd", date: "2026-07-15", time: "15:00", venue: "Mercedes-Benz Stadium", utcOffset: -4, homeSlot: { kind: "winnerOf", matchNumber: 99 }, awaySlot: { kind: "winnerOf", matchNumber: 100 }, providerIds: { footballData: 537388 } },
   { stage: "3P", matchNumber: 103, homeKey: "tbd", homeCode: "tbd", awayKey: "tbd", awayCode: "tbd", date: "2026-07-18", time: "17:00", venue: "Hard Rock Stadium", utcOffset: -4, homeSlot: { kind: "loserOf", matchNumber: 101 }, awaySlot: { kind: "loserOf", matchNumber: 102 }, providerIds: { footballData: 537389 } },
-  { stage: "F", matchNumber: 104, homeKey: "tbd", homeCode: "tbd", awayKey: "tbd", awayCode: "tbd", date: "2026-07-19", time: "15:00", venue: "MetLife Stadium", utcOffset: -4, homeSlot: { kind: "winnerOf", matchNumber: 101 }, awaySlot: { kind: "winnerOf", matchNumber: 102 }, providerIds: { footballData: 537390 } },
+  { stage: "F", matchNumber: 104, homeKey: "tbd", homeCode: "tbd", awayKey: "tbd", awayCode: "tbd", date: "2026-07-19", time: "15:00", venue: "New York New Jersey Stadium (MetLife Stadium)", utcOffset: -4, homeSlot: { kind: "winnerOf", matchNumber: 101 }, awaySlot: { kind: "winnerOf", matchNumber: 102 }, providerIds: { footballData: 537390 } },
 ];
 
 export const OPENING_MATCH = MATCHES.find((m) => m.opener)!;
@@ -176,7 +176,7 @@ export const KICKOFF_TARGET = "2026-06-11T19:00:00Z";
 
 // Final matchday — exact kickoff time TBC, so this marks end-of-day for countdown purposes.
 export const TOURNAMENT_FINAL_DATE = new Date(Math.max(...MATCHES.map(m => matchUtcDate(m).getTime()))).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" });
-export const ARCHIVE_DEFAULT_DATE = "2026-07-12T12:00:00Z";
+export const ARCHIVE_DEFAULT_DATE = "2026-07-20T12:00:00Z";
 
 /** Convert a fixture's venue-local kickoff into an absolute UTC instant. */
 export function matchUtcDate(m: Match): Date {

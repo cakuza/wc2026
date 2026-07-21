@@ -12,7 +12,7 @@ import { buildTournamentLiveSnapshot } from "../lib/liveSnapshot";
 import { readStaticArchiveData } from "../lib/staticArchiveReader";
 import { computePlayerEventLeaderboards, computeTopScorers, resolveCanonicalPlayerIdentity } from "../lib/tournamentStats";
 
-const auditNow = new Date(ARCHIVE_DEFAULT_DATE);
+const auditNow = new Date("2026-07-12T12:00:00Z");
 
 function makeLive(events: Partial<LiveMatchData>): LiveMatchData {
   return {
@@ -36,18 +36,33 @@ async function run() {
   const snapshot = await buildTournamentLiveSnapshot({
     liveData: readStaticArchiveData(),
     worldcupGames: null,
-    generatedAt: ARCHIVE_DEFAULT_DATE,
+    generatedAt: "2026-07-12T12:00:00Z",
     primaryProviderOk: false,
     secondaryProviderOk: false,
     primaryProviderFetchedAt: null,
     secondaryProviderFetchedAt: null,
     skipEnrichment: true,
   });
-  const resolvedParticipants = buildKnockoutResolution(snapshot.matches);
+
+  const fullLiveData = readStaticArchiveData();
+  const semiStateLiveData = new Map(fullLiveData);
+  [537387, 537388, 537389, 537390].forEach((id) => semiStateLiveData.delete(id));
+  const semiSnapshot = await buildTournamentLiveSnapshot({
+    liveData: semiStateLiveData,
+    worldcupGames: null,
+    generatedAt: "2026-07-12T12:00:00Z",
+    primaryProviderOk: false,
+    secondaryProviderOk: false,
+    primaryProviderFetchedAt: null,
+    secondaryProviderFetchedAt: null,
+    skipEnrichment: true,
+  });
+
+  const resolvedParticipants = buildKnockoutResolution(semiSnapshot.matches);
 
   const ticker = selectHomepageTickerMatches({
     matches: MATCHES,
-    liveData: snapshot.liveDataByProviderId,
+    liveData: semiSnapshot.liveDataByProviderId,
     now: auditNow,
     resolvedParticipants,
   });
@@ -99,7 +114,7 @@ async function run() {
   assertArchiveScorer(alvarez, "Argentina", 1);
   assertArchiveScorer("Alexis Mac Allister", "Argentina", 1);
   assertArchiveScorer(lautaro, "Argentina", 2);
-  assertArchiveScorer("Jude Bellingham", "England", 6);
+  assertArchiveScorer("Jude Bellingham", "England", 7);
   assertArchiveScorer("Dan Ndoye", "Switzerland", 2);
   assertArchiveScorer("Anthony Gordon", "England", 1);
   assertArchiveScorer("Enzo Fern\u00e1ndez", "Argentina", 2);
@@ -211,10 +226,10 @@ async function run() {
   assert.ok(teamDetailSource.includes("formatCanonicalGoalEvents(archiveEvents)"));
   assert.ok(teamDetailSource.includes("getMatchStatusLabel(getMatchPresentation({"));
   assert.ok(teamPageSource.includes("teamMatches={teamMatches}"));
-  assert.ok(teamPageSource.includes("eventsArchive={matchEventsData}"));
+  assert.ok(teamPageSource.includes("eventsArchive={teamEvents}"));
   assert.ok(teamPageSource.includes("getTeamTournamentStatus("));
   assert.ok(teamTournamentStatusSource.includes("getResolvedHomeTeam(match, resolvedParticipants)"));
-  assert.ok(matchDetailSource.includes("getCanonicalArchiveEventsForMatch(matchEventsData, matchSlug(match))"));
+  assert.ok(matchDetailSource.includes("getCanonicalArchiveEventsForMatch(archiveEvents || [], matchSlug(match))"));
   assert.ok(matchDetailSource.includes("eventType === 'second_yellow' ? 'SECOND_YELLOW'"));
   assert.ok(matchDetailSource.includes('t("lbl_second_yellow")'));
   assert.equal(matchDetailSource.includes("{b.playerName} (${b.type})"), false);

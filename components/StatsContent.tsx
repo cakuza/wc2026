@@ -97,7 +97,7 @@ export default function StatsContent({ tournamentStats, teamLeaderboards: _teamL
       <header className="mb-5 max-w-4xl">
         <p className="font-heading text-xs font-bold uppercase tracking-[0.28em] text-accent">2026 World Cup</p>
         <h1 className="mt-2 font-heading text-3xl font-extrabold uppercase tracking-tight text-white sm:text-4xl">2026 World Cup Statistics</h1>
-        <p className="mt-2 text-sm leading-relaxed text-white/60">Tournament totals, Golden Boot leaders, provider-recorded assists, team records, clean sheets and match records.</p>
+        <p className="mt-2 text-sm leading-relaxed text-white/60">Tournament totals, {matchesPlayed === 104 ? "Golden Boot winner" : "Golden Boot leaders"}, provider-recorded assists, team records, clean sheets and match records.</p>
         <p className="mt-3 text-xs font-semibold text-white/45">{fullTimestamp(lastSyncedAt)}</p>
       </header>
       <StatsNav />
@@ -136,7 +136,7 @@ export default function StatsContent({ tournamentStats, teamLeaderboards: _teamL
         <section aria-labelledby="player-leaders-heading">
           <div className="mb-3 flex items-center justify-between gap-3"><h2 id="player-leaders-heading" className="font-heading text-base font-extrabold uppercase tracking-widest text-white">Player leaders</h2><Link href="/stats/players" className="font-heading text-[11px] font-bold uppercase tracking-widest text-accent">View full leaderboard →</Link></div>
           <div className="grid gap-3 sm:grid-cols-2">
-            {topScorer ? <PlayerLeader label="Golden Boot leader" player={topScorer} value={topScorer.goals} href="/stats/top-scorers" /> : <p className="rounded-xl border border-white/10 p-4 text-sm text-white/50">Scorer data unavailable.</p>}
+             {topScorer ? <PlayerLeader label={matchesPlayed === 104 ? "Golden Boot winner" : "Golden Boot leader"} player={topScorer} value={topScorer.goals} href="/stats/top-scorers" /> : <p className="rounded-xl border border-white/10 p-4 text-sm text-white/50">Scorer data unavailable.</p>}
             {assistLeader ? <PlayerLeader label="Most assists" player={assistLeader} value={assistLeader.value} href="/stats/players" note="provider-recorded assists" /> : <p className="rounded-xl border border-white/10 p-4 text-sm text-white/50">Assist data unavailable.</p>}
           </div>
         </section>

@@ -89,14 +89,32 @@ export default async function WorldCup2026Page() {
 
       {archive.isComplete && archive.finalResult ? (
         <section className="mb-8 rounded-xl border border-accent/40 bg-gradient-to-b from-accent/10 to-navyCard p-6">
-          <p className="mb-3 font-heading text-[11px] font-bold uppercase tracking-widest text-accent">Champion</p>
-          <div className="mb-4 flex flex-wrap items-center gap-4">
+          <p className="mb-3 font-heading text-[11px] font-bold uppercase tracking-widest text-accent">Final Standings</p>
+          <div className="mb-4 flex flex-wrap items-center gap-6">
             {finalists.map((f, i) => (
               <div key={f.label} className={`flex items-center gap-2 ${i === 0 ? "font-extrabold text-white" : "text-white/60"}`}>
                 {f.code && <Flag code={f.code} alt="" width={32} height={22} />}
-                <span className="font-heading text-lg uppercase tracking-wide">{f.label}</span>
+                <span className="font-heading text-lg uppercase tracking-wide">
+                  {i === 0 ? "Champion: " : "Runner-up: "}{f.label}
+                </span>
               </div>
             ))}
+            {archive.thirdPlace && (
+              <div className="flex items-center gap-2 text-white/60">
+                <Flag code={archive.thirdPlace.toLowerCase() === "england" ? "gb-eng" : ""} alt="" width={32} height={22} />
+                <span className="font-heading text-lg uppercase tracking-wide">
+                  Third: {archive.thirdPlace}
+                </span>
+              </div>
+            )}
+            {archive.fourthPlace && (
+              <div className="flex items-center gap-2 text-white/60">
+                <Flag code={archive.fourthPlace.toLowerCase() === "france" ? "fr" : ""} alt="" width={32} height={22} />
+                <span className="font-heading text-lg uppercase tracking-wide">
+                  Fourth: {archive.fourthPlace}
+                </span>
+              </div>
+            )}
           </div>
           <p className="mb-1 text-2xl font-extrabold text-white">
             {archive.finalResult.homeLabel} {archive.finalResult.homeScore}–{archive.finalResult.awayScore} {archive.finalResult.awayLabel}
@@ -144,7 +162,7 @@ export default async function WorldCup2026Page() {
 
       {topScorers.length > 0 && (
         <p className="mb-8 text-sm text-white/60">
-          Golden Boot leader{topScorers.length > 1 ? "s" : ""}: <span className="font-bold text-white">{joinNames(topScorers.map((p) => p.playerName))}</span>
+          {archive.isComplete ? "Golden Boot winner" : "Golden Boot leader"}{topScorers.length > 1 ? "s" : ""}: <span className="font-bold text-white">{joinNames(topScorers.map((p) => p.playerName))}</span>
           {" "}with {topScorers[0].goals} goal{topScorers[0].goals !== 1 ? "s" : ""}{topScorers.length > 1 ? " each" : ""}. See the{" "}
           <Link href="/stats/top-scorers" className="underline decoration-white/30 underline-offset-2 hover:text-white">full Top Scorers table</Link>.
         </p>
