@@ -30,7 +30,10 @@ const STAGE_LABELS: Record<string, string> = {
   F: "Final",
 };
 
+import type { SerializableSnapshotMatch } from "@/lib/liveSnapshot";
+
 interface Props {
+  matchesProjection?: Record<string, SerializableSnapshotMatch>;
   liveScores?: Record<string | number, Pick<LiveMatchData, "status" | "homeScore" | "awayScore" | "scoreDuration" | "penaltyShootoutScore">>;
   scorerLines?: Record<string, GoalScorerEvent[]>;
   resolvedParticipants?: ResolvedParticipantLookup;
@@ -78,7 +81,7 @@ function ScorerText({ events }: { events: GoalScorerEvent[] }) {
   return <>{events.map(formatGoalEventDisplay).join(" • ")}</>;
 }
 
-export function ScheduleContent({ liveScores, scorerLines, resolvedParticipants, timeZone: fixedTimeZone }: Props) {
+export function ScheduleContent({ matchesProjection, liveScores, scorerLines, resolvedParticipants, timeZone: fixedTimeZone }: Props) {
   const { t, country, formatDate, locale, lang } = useLang();
   const { timeZone } = useTimezone();
   const tz = fixedTimeZone ?? timeZone ?? "UTC";
@@ -87,28 +90,51 @@ export function ScheduleContent({ liveScores, scorerLines, resolvedParticipants,
   // A refreshed snapshot, not the visitor's wall clock, advances this view.
   const evalNow = new Date(ARCHIVE_DEFAULT_DATE);
 
-  const live = MATCHES.filter((m) => {
+  const getMatchData = (m: Match) => {
+    const slug = matchSlug(m);
+    const snap = matchesProjection?.[slug];
+    if (snap) {
+      const snapLive = snap.live as LiveMatchData | null;
+      const liveData: LiveMatchData = snapLive ?? {
+        provider: "football-data.org",
+        providerMatchId: m.providerIds?.footballData ?? 0,
+        status: snap.status === "FINISHED" ? "FINISHED" : snap.status === "LIVE" ? "IN_PLAY" : snap.status === "HALFTIME" ? "PAUSED" : "SCHEDULED",
+        homeScore: snap.homeScore,
+        awayScore: snap.awayScore,
+        winner: null,
+        eventDataAvailable: true,
+        scoreDuration: null,
+        penaltyShootoutScore: undefined,
+        lastSyncedAt: snap.providerUpdatedAt ?? evalNow.toISOString(),
+      };
+      const pres = getMatchPresentation({ match: m, liveData, timeZone: tz, now: evalNow });
+      const events = snap.scorers && snap.scorers.length > 0 ? snap.scorers : scorerLines?.[slug];
+      const penaltyShootoutScore = snapLive?.penaltyShootoutScore ?? undefined;
+      return { pres, events, penaltyShootoutScore };
+    }
+
     const pid = m.providerIds?.footballData;
     const score = pid ? liveScores?.[pid] : undefined;
     const pres = getMatchPresentation({ match: m, liveData: score as LiveMatchData, timeZone: tz, now: evalNow });
+    const events = scorerLines?.[slug];
+    const penaltyShootoutScore = score?.penaltyShootoutScore ?? undefined;
+    return { pres, events, penaltyShootoutScore };
+  };
+
+  const live = MATCHES.filter((m) => {
+    const { pres } = getMatchData(m);
     return pres.state === "live" || pres.state === "halftime";
   });
   const syncing = MATCHES.filter((m) => {
-    const pid = m.providerIds?.footballData;
-    const score = pid ? liveScores?.[pid] : undefined;
-    const pres = getMatchPresentation({ match: m, liveData: score as LiveMatchData, timeZone: tz, now: evalNow });
+    const { pres } = getMatchData(m);
     return pres.state === "syncing";
   });
   const completed = MATCHES.filter((m) => {
-    const pid = m.providerIds?.footballData;
-    const score = pid ? liveScores?.[pid] : undefined;
-    const pres = getMatchPresentation({ match: m, liveData: score as LiveMatchData, timeZone: tz, now: evalNow });
+    const { pres } = getMatchData(m);
     return pres.state === "final";
   });
   const upcoming = MATCHES.filter((m) => {
-    const pid = m.providerIds?.footballData;
-    const score = pid ? liveScores?.[pid] : undefined;
-    const pres = getMatchPresentation({ match: m, liveData: score as LiveMatchData, timeZone: tz, now: evalNow });
+    const { pres } = getMatchData(m);
     return pres.state === "scheduled" || pres.state === "postponed" || pres.state === "cancelled";
   });
 
@@ -117,6 +143,8 @@ export function ScheduleContent({ liveScores, scorerLines, resolvedParticipants,
   const completedDays = groupMatchesByCalendarDate(completed, tz).reverse();
   completedDays.forEach(day => day.matches.reverse());
   const upcomingDays = groupMatchesByCalendarDate(upcoming, tz);
+
+  const isTournamentComplete = upcoming.length === 0;
 
   const longDate = (iso: string) =>
     new Intl.DateTimeFormat(locale, {
@@ -129,14 +157,10 @@ export function ScheduleContent({ liveScores, scorerLines, resolvedParticipants,
   const renderMatches = (matches: Match[]) => (
     <div className="space-y-2">
       {matches.map((m, i) => {
-        const pid = m.providerIds?.footballData;
-        const score = pid ? liveScores?.[pid] : undefined;
-        const pres = getMatchPresentation({ match: m, liveData: score as LiveMatchData, timeZone: tz, now: evalNow });
-
+        const { pres, events, penaltyShootoutScore } = getMatchData(m);
         const homeDisplay = getParticipantDisplay(m, "home", resolvedParticipants, lang);
         const awayDisplay = getParticipantDisplay(m, "away", resolvedParticipants, lang);
 
-        const events = scorerLines?.[matchSlug(m)];
         const hasGoals = !!events && events.length > 0;
 
         let statusPill: React.ReactNode = null;
@@ -214,9 +238,9 @@ export function ScheduleContent({ liveScores, scorerLines, resolvedParticipants,
                     Goals: <ScorerText events={events!} />
                   </p>
                 )}
-                {score?.penaltyShootoutScore && (
+                {penaltyShootoutScore && (
                   <p className="mt-1 text-center text-[10px] text-white/40">
-                    Penalties: {score.penaltyShootoutScore.home}-{score.penaltyShootoutScore.away}
+                    Penalties: {penaltyShootoutScore.home}-{penaltyShootoutScore.away}
                   </p>
                 )}
               </div>
@@ -237,14 +261,26 @@ export function ScheduleContent({ liveScores, scorerLines, resolvedParticipants,
 
   return (
     <div className="mx-auto w-full max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+      {/* Archive Header Notice */}
+      <div className="mb-6 rounded-xl border border-white/10 bg-navyCard p-4">
+        <h2 className="font-heading text-lg font-bold text-accent uppercase tracking-wide">
+          Completed Results
+        </h2>
+        <p className="mt-1 text-sm text-white/70">
+          Browse all 104 completed matches with kickoff times converted to your selected timezone.
+        </p>
+      </div>
+
       {/* TABS */}
       <div className="mb-6 flex gap-4 border-b border-white/10">
-        <a href="#upcoming" className="border-b-2 border-accent pb-2 font-heading text-sm font-bold uppercase tracking-wide text-white transition hover:text-accent">
-          Upcoming Matches
-        </a>
-        <a href="#completed" className="border-b-2 border-transparent pb-2 font-heading text-sm font-bold uppercase tracking-wide text-white/50 transition hover:border-white/30">
+        <a href="#completed" className="border-b-2 border-accent pb-2 font-heading text-sm font-bold uppercase tracking-wide text-white transition hover:text-accent">
           Completed Results
         </a>
+        {!isTournamentComplete && (
+          <a href="#upcoming" className="border-b-2 border-transparent pb-2 font-heading text-sm font-bold uppercase tracking-wide text-white/50 transition hover:border-white/30">
+            Upcoming Matches
+          </a>
+        )}
       </div>
 
       <div className="space-y-12">
@@ -285,30 +321,8 @@ export function ScheduleContent({ liveScores, scorerLines, resolvedParticipants,
           </section>
         )}
 
-        <section id="upcoming" className="scroll-mt-24">
-          <h2 className="mb-6 font-heading text-xl font-extrabold uppercase tracking-widest text-white/40">
-            Upcoming Matches
-          </h2>
-          {upcomingDays.length > 0 ? (
-            <div className="space-y-8">
-              {upcomingDays.map((group) => (
-                <div key={group.date}>
-                  <h3 className="mb-3 border-b border-white/10 pb-2 font-heading text-lg font-bold uppercase tracking-wide text-accent">
-                    {longDate(group.date)}
-                  </h3>
-                  {renderMatches(group.matches)}
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="rounded-xl border border-white/10 bg-navyCard p-8 text-center text-white/60">
-              <p>No upcoming matches.</p>
-            </div>
-          )}
-        </section>
-
         <section id="completed" className="scroll-mt-24">
-          <h2 className="mb-6 font-heading text-xl font-extrabold uppercase tracking-widest text-white/40">
+          <h2 className="mb-6 font-heading text-xl font-extrabold uppercase tracking-widest text-white/60">
             Completed Results
           </h2>
           {completedDays.length > 0 ? (
@@ -328,6 +342,30 @@ export function ScheduleContent({ liveScores, scorerLines, resolvedParticipants,
             </div>
           )}
         </section>
+
+        {!isTournamentComplete && (
+          <section id="upcoming" className="scroll-mt-24">
+            <h2 className="mb-6 font-heading text-xl font-extrabold uppercase tracking-widest text-white/40">
+              Upcoming Matches
+            </h2>
+            {upcomingDays.length > 0 ? (
+              <div className="space-y-8">
+                {upcomingDays.map((group) => (
+                  <div key={group.date}>
+                    <h3 className="mb-3 border-b border-white/10 pb-2 font-heading text-lg font-bold uppercase tracking-wide text-accent">
+                      {longDate(group.date)}
+                    </h3>
+                    {renderMatches(group.matches)}
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="rounded-xl border border-white/10 bg-navyCard p-8 text-center text-white/60">
+                <p>No upcoming matches — the tournament is complete.</p>
+              </div>
+            )}
+          </section>
+        )}
       </div>
     </div>
   );

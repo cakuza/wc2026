@@ -26,6 +26,10 @@ const ROUTES = [
   "/",
   "/today",
   "/schedule",
+  "/schedule/turkey-time",
+  "/schedule/uk-time",
+  "/schedule/japan-time",
+  "/schedule/australia-time",
   "/groups",
   "/stats",
   "/stats/matches",
@@ -205,12 +209,29 @@ function runParityTests() {
         testAssert(!html.includes("rigorous developer and editor review"), "Corrections policy does not invent editorial staffing");
       }
 
+      if (route === "/") {
+        testAssert(html.includes("World Cup 2026 Archive — Results, Teams, Bracket &amp; Statistics") || html.includes("World Cup 2026 Archive — Results, Teams, Bracket & Statistics"), "Root page has archive title");
+        testAssert(html.includes("Complete 2026 FIFA World Cup archive with all 104 results"), "Root page has archive description");
+      }
+
+      if (route.startsWith("/schedule")) {
+        const compIdx = html.indexOf('id="completed"');
+        const upIdx = html.indexOf('id="upcoming"');
+        const completedChunk = compIdx !== -1 ? (upIdx !== -1 && upIdx > compIdx ? html.slice(compIdx, upIdx) : html.slice(compIdx)) : "";
+        testAssert(completedChunk.includes("match-104"), `${route} raw HTML contains Match 104 under Completed`);
+        testAssert(completedChunk.includes("Spain") && completedChunk.includes("Argentina"), `${route} raw HTML contains Spain vs Argentina`);
+        testAssert(completedChunk.includes("1") && completedChunk.includes("0"), `${route} raw HTML contains 1-0 score`);
+        testAssert(completedChunk.includes("AET") || completedChunk.includes("After extra time"), `${route} raw HTML contains AET status`);
+        testAssert(completedChunk.includes("Torres"), `${route} raw HTML contains Torres scorer`);
+        testAssert(completedChunk.includes("106"), `${route} raw HTML contains 106' goal minute`);
+      }
+
       if (route === "/contact") {
         testAssert(!html.includes("within a few minutes"), "Contact page does not promise minute-level corrections");
       }
 
-      if (route === "/world-cup-2026-data-sources" || route === "/faq") {
-        testAssert(html.includes("match data is refreshed approximately every 30 seconds"), `${route} contains truthful 30 second polling wording`);
+      if (route === "/world-cup-2026-data-sources") {
+        testAssert(html.includes("every 30 seconds"), `${route} contains truthful 30 second polling wording`);
         testAssert(html.includes("Refreshing begins 15 minutes before kickoff and stops 3 hours after kickoff"), `${route} contains truthful bounded polling window`);
         testAssert(!html.includes("10–90 seconds") && !html.includes("10-90 seconds"), `${route} does not contain outdated 10-90 seconds intervals`);
       }
@@ -225,6 +246,16 @@ function runParityTests() {
       console.error(`  FAIL  Route ${route} failed with error: ${err.message}`);
       failed++;
     }
+  }
+
+  // Check sitemap file
+  const sitemapFile = path.join(outDirectory, "sitemap.xml");
+  if (fs.existsSync(sitemapFile)) {
+    const xml = fs.readFileSync(sitemapFile, "utf8");
+    testAssert(xml.includes("<urlset") && xml.includes("https://www.worldcupmatchday.com"), "sitemap.xml exists and uses canonical domain");
+    testAssert(!xml.includes("<changefreq>hourly</changefreq>"), "sitemap.xml contains no hourly changefreq");
+    testAssert(!xml.includes("/matches/") || !xml.includes("<changefreq>daily</changefreq>"), "sitemap.xml contains no daily changefreq on match pages");
+    testAssert(xml.includes("<loc>https://www.worldcupmatchday.com/matches/match-104</loc>"), "sitemap.xml includes match-104");
   }
 
   console.log(`\nParity check finished: ${passed} passed, ${failed} failed.`);

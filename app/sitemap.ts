@@ -10,12 +10,11 @@ import { CANDIDATE_ARCHIVE_DATES } from "@/lib/archiveDates";
 
 const BASE = "https://www.worldcupmatchday.com";
 
-// Static-content pages whose meaningful text rarely changes — use a
-// stable date so crawlers don't re-fetch them on every snapshot refresh.
-const STATIC_DATE = new Date("2026-06-11T00:00:00Z");
-
-// Live-data pages update constantly during the tournament — omit lastModified
-// so crawlers aren't misled into thinking content changes on every deploy.
+// Truthful closeout dates per section — explicit, category-based dates
+const ARCHIVE_CLOSEOUT_DATE = new Date("2026-07-20T00:00:00Z");
+const SERVER_PARITY_CLOSEOUT_DATE = new Date("2026-07-21T00:00:00Z");
+const SCHEDULE_SEO_CLOSEOUT_DATE = new Date("2026-07-21T00:00:00Z");
+const EVERGREEN_GUIDE_DATE = new Date("2026-06-11T00:00:00Z");
 
 export const dynamic = "force-static";
 
@@ -25,89 +24,89 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const snapshot = await getTournamentLiveSnapshot();
   const now = new Date(ARCHIVE_DEFAULT_DATE);
 
-  // Every match gets its own static page (generateStaticParams in
-  // app/matches/[matchId]/page.tsx) but none were previously submitted here —
-  // see docs/seo/ARCHIVE_SEO_V1_AUDIT.md §6 for why this drove most of the
-  // "discovered/crawled — currently not indexed" coverage counts.
   const matchPages: MetadataRoute.Sitemap = MATCHES.map((match) => ({
     url: `${BASE}/matches/${matchSlug(match)}`,
-    changeFrequency: "daily" as const,
+    lastModified: ARCHIVE_CLOSEOUT_DATE,
+    changeFrequency: "monthly" as const,
     priority: 0.7,
   }));
 
-  // Only dates whose cumulative snapshot is truthfully resolved get an
-  // indexable URL — see lib/archiveLifecycle.ts#isDateFullyResolved.
   const resolvedDates = CANDIDATE_ARCHIVE_DATES.filter((date) =>
     isDateFullyResolved({ date, liveData: snapshot.liveDataByProviderId, now })
   );
   const datePages: MetadataRoute.Sitemap = resolvedDates.map((date) => ({
     url: `${BASE}/world-cup-2026/results/${date}`,
+    lastModified: ARCHIVE_CLOSEOUT_DATE,
     changeFrequency: "monthly" as const,
     priority: 0.6,
   }));
 
   const timezonePages: MetadataRoute.Sitemap = TIMEZONE_SLUGS.map((slug) => ({
     url: `${BASE}/schedule/${slug}`,
-    changeFrequency: "daily" as const,
+    lastModified: SCHEDULE_SEO_CLOSEOUT_DATE,
+    changeFrequency: "monthly" as const,
     priority: 0.7,
   }));
 
   const teamPages: MetadataRoute.Sitemap = TEAMS.map((t) => ({
     url: `${BASE}/teams/${slugFor(t.key)}`,
-    changeFrequency: "daily" as const,
+    lastModified: ARCHIVE_CLOSEOUT_DATE,
+    changeFrequency: "monthly" as const,
     priority: 0.8,
   }));
 
   const teamQualPages: MetadataRoute.Sitemap = ["england", "turkey"].map((key) => ({
     url: `${BASE}/teams/${slugFor(key)}/qualification`,
-    changeFrequency: "daily" as const,
+    lastModified: SCHEDULE_SEO_CLOSEOUT_DATE,
+    changeFrequency: "monthly" as const,
     priority: 0.75,
   }));
 
   const groupPages: MetadataRoute.Sitemap = GROUP_LETTERS.map((g) => ({
     url: `${BASE}/groups/${letterToGroupSlug(g)}`,
-    changeFrequency: "daily" as const,
+    lastModified: ARCHIVE_CLOSEOUT_DATE,
+    changeFrequency: "monthly" as const,
     priority: 0.85,
   }));
 
   return [
-    // Core live pages — no lastModified (content changes with live data)
-    { url: BASE,                    changeFrequency: "hourly",  priority: 1.0 },
-    { url: `${BASE}/world-cup-2026`, changeFrequency: "daily",  priority: 0.95 },
-    { url: `${BASE}/world-cup-2026/results`, changeFrequency: "daily", priority: 0.9 },
-    { url: `${BASE}/today`,         changeFrequency: "hourly",  priority: 0.9 },
-    { url: `${BASE}/groups`,        changeFrequency: "daily",   priority: 0.9 },
-    { url: `${BASE}/schedule`,      changeFrequency: "daily",   priority: 0.9 },
-    { url: `${BASE}/stats`,         changeFrequency: "daily",   priority: 0.85 },
-    { url: `${BASE}/stats/top-scorers`, changeFrequency: "daily", priority: 0.85 },
-    { url: `${BASE}/stats/players`, changeFrequency: "daily",   priority: 0.7 },
-    { url: `${BASE}/stats/teams`,   changeFrequency: "daily",   priority: 0.7 },
-    { url: `${BASE}/stats/compare`, changeFrequency: "daily",   priority: 0.65 },
-    { url: `${BASE}/stats/matches`, changeFrequency: "daily",   priority: 0.65 },
-    { url: `${BASE}/bracket`,       changeFrequency: "daily",   priority: 0.85 },
-    { url: `${BASE}/teams`,         changeFrequency: "weekly",  priority: 0.8 },
-    { url: `${BASE}/world-cup-third-place-qualification`, changeFrequency: "daily", priority: 0.8 },
-    { url: `${BASE}/qualified-eliminated-teams`, changeFrequency: "daily", priority: 0.8 },
-    { url: `${BASE}/world-cup-schedule-local-time`, changeFrequency: "daily", priority: 0.75 },
-    { url: `${BASE}/matchday-hub`,  changeFrequency: "daily",   priority: 0.7 },
+    // Core archive pages — weekly or monthly frequencies with explicit lastModified
+    { url: BASE,                                     lastModified: SCHEDULE_SEO_CLOSEOUT_DATE, changeFrequency: "weekly",  priority: 1.0 },
+    { url: `${BASE}/world-cup-2026`,                  lastModified: ARCHIVE_CLOSEOUT_DATE,    changeFrequency: "weekly",  priority: 0.95 },
+    { url: `${BASE}/world-cup-2026/results`,          lastModified: ARCHIVE_CLOSEOUT_DATE,    changeFrequency: "weekly",  priority: 0.9 },
+    { url: `${BASE}/stats`,                          lastModified: ARCHIVE_CLOSEOUT_DATE,    changeFrequency: "weekly",  priority: 0.85 },
+    { url: `${BASE}/today`,                          lastModified: ARCHIVE_CLOSEOUT_DATE,    changeFrequency: "monthly", priority: 0.9 },
+    { url: `${BASE}/groups`,                         lastModified: ARCHIVE_CLOSEOUT_DATE,    changeFrequency: "monthly", priority: 0.9 },
+    { url: `${BASE}/schedule`,                       lastModified: SCHEDULE_SEO_CLOSEOUT_DATE, changeFrequency: "monthly", priority: 0.9 },
+    { url: `${BASE}/stats/top-scorers`,              lastModified: ARCHIVE_CLOSEOUT_DATE,    changeFrequency: "monthly", priority: 0.85 },
+    { url: `${BASE}/stats/players`,                  lastModified: ARCHIVE_CLOSEOUT_DATE,    changeFrequency: "monthly", priority: 0.7 },
+    { url: `${BASE}/stats/teams`,                    lastModified: ARCHIVE_CLOSEOUT_DATE,    changeFrequency: "monthly", priority: 0.7 },
+    { url: `${BASE}/stats/compare`,                  lastModified: ARCHIVE_CLOSEOUT_DATE,    changeFrequency: "monthly", priority: 0.65 },
+    { url: `${BASE}/stats/matches`,                  lastModified: ARCHIVE_CLOSEOUT_DATE,    changeFrequency: "monthly", priority: 0.65 },
+    { url: `${BASE}/bracket`,                        lastModified: ARCHIVE_CLOSEOUT_DATE,    changeFrequency: "monthly", priority: 0.85 },
+    { url: `${BASE}/teams`,                          lastModified: ARCHIVE_CLOSEOUT_DATE,    changeFrequency: "monthly", priority: 0.8 },
+    { url: `${BASE}/world-cup-third-place-qualification`, lastModified: ARCHIVE_CLOSEOUT_DATE, changeFrequency: "monthly", priority: 0.8 },
+    { url: `${BASE}/qualified-eliminated-teams`,    lastModified: ARCHIVE_CLOSEOUT_DATE,    changeFrequency: "monthly", priority: 0.8 },
+    { url: `${BASE}/world-cup-schedule-local-time`, lastModified: SCHEDULE_SEO_CLOSEOUT_DATE, changeFrequency: "monthly", priority: 0.75 },
+    { url: `${BASE}/matchday-hub`,                   lastModified: ARCHIVE_CLOSEOUT_DATE,    changeFrequency: "monthly", priority: 0.7 },
 
-    // Static / evergreen pages — stable date so lastModified is honest
-    { url: `${BASE}/faq`,           lastModified: STATIC_DATE, changeFrequency: "monthly", priority: 0.6 },
-    { url: `${BASE}/world-cup-2026-teams-by-confederation`, lastModified: STATIC_DATE, changeFrequency: "weekly", priority: 0.6 },
-    { url: `${BASE}/world-cup-2026-prize-money`, lastModified: STATIC_DATE, changeFrequency: "monthly", priority: 0.5 },
-    { url: `${BASE}/quiz`,          lastModified: STATIC_DATE, changeFrequency: "weekly",  priority: 0.6 },
-    { url: `${BASE}/about`,         lastModified: STATIC_DATE, changeFrequency: "monthly", priority: 0.4 },
-    { url: `${BASE}/contact`,       lastModified: STATIC_DATE, changeFrequency: "monthly", priority: 0.4 },
-    { url: `${BASE}/privacy`,       lastModified: STATIC_DATE, changeFrequency: "monthly", priority: 0.3 },
-    { url: `${BASE}/terms`,         lastModified: STATIC_DATE, changeFrequency: "monthly", priority: 0.3 },
-    { url: `${BASE}/editorial-policy`, lastModified: STATIC_DATE, changeFrequency: "monthly", priority: 0.4 },
-    { url: `${BASE}/corrections-policy`, lastModified: STATIC_DATE, changeFrequency: "monthly", priority: 0.4 },
+    // Policy and info pages — actual material edit dates
+    { url: `${BASE}/corrections-policy`,             lastModified: SERVER_PARITY_CLOSEOUT_DATE, changeFrequency: "weekly", priority: 0.4 },
+    { url: `${BASE}/editorial-policy`,               lastModified: SERVER_PARITY_CLOSEOUT_DATE, changeFrequency: "monthly", priority: 0.4 },
+    { url: `${BASE}/faq`,                            lastModified: SCHEDULE_SEO_CLOSEOUT_DATE,  changeFrequency: "monthly", priority: 0.6 },
+    { url: `${BASE}/about`,                          lastModified: SERVER_PARITY_CLOSEOUT_DATE, changeFrequency: "monthly", priority: 0.4 },
+    { url: `${BASE}/contact`,                        lastModified: SERVER_PARITY_CLOSEOUT_DATE, changeFrequency: "monthly", priority: 0.4 },
+    { url: `${BASE}/privacy`,                        lastModified: SERVER_PARITY_CLOSEOUT_DATE, changeFrequency: "monthly", priority: 0.3 },
+    { url: `${BASE}/terms`,                          lastModified: SERVER_PARITY_CLOSEOUT_DATE, changeFrequency: "monthly", priority: 0.3 },
 
-    // Cornerstone editorial guides
-    { url: `${BASE}/world-cup-2026-format-explained`,           lastModified: STATIC_DATE, changeFrequency: "monthly", priority: 0.7 },
-    { url: `${BASE}/world-cup-2026-group-tiebreakers`,          lastModified: STATIC_DATE, changeFrequency: "monthly", priority: 0.7 },
-    { url: `${BASE}/world-cup-2026-knockout-bracket-explained`, lastModified: STATIC_DATE, changeFrequency: "monthly", priority: 0.7 },
-    { url: `${BASE}/world-cup-2026-data-sources`,               lastModified: STATIC_DATE, changeFrequency: "monthly", priority: 0.5 },
+    // Static / evergreen guides — stable earlier date
+    { url: `${BASE}/world-cup-2026-teams-by-confederation`, lastModified: EVERGREEN_GUIDE_DATE, changeFrequency: "monthly", priority: 0.6 },
+    { url: `${BASE}/world-cup-2026-prize-money`,             lastModified: EVERGREEN_GUIDE_DATE, changeFrequency: "monthly", priority: 0.5 },
+    { url: `${BASE}/quiz`,                                  lastModified: EVERGREEN_GUIDE_DATE, changeFrequency: "monthly", priority: 0.6 },
+    { url: `${BASE}/world-cup-2026-format-explained`,           lastModified: EVERGREEN_GUIDE_DATE, changeFrequency: "monthly", priority: 0.7 },
+    { url: `${BASE}/world-cup-2026-group-tiebreakers`,          lastModified: EVERGREEN_GUIDE_DATE, changeFrequency: "monthly", priority: 0.7 },
+    { url: `${BASE}/world-cup-2026-knockout-bracket-explained`, lastModified: EVERGREEN_GUIDE_DATE, changeFrequency: "monthly", priority: 0.7 },
+    { url: `${BASE}/world-cup-2026-data-sources`,               lastModified: SERVER_PARITY_CLOSEOUT_DATE, changeFrequency: "monthly", priority: 0.5 },
 
     // Cluster pages
     ...groupPages,

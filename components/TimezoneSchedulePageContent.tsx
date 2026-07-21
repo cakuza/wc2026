@@ -16,15 +16,19 @@ import type { ResolvedParticipantLookup } from "@/lib/participant-resolution";
 // intro reuse the localized `tz_*` keys; per-zone context and FAQ have dedicated keys. Technical
 // values (zoneNote like "EDT, UTC−4 · America/New_York") stay as-is.
 
+import type { SerializableSnapshotMatch } from "@/lib/liveSnapshot";
+
 export function TimezoneSchedulePageContent({
   zone: z,
   fixtureCount,
+  matchesProjection,
   liveScores,
   scorerLines,
   resolvedParticipants,
 }: {
   zone: TimezoneConfig;
   fixtureCount: number;
+  matchesProjection?: Record<string, SerializableSnapshotMatch>;
   liveScores?: Record<number, Pick<LiveMatchData, "status" | "homeScore" | "awayScore" | "scoreDuration" | "penaltyShootoutScore">>;
   scorerLines?: Record<string, GoalScorerEvent[]>;
   resolvedParticipants?: ResolvedParticipantLookup;
@@ -83,6 +87,7 @@ export function TimezoneSchedulePageContent({
       </div>
 
       <ScheduleContent
+        matchesProjection={matchesProjection}
         liveScores={liveScores}
         scorerLines={scorerLines}
         resolvedParticipants={resolvedParticipants}

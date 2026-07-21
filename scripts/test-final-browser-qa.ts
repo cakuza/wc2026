@@ -12,6 +12,10 @@ const ROUTES = [
   "/",
   "/today",
   "/schedule",
+  "/schedule/turkey-time",
+  "/schedule/uk-time",
+  "/schedule/japan-time",
+  "/schedule/australia-time",
   "/bracket",
   "/teams/argentina",
   "/groups/group-a",
@@ -125,6 +129,26 @@ async function main() {
         }
 
         if (route === "/today") assert(/Times shown in/.test(text) && /Is Complete/i.test(text) && !/Destinations/i.test(text), `[${label}] Today resolves timezone-aware Completed copy after hydration`);
+
+        if (route.startsWith("/schedule")) {
+          const completedSection = page.locator("#completed");
+          const m104Card = completedSection.locator('a[href="/matches/match-104"]');
+          const isM104Visible = await m104Card.isVisible();
+          assert(isM104Visible, `[${label}] ${route} displays Match 104 in Completed section`);
+          if (isM104Visible) {
+            const m104Text = await m104Card.innerText();
+            assert(/Spain/i.test(m104Text) && /Argentina/i.test(m104Text), `[${label}] ${route} Match 104 shows Spain vs Argentina`);
+            assert(/1\s*-\s*0/i.test(m104Text), `[${label}] ${route} Match 104 shows 1-0`);
+            assert(/AET/i.test(m104Text), `[${label}] ${route} Match 104 shows AET status`);
+            assert(/Torres/i.test(m104Text) && /106/i.test(m104Text), `[${label}] ${route} Match 104 shows Torres 106' goal`);
+          }
+          const upcomingSection = page.locator("#upcoming");
+          const upcomingCount = await upcomingSection.count();
+          if (upcomingCount > 0) {
+            const upcomingM104 = upcomingSection.locator('a[href="/matches/match-104"]');
+            assert((await upcomingM104.count()) === 0, `[${label}] ${route} does not show Match 104 under Upcoming`);
+          }
+        }
 
         if (route === "/world-cup-third-place-qualification") {
           assert(/Final third-place ranking/i.test(text) && /Qualified for Round of 32/i.test(text) && /Did not qualify/i.test(text), `[${label}] third-place ranking is final historical truth`);
