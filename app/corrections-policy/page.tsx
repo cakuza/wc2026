@@ -13,13 +13,13 @@ export default function CorrectionsPolicyPage() {
       <p className="mb-2 font-heading text-sm font-bold tracking-[0.3em] text-accent">
         ACCURACY
       </p>
-      <h1 className="mb-6 font-heading text-3xl font-extrabold tracking-tight text-white sm:text-4xl">
+      <h1 className="mb-6 font-heading text-3xl font-extrabold tracking-tight text-ink sm:text-4xl">
         CORRECTIONS POLICY
       </h1>
 
       <div className="space-y-5 text-sm leading-relaxed text-muted">
         <section>
-          <h2 className="mb-2 font-heading text-sm font-extrabold tracking-widest text-white uppercase">
+          <h2 className="mb-2 font-heading text-sm font-extrabold tracking-widest text-ink uppercase">
             Our Commitment to Accuracy
           </h2>
           <p>
@@ -28,7 +28,7 @@ export default function CorrectionsPolicyPage() {
         </section>
 
         <section>
-          <h2 className="mb-2 font-heading text-sm font-extrabold tracking-widest text-white uppercase">
+          <h2 className="mb-2 font-heading text-sm font-extrabold tracking-widest text-ink uppercase">
             Correction Protocols
           </h2>
           <p>
@@ -37,7 +37,7 @@ export default function CorrectionsPolicyPage() {
         </section>
 
         <section>
-          <h2 className="mb-2 font-heading text-sm font-extrabold tracking-widest text-white uppercase">
+          <h2 className="mb-2 font-heading text-sm font-extrabold tracking-widest text-ink uppercase">
             How to Report an Error
           </h2>
           <p>

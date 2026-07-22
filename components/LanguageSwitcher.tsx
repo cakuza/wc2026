@@ -24,7 +24,7 @@ export function LanguageSwitcher() {
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className="flex items-center gap-2 rounded border border-line bg-white/5 px-3 py-2 text-sm font-semibold text-white transition hover:bg-white/10"
+        className="flex items-center gap-2 rounded border border-line bg-surface-subtle px-3 py-2 text-sm font-semibold text-ink transition hover:bg-hover"
         aria-haspopup="listbox"
         aria-expanded={open}
       >
@@ -46,15 +46,15 @@ export function LanguageSwitcher() {
                   setLang(l.code);
                   setOpen(false);
                 }}
-                className={`flex w-full items-center gap-3 px-3 py-2.5 text-start transition hover:bg-white/10 ${
-                  l.code === lang ? "bg-white/5" : ""
+                className={`flex w-full items-center gap-3 px-3 py-2.5 text-start transition hover:bg-hover ${
+                  l.code === lang ? "bg-surface-subtle" : ""
                 }`}
                 role="option"
                 aria-selected={l.code === lang}
               >
                 <Flag code={l.flag} name={l.name} width={26} height={19} className="rounded-sm" />
                 <span className="flex-1">
-                  <span className="block text-sm font-semibold text-white">{l.name}</span>
+                  <span className="block text-sm font-semibold text-ink">{l.name}</span>
                   <span className="block text-xs text-muted">{l.native}</span>
                 </span>
                 <span className="text-xs font-bold text-faint">{l.label}</span>

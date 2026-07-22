@@ -43,7 +43,7 @@ export default async function MatchesStatsPage() {
         <p className="font-heading text-sm font-bold uppercase tracking-[0.3em] text-accent">
           World Cup 2026
         </p>
-        <h1 className="mt-1 font-heading text-3xl font-extrabold uppercase tracking-tight text-white sm:text-4xl">
+        <h1 className="mt-1 font-heading text-3xl font-extrabold uppercase tracking-tight text-ink sm:text-4xl">
           Match Records
         </h1>
         <p className="mt-2 max-w-3xl text-sm text-faint">
@@ -55,10 +55,10 @@ export default async function MatchesStatsPage() {
 
       <section className="mb-12">
         <div className="mb-4 flex items-center gap-3">
-          <h2 className="font-heading text-lg font-extrabold uppercase tracking-widest text-white">
+          <h2 className="font-heading text-lg font-extrabold uppercase tracking-widest text-ink">
             2026 Tournament Records
           </h2>
-          <div className="h-px flex-1 bg-white/10" />
+          <div className="h-px flex-1 bg-line" />
         </div>
 
         {hasData ? (
@@ -71,7 +71,7 @@ export default async function MatchesStatsPage() {
                 <p className="font-heading text-xs font-bold uppercase tracking-widest text-faint">
                   Highest Scoring Match
                 </p>
-                <p className="mt-1 font-heading text-lg font-extrabold leading-snug text-white">
+                <p className="mt-1 font-heading text-lg font-extrabold leading-snug text-ink">
                   {highestScoringMatch ? (
                     highestScoringMatch.matchId ? (
                       <Link href={`/matches/${highestScoringMatch.matchId}`} className="hover:underline">
@@ -93,7 +93,7 @@ export default async function MatchesStatsPage() {
                 <p className="font-heading text-xs font-bold uppercase tracking-widest text-faint">
                   Biggest Win
                 </p>
-                <p className="mt-1 font-heading text-lg font-extrabold leading-snug text-white">
+                <p className="mt-1 font-heading text-lg font-extrabold leading-snug text-ink">
                   {biggestWin ? (
                     biggestWin.matchId ? (
                       <Link href={`/matches/${biggestWin.matchId}`} className="hover:underline">
@@ -115,7 +115,7 @@ export default async function MatchesStatsPage() {
                 <p className="font-heading text-xs font-bold uppercase tracking-widest text-faint">
                   Clean Sheets
                 </p>
-                <p className="mt-1 font-heading text-lg font-extrabold leading-snug text-white">
+                <p className="mt-1 font-heading text-lg font-extrabold leading-snug text-ink">
                   {cleanSheets}
                 </p>
                 <p className="text-xs text-faint mt-1">across all {matchesPlayed} matches</p>

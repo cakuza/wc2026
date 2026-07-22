@@ -42,7 +42,7 @@ export default function LocalTimeHubPage() {
         <p className="mb-2 font-heading text-sm font-bold uppercase tracking-[0.3em] text-accent">
           FIFA World Cup 2026
         </p>
-      <h1 className="mb-2 font-heading text-4xl font-extrabold uppercase tracking-wide text-white">
+      <h1 className="mb-2 font-heading text-4xl font-extrabold uppercase tracking-wide text-ink">
         World Cup 2026 Schedule in Your Local Time
       </h1>
       <p className="mb-6 max-w-3xl text-sm text-muted">
@@ -60,7 +60,7 @@ export default function LocalTimeHubPage() {
           { k: "Time zones", v: String(TIMEZONES.length) },
         ].map((f) => (
           <div key={f.k} className="rounded-xl border border-line bg-surface px-4 py-3">
-            <div className="font-heading text-lg font-extrabold text-white">{f.v}</div>
+            <div className="font-heading text-lg font-extrabold text-ink">{f.v}</div>
             <div className="font-heading text-[10px] font-bold uppercase tracking-widest text-faint">
               {f.k}
             </div>
@@ -69,7 +69,7 @@ export default function LocalTimeHubPage() {
       </div>
 
       {/* Timezone pages */}
-      <h2 className="mb-3 font-heading text-xl font-extrabold uppercase tracking-wide text-white">
+      <h2 className="mb-3 font-heading text-xl font-extrabold uppercase tracking-wide text-ink">
         Choose your time zone
       </h2>
       <div className="grid gap-3 sm:grid-cols-2">
@@ -77,9 +77,9 @@ export default function LocalTimeHubPage() {
           <Link
             key={z.slug}
             href={`/schedule/${z.slug}`}
-            className="rounded-xl border border-line bg-surface px-4 py-4 transition hover:border-lineStrong hover:bg-white/5"
+            className="rounded-xl border border-line bg-surface px-4 py-4 transition hover:border-lineStrong hover:bg-hover"
           >
-            <div className="font-heading text-base font-extrabold uppercase tracking-wide text-white">
+            <div className="font-heading text-base font-extrabold uppercase tracking-wide text-ink">
               {z.label}
             </div>
             <div className="mt-1 text-xs text-faint">{z.zoneNote}</div>
@@ -98,7 +98,7 @@ export default function LocalTimeHubPage() {
           <Link
             key={l.href}
             href={l.href}
-            className="rounded-lg border border-line bg-surface px-4 py-2 font-heading text-xs font-bold uppercase tracking-wide text-muted transition hover:border-lineStrong hover:text-white"
+            className="rounded-lg border border-line bg-surface px-4 py-2 font-heading text-xs font-bold uppercase tracking-wide text-muted transition hover:border-lineStrong hover:text-ink"
           >
             {l.label}
           </Link>

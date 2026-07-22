@@ -92,13 +92,13 @@ function DecidingMatchCard({ m, live, resolvedParticipants, primary }: {
         <div className="mt-4 flex items-center justify-center gap-6">
           <div className="flex items-center gap-2">
             {home.teamCode ? <Flag code={home.teamCode} alt="" width={24} height={18} className="shadow-sm" /> : null}
-            <span className="font-heading font-bold text-white text-sm sm:text-base">{home.label}</span>
+            <span className="font-heading font-bold text-ink text-sm sm:text-base">{home.label}</span>
           </div>
-          <span className="font-heading font-black text-white text-lg sm:text-xl">
+          <span className="font-heading font-black text-ink text-lg sm:text-xl">
             {presentation.homeScore}–{presentation.awayScore}
           </span>
           <div className="flex items-center gap-2">
-            <span className="font-heading font-bold text-white text-sm sm:text-base">{away.label}</span>
+            <span className="font-heading font-bold text-ink text-sm sm:text-base">{away.label}</span>
             {away.teamCode ? <Flag code={away.teamCode} alt="" width={24} height={18} className="shadow-sm" /> : null}
           </div>
         </div>
@@ -113,7 +113,7 @@ function DecidingMatchCard({ m, live, resolvedParticipants, primary }: {
     <Link href={`/matches/${matchSlug(m)}`} prefetch={false} aria-label={`View ${stage}: ${home.label} vs ${away.label}`}
       className={`block rounded-xl border transition hover:border-accent/80 ${primary ? "border-accent/70 bg-gradient-to-br from-accent/20 via-navyCard to-navyCard p-5 shadow-[0_18px_50px_rgba(232,0,28,0.18)] sm:p-6" : "border-line bg-surface p-4 sm:p-5"}`}>
       <div className="flex items-center justify-between gap-3"><span className={`font-heading font-extrabold uppercase tracking-[0.18em] ${primary ? "text-sm text-accent" : "text-[11px] text-muted"}`}>{isFinal ? "FINAL" : "THIRD-PLACE PLAYOFF"}</span><span className="text-[11px] font-semibold uppercase tracking-wider text-faint">{stage}</span></div>
-      <div className="mt-4 grid grid-cols-[1fr_auto_1fr] items-center gap-3"><div className="min-w-0 text-right"><p className={`font-heading font-extrabold uppercase leading-tight text-white ${primary ? "text-2xl sm:text-3xl" : "text-lg sm:text-xl"}`}>{home.label}</p>{home.teamCode ? <Flag code={home.teamCode} alt="" width={primary ? 36 : 28} height={primary ? 26 : 20} className="ml-auto mt-2 shadow-sm" /> : null}</div><span className={`font-heading font-black text-faint ${primary ? "text-xl" : "text-sm"}`}>VS</span><div className="min-w-0"><p className={`font-heading font-extrabold uppercase leading-tight text-white ${primary ? "text-2xl sm:text-3xl" : "text-lg sm:text-xl"}`}>{away.label}</p>{away.teamCode ? <Flag code={away.teamCode} alt="" width={primary ? 36 : 28} height={primary ? 26 : 20} className="mt-2 shadow-sm" /> : null}</div></div>
+      <div className="mt-4 grid grid-cols-[1fr_auto_1fr] items-center gap-3"><div className="min-w-0 text-right"><p className={`font-heading font-extrabold uppercase leading-tight text-ink ${primary ? "text-2xl sm:text-3xl" : "text-lg sm:text-xl"}`}>{home.label}</p>{home.teamCode ? <Flag code={home.teamCode} alt="" width={primary ? 36 : 28} height={primary ? 26 : 20} className="ml-auto mt-2 shadow-sm" /> : null}</div><span className={`font-heading font-black text-faint ${primary ? "text-xl" : "text-sm"}`}>VS</span><div className="min-w-0"><p className={`font-heading font-extrabold uppercase leading-tight text-ink ${primary ? "text-2xl sm:text-3xl" : "text-lg sm:text-xl"}`}>{away.label}</p>{away.teamCode ? <Flag code={away.teamCode} alt="" width={primary ? 36 : 28} height={primary ? 26 : 20} className="mt-2 shadow-sm" /> : null}</div></div>
       <div className="mt-5 border-t border-line pt-3 text-center text-sm text-muted"><span className="font-semibold">{presentation.displayKickoffDate} · {presentation.displayKickoffTime}</span>{m.venue ? <span> · {m.venue}</span> : null}{city ? <span> · {city}</span> : null}</div>
       <span className="mt-4 inline-flex font-heading text-xs font-bold uppercase tracking-widest text-accent">View the {isFinal ? "Final" : "Third-place playoff"} →</span>
     </Link>
@@ -170,12 +170,12 @@ function MatchRow({
     >
       <div className="flex items-center gap-2">
         <div className="flex min-w-0 flex-1 items-center justify-end gap-1.5 sm:gap-2">
-          <span className="min-w-0 text-sm font-bold text-white text-right leading-tight break-words">{home.label}</span>
+          <span className="min-w-0 text-sm font-bold text-ink text-right leading-tight break-words">{home.label}</span>
           {home.teamCode && <Flag code={home.teamCode} alt="" width={28} height={20} className="shrink-0 shadow-sm" />}
         </div>
 
         {pres.showScore ? (
-          <span className="shrink-0 px-1 font-heading text-base font-extrabold tabular-nums text-white">
+          <span className="shrink-0 px-1 font-heading text-base font-extrabold tabular-nums text-ink">
             {pres.homeScore} - {pres.awayScore}
           </span>
         ) : (
@@ -184,7 +184,7 @@ function MatchRow({
 
         <div className="flex min-w-0 flex-1 items-center gap-1.5 sm:gap-2">
           {away.teamCode && <Flag code={away.teamCode} alt="" width={28} height={20} className="shrink-0 shadow-sm" />}
-          <span className="min-w-0 text-sm font-bold text-white text-left leading-tight break-words">{away.label}</span>
+          <span className="min-w-0 text-sm font-bold text-ink text-left leading-tight break-words">{away.label}</span>
         </div>
       </div>
 
@@ -194,8 +194,8 @@ function MatchRow({
             pres.state === 'live' || pres.state === 'halftime'
               ? 'bg-red-600 text-white flex items-center gap-1'
               : pres.state === 'syncing'
-                ? 'bg-white/5 text-[#f5a623]'
-                : 'bg-white/10 text-muted'
+                ? 'bg-surface-raised text-[#f5a623]'
+                : 'bg-surface-subtle text-muted'
           }`}>
             {pres.state === 'live' && <span className="inline-block h-1.5 w-1.5 animate-pulse rounded-full bg-white" />}
             {statusLabel}
@@ -294,7 +294,7 @@ export function MatchCenterContent({
               <h2 id="deciding-matches-heading" className="font-heading text-sm font-extrabold uppercase tracking-[0.18em] text-accent">
                 {isTournamentComplete ? "Tournament Complete" : "Final Weekend"}
               </h2>
-              <Link href="/bracket" className="text-xs font-bold uppercase tracking-wider text-muted hover:text-white">Complete bracket →</Link>
+              <Link href="/bracket" className="text-xs font-bold uppercase tracking-wider text-muted hover:text-ink">Complete bracket →</Link>
             </div>
             <div className="space-y-3">
               {finalMatch ? <DecidingMatchCard m={finalMatch} live={finalMatch.providerIds?.footballData ? liveSnapshot.liveDataByProviderId[String(finalMatch.providerIds.footballData)] : undefined} resolvedParticipants={liveSnapshot.resolvedParticipants} primary /> : null}
@@ -441,13 +441,13 @@ export function MatchCenterContent({
         <div className="flex gap-4">
           <Link
             href="/today"
-            className="font-heading text-[11px] font-bold uppercase tracking-widest text-accent hover:text-white"
+            className="font-heading text-[11px] font-bold uppercase tracking-widest text-accent hover:text-ink"
           >
             Open Match Center &rarr;
           </Link>
           <Link
             href="/schedule"
-            className="font-heading text-[11px] font-bold uppercase tracking-widest text-faint hover:text-white"
+            className="font-heading text-[11px] font-bold uppercase tracking-widest text-faint hover:text-ink"
           >
             Full Schedule &rarr;
           </Link>

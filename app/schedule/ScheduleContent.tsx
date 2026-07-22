@@ -57,20 +57,20 @@ function StatusPill({ status, label }: { status: "FT" | "LIVE" | "HT" | "SYNCING
   }
   if (status === "SYNCING") {
     return (
-      <span className="rounded bg-white/5 px-1.5 py-0.5 font-heading text-[10px] font-bold uppercase tracking-wider text-[#f5a623]">
+      <span className="rounded bg-surface-raised px-1.5 py-0.5 font-heading text-[10px] font-bold uppercase tracking-wider text-[#f5a623]">
         {label || "Awaiting update"}
       </span>
     );
   }
   if (status === "AET" || status === "PEN") {
     return (
-      <span className="rounded bg-white/10 px-1.5 py-0.5 font-heading text-[10px] font-bold uppercase tracking-wider text-muted">
+      <span className="rounded bg-surface-subtle px-1.5 py-0.5 font-heading text-[10px] font-bold uppercase tracking-wider text-muted">
         {label ?? status}
       </span>
     );
   }
   return (
-    <span className="rounded bg-white/10 px-1.5 py-0.5 font-heading text-[10px] font-bold uppercase tracking-wider text-faint">
+    <span className="rounded bg-surface-subtle px-1.5 py-0.5 font-heading text-[10px] font-bold uppercase tracking-wider text-faint">
       FT
     </span>
   );
@@ -186,7 +186,7 @@ export function ScheduleContent({
             key={i}
             href={`/matches/${matchSlug(m)}`}
             prefetch={false}
-            className="block rounded-lg border border-line bg-surface px-4 py-3 transition hover:border-lineStrong hover:bg-white/5"
+            className="block rounded-lg border border-line bg-surface px-4 py-3 transition hover:border-lineStrong hover:bg-hover"
           >
             <div className="flex flex-col gap-2 sm:flex-row sm:items-start">
               <div data-schedule-score-cluster className="min-w-0 flex-1">
@@ -199,7 +199,7 @@ export function ScheduleContent({
                 )}
                 <div className="flex items-center gap-3">
                   <div className="flex min-w-0 flex-1 items-center justify-end gap-2 text-end">
-                    <span className="truncate font-semibold text-white">
+                    <span className="truncate font-semibold text-ink">
                       {homeDisplay.label}
                     </span>
                     {homeDisplay.teamCode && (
@@ -214,7 +214,7 @@ export function ScheduleContent({
                   </div>
 
                   {pres.showScore ? (
-                    <span className="shrink-0 font-heading text-base font-extrabold tabular-nums text-white">
+                    <span className="shrink-0 font-heading text-base font-extrabold tabular-nums text-ink">
                       {pres.homeScore} - {pres.awayScore}
                     </span>
                   ) : (
@@ -233,7 +233,7 @@ export function ScheduleContent({
                         className="rounded-sm"
                       />
                     )}
-                    <span className="truncate font-semibold text-white">
+                    <span className="truncate font-semibold text-ink">
                       {awayDisplay.label}
                     </span>
                   </div>
@@ -281,7 +281,7 @@ export function ScheduleContent({
 
       {/* TABS */}
       <div className="mb-6 flex gap-4 border-b border-line">
-        <a href="#completed" className="border-b-2 border-accent pb-2 font-heading text-sm font-bold uppercase tracking-wide text-white transition hover:text-accent">
+        <a href="#completed" className="border-b-2 border-accent pb-2 font-heading text-sm font-bold uppercase tracking-wide text-ink transition hover:text-accent">
           Completed Results
         </a>
         {!isTournamentComplete && (

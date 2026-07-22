@@ -77,7 +77,7 @@ function TodaySummary({
                 const pres = getMatchPresentation({ match, liveData: live, timeZone: tz, now: hydrated ? now : new Date(ARCHIVE_DEFAULT_DATE) });
                 return (
                   <p key={matchSlug(match)}>
-                    <Link href={`/matches/${matchSlug(match)}`} className="font-semibold text-white hover:text-accent">
+                    <Link href={`/matches/${matchSlug(match)}`} className="font-semibold text-ink hover:text-accent">
                       {homeDisplay.label} vs {awayDisplay.label} - {pres.showScore ? `${pres.homeScore}-${pres.awayScore}` : "score syncing"}
                     </Link>
                   </p>
@@ -93,7 +93,7 @@ function TodaySummary({
               Next kickoff
             </p>
             <p className="mt-1">
-              <Link href={`/matches/${matchSlug(next)}`} className="font-semibold text-white hover:text-accent">
+              <Link href={`/matches/${matchSlug(next)}`} className="font-semibold text-ink hover:text-accent">
                 {getParticipantDisplay(next, "home", snapshot.resolvedParticipants).label} vs {getParticipantDisplay(next, "away", snapshot.resolvedParticipants).label}
               </Link>{" "}
               - <span className="font-semibold text-ink" suppressHydrationWarning>
@@ -156,7 +156,7 @@ function MatchRow({
         ? "Third-place playoff"
         : "Match";
     return (
-      <div className="flex flex-col gap-2 rounded-lg border border-line bg-surface px-4 py-3 text-center transition hover:border-lineStrong hover:bg-white/5">
+      <div className="flex flex-col gap-2 rounded-lg border border-line bg-surface px-4 py-3 text-center transition hover:border-lineStrong hover:bg-hover">
         <p className="text-sm font-semibold text-muted">{stageName} — teams to be decided</p>
         <p className="text-xs text-faint">Participants will be confirmed once previous matches conclude.</p>
       </div>
@@ -176,17 +176,17 @@ function MatchRow({
   return (
     <Link
       href={`/matches/${matchSlug(m)}`}
-      className="flex flex-col gap-2 rounded-lg border border-line bg-surface px-4 py-3 transition hover:border-lineStrong hover:bg-white/5"
+      className="flex flex-col gap-2 rounded-lg border border-line bg-surface px-4 py-3 transition hover:border-lineStrong hover:bg-hover"
     >
       <div className="flex flex-col gap-2 sm:flex-row sm:items-start">
         <div data-today-score-cluster className="min-w-0 flex-1">
           <div className="flex items-center gap-3">
             <div className="flex min-w-0 flex-1 items-center justify-end gap-2 text-end">
-              <span className="truncate font-semibold text-white">{homeDisplay.label}</span>
+              <span className="truncate font-semibold text-ink">{homeDisplay.label}</span>
               {homeDisplay.teamCode ? <Flag code={homeDisplay.teamCode} alt="" width={30} height={22} /> : null}
             </div>
             {pres.showScore ? (
-              <span className="shrink-0 font-heading text-sm font-extrabold tabular-nums text-white">
+              <span className="shrink-0 font-heading text-sm font-extrabold tabular-nums text-ink">
                 {pres.homeScore}-{pres.awayScore}
               </span>
             ) : (
@@ -196,7 +196,7 @@ function MatchRow({
             )}
             <div className="flex min-w-0 flex-1 items-center gap-2">
               {awayDisplay.teamCode ? <Flag code={awayDisplay.teamCode} alt="" width={30} height={22} /> : null}
-              <span className="truncate font-semibold text-white">{awayDisplay.label}</span>
+              <span className="truncate font-semibold text-ink">{awayDisplay.label}</span>
             </div>
           </div>
           {goals ? <p className="mt-1.5 truncate text-center text-[11px] text-faint">Goals: {goals}</p> : null}
@@ -221,8 +221,8 @@ function MatchRow({
                 pres.state === "live" || pres.state === "halftime"
                   ? "bg-red-600 text-white"
                   : pres.state === "final"
-                  ? "bg-white/10 text-muted"
-                  : "bg-white/5 text-faint"
+                  ? "bg-surface-subtle text-muted"
+                  : "bg-surface-raised text-faint"
               }`}>
                 {statusMap[pres.state]}
               </span>
@@ -273,7 +273,7 @@ export function TodayPageLiveSection({
       <div className="space-y-8">
         {days.map(({ date, matches }) => (
           <section key={date}>
-            <h2 className="mb-3 border-b-2 border-accent pb-2 font-heading text-xl font-extrabold uppercase tracking-wide text-white">
+            <h2 className="mb-3 border-b-2 border-accent pb-2 font-heading text-xl font-extrabold uppercase tracking-wide text-ink">
               {showUpcomingFallback ? "Next" : isToday ? "Today" : "Matches"} — {longDate[date]}
             </h2>
             <div className="space-y-2">

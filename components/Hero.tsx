@@ -52,7 +52,7 @@ export function Hero({
           <p className="font-heading text-[10px] font-bold uppercase tracking-[0.24em] text-accent sm:text-xs sm:tracking-[0.3em]">
             {isComplete ? "The 2026 World Cup Vault" : "2026 World Cup · Final Weekend"}
           </p>
-          <h1 className="mt-2 font-heading text-3xl font-extrabold uppercase leading-[0.9] tracking-tight text-white sm:mt-3 sm:text-5xl lg:text-6xl">
+          <h1 className="mt-2 font-heading text-3xl font-extrabold uppercase leading-[0.9] tracking-tight text-ink sm:mt-3 sm:text-5xl lg:text-6xl">
             {isComplete ? "THE 2026 WORLD CUP VAULT" : "World Cup 2026 Final Weekend"}
           </h1>
           {isComplete ? (
@@ -62,7 +62,7 @@ export function Hero({
               </p>
               {archiveState.finalResult ? (
                 <p className="mt-1.5 max-w-3xl text-sm leading-relaxed text-muted sm:text-base">
-                  <span className="font-bold text-white">{archiveState.champion}</span> won the Final {archiveState.finalResult.homeScore}–{archiveState.finalResult.awayScore} over {archiveState.runnerUp}. Explore the complete 2026 FIFA World Cup archive — all 104 results, final standings, the full bracket, statistics and match reports.
+                  <span className="font-bold text-ink">{archiveState.champion}</span> won the Final {archiveState.finalResult.homeScore}–{archiveState.finalResult.awayScore} over {archiveState.runnerUp}. Explore the complete 2026 FIFA World Cup archive — all 104 results, final standings, the full bracket, statistics and match reports.
                 </p>
               ) : (
                 <p className="mt-1.5 max-w-3xl text-sm leading-relaxed text-muted sm:text-base">
@@ -76,10 +76,10 @@ export function Hero({
               <Link href="/matches/match-104" className="rounded-lg bg-accent px-3 py-2.5 font-heading text-[10px] font-bold uppercase tracking-widest text-navy transition hover:bg-white sm:px-4 sm:text-xs">
                 View the Final
               </Link>
-              <Link href="/schedule" className="rounded-lg border border-lineStrong bg-surface px-3 py-2.5 font-heading text-[10px] font-bold uppercase tracking-widest text-white transition hover:border-lineStrong sm:px-4 sm:text-xs">
+              <Link href="/schedule" className="rounded-lg border border-lineStrong bg-surface px-3 py-2.5 font-heading text-[10px] font-bold uppercase tracking-widest text-ink transition hover:border-lineStrong sm:px-4 sm:text-xs">
                 Kickoff times
               </Link>
-              <Link href="/bracket" className="hidden rounded-lg border border-line px-4 py-3 font-heading text-xs font-bold uppercase tracking-widest text-muted transition hover:text-white sm:block">
+              <Link href="/bracket" className="hidden rounded-lg border border-line px-4 py-3 font-heading text-xs font-bold uppercase tracking-widest text-muted transition hover:text-ink sm:block">
                 Complete bracket
               </Link>
             </div>

@@ -30,9 +30,9 @@ function CardGrid({ items }: { items: LinkItem[] }) {
         <Link
           key={l.href}
           href={l.href}
-          className="flex items-center gap-3 rounded-xl border border-line bg-surface px-4 py-4 transition hover:border-lineStrong hover:bg-white/5"
+          className="flex items-center gap-3 rounded-xl border border-line bg-surface px-4 py-4 transition hover:border-lineStrong hover:bg-hover"
         >
-          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-white/5 text-lg">
+          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-surface-subtle text-lg">
             {l.flag ? (
               <Flag code={l.flag} name={l.label} width={24} height={18} />
             ) : (
@@ -40,7 +40,7 @@ function CardGrid({ items }: { items: LinkItem[] }) {
             )}
           </span>
           <div className="min-w-0">
-            <div className="font-heading text-base font-extrabold uppercase tracking-wide text-white">
+            <div className="font-heading text-base font-extrabold uppercase tracking-wide text-ink">
               {l.label}
             </div>
             {l.note ? <div className="mt-0.5 text-xs text-faint">{l.note}</div> : null}
@@ -127,34 +127,34 @@ export function MatchdayHubContent() {
       <p className="mb-2 font-heading text-sm font-bold uppercase tracking-[0.3em] text-accent">
         FIFA World Cup 2026
       </p>
-      <h1 className="mb-2 font-heading text-4xl font-extrabold uppercase tracking-wide text-white">
+      <h1 className="mb-2 font-heading text-4xl font-extrabold uppercase tracking-wide text-ink">
         {t("nav_matchdayHub")}
       </h1>
       <p className="mb-8 max-w-3xl text-sm text-muted">{t("hub_intro")}</p>
 
       <section className="mb-8">
-        <h2 className="mb-3 font-heading text-xl font-extrabold uppercase tracking-wide text-white">
+        <h2 className="mb-3 font-heading text-xl font-extrabold uppercase tracking-wide text-ink">
           {t("hub_sec_schedules")}
         </h2>
         <CardGrid items={scheduleLinks} />
       </section>
 
       <section className="mb-8">
-        <h2 className="mb-3 font-heading text-xl font-extrabold uppercase tracking-wide text-white">
+        <h2 className="mb-3 font-heading text-xl font-extrabold uppercase tracking-wide text-ink">
           {t("hub_sec_guides")}
         </h2>
         <CardGrid items={guideLinks} />
       </section>
 
       <section className="mb-8">
-        <h2 className="mb-3 font-heading text-xl font-extrabold uppercase tracking-wide text-white">
+        <h2 className="mb-3 font-heading text-xl font-extrabold uppercase tracking-wide text-ink">
           Tournament Guides
         </h2>
         <CardGrid items={cornerstoneLinks} />
       </section>
 
       <section>
-        <h2 className="mb-3 font-heading text-xl font-extrabold uppercase tracking-wide text-white">
+        <h2 className="mb-3 font-heading text-xl font-extrabold uppercase tracking-wide text-ink">
           {t("hub_sec_core")}
         </h2>
         <CardGrid items={coreLinks} />

@@ -36,7 +36,7 @@ export default function TickerDuplicate({ items, resolvedParticipants, onMount }
         return (
           <span
             key={i}
-            className="mx-4 flex items-center gap-2 whitespace-nowrap text-sm font-semibold text-white"
+            className="mx-4 flex items-center gap-2 whitespace-nowrap text-sm font-semibold text-ink"
           >
             {home.teamCode && <Flag code={home.teamCode} alt="" width={22} height={16} className="rounded-sm" />}
             <span>{home.label}</span>

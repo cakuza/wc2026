@@ -24,7 +24,7 @@ export function CountdownClient({ tournamentPhase, target, isComplete }: { tourn
   if (isComplete) {
     return (
       <div className="mt-1">
-        <div className="font-heading font-extrabold uppercase leading-[0.85] text-white">
+        <div className="font-heading font-extrabold uppercase leading-[0.85] text-ink">
           <span className="block text-2xl tracking-wide text-ink sm:text-3xl">
             Tournament complete
           </span>
@@ -32,13 +32,13 @@ export function CountdownClient({ tournamentPhase, target, isComplete }: { tourn
         <div className="mt-2 flex flex-wrap gap-3 text-sm">
           <Link
             href="/bracket"
-            className="rounded-lg border border-line bg-surface px-4 py-2 font-heading text-xs font-bold uppercase tracking-wide text-muted transition hover:border-lineStrong hover:text-white"
+            className="rounded-lg border border-line bg-surface px-4 py-2 font-heading text-xs font-bold uppercase tracking-wide text-muted transition hover:border-lineStrong hover:text-ink"
           >
             Results &amp; Bracket
           </Link>
           <Link
             href="/groups"
-            className="rounded-lg border border-line bg-surface px-4 py-2 font-heading text-xs font-bold uppercase tracking-wide text-muted transition hover:border-lineStrong hover:text-white"
+            className="rounded-lg border border-line bg-surface px-4 py-2 font-heading text-xs font-bold uppercase tracking-wide text-muted transition hover:border-lineStrong hover:text-ink"
           >
             Final Standings
           </Link>
@@ -49,7 +49,7 @@ export function CountdownClient({ tournamentPhase, target, isComplete }: { tourn
 
   return (
     <div className="mt-1" suppressHydrationWarning>
-      <div className="font-heading font-extrabold uppercase leading-[0.85] text-white">
+      <div className="font-heading font-extrabold uppercase leading-[0.85] text-ink">
         <span className="block text-xl tracking-wide text-ink">
           {tournamentPhase === "pre_tournament" ? t("hero_kickoffIn") : "Next match in"}
         </span>

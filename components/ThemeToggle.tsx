@@ -19,8 +19,10 @@ export function ThemeToggle() {
   return (
     <button
       type="button"
+      data-testid="theme-toggle"
+      data-mounted={mounted ? "true" : "false"}
       onClick={toggleTheme}
-      disabled={!mounted || isTransitioning}
+      disabled={isTransitioning}
       aria-label={label}
       aria-pressed={isLight}
       title={label}

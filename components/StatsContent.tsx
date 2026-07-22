@@ -31,7 +31,7 @@ function TeamChip({ leader }: { leader: TeamLeaderboard }) {
   const code = teamCodeForKey(leader.teamKey);
   const name = countryName(leader.teamKey, "en");
   return (
-    <Link href={`/teams/${leader.teamKey}`} className="inline-flex items-center gap-2 rounded-full border border-line bg-white/5 px-3 py-2 text-sm font-semibold text-white transition hover:border-accent/70 hover:bg-white/10">
+    <Link href={`/teams/${leader.teamKey}`} className="inline-flex items-center gap-2 rounded-full border border-line bg-surface-subtle px-3 py-2 text-sm font-semibold text-ink transition hover:border-accent/70 hover:bg-hover">
       <Flag code={code} alt="" width={20} height={14} className="shrink-0" />{name}
     </Link>
   );
@@ -46,7 +46,7 @@ function PlayerLeader({ label, player, value, href, note }: { label: string; pla
       <div className="mt-4 flex items-center gap-4">
         <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-accent/15 font-heading text-2xl font-black text-accent">{value}</div>
         <div className="min-w-0">
-          <div className="flex items-center gap-2">{code ? <Flag code={code} alt="" width={24} height={16} className="shrink-0" /> : null}<p className="truncate text-lg font-bold text-white">{player.playerName}</p></div>
+          <div className="flex items-center gap-2">{code ? <Flag code={code} alt="" width={24} height={16} className="shrink-0" /> : null}<p className="truncate text-lg font-bold text-ink">{player.playerName}</p></div>
           <p className="mt-1 text-sm text-muted">{teamName}{note ? ` · ${note}` : ""}</p>
         </div>
       </div>
@@ -96,30 +96,30 @@ export default function StatsContent({ tournamentStats, teamLeaderboards: _teamL
     <div className="mx-auto max-w-7xl px-4 py-7 sm:py-9">
       <header className="mb-5 max-w-4xl">
         <p className="font-heading text-xs font-bold uppercase tracking-[0.28em] text-accent">2026 World Cup</p>
-        <h1 className="mt-2 font-heading text-3xl font-extrabold uppercase tracking-tight text-white sm:text-4xl">2026 World Cup Statistics</h1>
+        <h1 className="mt-2 font-heading text-3xl font-extrabold uppercase tracking-tight text-ink sm:text-4xl">2026 World Cup Statistics</h1>
         <p className="mt-2 text-sm leading-relaxed text-muted">Tournament totals, {matchesPlayed === 104 ? "Golden Boot winner" : "Golden Boot leaders"}, provider-recorded assists, team records, clean sheets and match records.</p>
         <p className="mt-3 text-xs font-semibold text-faint">{fullTimestamp(lastSyncedAt)}</p>
       </header>
 
       {/* Direct-Answer Summary Block */}
       <div className="mb-6 rounded-xl border border-accent/40 bg-accent/10 p-4 sm:p-5">
-        <p className="text-sm font-medium leading-relaxed text-white sm:text-base">
-          The 2026 World Cup produced <span className="font-extrabold text-accent">{totalGoals}</span> goals across <span className="font-extrabold text-white">{matchesPlayed}</span> matches. {topScorer ? <><span className="font-extrabold text-white">{topScorer.playerName}</span> won the Golden Boot with <span className="font-extrabold text-accent">{topScorer.goals}</span> goals, and the</> : "The"} tournament recorded <span className="font-extrabold text-white">{cleanSheets}</span> clean sheets.
+        <p className="text-sm font-medium leading-relaxed text-ink sm:text-base">
+          The 2026 World Cup produced <span className="font-extrabold text-accent">{totalGoals}</span> goals across <span className="font-extrabold text-ink">{matchesPlayed}</span> matches. {topScorer ? <><span className="font-extrabold text-ink">{topScorer.playerName}</span> won the Golden Boot with <span className="font-extrabold text-accent">{topScorer.goals}</span> goals, and the</> : "The"} tournament recorded <span className="font-extrabold text-ink">{cleanSheets}</span> clean sheets.
         </p>
       </div>
 
       <StatsNav />
 
       <section aria-labelledby="tournament-glance" className="mb-7">
-        <div className="mb-3 flex items-center gap-3"><h2 id="tournament-glance" className="font-heading text-base font-extrabold uppercase tracking-widest text-white">Tournament at a glance</h2><div className="h-px flex-1 bg-white/10" /></div>
-        <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">{glance.map((item) => <div key={item.label} className="rounded-xl border border-line bg-surface px-4 py-3"><p className="font-heading text-[10px] font-bold uppercase tracking-widest text-faint">{item.label}</p><p className="mt-1 font-heading text-2xl font-black text-white">{item.value}</p></div>)}</div>
+        <div className="mb-3 flex items-center gap-3"><h2 id="tournament-glance" className="font-heading text-base font-extrabold uppercase tracking-widest text-ink">Tournament at a glance</h2><div className="h-px flex-1 bg-line" /></div>
+        <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">{glance.map((item) => <div key={item.label} className="rounded-xl border border-line bg-surface px-4 py-3"><p className="font-heading text-[10px] font-bold uppercase tracking-widest text-faint">{item.label}</p><p className="mt-1 font-heading text-2xl font-black text-ink">{item.value}</p></div>)}</div>
       </section>
 
       {awards && awards.length > 0 ? (
         <section aria-labelledby="official-awards-heading" className="mb-7">
           <div className="mb-3 flex items-center gap-3">
-            <h2 id="official-awards-heading" className="font-heading text-base font-extrabold uppercase tracking-widest text-white">Official Tournament Awards</h2>
-            <div className="h-px flex-1 bg-white/10" />
+            <h2 id="official-awards-heading" className="font-heading text-base font-extrabold uppercase tracking-widest text-ink">Official Tournament Awards</h2>
+            <div className="h-px flex-1 bg-line" />
           </div>
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
             {awards.map((award) => {
@@ -127,7 +127,7 @@ export default function StatsContent({ tournamentStats, teamLeaderboards: _teamL
               return (
                 <div key={award.awardId} className="rounded-xl border border-line bg-surface p-4">
                   <p className="font-heading text-[10px] font-bold uppercase tracking-widest text-faint">{award.displayName}</p>
-                  <p className="mt-2 text-lg font-bold text-white">{award.winnerName}</p>
+                  <p className="mt-2 text-lg font-bold text-ink">{award.winnerName}</p>
                   <div className="mt-1 flex items-center gap-2">
                     {code && <Flag code={code} alt="" width={16} height={11} className="shrink-0" />}
                     <span className="text-xs text-muted">{countryName(award.teamKey, "en")}</span>
@@ -142,20 +142,20 @@ export default function StatsContent({ tournamentStats, teamLeaderboards: _teamL
 
       <div className="grid gap-6 lg:grid-cols-2">
         <section aria-labelledby="player-leaders-heading">
-          <div className="mb-3 flex items-center justify-between gap-3"><h2 id="player-leaders-heading" className="font-heading text-base font-extrabold uppercase tracking-widest text-white">Player leaders</h2><Link href="/stats/players" className="font-heading text-[11px] font-bold uppercase tracking-widest text-accent">View full leaderboard →</Link></div>
+          <div className="mb-3 flex items-center justify-between gap-3"><h2 id="player-leaders-heading" className="font-heading text-base font-extrabold uppercase tracking-widest text-ink">Player leaders</h2><Link href="/stats/players" className="font-heading text-[11px] font-bold uppercase tracking-widest text-accent">View full leaderboard →</Link></div>
           <div className="grid gap-3 sm:grid-cols-2">
              {topScorer ? <PlayerLeader label={matchesPlayed === 104 ? "Golden Boot winner" : "Golden Boot leader"} player={topScorer} value={topScorer.goals} href="/stats/top-scorers" /> : <p className="rounded-xl border border-line p-4 text-sm text-faint">Scorer data unavailable.</p>}
             {assistLeader ? <PlayerLeader label="Most assists" player={assistLeader} value={assistLeader.value} href="/stats/players" note="provider-recorded assists" /> : <p className="rounded-xl border border-line p-4 text-sm text-faint">Assist data unavailable.</p>}
           </div>
         </section>
         <section aria-labelledby="team-leaders-heading">
-          <div className="mb-3 flex items-center justify-between gap-3"><h2 id="team-leaders-heading" className="font-heading text-base font-extrabold uppercase tracking-widest text-white">Team leaders</h2><Link href="/stats/teams" className="font-heading text-[11px] font-bold uppercase tracking-widest text-accent">View full leaderboard →</Link></div>
+          <div className="mb-3 flex items-center justify-between gap-3"><h2 id="team-leaders-heading" className="font-heading text-base font-extrabold uppercase tracking-widest text-ink">Team leaders</h2><Link href="/stats/teams" className="font-heading text-[11px] font-bold uppercase tracking-widest text-accent">View full leaderboard →</Link></div>
           <div className="space-y-3">
             <div className="rounded-xl border border-line bg-surface p-4">
               <p className="font-heading text-[10px] font-bold uppercase tracking-widest text-faint">
                 {goalLeaders.length > 1 ? "Joint leaders" : "Leader"} · {goalLeaders[0]?.value ?? 0} goals
               </p>
-              <div className="mt-2 text-lg font-bold text-white">
+              <div className="mt-2 text-lg font-bold text-ink">
                 {joinNames(goalLeaders.map(l => countryName(l.teamKey, "en")))}
               </div>
               <div className="mt-3 flex flex-wrap gap-2">
@@ -178,7 +178,7 @@ export default function StatsContent({ tournamentStats, teamLeaderboards: _teamL
               <p className="font-heading text-[10px] font-bold uppercase tracking-widest text-faint">
                 {cleanSheetLeaders.length > 1 ? "Joint leaders" : "Leader"} · {cleanSheetLeaders[0]?.value ?? 0} clean sheets
               </p>
-              <div className="mt-2 text-lg font-bold text-white">
+              <div className="mt-2 text-lg font-bold text-ink">
                 {joinNames(cleanSheetLeaders.map(l => countryName(l.teamKey, "en")))}
               </div>
               <div className="mt-3 flex flex-wrap gap-2">
@@ -202,8 +202,8 @@ export default function StatsContent({ tournamentStats, teamLeaderboards: _teamL
       </div>
 
       <section aria-labelledby="match-records-heading" className="mt-7">
-        <div className="mb-3 flex items-center justify-between gap-3"><h2 id="match-records-heading" className="font-heading text-base font-extrabold uppercase tracking-widest text-white">Match records</h2><Link href="/stats/matches" className="font-heading text-[11px] font-bold uppercase tracking-widest text-accent">View all records →</Link></div>
-        <div className="grid gap-3 sm:grid-cols-2"><Link href={highestScoringMatch ? recordHref(highestScoringMatch) : "/stats/matches"} className="rounded-xl border border-line bg-surface p-4 transition hover:border-accent/70"><p className="font-heading text-[10px] font-bold uppercase tracking-widest text-faint">Highest-scoring match</p><p className="mt-2 font-semibold text-white">{result(highestScoringMatch)}</p></Link><Link href={biggestWin ? recordHref(biggestWin) : "/stats/matches"} className="rounded-xl border border-line bg-surface p-4 transition hover:border-accent/70"><p className="font-heading text-[10px] font-bold uppercase tracking-widest text-faint">Biggest win</p><p className="mt-2 font-semibold text-white">{result(biggestWin)}</p></Link></div>
+        <div className="mb-3 flex items-center justify-between gap-3"><h2 id="match-records-heading" className="font-heading text-base font-extrabold uppercase tracking-widest text-ink">Match records</h2><Link href="/stats/matches" className="font-heading text-[11px] font-bold uppercase tracking-widest text-accent">View all records →</Link></div>
+        <div className="grid gap-3 sm:grid-cols-2"><Link href={highestScoringMatch ? recordHref(highestScoringMatch) : "/stats/matches"} className="rounded-xl border border-line bg-surface p-4 transition hover:border-accent/70"><p className="font-heading text-[10px] font-bold uppercase tracking-widest text-faint">Highest-scoring match</p><p className="mt-2 font-semibold text-ink">{result(highestScoringMatch)}</p></Link><Link href={biggestWin ? recordHref(biggestWin) : "/stats/matches"} className="rounded-xl border border-line bg-surface p-4 transition hover:border-accent/70"><p className="font-heading text-[10px] font-bold uppercase tracking-widest text-faint">Biggest win</p><p className="mt-2 font-semibold text-ink">{result(biggestWin)}</p></Link></div>
       </section>
     </div>
   );

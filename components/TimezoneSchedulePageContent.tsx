@@ -67,7 +67,7 @@ export function TimezoneSchedulePageContent({
       <p className="mb-2 font-heading text-sm font-bold uppercase tracking-[0.3em] text-accent">
         {z.zoneNote}
       </p>
-      <h1 className="mb-2 font-heading text-4xl font-extrabold uppercase tracking-wide text-white">
+      <h1 className="mb-2 font-heading text-4xl font-extrabold uppercase tracking-wide text-ink">
         {h1}
       </h1>
       <p className="mb-1 max-w-3xl text-sm text-muted">{intro}</p>
@@ -77,7 +77,7 @@ export function TimezoneSchedulePageContent({
       <div className="mb-8 grid grid-cols-2 gap-3 sm:grid-cols-4">
         {facts.map((f) => (
           <div key={f.k} className="rounded-xl border border-line bg-surface px-4 py-3">
-            <div className="font-heading text-lg font-extrabold text-white">{f.v}</div>
+            <div className="font-heading text-lg font-extrabold text-ink">{f.v}</div>
             <div className="font-heading text-[10px] font-bold uppercase tracking-widest text-muted">
               {f.k}
             </div>
@@ -98,7 +98,7 @@ export function TimezoneSchedulePageContent({
           <Link
             key={l.href}
             href={l.href}
-            className="rounded-lg border border-line bg-surface px-4 py-2 font-heading text-xs font-bold uppercase tracking-wide text-muted transition hover:border-lineStrong hover:text-white"
+            className="rounded-lg border border-line bg-surface px-4 py-2 font-heading text-xs font-bold uppercase tracking-wide text-muted transition hover:border-lineStrong hover:text-ink"
           >
             {l.label}
           </Link>
@@ -116,7 +116,7 @@ export function TimezoneSchedulePageContent({
               key={o.slug}
               href={`/schedule/${o.slug}`}
               prefetch={false}
-              className="rounded-lg border border-line bg-surface px-3 py-1.5 text-xs font-semibold text-muted transition hover:border-lineStrong hover:text-white"
+              className="rounded-lg border border-line bg-surface px-3 py-1.5 text-xs font-semibold text-muted transition hover:border-lineStrong hover:text-ink"
             >
               {t(`tz_${o.slug}`)}
             </Link>
@@ -126,13 +126,13 @@ export function TimezoneSchedulePageContent({
 
       {/* FAQ */}
       <section className="mt-10">
-        <h2 className="mb-3 font-heading text-2xl font-extrabold uppercase tracking-wide text-white">
+        <h2 className="mb-3 font-heading text-2xl font-extrabold uppercase tracking-wide text-ink">
           {t("tz_faq_title")}
         </h2>
         <div className="space-y-3">
           {faqs.map((f) => (
             <div key={f.q} className="rounded-xl border border-line bg-surface p-4">
-              <h3 className="font-heading text-sm font-extrabold uppercase tracking-wide text-white sm:text-base">
+              <h3 className="font-heading text-sm font-extrabold uppercase tracking-wide text-ink sm:text-base">
                 {f.q}
               </h3>
               <p className="mt-2 text-sm leading-relaxed text-muted">{f.a}</p>

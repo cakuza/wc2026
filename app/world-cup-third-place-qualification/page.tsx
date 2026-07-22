@@ -48,7 +48,7 @@ function Step({ n, title, children }: { n: string; title: string; children: Reac
     <div className="rounded-xl border border-line bg-surface p-4">
       <div className="flex items-center gap-3">
         <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-accent/20 font-heading text-sm font-extrabold text-accent">{n}</span>
-        <h2 className="font-heading text-base font-extrabold uppercase tracking-wide text-white">{title}</h2>
+        <h2 className="font-heading text-base font-extrabold uppercase tracking-wide text-ink">{title}</h2>
       </div>
       <p className="mt-2 text-sm leading-relaxed text-muted">{children}</p>
     </div>
@@ -68,7 +68,7 @@ export default async function ThirdPlaceQualificationPage() {
       <div className="mx-auto max-w-3xl px-4 py-8">
         <BreadcrumbNav items={breadcrumbs} />
         <p className="mb-2 font-heading text-sm font-bold uppercase tracking-[0.3em] text-accent">World Cup 2026</p>
-        <h1 className="mb-2 font-heading text-4xl font-extrabold uppercase tracking-wide text-white">
+        <h1 className="mb-2 font-heading text-4xl font-extrabold uppercase tracking-wide text-ink">
           Final third-place ranking
         </h1>
         <p className="mb-6 max-w-2xl text-sm text-muted">
@@ -77,7 +77,7 @@ export default async function ThirdPlaceQualificationPage() {
         </p>
 
         <section className="mb-8">
-          <h2 className="mb-1 font-heading text-2xl font-extrabold uppercase tracking-wide text-white">
+          <h2 className="mb-1 font-heading text-2xl font-extrabold uppercase tracking-wide text-ink">
             Final third-place ranking
           </h2>
           <p className="mb-3 max-w-2xl text-sm text-muted">
@@ -104,7 +104,7 @@ export default async function ThirdPlaceQualificationPage() {
         </div>
 
         <section className="mt-6">
-          <h2 className="mb-2 font-heading text-xl font-extrabold uppercase tracking-wide text-white">
+          <h2 className="mb-2 font-heading text-xl font-extrabold uppercase tracking-wide text-ink">
             How many third-place teams qualified?
           </h2>
           <p className="text-sm leading-relaxed text-muted">
@@ -115,7 +115,7 @@ export default async function ThirdPlaceQualificationPage() {
         </section>
 
         <section className="mt-6">
-          <h2 className="mb-2 font-heading text-xl font-extrabold uppercase tracking-wide text-white">
+          <h2 className="mb-2 font-heading text-xl font-extrabold uppercase tracking-wide text-ink">
             Why third place mattered
           </h2>
           <p className="text-sm leading-relaxed text-muted">
@@ -134,7 +134,7 @@ export default async function ThirdPlaceQualificationPage() {
         </section>
 
         <section className="mt-6 rounded-xl border border-line bg-surface p-4">
-          <h2 className="mb-2 font-heading text-base font-extrabold uppercase tracking-wide text-white">
+          <h2 className="mb-2 font-heading text-base font-extrabold uppercase tracking-wide text-ink">
             What decided the best third-placed teams?
           </h2>
           <p className="text-sm leading-relaxed text-muted">
@@ -151,18 +151,18 @@ export default async function ThirdPlaceQualificationPage() {
             { href: "/bracket", label: "Bracket" },
             { href: "/stats", label: "Stats" },
           ].map((l) => (
-            <Link key={l.href} href={l.href} className="rounded-lg border border-line bg-surface px-4 py-2 font-heading text-xs font-bold uppercase tracking-wide text-muted transition hover:border-lineStrong hover:text-white">
+            <Link key={l.href} href={l.href} className="rounded-lg border border-line bg-surface px-4 py-2 font-heading text-xs font-bold uppercase tracking-wide text-muted transition hover:border-lineStrong hover:text-ink">
               {l.label}
             </Link>
           ))}
         </div>
 
         <section className="mt-10">
-          <h2 className="mb-3 font-heading text-2xl font-extrabold uppercase tracking-wide text-white">FAQ</h2>
+          <h2 className="mb-3 font-heading text-2xl font-extrabold uppercase tracking-wide text-ink">FAQ</h2>
           <div className="space-y-3">
             {FAQS.map((f) => (
               <div key={f.q} className="rounded-xl border border-line bg-surface p-4">
-                <h3 className="font-heading text-sm font-extrabold uppercase tracking-wide text-white sm:text-base">{f.q}</h3>
+                <h3 className="font-heading text-sm font-extrabold uppercase tracking-wide text-ink sm:text-base">{f.q}</h3>
                 <p className="mt-2 text-sm leading-relaxed text-muted">{f.a}</p>
               </div>
             ))}

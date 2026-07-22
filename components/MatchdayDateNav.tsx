@@ -66,7 +66,7 @@ function DateNavLink({
       href={href}
       aria-label={label}
       onClick={onActivate}
-      className={`${arrowClasses} border border-line text-ink hover:border-lineStrong hover:text-white active:bg-white/10`}
+      className={`${arrowClasses} border border-line text-ink hover:border-lineStrong hover:text-ink active:bg-hover`}
     >
       {direction === "prev" ? <>{icon}{labelSpan}</> : <>{labelSpan}{icon}</>}
     </Link>
@@ -129,7 +129,7 @@ export function MatchdayDateNav({
           )}
 
           <div className={`min-w-0 flex-1 text-center transition-opacity ${pending ? "opacity-60" : "opacity-100"}`} aria-busy={pending ? "true" : undefined}>
-            <p className="truncate font-heading text-sm font-extrabold uppercase tracking-wide text-white sm:text-base">
+            <p className="truncate font-heading text-sm font-extrabold uppercase tracking-wide text-ink sm:text-base">
               {formatLongDate(displayDate)}
             </p>
             {isToday ? (
@@ -140,7 +140,7 @@ export function MatchdayDateNav({
               <Link
                 href={hrefFor(null)}
                 onClick={() => setOptimisticDate(todayDate)}
-                className="mt-0.5 inline-block rounded bg-white/5 px-2 py-0.5 font-heading text-[10px] font-bold uppercase tracking-widest text-muted transition hover:bg-white/10 hover:text-white"
+                className="mt-0.5 inline-block rounded bg-surface-subtle px-2 py-0.5 font-heading text-[10px] font-bold uppercase tracking-widest text-muted transition hover:bg-hover hover:text-ink"
               >
                 {t("today_jumpToToday")}
               </Link>

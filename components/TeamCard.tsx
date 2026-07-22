@@ -25,7 +25,7 @@ export function TeamCard({ team }: { team: Team }) {
       </div>
 
       {/* Country name */}
-      <h3 className="mt-3 font-heading text-2xl font-extrabold uppercase leading-tight text-white">{country(team.key)}</h3>
+      <h3 className="mt-3 font-heading text-2xl font-extrabold uppercase leading-tight text-ink">{country(team.key)}</h3>
 
       {/* First match */}
       <div className="mt-3 rounded-lg border border-line bg-canvas p-3">
@@ -34,7 +34,7 @@ export function TeamCard({ team }: { team: Team }) {
           {firstMatch ? (
             <>
               <Flag code={firstMatch.opponentCode} alt="" width={28} height={20} />
-              <span className="truncate text-sm font-semibold text-white">{country(firstMatch.opponentKey)}</span>
+              <span className="truncate text-sm font-semibold text-ink">{country(firstMatch.opponentKey)}</span>
             </>
           ) : (
             <span className="text-sm font-semibold text-faint">{t("tbd")}</span>
@@ -45,7 +45,7 @@ export function TeamCard({ team }: { team: Team }) {
       {/* Date + Match Center */}
       <div className="mt-4 flex items-center justify-between border-t border-line pt-3">
         <span className="text-sm font-semibold text-muted">{firstMatch ? formatDate(firstMatch.date) : ""}</span>
-        <span className="font-heading text-sm font-bold uppercase tracking-wide text-accent transition group-hover:text-white">
+        <span className="font-heading text-sm font-bold uppercase tracking-wide text-accent transition group-hover:text-ink">
           {t("btn_matchCenter")} →
         </span>
       </div>

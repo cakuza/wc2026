@@ -52,7 +52,7 @@ export function TriviaCard() {
   const card = translation
     ? { ...rawCard, teaser: translation.teaser, reveal: translation.reveal }
     : rawCard;
-  const catStyle = CATEGORY_STYLES[card.category] ?? "border-lineStrong bg-white/10 text-muted";
+  const catStyle = CATEGORY_STYLES[card.category] ?? "border-lineStrong bg-surface-raised text-muted";
   const difficultyLabel: Record<string, string> = {
     easy: t("trivia_easy"),
     medium: t("trivia_medium"),
@@ -64,7 +64,7 @@ export function TriviaCard() {
       <div className="mx-auto max-w-7xl px-4 pt-8 pb-4">
         {/* Section header */}
         <div className="mb-5 flex items-center justify-between">
-          <h2 className="font-heading text-lg font-extrabold uppercase tracking-wide text-white">
+          <h2 className="font-heading text-lg font-extrabold uppercase tracking-wide text-ink">
             {t("trivia_title")}
           </h2>
           <span className="font-heading text-xs font-bold uppercase tracking-widest text-faint">
@@ -88,7 +88,7 @@ export function TriviaCard() {
               <span className={`rounded-full border px-2.5 py-0.5 font-heading text-[10px] font-extrabold uppercase tracking-widest ${catStyle}`}>
                 {card.category}
               </span>
-              <span className="rounded-full border border-line bg-white/5 px-2.5 py-0.5 font-heading text-[10px] font-bold uppercase tracking-widest text-faint">
+              <span className="rounded-full border border-line bg-surface-raised px-2.5 py-0.5 font-heading text-[10px] font-bold uppercase tracking-widest text-faint">
                 {difficultyLabel[card.difficulty] ?? card.difficulty}
               </span>
               <span className="ms-auto font-heading text-[10px] font-bold uppercase tracking-widest text-faint">
@@ -97,7 +97,7 @@ export function TriviaCard() {
             </div>
 
             {/* Teaser */}
-            <p className="text-lg font-semibold leading-snug text-white sm:text-xl">
+            <p className="text-lg font-semibold leading-snug text-ink sm:text-xl">
               {card.teaser}
             </p>
 
@@ -122,7 +122,7 @@ export function TriviaCard() {
               <button
                 type="button"
                 onClick={() => advance(idx)}
-                className="rounded-lg border border-line bg-white/5 px-5 py-2.5 font-heading text-sm font-bold uppercase tracking-wide text-muted transition hover:bg-white/10 hover:text-white active:scale-95"
+                className="rounded-lg border border-line bg-surface-raised px-5 py-2.5 font-heading text-sm font-bold uppercase tracking-wide text-muted transition hover:bg-hover hover:text-ink active:scale-95"
               >
                 {t("trivia_next_card")}
               </button>

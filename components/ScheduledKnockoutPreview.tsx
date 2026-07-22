@@ -67,12 +67,12 @@ export function ScheduledKnockoutPreview({ match, resolvedParticipants, previewD
         <h4 className="font-heading text-xs font-bold uppercase tracking-widest text-faint mb-2">Bracket Destination</h4>
         {winnerDestination && (
            <p className="text-sm text-ink">
-             <span className="text-accent font-bold">Winner</span> advances to: <Link href={winnerDestination.href} className="underline decoration-white/20 hover:text-white transition">{winnerDestination.displayLabel}</Link>
+             <span className="text-accent font-bold">Winner</span> advances to: <Link href={winnerDestination.href} className="underline decoration-white/20 hover:text-ink transition">{winnerDestination.displayLabel}</Link>
            </p>
         )}
         {loserDestination && (
            <p className="text-sm text-ink mt-1">
-             <span className="text-red-400 font-bold">Loser</span> drops to: <Link href={loserDestination.href} className="underline decoration-white/20 hover:text-white transition">{loserDestination.displayLabel}</Link>
+             <span className="text-red-400 font-bold">Loser</span> drops to: <Link href={loserDestination.href} className="underline decoration-white/20 hover:text-ink transition">{loserDestination.displayLabel}</Link>
            </p>
         )}
       </div>}
@@ -81,7 +81,7 @@ export function ScheduledKnockoutPreview({ match, resolvedParticipants, previewD
         {/* Home Team */}
         <div className="rounded-lg bg-canvas/60 p-4 text-center border border-line">
           <Flag code={homeCode} name={homeName} width={60} height={42} className="mx-auto rounded-sm shadow-md" />
-          <p className="mt-3 font-heading text-sm font-extrabold uppercase tracking-wide text-white">
+          <p className="mt-3 font-heading text-sm font-extrabold uppercase tracking-wide text-ink">
             {homeName}
           </p>
           <div className="mt-4 text-left border-t border-line pt-3">
@@ -102,7 +102,7 @@ export function ScheduledKnockoutPreview({ match, resolvedParticipants, previewD
             {homeJourney && homeJourney.length > 0 ? (
               <div className="flex flex-col gap-2">
                 {homeJourney.map((j, idx) => (
-                  <div key={idx} className="flex justify-between items-center text-[10px] bg-white/5 rounded px-2 py-1.5">
+                  <div key={idx} className="flex justify-between items-center text-[10px] bg-surface-raised rounded px-2 py-1.5">
                     <div className="flex flex-col text-left flex-1 min-w-0 pr-2">
                       <span className="font-bold text-ink whitespace-nowrap overflow-hidden text-ellipsis">{j.stage} vs {countryName(j.opponentName, "en")}</span>
                     </div>
@@ -112,7 +112,7 @@ export function ScheduledKnockoutPreview({ match, resolvedParticipants, previewD
                       ) : (
                         <span className="font-mono text-faint text-[9px]">TBD</span>
                       )}
-                      <span className={`w-4 h-4 rounded-sm flex items-center justify-center font-bold text-[9px] ${j.result === 'W' ? 'bg-green-600 text-white' : j.result === 'L' ? 'bg-red-600 text-white' : j.result === 'UPCOMING' ? 'bg-white/10 text-faint' : 'bg-gray-500 text-white'}`}>
+                      <span className={`w-4 h-4 rounded-sm flex items-center justify-center font-bold text-[9px] ${j.result === 'W' ? 'bg-green-600 text-white' : j.result === 'L' ? 'bg-red-600 text-white' : j.result === 'UPCOMING' ? 'bg-surface-subtle text-faint' : 'bg-gray-500 text-white'}`}>
                         {j.result === 'UPCOMING' ? '-' : j.result}
                       </span>
                       {j.matchHref && (
@@ -135,7 +135,7 @@ export function ScheduledKnockoutPreview({ match, resolvedParticipants, previewD
         {/* Away Team */}
         <div className="rounded-lg bg-canvas/60 p-4 text-center border border-line">
           <Flag code={awayCode} name={awayName} width={60} height={42} className="mx-auto rounded-sm shadow-md" />
-          <p className="mt-3 font-heading text-sm font-extrabold uppercase tracking-wide text-white">
+          <p className="mt-3 font-heading text-sm font-extrabold uppercase tracking-wide text-ink">
             {awayName}
           </p>
           <div className="mt-4 text-left border-t border-line pt-3">
@@ -156,7 +156,7 @@ export function ScheduledKnockoutPreview({ match, resolvedParticipants, previewD
             {awayJourney && awayJourney.length > 0 ? (
               <div className="flex flex-col gap-2">
                 {awayJourney.map((j, idx) => (
-                  <div key={idx} className="flex justify-between items-center text-[10px] bg-white/5 rounded px-2 py-1.5">
+                  <div key={idx} className="flex justify-between items-center text-[10px] bg-surface-raised rounded px-2 py-1.5">
                     <div className="flex flex-col text-left flex-1 min-w-0 pr-2">
                       <span className="font-bold text-ink whitespace-nowrap overflow-hidden text-ellipsis">{j.stage} vs {countryName(j.opponentName, "en")}</span>
                     </div>
@@ -166,7 +166,7 @@ export function ScheduledKnockoutPreview({ match, resolvedParticipants, previewD
                       ) : (
                         <span className="font-mono text-faint text-[9px]">TBD</span>
                       )}
-                      <span className={`w-4 h-4 rounded-sm flex items-center justify-center font-bold text-[9px] ${j.result === 'W' ? 'bg-green-600 text-white' : j.result === 'L' ? 'bg-red-600 text-white' : j.result === 'UPCOMING' ? 'bg-white/10 text-faint' : 'bg-gray-500 text-white'}`}>
+                      <span className={`w-4 h-4 rounded-sm flex items-center justify-center font-bold text-[9px] ${j.result === 'W' ? 'bg-green-600 text-white' : j.result === 'L' ? 'bg-red-600 text-white' : j.result === 'UPCOMING' ? 'bg-surface-subtle text-faint' : 'bg-gray-500 text-white'}`}>
                         {j.result === 'UPCOMING' ? '-' : j.result}
                       </span>
                       {j.matchHref && (
@@ -208,7 +208,7 @@ export function ScheduledKnockoutPreview({ match, resolvedParticipants, previewD
                 if (item.coverageStatus === "PARTIAL" || item.coverageStatus === "COMPLETE") {
                   return (
                     <div className="flex flex-col items-center leading-tight">
-                      <span className="text-white font-bold">{item.value}</span>
+                      <span className="text-ink font-bold">{item.value}</span>
                       <span className="text-[8px] text-faint uppercase whitespace-nowrap mt-0.5">
                         {item.matchesCovered} of {item.completedMatches} matches covered
                       </span>
@@ -217,7 +217,7 @@ export function ScheduledKnockoutPreview({ match, resolvedParticipants, previewD
                 }
                 
                 // COMPLETE
-                let colorClass = "text-white font-bold";
+                let colorClass = "text-ink font-bold";
                 if (isEquivalentComplete) {
                   if (isWinner) colorClass = "text-green-400 font-bold";
                   else if (homeVal !== awayVal) colorClass = "text-muted";
@@ -226,7 +226,7 @@ export function ScheduledKnockoutPreview({ match, resolvedParticipants, previewD
               };
 
               return (
-                <div key={idx} className="flex items-center justify-between text-sm rounded bg-white/5 px-3 py-2">
+                <div key={idx} className="flex items-center justify-between text-sm rounded bg-surface-raised px-3 py-2">
                   <div className="w-20 flex justify-center text-center">{renderItem(s.home, homeWinner)}</div>
                   <span className="text-muted text-[11px] uppercase tracking-wider text-center flex-1">{s.label}</span>
                   <div className="w-20 flex justify-center text-center">{renderItem(s.away, awayWinner)}</div>
@@ -236,7 +236,7 @@ export function ScheduledKnockoutPreview({ match, resolvedParticipants, previewD
           </div>
           
           <div className="mt-4 text-center">
-             <Link href={`/stats/compare?team1=${homeKey}&team2=${awayKey}`} className="text-[11px] font-bold uppercase tracking-widest text-faint hover:text-white transition">
+             <Link href={`/stats/compare?team1=${homeKey}&team2=${awayKey}`} className="text-[11px] font-bold uppercase tracking-widest text-faint hover:text-ink transition">
                View Full Comparison →
              </Link>
           </div>

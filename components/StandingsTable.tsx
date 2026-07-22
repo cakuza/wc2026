@@ -91,7 +91,7 @@ export function StandingsTable({
               return (
                 <tr
                   key={team.key}
-                  className="border-t border-line transition hover:bg-white/5"
+                  className="border-t border-line transition hover:bg-hover"
                   style={isCurrent ? { backgroundColor: `${team.primaryColor}22` } : undefined}
                 >
                   {/* Rank */}
@@ -114,7 +114,7 @@ export function StandingsTable({
                         className={`font-semibold transition ${
                           isCurrent
                             ? "text-accent"
-                            : "text-white group-hover:text-accent"
+                            : "text-ink group-hover:text-accent"
                         }`}
                       >
                         {country(team.key)}
@@ -144,7 +144,7 @@ export function StandingsTable({
                   })}
 
                   {/* Points */}
-                  <td className="px-3 py-3 text-center font-heading font-bold tabular-nums text-white">
+                  <td className="px-3 py-3 text-center font-heading font-bold tabular-nums text-ink">
                     {row ? row.points : 0}
                   </td>
                 </tr>
