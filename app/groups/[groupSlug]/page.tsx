@@ -155,7 +155,7 @@ export default async function GroupPage({
         <h1 className="mb-1 font-heading text-3xl font-extrabold uppercase tracking-wide text-white sm:text-4xl">
           Group {letter} Standings
         </h1>
-        <p className="mb-4 text-sm text-white/50">{teamNamesStr}</p>
+        <p className="mb-4 text-sm text-faint">{teamNamesStr}</p>
 
 
         {snapshot.isFallback && (
@@ -186,7 +186,7 @@ export default async function GroupPage({
               <LastUpdated isoTimestamp={snapshot.updatedAt} label="Standings last synced" />
             </>
           ) : (
-            <div className="rounded-xl border border-accent/20 bg-accent/5 px-4 py-3 text-sm text-white/60">
+            <div className="rounded-xl border border-accent/20 bg-accent/5 px-4 py-3 text-sm text-muted">
               Group {letter} matches have not yet kicked off. Standings will appear here once play
               begins.
             </div>
@@ -194,12 +194,12 @@ export default async function GroupPage({
         </section>
 
         {/* Qualification info */}
-        <section className="mb-6 rounded-xl border border-white/10 bg-navyCard px-4 py-4">
+        <section className="mb-6 rounded-xl border border-line bg-surface px-4 py-4">
           <h2 className="mb-2 font-heading text-sm font-extrabold uppercase tracking-wide text-white">
             {allGroupMatchesFinished ? `How Qualification Worked for Group ${letter}` : `Qualification from Group ${letter}`}
           </h2>
           {!allGroupMatchesFinished && (
-            <ul className="space-y-1 text-xs leading-relaxed text-white/60 mb-3">
+            <ul className="space-y-1 text-xs leading-relaxed text-muted mb-3">
               <li>
                 <span className="font-bold text-green-400">1st &amp; 2nd</span> — advance
                 automatically to the Round of 32.
@@ -213,7 +213,7 @@ export default async function GroupPage({
               </li>
             </ul>
           )}
-          <p className="text-xs text-white/40">
+          <p className="text-xs text-faint">
             Third-place qualification is determined across all 12 groups — see{" "}
             <Link
               href="/world-cup-third-place-qualification"
@@ -250,7 +250,7 @@ export default async function GroupPage({
                 <Link
                   key={matchSlug(m)}
                   href={`/matches/${matchSlug(m)}`}
-                  className="flex items-center justify-between rounded-xl border border-white/10 bg-navyCard px-4 py-3 transition hover:border-white/25"
+                  className="flex items-center justify-between rounded-xl border border-line bg-surface px-4 py-3 transition hover:border-lineStrong"
                 >
                   <div className="flex items-center gap-2 min-w-0">
                     <Flag code={m.homeCode} width={28} height={20} />
@@ -264,7 +264,7 @@ export default async function GroupPage({
                         {homeScore} – {awayScore}
                       </span>
                     ) : (
-                      <span className="font-heading text-xs font-bold uppercase text-white/40">
+                      <span className="font-heading text-xs font-bold uppercase text-faint">
                         {fmtMatchDate(m)}
                       </span>
                     )}
@@ -293,7 +293,7 @@ export default async function GroupPage({
             {teams.map((t) => {
               const outcome = teamOutcomes.get(t.key);
               return (
-                <div key={t.key} className="flex items-center justify-between gap-4 rounded-lg border border-white/10 bg-navyCard px-4 py-3">
+                <div key={t.key} className="flex items-center justify-between gap-4 rounded-lg border border-line bg-surface px-4 py-3">
                   <Link
                     href={`/teams/${slugFor(t.key)}`}
                     className="flex items-center gap-2 font-bold text-white transition hover:text-accent"
@@ -302,7 +302,7 @@ export default async function GroupPage({
                     {countryName(t.key, "en")}
                   </Link>
                   {outcome && (
-                    <span className="text-xs font-semibold text-white/60 text-right">
+                    <span className="text-xs font-semibold text-muted text-right">
                       {outcome}
                     </span>
                   )}
@@ -317,7 +317,7 @@ export default async function GroupPage({
           {prevGroup ? (
             <Link
               href={`/groups/${letterToGroupSlug(prevGroup)}`}
-              className="rounded-lg border border-white/15 bg-navyCard px-4 py-2 font-heading text-xs font-bold uppercase tracking-wide text-white/70 transition hover:border-white/30 hover:text-white"
+              className="rounded-lg border border-line bg-surface px-4 py-2 font-heading text-xs font-bold uppercase tracking-wide text-muted transition hover:border-lineStrong hover:text-white"
             >
               ← Group {prevGroup}
             </Link>
@@ -327,7 +327,7 @@ export default async function GroupPage({
           {nextGroup ? (
             <Link
               href={`/groups/${letterToGroupSlug(nextGroup)}`}
-              className="rounded-lg border border-white/15 bg-navyCard px-4 py-2 font-heading text-xs font-bold uppercase tracking-wide text-white/70 transition hover:border-white/30 hover:text-white"
+              className="rounded-lg border border-line bg-surface px-4 py-2 font-heading text-xs font-bold uppercase tracking-wide text-muted transition hover:border-lineStrong hover:text-white"
             >
               Group {nextGroup} →
             </Link>
@@ -347,7 +347,7 @@ export default async function GroupPage({
             <Link
               key={l.href}
               href={l.href}
-              className="rounded-lg border border-white/15 bg-navyCard px-4 py-2 font-heading text-xs font-bold uppercase tracking-wide text-white/70 transition hover:border-white/30 hover:text-white"
+              className="rounded-lg border border-line bg-surface px-4 py-2 font-heading text-xs font-bold uppercase tracking-wide text-muted transition hover:border-lineStrong hover:text-white"
             >
               {l.label}
             </Link>

@@ -12,7 +12,7 @@ import { usePathname, useRouter } from "next/navigation";
 export function TimezoneLabel({ className }: { className?: string }) {
   const { timeZone } = useTimezone();
   return (
-    <p className={className ?? "text-[11px] text-white/55"} suppressHydrationWarning>
+    <p className={className ?? "text-[11px] text-muted"} suppressHydrationWarning>
       Times shown in {formatTimeZoneLabel(timeZone)}
     </p>
   );
@@ -38,14 +38,14 @@ function TimezonePickerInner({ className }: { className?: string }) {
   }
 
   return (
-    <div className={className ?? "flex flex-wrap items-center gap-2 text-[11px] text-white/55"}>
+    <div className={className ?? "flex flex-wrap items-center gap-2 text-[11px] text-muted"}>
       <span suppressHydrationWarning>Times shown in {formatTimeZoneLabel(timeZone)}</span>
       <select
         value={timeZone}
         onChange={(e) => handleTimezoneChange(e.target.value)}
         aria-label="Timezone"
         suppressHydrationWarning
-        className="rounded border border-white/15 bg-navyCard px-1.5 py-0.5 text-[11px] text-white/70"
+        className="rounded border border-line bg-surface px-1.5 py-0.5 text-[11px] text-muted"
       >
         {options.map((tz) => (
           <option key={tz} value={tz}>

@@ -64,13 +64,13 @@ function StatusPill({ status, label }: { status: "FT" | "LIVE" | "HT" | "SYNCING
   }
   if (status === "AET" || status === "PEN") {
     return (
-      <span className="rounded bg-white/10 px-1.5 py-0.5 font-heading text-[10px] font-bold uppercase tracking-wider text-white/60">
+      <span className="rounded bg-white/10 px-1.5 py-0.5 font-heading text-[10px] font-bold uppercase tracking-wider text-muted">
         {label ?? status}
       </span>
     );
   }
   return (
-    <span className="rounded bg-white/10 px-1.5 py-0.5 font-heading text-[10px] font-bold uppercase tracking-wider text-white/40">
+    <span className="rounded bg-white/10 px-1.5 py-0.5 font-heading text-[10px] font-bold uppercase tracking-wider text-faint">
       FT
     </span>
   );
@@ -186,13 +186,13 @@ export function ScheduleContent({
             key={i}
             href={`/matches/${matchSlug(m)}`}
             prefetch={false}
-            className="block rounded-lg border border-white/10 bg-navyCard px-4 py-3 transition hover:border-white/20 hover:bg-white/5"
+            className="block rounded-lg border border-line bg-surface px-4 py-3 transition hover:border-lineStrong hover:bg-white/5"
           >
             <div className="flex flex-col gap-2 sm:flex-row sm:items-start">
               <div data-schedule-score-cluster className="min-w-0 flex-1">
                 {"matchNumber" in m && (
                   <div className="mb-2 text-center">
-                    <span className="font-heading text-[10px] font-bold uppercase tracking-wider text-white/50">
+                    <span className="font-heading text-[10px] font-bold uppercase tracking-wider text-faint">
                       Match {m.matchNumber} &bull; {STAGE_LABELS[m.stage] ?? m.stage}
                     </span>
                   </div>
@@ -218,7 +218,7 @@ export function ScheduleContent({
                       {pres.homeScore} - {pres.awayScore}
                     </span>
                   ) : (
-                    <span className="shrink-0 rounded bg-navy px-2 py-1 font-heading text-xs font-bold uppercase text-white/50">
+                    <span className="shrink-0 rounded bg-canvas px-2 py-1 font-heading text-xs font-bold uppercase text-faint">
                       {t("vs")}
                     </span>
                   )}
@@ -240,19 +240,19 @@ export function ScheduleContent({
                 </div>
 
                 {hasGoals && (
-                  <p data-schedule-scorer-line className="mt-1.5 truncate text-center text-[11px] text-white/40">
+                  <p data-schedule-scorer-line className="mt-1.5 truncate text-center text-[11px] text-faint">
                     Goals: <ScorerText events={events!} />
                   </p>
                 )}
                 {penaltyShootoutScore && (
-                  <p className="mt-1 text-center text-[10px] text-white/40">
+                  <p className="mt-1 text-center text-[10px] text-faint">
                     Penalties: {penaltyShootoutScore.home}-{penaltyShootoutScore.away}
                   </p>
                 )}
               </div>
 
-              <div data-schedule-meta className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1 text-xs text-white/50 sm:w-32 sm:shrink-0 sm:flex-col sm:items-end sm:gap-1.5 sm:text-end">
-                <span className="font-semibold text-white/80" suppressHydrationWarning>
+              <div data-schedule-meta className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1 text-xs text-faint sm:w-32 sm:shrink-0 sm:flex-col sm:items-end sm:gap-1.5 sm:text-end">
+                <span className="font-semibold text-ink" suppressHydrationWarning>
                   {pres.displayKickoffTime}
                 </span>
                 {statusPill}
@@ -269,23 +269,23 @@ export function ScheduleContent({
     <div className="mx-auto w-full max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
       {/* Archive Header Notice - rendered only when isTournamentComplete is true */}
       {isTournamentComplete && (
-        <div className="mb-6 rounded-xl border border-white/10 bg-navyCard p-4">
+        <div className="mb-6 rounded-xl border border-line bg-surface p-4">
           <h2 className="font-heading text-lg font-bold text-accent uppercase tracking-wide">
             Completed Results
           </h2>
-          <p className="mt-1 text-sm text-white/70">
+          <p className="mt-1 text-sm text-muted">
             Browse all 104 completed matches with kickoff times converted to your selected timezone.
           </p>
         </div>
       )}
 
       {/* TABS */}
-      <div className="mb-6 flex gap-4 border-b border-white/10">
+      <div className="mb-6 flex gap-4 border-b border-line">
         <a href="#completed" className="border-b-2 border-accent pb-2 font-heading text-sm font-bold uppercase tracking-wide text-white transition hover:text-accent">
           Completed Results
         </a>
         {!isTournamentComplete && (
-          <a href="#upcoming" className="border-b-2 border-transparent pb-2 font-heading text-sm font-bold uppercase tracking-wide text-white/50 transition hover:border-white/30">
+          <a href="#upcoming" className="border-b-2 border-transparent pb-2 font-heading text-sm font-bold uppercase tracking-wide text-faint transition hover:border-lineStrong">
             Upcoming Matches
           </a>
         )}
@@ -300,7 +300,7 @@ export function ScheduleContent({
             <div className="space-y-8">
               {liveDays.map((group) => (
                 <div key={group.date}>
-                  <h3 className="mb-3 border-b border-white/10 pb-2 font-heading text-lg font-bold uppercase tracking-wide text-accent">
+                  <h3 className="mb-3 border-b border-line pb-2 font-heading text-lg font-bold uppercase tracking-wide text-accent">
                     {longDate(group.date)}
                   </h3>
                   {renderMatches(group.matches)}
@@ -318,7 +318,7 @@ export function ScheduleContent({
             <div className="space-y-8">
               {syncingDays.map((group) => (
                 <div key={group.date}>
-                  <h3 className="mb-3 border-b border-white/10 pb-2 font-heading text-lg font-bold uppercase tracking-wide text-accent">
+                  <h3 className="mb-3 border-b border-line pb-2 font-heading text-lg font-bold uppercase tracking-wide text-accent">
                     {longDate(group.date)}
                   </h3>
                   {renderMatches(group.matches)}
@@ -329,14 +329,14 @@ export function ScheduleContent({
         )}
 
         <section id="completed" className="scroll-mt-24">
-          <h2 className="mb-6 font-heading text-xl font-extrabold uppercase tracking-widest text-white/60">
+          <h2 className="mb-6 font-heading text-xl font-extrabold uppercase tracking-widest text-muted">
             Completed Results
           </h2>
           {completedDays.length > 0 ? (
             <div className="space-y-8">
               {completedDays.map((group) => (
                 <div key={group.date}>
-                  <h3 className="mb-3 border-b border-white/10 pb-2 font-heading text-lg font-bold uppercase tracking-wide text-white/60">
+                  <h3 className="mb-3 border-b border-line pb-2 font-heading text-lg font-bold uppercase tracking-wide text-muted">
                     {longDate(group.date)}
                   </h3>
                   {renderMatches(group.matches)}
@@ -344,7 +344,7 @@ export function ScheduleContent({
               ))}
             </div>
           ) : (
-            <div className="rounded-xl border border-white/10 bg-navyCard p-8 text-center text-white/60">
+            <div className="rounded-xl border border-line bg-surface p-8 text-center text-muted">
               <p>No matches have finished yet.</p>
             </div>
           )}
@@ -352,13 +352,13 @@ export function ScheduleContent({
 
         {!isTournamentComplete && upcomingDays.length > 0 && (
           <section id="upcoming" className="scroll-mt-24">
-            <h2 className="mb-6 font-heading text-xl font-extrabold uppercase tracking-widest text-white/40">
+            <h2 className="mb-6 font-heading text-xl font-extrabold uppercase tracking-widest text-faint">
               Upcoming Matches
             </h2>
             <div className="space-y-8">
               {upcomingDays.map((group) => (
                 <div key={group.date}>
-                  <h3 className="mb-3 border-b border-white/10 pb-2 font-heading text-lg font-bold uppercase tracking-wide text-accent">
+                  <h3 className="mb-3 border-b border-line pb-2 font-heading text-lg font-bold uppercase tracking-wide text-accent">
                     {longDate(group.date)}
                   </h3>
                   {renderMatches(group.matches)}

@@ -26,6 +26,7 @@ export const RTL_LANGS: Lang[] = ["ar"];
 export const T: Record<Lang, Record<string, string>> = {
   en: {
     brand: "WC2026 HUB",
+    theme_day: "Day mode", theme_night: "Night mode", theme_switchToDay: "Switch to day mode", theme_switchToNight: "Switch to night mode",
     nav_today: "Match Center", nav_teams: "Teams", nav_groups: "Groups", nav_schedule: "Schedule", nav_stats: "Stats", nav_quiz: "Quiz", nav_bracket: "Bracket", nav_matchdayHub: "Matchday Hub", nav_thirdPlace: "3rd-Place", nav_standings: "Standings", nav_localTime: "Local Time", nav_about: "About", nav_more: "More", today_prevDay: "Previous day", today_nextDay: "Next day", today_jumpToToday: "Today", today_viewPrevMatchday: "View previous matchday", today_noMatchesDate: "No matches on this date",
     sec_teamsByConfederation: "TEAMS BY CONFEDERATION",
     conf_full_UEFA: "Union of European Football Associations", conf_full_CONMEBOL: "South American Football Confederation", conf_full_Concacaf: "Confederation of North, Central America and Caribbean Association Football", conf_full_AFC: "Asian Football Confederation", conf_full_CAF: "Confederation of African Football", conf_full_OFC: "Oceania Football Confederation",

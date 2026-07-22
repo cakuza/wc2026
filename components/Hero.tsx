@@ -42,7 +42,7 @@ export function Hero({
   const isComplete = archiveState.isComplete;
 
   return (
-    <section className="relative overflow-hidden border-b border-white/10 bg-navy">
+    <section className="relative overflow-hidden border-b border-line bg-canvas">
       <div
         className="pointer-events-none absolute inset-0 opacity-60"
         style={{ backgroundImage: "radial-gradient(60% 70% at 20% 0%, rgba(232,0,28,0.22), transparent 60%), radial-gradient(50% 60% at 90% 100%, rgba(232,0,28,0.14), transparent 60%)" }}
@@ -61,11 +61,11 @@ export function Hero({
                 Every result. Every scorer. Every defining moment.
               </p>
               {archiveState.finalResult ? (
-                <p className="mt-1.5 max-w-3xl text-sm leading-relaxed text-white/70 sm:text-base">
+                <p className="mt-1.5 max-w-3xl text-sm leading-relaxed text-muted sm:text-base">
                   <span className="font-bold text-white">{archiveState.champion}</span> won the Final {archiveState.finalResult.homeScore}–{archiveState.finalResult.awayScore} over {archiveState.runnerUp}. Explore the complete 2026 FIFA World Cup archive — all 104 results, final standings, the full bracket, statistics and match reports.
                 </p>
               ) : (
-                <p className="mt-1.5 max-w-3xl text-sm leading-relaxed text-white/70 sm:text-base">
+                <p className="mt-1.5 max-w-3xl text-sm leading-relaxed text-muted sm:text-base">
                   Explore the complete 2026 FIFA World Cup archive — all 104 results, final standings, the full bracket, statistics and match reports.
                 </p>
               )}
@@ -76,10 +76,10 @@ export function Hero({
               <Link href="/matches/match-104" className="rounded-lg bg-accent px-3 py-2.5 font-heading text-[10px] font-bold uppercase tracking-widest text-navy transition hover:bg-white sm:px-4 sm:text-xs">
                 View the Final
               </Link>
-              <Link href="/schedule" className="rounded-lg border border-white/20 bg-navyCard px-3 py-2.5 font-heading text-[10px] font-bold uppercase tracking-widest text-white transition hover:border-white/50 sm:px-4 sm:text-xs">
+              <Link href="/schedule" className="rounded-lg border border-lineStrong bg-surface px-3 py-2.5 font-heading text-[10px] font-bold uppercase tracking-widest text-white transition hover:border-lineStrong sm:px-4 sm:text-xs">
                 Kickoff times
               </Link>
-              <Link href="/bracket" className="hidden rounded-lg border border-white/10 px-4 py-3 font-heading text-xs font-bold uppercase tracking-widest text-white/65 transition hover:text-white sm:block">
+              <Link href="/bracket" className="hidden rounded-lg border border-line px-4 py-3 font-heading text-xs font-bold uppercase tracking-widest text-muted transition hover:text-white sm:block">
                 Complete bracket
               </Link>
             </div>

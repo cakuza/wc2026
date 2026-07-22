@@ -70,7 +70,7 @@ export function StandingsTable({
       <div className="overflow-x-auto">
         <table className="w-full min-w-[460px] text-sm">
           <thead>
-            <tr className="border-b border-white/10 text-[11px] uppercase tracking-wider text-white/40">
+            <tr className="border-b border-line text-[11px] uppercase tracking-wider text-faint">
               <th className="px-3 py-3 text-start font-semibold">#</th>
               <th className="px-2 py-3 text-start font-semibold" />
               {COLS.map((c) => (
@@ -78,7 +78,7 @@ export function StandingsTable({
                   {c}
                 </th>
               ))}
-              <th className="px-3 py-3 text-center font-semibold text-white/70">
+              <th className="px-3 py-3 text-center font-semibold text-muted">
                 {t("lbl_pts")}
               </th>
             </tr>
@@ -91,12 +91,12 @@ export function StandingsTable({
               return (
                 <tr
                   key={team.key}
-                  className="border-t border-white/5 transition hover:bg-white/5"
+                  className="border-t border-line transition hover:bg-white/5"
                   style={isCurrent ? { backgroundColor: `${team.primaryColor}22` } : undefined}
                 >
                   {/* Rank */}
                   <td
-                    className="px-3 py-3 font-heading font-bold text-white/50"
+                    className="px-3 py-3 font-heading font-bold text-faint"
                     style={{ borderLeft: `3px solid ${zc}` }}
                   >
                     {row?.rankLabel ?? rank}
@@ -135,7 +135,7 @@ export function StandingsTable({
                             ? val > 0
                               ? "font-semibold text-green-400"
                               : "font-semibold text-red-400"
-                            : "text-white/60"
+                            : "text-muted"
                         }`}
                       >
                         {display}
@@ -156,8 +156,8 @@ export function StandingsTable({
 
       {/* ── Qualification legend ─────────────────────────────────────────── */}
       {showQualInfo && (
-        <div className="space-y-1.5 border-t border-white/5 bg-navy/60 px-4 py-3">
-          <div className="flex items-start gap-2 text-xs text-white/55">
+        <div className="space-y-1.5 border-t border-line bg-canvas/60 px-4 py-3">
+          <div className="flex items-start gap-2 text-xs text-muted">
             <span
               className="mt-0.5 h-2 w-2 shrink-0 rounded-full"
               style={{ background: "#22c55e" }}
@@ -165,7 +165,7 @@ export function StandingsTable({
             />
             <span>{t("qual_info_top2")}</span>
           </div>
-          <div className="flex items-start gap-2 text-xs text-white/55">
+          <div className="flex items-start gap-2 text-xs text-muted">
             <span
               className="mt-0.5 h-2 w-2 shrink-0 rounded-full"
               style={{ background: "#f59e0b" }}

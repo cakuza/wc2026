@@ -109,32 +109,32 @@ export function TimezoneSchedule({
                   key={`${g.key}-${num}`}
                   href={`/matches/${matchSlug(m)}`}
                   prefetch={false}
-                  className="flex items-center gap-3 rounded-lg border border-white/10 bg-navyCard px-3 py-3 transition hover:border-white/20 hover:bg-white/5 sm:px-4"
+                  className="flex items-center gap-3 rounded-lg border border-line bg-surface px-3 py-3 transition hover:border-lineStrong hover:bg-white/5 sm:px-4"
                 >
-                  <span className="w-6 shrink-0 text-center font-heading text-xs font-bold tabular-nums text-white/50">
+                  <span className="w-6 shrink-0 text-center font-heading text-xs font-bold tabular-nums text-faint">
                     {num}
                   </span>
                   <div className="flex min-w-0 flex-1 items-center justify-end gap-2 text-end">
                     <span className="truncate font-semibold text-white">{home}</span>
                     <Flag code={m.homeCode} alt="" width={28} height={20} />
                   </div>
-                  <span className="shrink-0 rounded bg-navy px-2 py-1 font-heading text-[11px] font-bold uppercase text-white/70">
+                  <span className="shrink-0 rounded bg-canvas px-2 py-1 font-heading text-[11px] font-bold uppercase text-muted">
                     {hasScore ? `${score!.homeScore}–${score!.awayScore}` : t("vs")}
                   </span>
                   <div className="flex min-w-0 flex-1 items-center gap-2">
                     <Flag code={m.awayCode} alt="" width={28} height={20} />
                     <span className="truncate font-semibold text-white">{away}</span>
                   </div>
-                  <div className="ms-2 hidden w-40 shrink-0 text-end text-xs text-white/55 sm:block">
-                    <div className="font-semibold text-white/85">{status ?? time}</div>
-                    <div className="text-white/45">
+                  <div className="ms-2 hidden w-40 shrink-0 text-end text-xs text-muted sm:block">
+                    <div className="font-semibold text-ink">{status ?? time}</div>
+                    <div className="text-faint">
                       {m.group ? `${t("lbl_group")} ${m.group}` : ""}
                       {m.group && m.venue ? " · " : ""}
                       {m.venue ?? ""}
                     </div>
                   </div>
                   {goals ? (
-                    <div className="hidden min-w-0 max-w-40 truncate text-[11px] text-white/40 lg:block">
+                    <div className="hidden min-w-0 max-w-40 truncate text-[11px] text-faint lg:block">
                       Goals: {goals}
                     </div>
                   ) : null}

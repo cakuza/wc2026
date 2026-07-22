@@ -10,6 +10,7 @@ import { getTournamentLiveSnapshot } from "@/lib/liveSnapshot";
 import { buildKnockoutResolution } from "@/lib/knockoutResolution";
 import { getArchiveState } from "@/lib/archiveLifecycle";
 import { ARCHIVE_DEFAULT_DATE, MATCHES } from "@/lib/matches";
+import { ThemeProvider } from "@/components/ThemeProvider";
 import "./globals.css";
 
 // Google AdSense publisher ID (e.g. "ca-pub-1234567890123456").
@@ -92,12 +93,9 @@ export const metadata: Metadata = {
   }
 };
 
+const themeScript = `(function(){try{var t=localStorage.getItem("wcmd-theme");if(t!=="light"&&t!=="dark"){t=window.matchMedia("(prefers-color-scheme: light)").matches?"light":"dark"}var r=document.documentElement;r.setAttribute("data-theme",t);r.style.colorScheme=t;var c=t==="light"?"#f5f4f0":"#0a1628";var m=document.querySelector('meta[name="theme-color"]');if(m){m.content=c}}catch(e){}})()`;
+
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
-  // Single shared lifecycle truth for the whole site: computed once here,
-  // server-side, from the same canonical tournament-phase system every other
-  // archive-aware page uses (never a hardcoded date). Passed down as a plain
-  // prop so the client Nav renders identically on first paint and after
-  // hydration — no client-side refetch, no mismatch.
   const snapshot = await getTournamentLiveSnapshot();
   const resolvedParticipants = buildKnockoutResolution(snapshot.matches);
   const isTournamentComplete = getArchiveState({
@@ -108,7 +106,14 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   }).isComplete;
 
   return (
-    <html lang="en" dir="ltr">
+    <html lang="en" dir="ltr" suppressHydrationWarning>
+      <head>
+        <meta name="theme-color" content="#0a1628" />
+        <script
+          key="theme-init"
+          dangerouslySetInnerHTML={{ __html: themeScript }}
+        />
+      </head>
       {/* Preconnect to flag CDN so flag images resolve faster (low-risk LCP aid) */}
       <link rel="preconnect" href="https://flagcdn.com" />
       {ADSENSE_CLIENT_ID ? (
@@ -120,14 +125,16 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${ADSENSE_CLIENT_ID}`}
         />
       ) : null}
-      <body className={`${barlow.variable} ${barlowCondensed.variable} font-body bg-navy text-white antialiased`}>
-        <LanguageProvider>
-          <TimezoneProvider>
-            <Nav isTournamentComplete={isTournamentComplete} />
-            <main>{children}</main>
-            <Footer />
-          </TimezoneProvider>
-        </LanguageProvider>
+      <body className={`${barlow.variable} ${barlowCondensed.variable} font-body bg-canvas text-ink antialiased`}>
+        <ThemeProvider>
+          <LanguageProvider>
+            <TimezoneProvider>
+              <Nav isTournamentComplete={isTournamentComplete} />
+              <main>{children}</main>
+              <Footer />
+            </TimezoneProvider>
+          </LanguageProvider>
+        </ThemeProvider>
         <Analytics />
       </body>
     </html>

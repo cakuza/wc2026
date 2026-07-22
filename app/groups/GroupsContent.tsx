@@ -48,7 +48,7 @@ export function GroupsContent({ standings }: GroupsContentProps) {
   return (
     <div className="mx-auto max-w-6xl px-4 py-8">
       <h1 className="mb-2 font-heading text-4xl font-extrabold uppercase tracking-wide text-white">Final Group Standings</h1>
-      <p className="mb-6 max-w-3xl text-sm text-white/50">The group stage is complete. Final positions and the tournament outcomes for all 48 teams are preserved here.</p>
+      <p className="mb-6 max-w-3xl text-sm text-faint">The group stage is complete. Final positions and the tournament outcomes for all 48 teams are preserved here.</p>
 
       <div className="grid gap-5 lg:grid-cols-2">
         {GROUP_LETTERS.map((g) => {
@@ -58,10 +58,10 @@ export function GroupsContent({ standings }: GroupsContentProps) {
           return (
             <div
               key={g}
-              className="overflow-hidden rounded-xl border border-white/10 bg-navyCard"
+              className="overflow-hidden rounded-xl border border-line bg-surface"
             >
               {/* Group header */}
-              <div className="flex items-center justify-between border-b-2 border-accent bg-navy px-4 py-3">
+              <div className="flex items-center justify-between border-b-2 border-accent bg-canvas px-4 py-3">
                 <span className="font-heading text-xl font-extrabold uppercase text-white">
                   {t("lbl_group")} {g}
                 </span>
@@ -78,13 +78,13 @@ export function GroupsContent({ standings }: GroupsContentProps) {
 
               {/* Group preview (only while no match has been played in this group) */}
               {previews.length > 0 && (!rows || rows.every((r) => r.played === 0)) && (
-                <div className="border-t border-white/8 px-4 pb-4 pt-3">
-                  <p className="mb-2 font-heading text-[10px] font-extrabold uppercase tracking-[0.25em] text-white/25">
+                <div className="border-t border-line px-4 pb-4 pt-3">
+                  <p className="mb-2 font-heading text-[10px] font-extrabold uppercase tracking-[0.25em] text-faint">
                     {t("group_preview_title")}
                   </p>
                   <ul className="space-y-1">
                     {previews.map((entry, i) => (
-                      <li key={i} className="text-[12px] leading-snug text-white/50">
+                      <li key={i} className="text-[12px] leading-snug text-faint">
                         {buildPreviewLine(
                           t("group_preview_template"),
                           country(entry.teamKey),
@@ -102,7 +102,7 @@ export function GroupsContent({ standings }: GroupsContentProps) {
       </div>
 
       {/* Standings sync note */}
-      <section className="mt-6 rounded-xl border border-white/10 bg-navyCard p-4 text-sm text-white/60">
+      <section className="mt-6 rounded-xl border border-line bg-surface p-4 text-sm text-muted">
         <h2 className="font-heading text-sm font-extrabold uppercase tracking-wide text-white">How qualification worked</h2>
         <p className="mt-2">The top two teams in each group advanced automatically, with the eight best third-placed teams completing the Round of 32 field. The table above is now historical rather than a live qualification projection.</p>
       </section>
@@ -117,7 +117,7 @@ export function GroupsContent({ standings }: GroupsContentProps) {
           <Link
             key={l.href}
             href={l.href}
-            className="rounded-lg border border-white/15 bg-navyCard px-4 py-2 font-heading text-xs font-bold uppercase tracking-wide text-white/70 transition hover:border-white/30 hover:text-white"
+            className="rounded-lg border border-line bg-surface px-4 py-2 font-heading text-xs font-bold uppercase tracking-wide text-muted transition hover:border-lineStrong hover:text-white"
           >
             {l.label}
           </Link>

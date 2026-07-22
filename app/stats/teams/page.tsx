@@ -66,7 +66,7 @@ export default async function TeamsStatsPage() {
         <h1 className="mt-1 font-heading text-3xl font-extrabold uppercase tracking-tight text-white sm:text-4xl">
           Team Stats
         </h1>
-        <p className="mt-2 max-w-3xl text-sm text-white/50">
+        <p className="mt-2 max-w-3xl text-sm text-faint">
           Analyze team performance across attack, control, defense, and discipline metrics.
         </p>
       </div>
@@ -87,8 +87,8 @@ export default async function TeamsStatsPage() {
           disciplineLists={disciplineLists}
         />
       ) : (
-        <div className="rounded-xl border border-white/10 bg-navyCard p-6 text-center">
-          <p className="font-heading text-xs font-bold uppercase tracking-widest text-white/30">
+        <div className="rounded-xl border border-line bg-surface p-6 text-center">
+          <p className="font-heading text-xs font-bold uppercase tracking-widest text-faint">
             Team stats will appear when match data is available.
           </p>
         </div>

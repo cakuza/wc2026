@@ -28,16 +28,16 @@ export function Footer() {
   ];
 
   return (
-    <footer className="border-t border-white/10 bg-navy">
+    <footer className="border-t border-line bg-surface">
       <div className="mx-auto max-w-7xl px-4 py-8">
         <div className="flex flex-col items-center gap-5 sm:flex-row sm:items-start sm:justify-between">
           {/* Brand */}
           <div className="flex flex-col items-center gap-2 sm:items-start">
             <Link href="/" className="flex items-center gap-2">
-              <span className="font-heading text-lg font-extrabold tracking-tight text-white">WorldCupMatchDay</span>
+              <span className="font-heading text-lg font-extrabold tracking-tight text-ink">WorldCupMatchDay</span>
               <span className="rounded bg-accent px-1.5 py-0.5 font-heading text-xs font-extrabold leading-none text-white">2026</span>
             </Link>
-            <p className="font-heading text-sm font-extrabold uppercase tracking-wide text-white/60">
+            <p className="font-heading text-sm font-extrabold uppercase tracking-wide text-muted">
               FIFA World Cup <span className="text-accent">2026</span> · {t("footer_dates")}
             </p>
           </div>
@@ -48,7 +48,7 @@ export function Footer() {
               <Link
                 key={l.href}
                 href={l.href}
-                className="font-heading text-xs font-bold uppercase tracking-wide text-white/55 transition hover:text-white"
+                className="font-heading text-xs font-bold uppercase tracking-wide text-muted transition hover:text-ink"
               >
                 {l.label}
               </Link>
@@ -57,8 +57,8 @@ export function Footer() {
         </div>
 
         {/* Popular guides — time-zone schedule landing pages */}
-        <div className="mt-6 border-t border-white/5 pt-5">
-          <p className="mb-2 text-center font-heading text-[11px] font-extrabold uppercase tracking-widest text-white/55 sm:text-start">
+        <div className="mt-6 border-t border-line pt-5">
+          <p className="mb-2 text-center font-heading text-[11px] font-extrabold uppercase tracking-widest text-muted sm:text-start">
             {t("footer_tools")}
           </p>
           <nav className="flex flex-wrap justify-center gap-x-4 gap-y-2 sm:justify-start">
@@ -66,7 +66,7 @@ export function Footer() {
               <Link
                 key={l.href}
                 href={l.href}
-                className="font-heading text-xs font-bold uppercase tracking-wide text-white/55 transition hover:text-white"
+                className="font-heading text-xs font-bold uppercase tracking-wide text-muted transition hover:text-ink"
               >
                 {l.label}
               </Link>
@@ -74,8 +74,8 @@ export function Footer() {
           </nav>
         </div>
 
-        <div className="mt-6 border-t border-white/5 pt-5 flex flex-col items-center gap-3 sm:flex-row sm:justify-between">
-          <p className="font-heading text-[11px] font-bold uppercase tracking-widest text-white/45">
+        <div className="mt-6 border-t border-line pt-5 flex flex-col items-center gap-3 sm:flex-row sm:justify-between">
+          <p className="font-heading text-[11px] font-bold uppercase tracking-widest text-faint">
             © 2026 WorldCupMatchDay · Fan-made · Not affiliated with FIFA
           </p>
           <nav className="flex flex-wrap justify-center gap-x-4 gap-y-1">
@@ -90,7 +90,7 @@ export function Footer() {
               <Link
                 key={l.href}
                 href={l.href}
-                className="font-heading text-[11px] font-bold uppercase tracking-widest text-white/45 transition hover:text-white/70"
+                className="font-heading text-[11px] font-bold uppercase tracking-widest text-faint transition hover:text-muted"
               >
                 {l.label}
               </Link>

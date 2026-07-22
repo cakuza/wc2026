@@ -165,7 +165,7 @@ export default async function TeamQualificationPage({
             </h1>
           </div>
         </div>
-        <p className="mb-4 text-sm text-white/50">
+        <p className="mb-4 text-sm text-faint">
           Group {group} path to the Round of 32.
         </p>
 
@@ -192,7 +192,7 @@ export default async function TeamQualificationPage({
               <LastUpdated isoTimestamp={snapshot.updatedAt} label="Standings last synced" />
             </>
           ) : (
-            <p className="text-sm text-white/50">Standings not yet available.</p>
+            <p className="text-sm text-faint">Standings not yet available.</p>
           )}
         </section>
 
@@ -212,7 +212,7 @@ export default async function TeamQualificationPage({
                   <Link
                     key={matchSlug(m)}
                     href={`/matches/${matchSlug(m)}`}
-                    className="flex items-center justify-between rounded-xl border border-white/10 bg-navyCard px-4 py-3 hover:border-white/25 transition"
+                    className="flex items-center justify-between rounded-xl border border-line bg-surface px-4 py-3 hover:border-lineStrong transition"
                   >
                     <div className="flex items-center gap-2">
                       <Flag code={isHome ? team.code : opponentCode} width={28} height={20} />
@@ -220,7 +220,7 @@ export default async function TeamQualificationPage({
                         {isHome ? name : opponentName}
                       </span>
                     </div>
-                    <span className="font-heading text-xs font-bold text-white/40 uppercase">
+                    <span className="font-heading text-xs font-bold text-faint uppercase">
                       vs
                     </span>
                     <div className="flex items-center gap-2">
@@ -251,7 +251,7 @@ export default async function TeamQualificationPage({
                   <Link
                     key={matchSlug(m)}
                     href={`/matches/${matchSlug(m)}`}
-                    className="flex items-center justify-between rounded-xl border border-white/10 bg-navyCard px-4 py-3 hover:border-white/25 transition"
+                    className="flex items-center justify-between rounded-xl border border-line bg-surface px-4 py-3 hover:border-lineStrong transition"
                   >
                     <div className="flex items-center gap-2 min-w-0">
                       <Flag code={m.homeCode} width={26} height={18} />
@@ -272,11 +272,11 @@ export default async function TeamQualificationPage({
         )}
 
         {/* Qualification routes */}
-        <section className="mb-6 rounded-xl border border-white/10 bg-navyCard px-4 py-4">
+        <section className="mb-6 rounded-xl border border-line bg-surface px-4 py-4">
           <h2 className="mb-3 font-heading text-sm font-extrabold uppercase tracking-wide text-white">
             Routes to the Round of 32
           </h2>
-          <ul className="space-y-2 text-xs leading-relaxed text-white/60">
+          <ul className="space-y-2 text-xs leading-relaxed text-muted">
             <li>
               <span className="font-bold text-green-400">Automatic (1st or 2nd):</span> Finish in the
               top two of Group {group} — guaranteed place in the Round of 32.
@@ -310,7 +310,7 @@ export default async function TeamQualificationPage({
             <Link
               key={l.href}
               href={l.href}
-              className="rounded-lg border border-white/15 bg-navyCard px-4 py-2 font-heading text-xs font-bold uppercase tracking-wide text-white/70 transition hover:border-white/30 hover:text-white"
+              className="rounded-lg border border-line bg-surface px-4 py-2 font-heading text-xs font-bold uppercase tracking-wide text-muted transition hover:border-lineStrong hover:text-white"
             >
               {l.label}
             </Link>

@@ -96,7 +96,7 @@ export default async function TodayPage() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(faqLd) }}
       />
 
-      <Suspense fallback={<div className="min-h-screen bg-navy text-white flex items-center justify-center font-heading font-bold uppercase tracking-widest text-white/50">Preparing the Match Center for your local timezone.</div>}>
+      <Suspense fallback={<div className="min-h-screen bg-canvas text-white flex items-center justify-center font-heading font-bold uppercase tracking-widest text-faint">Preparing the Match Center for your local timezone.</div>}>
         <TodayClientWrapper
           snapshot={matchCenterSnapshot}
           isFallbackSnapshot={isFallbackSnapshot}
@@ -114,11 +114,11 @@ export default async function TodayPage() {
           </h2>
           <div className="space-y-3">
             {FAQS.map((f) => (
-              <div key={f.q} className="rounded-xl border border-white/10 bg-navyCard p-4">
+              <div key={f.q} className="rounded-xl border border-line bg-surface p-4">
                 <h3 className="font-heading text-sm font-extrabold uppercase tracking-wide text-white sm:text-base">
                   {f.q}
                 </h3>
-                <p className="mt-2 text-sm leading-relaxed text-white/70">{f.a}</p>
+                <p className="mt-2 text-sm leading-relaxed text-muted">{f.a}</p>
               </div>
             ))}
           </div>

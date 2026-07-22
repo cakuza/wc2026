@@ -97,7 +97,7 @@ export function Ticker({
   }, [t, formatDate, dupeReady]);
 
   return (
-    <div className="overflow-hidden border-b border-white/10 bg-accent">
+    <div className="overflow-hidden border-b border-line bg-accent">
       <div className="flex items-stretch">
         <div className="relative flex-1 overflow-hidden">
           <div ref={trackRef} className="flex w-max items-center py-2">

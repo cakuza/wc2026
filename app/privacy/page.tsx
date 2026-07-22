@@ -61,7 +61,7 @@ export default function PrivacyPage() {
       <h1 className="mb-2 font-heading text-3xl font-extrabold tracking-tight text-white sm:text-4xl">
         PRIVACY POLICY
       </h1>
-      <p className="mb-8 font-heading text-xs font-bold tracking-widest text-white/30">
+      <p className="mb-8 font-heading text-xs font-bold tracking-widest text-faint">
         EFFECTIVE: 19 JULY 2026
       </p>
 
@@ -71,7 +71,7 @@ export default function PrivacyPage() {
             <h2 className="mb-2 font-heading text-sm font-extrabold tracking-widest text-white">
               {s.heading}
             </h2>
-            <p className="text-sm leading-relaxed text-white/60">{s.body}</p>
+            <p className="text-sm leading-relaxed text-muted">{s.body}</p>
           </section>
         ))}
       </div>

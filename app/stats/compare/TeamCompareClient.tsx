@@ -90,9 +90,9 @@ export function TeamCompareShell({
     <div className="space-y-8">
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <label className="block text-xs font-bold uppercase tracking-widest text-white/50 mb-2">Team 1</label>
+          <label className="block text-xs font-bold uppercase tracking-widest text-faint mb-2">Team 1</label>
           <select
-            className="w-full rounded-lg bg-navyCard border border-white/10 px-4 py-3 text-white focus:border-accent outline-none"
+            className="w-full rounded-lg bg-surface border border-line px-4 py-3 text-white focus:border-accent outline-none"
             value={t1}
             onChange={(e) => onSelect(1, e.target.value)}
           >
@@ -103,9 +103,9 @@ export function TeamCompareShell({
           </select>
         </div>
         <div>
-          <label className="block text-xs font-bold uppercase tracking-widest text-white/50 mb-2">Team 2</label>
+          <label className="block text-xs font-bold uppercase tracking-widest text-faint mb-2">Team 2</label>
           <select
-            className="w-full rounded-lg bg-navyCard border border-white/10 px-4 py-3 text-white focus:border-accent outline-none"
+            className="w-full rounded-lg bg-surface border border-line px-4 py-3 text-white focus:border-accent outline-none"
             value={t2}
             onChange={(e) => onSelect(2, e.target.value)}
           >
@@ -118,13 +118,13 @@ export function TeamCompareShell({
       </div>
 
       {t1 && t2 ? (
-        <div className="rounded-xl border border-white/10 bg-navyCard overflow-hidden">
-          <div className="grid grid-cols-3 border-b border-white/10 bg-navy/50 px-4 py-3 text-center items-center">
+        <div className="rounded-xl border border-line bg-surface overflow-hidden">
+          <div className="grid grid-cols-3 border-b border-line bg-canvas/50 px-4 py-3 text-center items-center">
             <p className="font-heading text-sm font-bold text-white truncate px-2">{countryName(t1, "en") || t1}</p>
-            <p className="font-heading text-[10px] font-extrabold uppercase tracking-widest text-white/30">VS</p>
+            <p className="font-heading text-[10px] font-extrabold uppercase tracking-widest text-faint">VS</p>
             <p className="font-heading text-sm font-bold text-white truncate px-2">{countryName(t2, "en") || t2}</p>
           </div>
-          <ul className="divide-y divide-white/5">
+          <ul className="divide-y divide-line">
             {metrics.map((m) => {
               const r1 = getRow(m.list, t1);
               const r2 = getRow(m.list, t2);
@@ -145,7 +145,7 @@ export function TeamCompareShell({
                     <span className={`font-heading text-base font-extrabold ${colors.left}`}>
                       {val1}
                     </span>
-                    <span className="font-heading text-[10px] font-bold uppercase tracking-widest text-white/50">
+                    <span className="font-heading text-[10px] font-bold uppercase tracking-widest text-faint">
                       {m.label}
                     </span>
                     <span className={`font-heading text-base font-extrabold ${colors.right}`}>
@@ -169,7 +169,7 @@ export function TeamCompareShell({
           </ul>
         </div>
       ) : (
-        <div className="rounded-xl border border-dashed border-white/20 p-12 text-center text-white/30 text-sm">
+        <div className="rounded-xl border border-dashed border-lineStrong p-12 text-center text-faint text-sm">
           Select two teams to view head-to-head tournament statistics.
         </div>
       )}

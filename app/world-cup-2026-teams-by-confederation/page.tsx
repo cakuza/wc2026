@@ -53,7 +53,7 @@ export default function TeamsByConfederationPage() {
         <h1 className="mb-2 font-heading text-4xl font-extrabold uppercase tracking-wide text-white">
           World Cup 2026 Teams by Confederation
         </h1>
-        <p className="mb-6 max-w-3xl text-sm text-white/55">
+        <p className="mb-6 max-w-3xl text-sm text-muted">
           Here are the 48 World Cup 2026 teams grouped by confederation, with links to each team&apos;s fixtures and group.
         </p>
 
@@ -66,7 +66,7 @@ export default function TeamsByConfederationPage() {
           { href: "/bracket", label: "Bracket" },
           { href: "/teams", label: "Teams" },
           ].map((l) => (
-            <Link key={l.href} href={l.href} className="rounded-lg border border-white/15 bg-navyCard px-4 py-2 font-heading text-xs font-bold uppercase tracking-wide text-white/70 transition hover:border-white/30 hover:text-white">
+            <Link key={l.href} href={l.href} className="rounded-lg border border-line bg-surface px-4 py-2 font-heading text-xs font-bold uppercase tracking-wide text-muted transition hover:border-lineStrong hover:text-white">
               {l.label}
             </Link>
           ))}
@@ -76,9 +76,9 @@ export default function TeamsByConfederationPage() {
           <h2 className="mb-3 font-heading text-2xl font-extrabold uppercase tracking-wide text-white">FAQ</h2>
           <div className="space-y-3">
             {FAQS.map((f) => (
-              <div key={f.q} className="rounded-xl border border-white/10 bg-navyCard p-4">
+              <div key={f.q} className="rounded-xl border border-line bg-surface p-4">
                 <h3 className="font-heading text-sm font-extrabold uppercase tracking-wide text-white sm:text-base">{f.q}</h3>
-                <p className="mt-2 text-sm leading-relaxed text-white/70">{f.a}</p>
+                <p className="mt-2 text-sm leading-relaxed text-muted">{f.a}</p>
               </div>
             ))}
           </div>

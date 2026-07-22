@@ -58,12 +58,12 @@ function TeamCard({ entry }: { entry: TeamEntry }) {
   return (
     <Link
       href={`/teams/${slug}`}
-      className="flex items-center gap-2 rounded-lg border border-white/10 bg-navyCard px-3 py-2 text-xs font-bold text-white/70 transition hover:border-white/30 hover:text-white"
+      className="flex items-center gap-2 rounded-lg border border-line bg-surface px-3 py-2 text-xs font-bold text-muted transition hover:border-lineStrong hover:text-white"
     >
       <Flag code={code} width={26} height={18} />
       <div className="min-w-0">
         <p className="truncate font-bold text-white">{name}</p>
-        <p className="text-[10px] text-white/40">Group {entry.group}</p>
+        <p className="text-[10px] text-faint">Group {entry.group}</p>
       </div>
     </Link>
   );
@@ -101,7 +101,7 @@ function Section({
           ))}
         </div>
       ) : (
-        <p className="text-sm text-white/40">{empty}</p>
+        <p className="text-sm text-faint">{empty}</p>
       )}
     </section>
   );
@@ -185,7 +185,7 @@ export default async function QualifiedEliminatedPage() {
         <h1 className="mb-1 font-heading text-3xl font-extrabold uppercase tracking-wide text-white sm:text-4xl">
           Qualified &amp; Eliminated Teams
         </h1>
-        <p className="mb-4 text-sm text-white/50">
+        <p className="mb-4 text-sm text-faint">
           Live tracker — updates as group-stage results are confirmed.
         </p>
 
@@ -230,10 +230,10 @@ export default async function QualifiedEliminatedPage() {
 
         {pending.length > 0 && (
           <section className="mb-6">
-            <h2 className="mb-2 font-heading text-lg font-extrabold uppercase tracking-wide text-white/40">
+            <h2 className="mb-2 font-heading text-lg font-extrabold uppercase tracking-wide text-faint">
               Yet to Play ({pending.length})
             </h2>
-            <p className="text-sm text-white/40">
+            <p className="text-sm text-faint">
               These teams&apos; group matches have not started. Status will be shown once play
               begins.
             </p>
@@ -243,21 +243,21 @@ export default async function QualifiedEliminatedPage() {
         <LastUpdated isoTimestamp={snapshot.updatedAt} label="Status last checked" />
 
         {/* Methodology */}
-        <div className="mb-6 mt-4 rounded-xl border border-white/10 bg-navyCard px-4 py-4">
-          <h2 className="mb-2 font-heading text-xs font-extrabold uppercase tracking-wide text-white/50">
+        <div className="mb-6 mt-4 rounded-xl border border-line bg-surface px-4 py-4">
+          <h2 className="mb-2 font-heading text-xs font-extrabold uppercase tracking-wide text-faint">
             Methodology
           </h2>
-          <ul className="space-y-1 text-xs leading-relaxed text-white/40">
+          <ul className="space-y-1 text-xs leading-relaxed text-faint">
             <li>
-              <strong className="text-white/60">Qualified</strong> — finished 1st or 2nd in their
+              <strong className="text-muted">Qualified</strong> — finished 1st or 2nd in their
               group after all 3 group matches.
             </li>
             <li>
-              <strong className="text-white/60">Mathematically eliminated</strong> — cannot reach
+              <strong className="text-muted">Mathematically eliminated</strong> — cannot reach
               enough points to finish in the top two, even with all remaining matches won.
             </li>
             <li>
-              <strong className="text-white/60">Still alive</strong> — all other teams with
+              <strong className="text-muted">Still alive</strong> — all other teams with
               remaining matches or unresolved third-place qualification.
             </li>
             <li>
@@ -289,7 +289,7 @@ export default async function QualifiedEliminatedPage() {
             <Link
               key={l.href}
               href={l.href}
-              className="rounded-lg border border-white/15 bg-navyCard px-4 py-2 font-heading text-xs font-bold uppercase tracking-wide text-white/70 transition hover:border-white/30 hover:text-white"
+              className="rounded-lg border border-line bg-surface px-4 py-2 font-heading text-xs font-bold uppercase tracking-wide text-muted transition hover:border-lineStrong hover:text-white"
             >
               {l.label}
             </Link>
