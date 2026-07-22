@@ -92,7 +92,7 @@ export function TimezoneSchedule({
     <div className="space-y-8">
       {groups.map((g) => (
         <section key={g.key}>
-          <h2 className="mb-3 border-b-2 border-accent pb-2 font-heading text-xl font-extrabold uppercase tracking-wide text-white">
+          <h2 className="mb-3 border-b-2 border-accent pb-2 font-heading text-xl font-extrabold uppercase tracking-wide text-ink">
             {g.label}
           </h2>
           <div className="space-y-2">
@@ -109,13 +109,13 @@ export function TimezoneSchedule({
                   key={`${g.key}-${num}`}
                   href={`/matches/${matchSlug(m)}`}
                   prefetch={false}
-                  className="flex items-center gap-3 rounded-lg border border-line bg-surface px-3 py-3 transition hover:border-lineStrong hover:bg-white/5 sm:px-4"
+                  className="flex items-center gap-3 rounded-lg border border-line bg-surface px-3 py-3 transition hover:border-lineStrong hover:bg-hover sm:px-4"
                 >
                   <span className="w-6 shrink-0 text-center font-heading text-xs font-bold tabular-nums text-faint">
                     {num}
                   </span>
                   <div className="flex min-w-0 flex-1 items-center justify-end gap-2 text-end">
-                    <span className="truncate font-semibold text-white">{home}</span>
+                    <span className="truncate font-semibold text-ink">{home}</span>
                     <Flag code={m.homeCode} alt="" width={28} height={20} />
                   </div>
                   <span className="shrink-0 rounded bg-canvas px-2 py-1 font-heading text-[11px] font-bold uppercase text-muted">
@@ -123,7 +123,7 @@ export function TimezoneSchedule({
                   </span>
                   <div className="flex min-w-0 flex-1 items-center gap-2">
                     <Flag code={m.awayCode} alt="" width={28} height={20} />
-                    <span className="truncate font-semibold text-white">{away}</span>
+                    <span className="truncate font-semibold text-ink">{away}</span>
                   </div>
                   <div className="ms-2 hidden w-40 shrink-0 text-end text-xs text-muted sm:block">
                     <div className="font-semibold text-ink">{status ?? time}</div>

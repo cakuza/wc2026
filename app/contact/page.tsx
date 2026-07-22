@@ -13,7 +13,7 @@ export default function ContactPage() {
       <p className="mb-2 font-heading text-sm font-bold tracking-[0.3em] text-accent">
         GET IN TOUCH
       </p>
-      <h1 className="mb-6 font-heading text-3xl font-extrabold tracking-tight text-white sm:text-4xl">
+      <h1 className="mb-6 font-heading text-3xl font-extrabold tracking-tight text-ink sm:text-4xl">
         CONTACT
       </h1>
 
@@ -30,7 +30,7 @@ export default function ContactPage() {
           </p>
           <a
             href="mailto:worldcupmatchday@proton.me"
-            className="font-heading text-lg font-extrabold text-accent hover:text-white transition"
+            className="font-heading text-lg font-extrabold text-accent hover:text-ink transition"
           >
             worldcupmatchday@proton.me
           </a>

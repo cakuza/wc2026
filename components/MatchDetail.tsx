@@ -103,14 +103,14 @@ function StatusBadge({ status, t }: { status: DisplayStatus; t: (k: string) => s
   }
   if (status === "finished") {
     return (
-      <span className="inline-flex items-center rounded-full bg-white/10 px-3 py-1 font-heading text-xs font-extrabold uppercase tracking-widest text-muted">
+      <span className="inline-flex items-center rounded-full bg-surface-subtle px-3 py-1 font-heading text-xs font-extrabold uppercase tracking-widest text-muted">
         {t("match_final")}
       </span>
     );
   }
   if (status === "syncing") {
     return (
-      <span className="inline-flex items-center rounded-full bg-white/10 px-3 py-1 font-heading text-xs font-extrabold uppercase tracking-widest text-faint">
+      <span className="inline-flex items-center rounded-full bg-surface-subtle px-3 py-1 font-heading text-xs font-extrabold uppercase tracking-widest text-faint">
         {t("match_syncing")}
       </span>
     );
@@ -135,7 +135,7 @@ function EventSection({
     <div className="overflow-hidden rounded-xl border border-line bg-surface">
       <div className="flex items-center gap-2 border-b border-line bg-canvas/50 px-4 py-3">
         <span className="text-base leading-none">{icon}</span>
-        <span className="font-heading text-sm font-extrabold uppercase tracking-wide text-white">
+        <span className="font-heading text-sm font-extrabold uppercase tracking-wide text-ink">
           {title}
         </span>
       </div>
@@ -406,7 +406,7 @@ export function MatchDetail({
                 height={56}
                 className="rounded-lg shadow-2xl ring-1 ring-line transition-transform duration-300 group-hover:scale-105"
               />
-              <span className="font-heading text-lg font-extrabold uppercase leading-tight text-white transition-colors duration-300 group-hover:text-accent sm:text-xl">
+              <span className="font-heading text-lg font-extrabold uppercase leading-tight text-ink transition-colors duration-300 group-hover:text-accent sm:text-xl">
                 {homeName}
               </span>
               {("matchNumber" in match) && match.matchNumber === 104 && isConfirmedFinished && (
@@ -419,16 +419,16 @@ export function MatchDetail({
               {hasScore ? (
                 <>
                 <div className="flex items-center gap-3">
-                  <span className="font-heading text-5xl font-black tabular-nums text-white sm:text-6xl">
+                  <span className="font-heading text-5xl font-black tabular-nums text-ink sm:text-6xl">
                     {homeScore}
                   </span>
                   <span className="font-heading text-2xl font-bold text-faint">–</span>
-                  <span className="font-heading text-5xl font-black tabular-nums text-white sm:text-6xl">
+                  <span className="font-heading text-5xl font-black tabular-nums text-ink sm:text-6xl">
                     {awayScore}
                   </span>
                 </div>
                 {liveState.scoreDuration === "EXTRA_TIME" && (
-                  <span className="mt-1 rounded bg-white/10 px-2 py-1 font-heading text-[10px] font-extrabold uppercase tracking-widest text-muted">AET</span>
+                  <span className="mt-1 rounded bg-surface-subtle px-2 py-1 font-heading text-[10px] font-extrabold uppercase tracking-widest text-muted">AET</span>
                 )}
                 {hasShootout && (
                   <span className="font-heading text-[10px] font-bold uppercase tracking-widest text-faint">
@@ -452,11 +452,11 @@ export function MatchDetail({
                 height={56}
                 className="rounded-lg shadow-2xl ring-1 ring-line transition-transform duration-300 group-hover:scale-105"
               />
-              <span className="font-heading text-lg font-extrabold uppercase leading-tight text-white transition-colors duration-300 group-hover:text-accent sm:text-xl">
+              <span className="font-heading text-lg font-extrabold uppercase leading-tight text-ink transition-colors duration-300 group-hover:text-accent sm:text-xl">
                 {awayName}
               </span>
               {("matchNumber" in match) && match.matchNumber === 104 && isConfirmedFinished && (
-                <span className="mt-1 rounded bg-white/10 px-2 py-0.5 font-heading text-[10px] font-extrabold uppercase tracking-widest text-muted">Runner-up</span>
+                <span className="mt-1 rounded bg-surface-subtle px-2 py-0.5 font-heading text-[10px] font-extrabold uppercase tracking-widest text-muted">Runner-up</span>
               )}
             </Link>
           </div>
@@ -551,9 +551,9 @@ export function MatchDetail({
             </p>
             <p className="mt-1 text-sm text-ink">
               {match.time ? (
-                <KickoffDateTime match={match} className="font-semibold text-white" />
+                <KickoffDateTime match={match} className="font-semibold text-ink" />
               ) : (
-                <span className="font-semibold text-white">{formatDate(match.date)}</span>
+                <span className="font-semibold text-ink">{formatDate(match.date)}</span>
               )}
             </p>
           </div>
@@ -562,7 +562,7 @@ export function MatchDetail({
               <p className="font-heading text-[11px] font-extrabold uppercase tracking-wide text-faint">
                 {t("match_qa_where")}
               </p>
-              <p className="mt-1 text-sm font-semibold text-white">{match.venue} {VENUE_CITIES[match.venue] ? `(${VENUE_CITIES[match.venue]})` : ""}</p>
+              <p className="mt-1 text-sm font-semibold text-ink">{match.venue} {VENUE_CITIES[match.venue] ? `(${VENUE_CITIES[match.venue]})` : ""}</p>
             </div>
           )}
           <div className="rounded-lg border border-line bg-surface/60 px-4 py-3">
@@ -570,7 +570,7 @@ export function MatchDetail({
               {isGroupStage ? t("match_qa_group") : "Stage"}
             </p>
             <p className="mt-1 text-sm text-ink">
-              <span className="font-semibold text-white">
+              <span className="font-semibold text-ink">
                 {stageLabel}
               </span>{" "}
               — {homeName} {t("vs")} {awayName}
@@ -603,7 +603,7 @@ export function MatchDetail({
                     height={28}
                     className="mx-auto rounded-sm"
                   />
-                  <p className="mt-2 font-heading text-xs font-extrabold uppercase tracking-wide text-white">
+                  <p className="mt-2 font-heading text-xs font-extrabold uppercase tracking-wide text-ink">
                     {homeName}
                   </p>
                   <p className="mt-0.5 text-xs text-faint">{stageLabel}</p>
@@ -616,7 +616,7 @@ export function MatchDetail({
                     height={28}
                     className="mx-auto rounded-sm"
                   />
-                  <p className="mt-2 font-heading text-xs font-extrabold uppercase tracking-wide text-white">
+                  <p className="mt-2 font-heading text-xs font-extrabold uppercase tracking-wide text-ink">
                     {awayName}
                   </p>
                   <p className="mt-0.5 text-xs text-faint">{stageLabel}</p>
@@ -646,7 +646,7 @@ export function MatchDetail({
                         }`}
                         aria-hidden="true"
                       />
-                      <span className="font-semibold text-white">{b.playerName ?? "—"}</span>
+                      <span className="font-semibold text-ink">{b.playerName ?? "—"}</span>
                       {(b.type === "SECOND_YELLOW" || b.type === "YELLOW_RED") && (
                         <span className="ml-2 text-[10px] font-bold uppercase tracking-widest text-red-400">
                           {t("lbl_second_yellow")}
@@ -673,7 +673,7 @@ export function MatchDetail({
                         <span className="text-muted mr-1">{country(s.teamName)} — </span>
                       )}
                       <span className="text-green-400">↑</span>
-                      <span className="font-semibold text-white">{s.playerName ?? "—"}</span>
+                      <span className="font-semibold text-ink">{s.playerName ?? "—"}</span>
                       <span className="text-faint">/</span>
                       <span className="text-red-400">↓</span>
                       <span className="text-muted">{s.detail ?? "—"}</span>
@@ -691,8 +691,8 @@ export function MatchDetail({
                 <ul className="space-y-2">
                   {shootoutsSource.map((s, i) => (
                     <li key={i} className="flex items-center text-[13px]">
-                      <span className="font-bold text-white w-8 shrink-0">{i + 1}</span>
-                      <span className="text-white mx-2 shrink-0">{s.playerName}</span>
+                      <span className="font-bold text-ink w-8 shrink-0">{i + 1}</span>
+                      <span className="text-ink mx-2 shrink-0">{s.playerName}</span>
                       {s.teamName && (
                         <span className="font-normal text-muted ml-1 truncate">
                           — {country(s.teamName)}
@@ -723,9 +723,9 @@ export function MatchDetail({
                     { label: "Offsides", home: live.teamStats.offsides.home, away: live.teamStats.offsides.away },
                   ].map((stat, i) => (
                     <div key={i} className="flex items-center justify-between border-b border-line pb-2 last:border-0 last:pb-0">
-                      <span className="w-12 text-center font-heading font-bold tabular-nums text-white">{stat.home}</span>
+                      <span className="w-12 text-center font-heading font-bold tabular-nums text-ink">{stat.home}</span>
                       <span className="flex-1 text-center text-xs font-semibold uppercase tracking-wider text-faint">{stat.label}</span>
-                      <span className="w-12 text-center font-heading font-bold tabular-nums text-white">{stat.away}</span>
+                      <span className="w-12 text-center font-heading font-bold tabular-nums text-ink">{stat.away}</span>
                     </div>
                   ))}
                 </div>
@@ -746,7 +746,7 @@ export function MatchDetail({
           {report && (
             <EventSection title="Editorial Match Report" icon="✍">
               <div className="space-y-4">
-                <h3 className="font-heading text-base font-extrabold uppercase tracking-wide text-white">
+                <h3 className="font-heading text-base font-extrabold uppercase tracking-wide text-ink">
                   {report.headline}
                 </h3>
                 <p className="text-sm font-semibold italic text-muted">
@@ -756,7 +756,7 @@ export function MatchDetail({
                   {report.bodySections.map((sec, i) => (
                     <div key={i} className="space-y-2">
                       {sec.title && (
-                        <h4 className="font-heading text-sm font-bold uppercase text-white mt-4">
+                        <h4 className="font-heading text-sm font-bold uppercase text-ink mt-4">
                           {sec.title}
                         </h4>
                       )}
@@ -797,7 +797,7 @@ export function MatchDetail({
                           href={s.url}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="underline text-accent hover:text-white"
+                          className="underline text-accent hover:text-ink"
                         >
                           {s.label}
                         </a>
@@ -841,9 +841,9 @@ export function MatchDetail({
                     key={`${teamKey}-${matchSlug(next)}`}
                     href={`/matches/${matchSlug(next)}`}
                     prefetch={false}
-                    className="block rounded-lg border border-line bg-canvas/50 px-3 py-2 text-sm text-muted transition hover:border-lineStrong hover:text-white"
+                    className="block rounded-lg border border-line bg-canvas/50 px-3 py-2 text-sm text-muted transition hover:border-lineStrong hover:text-ink"
                   >
-                    <span className="font-semibold text-white">{country(teamKey)}</span>
+                    <span className="font-semibold text-ink">{country(teamKey)}</span>
                     {" — "}
                     {getParticipantName(next, "home")} {t("vs")} {getParticipantName(next, "away")}
                     {" · "}
@@ -868,7 +868,7 @@ export function MatchDetail({
               <Link
                 key={l.href}
                 href={l.href}
-                className="rounded-lg border border-line bg-surface px-4 py-2 font-heading text-xs font-bold uppercase tracking-wide text-muted transition hover:border-lineStrong hover:text-white"
+                className="rounded-lg border border-line bg-surface px-4 py-2 font-heading text-xs font-bold uppercase tracking-wide text-muted transition hover:border-lineStrong hover:text-ink"
               >
                 {l.label}
               </Link>

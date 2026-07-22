@@ -86,12 +86,12 @@ function MatchCard({ m, isFinal = false }: { m: BMatch; isFinal?: boolean }) {
       <div className="flex h-full flex-col justify-center gap-1.5 px-3">
         <div className="flex items-center gap-1">
           <div className="min-w-0 flex-1"><ParticipantRow slot={m.home} isFinal={isFinal} /></div>
-          {m.score ? <span className="font-heading text-[11px] font-extrabold tabular-nums text-white">{m.score.home}</span> : null}
+          {m.score ? <span className="font-heading text-[11px] font-extrabold tabular-nums text-ink">{m.score.home}</span> : null}
         </div>
-        <div className="h-px bg-white/10" />
+        <div className="h-px bg-line" />
         <div className="flex items-center gap-1">
           <div className="min-w-0 flex-1"><ParticipantRow slot={m.away} isFinal={isFinal} /></div>
-          {m.score ? <span className="font-heading text-[11px] font-extrabold tabular-nums text-white">{m.score.away}</span> : null}
+          {m.score ? <span className="font-heading text-[11px] font-extrabold tabular-nums text-ink">{m.score.away}</span> : null}
         </div>
         {m.score?.aet ? <span className="text-[8px] font-bold uppercase tracking-widest text-faint">AET</span> : null}
       </div>
@@ -171,7 +171,7 @@ export function BracketContent({ resolvedParticipants, tournamentPhase }: { reso
     <div className="mx-auto max-w-7xl px-4 py-8">
       {/* Page header */}
       <div className="mb-2 flex flex-wrap items-end justify-between gap-3">
-        <h1 className="font-heading text-4xl font-extrabold uppercase tracking-wide text-white">
+        <h1 className="font-heading text-4xl font-extrabold uppercase tracking-wide text-ink">
           {t("bracket_title")}
         </h1>
         <span className="rounded-lg border border-accent/30 bg-accent/10 px-3 py-1.5 font-heading text-xs font-bold uppercase tracking-widest text-accent">
@@ -234,22 +234,22 @@ export function BracketContent({ resolvedParticipants, tournamentPhase }: { reso
                       <div key={`con-${ri}-${mi}`}>
                         {/* Horiz line from top match → vertical */}
                         <div
-                          className="absolute bg-white/15"
+                          className="absolute bg-line"
                           style={{ left: rx + CARD_W, top: topCenter - 0.5, width: CON_W / 2, height: 1 }}
                         />
                         {/* Horiz line from bot match → vertical */}
                         <div
-                          className="absolute bg-white/15"
+                          className="absolute bg-line"
                           style={{ left: rx + CARD_W, top: botCenter - 0.5, width: CON_W / 2, height: 1 }}
                         />
                         {/* Vertical connector */}
                         <div
-                          className="absolute bg-white/15"
+                          className="absolute bg-line"
                           style={{ left: vertX - 0.5, top: topCenter, width: 1, height: botCenter - topCenter }}
                         />
                         {/* Horiz line from vertical → next round card */}
                         <div
-                          className="absolute bg-white/15"
+                          className="absolute bg-line"
                           style={{ left: vertX, top: midY - 0.5, width: CON_W / 2, height: 1 }}
                         />
                       </div>

@@ -75,7 +75,7 @@ function Table({ caption, rows, head }: { caption: string; head: [string, string
   return (
     <div className="overflow-hidden rounded-xl border border-line bg-surface">
       <div className="border-b border-line bg-canvas/50 px-4 py-3">
-        <span className="font-heading text-sm font-extrabold uppercase tracking-wide text-white">{caption}</span>
+        <span className="font-heading text-sm font-extrabold uppercase tracking-wide text-ink">{caption}</span>
       </div>
       <table className="w-full text-sm">
         <thead>
@@ -88,7 +88,7 @@ function Table({ caption, rows, head }: { caption: string; head: [string, string
           {rows.map((r) => (
             <tr key={r.a} className="border-b border-line last:border-0">
               <td className="px-4 py-2.5 text-muted">{r.a}</td>
-              <td className="px-4 py-2.5 text-right font-semibold tabular-nums text-white">{r.b}</td>
+              <td className="px-4 py-2.5 text-right font-semibold tabular-nums text-ink">{r.b}</td>
             </tr>
           ))}
         </tbody>
@@ -107,7 +107,7 @@ export default function PrizeMoneyPage() {
       <div className="mx-auto max-w-3xl px-4 py-8">
         <BreadcrumbNav items={breadcrumbs} />
         <p className="mb-2 font-heading text-sm font-bold uppercase tracking-[0.3em] text-accent">FIFA World Cup 2026</p>
-        <h1 className="mb-2 font-heading text-4xl font-extrabold uppercase tracking-wide text-white">
+        <h1 className="mb-2 font-heading text-4xl font-extrabold uppercase tracking-wide text-ink">
           World Cup 2026 Prize Money
         </h1>
         <p className="mb-6 max-w-2xl text-sm text-muted">
@@ -140,18 +140,18 @@ export default function PrizeMoneyPage() {
             { href: "/groups", label: "Groups" },
             { href: "/bracket", label: "Bracket" },
           ].map((l) => (
-            <Link key={l.href} href={l.href} className="rounded-lg border border-line bg-surface px-4 py-2 font-heading text-xs font-bold uppercase tracking-wide text-muted transition hover:border-lineStrong hover:text-white">
+            <Link key={l.href} href={l.href} className="rounded-lg border border-line bg-surface px-4 py-2 font-heading text-xs font-bold uppercase tracking-wide text-muted transition hover:border-lineStrong hover:text-ink">
               {l.label}
             </Link>
           ))}
         </div>
 
         <section className="mt-10">
-          <h2 className="mb-3 font-heading text-2xl font-extrabold uppercase tracking-wide text-white">FAQ</h2>
+          <h2 className="mb-3 font-heading text-2xl font-extrabold uppercase tracking-wide text-ink">FAQ</h2>
           <div className="space-y-3">
             {FAQS.map((f) => (
               <div key={f.q} className="rounded-xl border border-line bg-surface p-4">
-                <h3 className="font-heading text-sm font-extrabold uppercase tracking-wide text-white sm:text-base">{f.q}</h3>
+                <h3 className="font-heading text-sm font-extrabold uppercase tracking-wide text-ink sm:text-base">{f.q}</h3>
                 <p className="mt-2 text-sm leading-relaxed text-muted">{f.a}</p>
               </div>
             ))}

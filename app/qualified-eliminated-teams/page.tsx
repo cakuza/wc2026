@@ -58,11 +58,11 @@ function TeamCard({ entry }: { entry: TeamEntry }) {
   return (
     <Link
       href={`/teams/${slug}`}
-      className="flex items-center gap-2 rounded-lg border border-line bg-surface px-3 py-2 text-xs font-bold text-muted transition hover:border-lineStrong hover:text-white"
+      className="flex items-center gap-2 rounded-lg border border-line bg-surface px-3 py-2 text-xs font-bold text-muted transition hover:border-lineStrong hover:text-ink"
     >
       <Flag code={code} width={26} height={18} />
       <div className="min-w-0">
-        <p className="truncate font-bold text-white">{name}</p>
+        <p className="truncate font-bold text-ink">{name}</p>
         <p className="text-[10px] text-faint">Group {entry.group}</p>
       </div>
     </Link>
@@ -182,7 +182,7 @@ export default async function QualifiedEliminatedPage() {
         <p className="mb-1 font-heading text-sm font-bold uppercase tracking-[0.3em] text-accent">
           World Cup 2026
         </p>
-        <h1 className="mb-1 font-heading text-3xl font-extrabold uppercase tracking-wide text-white sm:text-4xl">
+        <h1 className="mb-1 font-heading text-3xl font-extrabold uppercase tracking-wide text-ink sm:text-4xl">
           Qualified &amp; Eliminated Teams
         </h1>
         <p className="mb-4 text-sm text-faint">
@@ -289,7 +289,7 @@ export default async function QualifiedEliminatedPage() {
             <Link
               key={l.href}
               href={l.href}
-              className="rounded-lg border border-line bg-surface px-4 py-2 font-heading text-xs font-bold uppercase tracking-wide text-muted transition hover:border-lineStrong hover:text-white"
+              className="rounded-lg border border-line bg-surface px-4 py-2 font-heading text-xs font-bold uppercase tracking-wide text-muted transition hover:border-lineStrong hover:text-ink"
             >
               {l.label}
             </Link>

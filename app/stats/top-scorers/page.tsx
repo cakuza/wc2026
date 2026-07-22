@@ -47,13 +47,13 @@ export default async function TopScorersPage() {
     <div className="mx-auto max-w-3xl px-4 py-8">
       <BreadcrumbNav items={breadcrumbs} />
       <p className="mb-1 font-heading text-sm font-bold uppercase tracking-[0.3em] text-accent">World Cup 2026</p>
-      <h1 className="mb-1 font-heading text-3xl font-extrabold uppercase tracking-wide text-white sm:text-4xl">Top Scorers</h1>
+      <h1 className="mb-1 font-heading text-3xl font-extrabold uppercase tracking-wide text-ink sm:text-4xl">Top Scorers</h1>
       <p className="mb-2 text-sm text-faint">Final Golden Boot standings.</p>
       <p className="mb-4 text-sm leading-relaxed text-muted">The final FIFA World Cup Golden Boot standings. Kylian Mbappé won the Golden Boot with 10 goals. Players tied on goals stay level here unless the available, complete tiebreak information separates them.</p>
       <StatsNav />
       {hasData ? <><TopScorersTable rows={topScorers} /><p className="-mt-3 mb-4 text-xs leading-relaxed text-faint">Assist markers are provider-recorded event data, not official FIFA assist awards. An asterisk means the available assist or minutes coverage is incomplete and is not used to break a goals tie.</p><LastUpdated isoTimestamp={snapshot.updatedAt} label="Scorer data last synced" /></> : !snapshot.isFallback ? <div className="mb-6 rounded-xl border border-line bg-surface px-4 py-4 text-sm text-faint">No scorer data available yet. This table populates once enriched goal events from completed matches are synced.</div> : null}
       <div className="mt-6 flex flex-wrap gap-3">
-        {[{ href: "/stats", label: "All Stats" }, { href: "/groups", label: "Group Standings" }, { href: "/world-cup-third-place-qualification", label: "Third-Place Table" }, { href: "/qualified-eliminated-teams", label: "Qualified Teams" }].map((link) => <Link key={link.href} href={link.href} className="rounded-lg border border-line bg-surface px-4 py-2 font-heading text-xs font-bold uppercase tracking-wide text-muted transition hover:border-lineStrong hover:text-white">{link.label}</Link>)}
+        {[{ href: "/stats", label: "All Stats" }, { href: "/groups", label: "Group Standings" }, { href: "/world-cup-third-place-qualification", label: "Third-Place Table" }, { href: "/qualified-eliminated-teams", label: "Qualified Teams" }].map((link) => <Link key={link.href} href={link.href} className="rounded-lg border border-line bg-surface px-4 py-2 font-heading text-xs font-bold uppercase tracking-wide text-muted transition hover:border-lineStrong hover:text-ink">{link.label}</Link>)}
       </div>
     </div>
   </>;

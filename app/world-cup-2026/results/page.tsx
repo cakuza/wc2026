@@ -93,14 +93,14 @@ export default async function WorldCup2026ResultsPage() {
       <BreadcrumbNav items={breadcrumbs} />
 
       <p className="mb-1 font-heading text-sm font-bold uppercase tracking-[0.3em] text-accent">2026 World Cup Archive</p>
-      <h1 className="mb-2 font-heading text-4xl font-extrabold uppercase tracking-wide text-white sm:text-5xl">Full Results</h1>
+      <h1 className="mb-2 font-heading text-4xl font-extrabold uppercase tracking-wide text-ink sm:text-5xl">Full Results</h1>
       <p className="mb-6 max-w-2xl text-sm leading-relaxed text-muted">
         {completedCount} of {MATCHES.length} matches completed · {stats.totalGoals} total goals · {stats.cleanSheets} clean sheets.{" "}
-        <Link href="/world-cup-2026" className="underline decoration-white/30 underline-offset-2 hover:text-white">Archive hub</Link>
+        <Link href="/world-cup-2026" className="underline decoration-white/30 underline-offset-2 hover:text-ink">Archive hub</Link>
         {" · "}
-        <Link href="/bracket" className="underline decoration-white/30 underline-offset-2 hover:text-white">Bracket</Link>
+        <Link href="/bracket" className="underline decoration-white/30 underline-offset-2 hover:text-ink">Bracket</Link>
         {" · "}
-        <Link href="/stats" className="underline decoration-white/30 underline-offset-2 hover:text-white">Statistics</Link>
+        <Link href="/stats" className="underline decoration-white/30 underline-offset-2 hover:text-ink">Statistics</Link>
       </p>
 
       <nav aria-label="Jump to stage" className="mb-8 flex flex-wrap gap-2">
@@ -108,7 +108,7 @@ export default async function WorldCup2026ResultsPage() {
           const has = rows.some((r) => stage.match(r.match));
           if (!has) return null;
           return (
-            <a key={stage.key} href={`#${stage.key}`} className="rounded-full border border-line bg-surface px-3 py-1 text-xs font-bold uppercase tracking-wide text-muted hover:border-lineStrong hover:text-white">
+            <a key={stage.key} href={`#${stage.key}`} className="rounded-full border border-line bg-surface px-3 py-1 text-xs font-bold uppercase tracking-wide text-muted hover:border-lineStrong hover:text-ink">
               {stage.label}
             </a>
           );
@@ -121,7 +121,7 @@ export default async function WorldCup2026ResultsPage() {
         const isMarquee = stage.key === "final" || stage.key === "third";
         return (
           <section key={stage.key} id={stage.key} className="mb-8 scroll-mt-20">
-            <h2 className="mb-3 font-heading text-lg font-bold uppercase tracking-wide text-white">{stage.label}</h2>
+            <h2 className="mb-3 font-heading text-lg font-bold uppercase tracking-wide text-ink">{stage.label}</h2>
             <div className="flex flex-col gap-1.5">
               {stageRows.map(({ match, pres, home, away }) => (
                 <Link
@@ -131,7 +131,7 @@ export default async function WorldCup2026ResultsPage() {
                     isMarquee ? "border-accent/30 bg-accent/5 hover:border-accent/50" : "border-line bg-surface hover:border-lineStrong"
                   }`}
                 >
-                  <span className="font-semibold text-white">
+                  <span className="font-semibold text-ink">
                     {home.label} {pres.state === "final" ? `${pres.homeScore}–${pres.awayScore}` : "vs"} {away.label}
                     {pres.state === "final" && pres.scoreDuration === "EXTRA_TIME" && " (after extra time)"}
                     {pres.state === "final" && pres.scoreDuration === "PENALTY_SHOOTOUT" && pres.penaltyHome !== null && pres.penaltyAway !== null && ` (after extra time, ${pres.penaltyHome}–${pres.penaltyAway} on penalties)`}
@@ -139,7 +139,7 @@ export default async function WorldCup2026ResultsPage() {
                   <span className="flex items-center gap-2 text-xs text-faint">
                     <span>{match.venue}</span>
                     <span>{match.date}</span>
-                    <span className={`rounded px-1.5 py-0.5 font-bold uppercase ${pres.state === "final" ? "bg-white/10 text-muted" : "bg-white/5 text-faint"}`}>
+                    <span className={`rounded px-1.5 py-0.5 font-bold uppercase ${pres.state === "final" ? "bg-surface-subtle text-muted" : "bg-surface-raised text-faint"}`}>
                       {pres.state === "final" ? "FT" : "Scheduled"}
                     </span>
                   </span>
@@ -152,13 +152,13 @@ export default async function WorldCup2026ResultsPage() {
 
       {resolvedDates.length > 0 && (
         <section className="mb-8">
-          <h2 className="mb-3 font-heading text-lg font-bold uppercase tracking-wide text-white">Browse by Date</h2>
+          <h2 className="mb-3 font-heading text-lg font-bold uppercase tracking-wide text-ink">Browse by Date</h2>
           <div className="flex flex-wrap gap-2">
             {resolvedDates.map((date) => (
               <Link
                 key={date}
                 href={`/world-cup-2026/results/${date}`}
-                className="rounded-lg border border-line bg-surface px-3 py-1.5 text-xs font-bold uppercase tracking-wide text-muted transition hover:border-lineStrong hover:text-white"
+                className="rounded-lg border border-line bg-surface px-3 py-1.5 text-xs font-bold uppercase tracking-wide text-muted transition hover:border-lineStrong hover:text-ink"
               >
                 {formatDateShort(date)}
               </Link>

@@ -28,7 +28,7 @@ export function StatsNav() {
               className={`shrink-0 rounded-full px-4 py-2 font-heading text-xs font-bold uppercase tracking-widest transition ${
                 isActive
                   ? "bg-accent text-navy"
-                  : "bg-white/5 text-muted hover:bg-white/10 hover:text-white"
+                  : "bg-surface-subtle text-muted hover:bg-hover hover:text-ink"
               }`}
             >
               {tab.name}

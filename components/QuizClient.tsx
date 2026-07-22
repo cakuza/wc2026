@@ -78,9 +78,9 @@ export function QuizClient() {
     return (
       <div className="mx-auto max-w-xl rounded-2xl border border-line bg-surface p-8 text-center">
         <div className="text-6xl">{tier.emoji}</div>
-        <h2 className="mt-4 font-heading text-4xl font-extrabold uppercase tracking-tight text-white sm:text-5xl">{tier.title}</h2>
+        <h2 className="mt-4 font-heading text-4xl font-extrabold uppercase tracking-tight text-ink sm:text-5xl">{tier.title}</h2>
         <p className="mt-2 text-base text-muted">{tier.sub}</p>
-        <p className="mt-6 font-heading text-2xl font-extrabold text-white">
+        <p className="mt-6 font-heading text-2xl font-extrabold text-ink">
           <span className="text-sm font-bold uppercase tracking-[0.2em] text-accent">{t("q_yourScore")}</span>
           <br />
           {score}
@@ -108,23 +108,23 @@ export function QuizClient() {
           {t("lbl_pts")}: {score}
         </span>
       </div>
-      <div className="mb-6 h-1.5 w-full overflow-hidden rounded-full bg-white/10">
+      <div className="mb-6 h-1.5 w-full overflow-hidden rounded-full bg-line">
         <div className="h-full rounded-full bg-accent transition-all" style={{ width: `${((index + (selected !== null ? 1 : 0)) / total) * 100}%` }} />
       </div>
 
       {/* Question */}
       <div className="rounded-2xl border border-line bg-surface p-6">
-        <h2 className="font-heading text-2xl font-extrabold leading-tight text-white">{question.question}</h2>
+        <h2 className="font-heading text-2xl font-extrabold leading-tight text-ink">{question.question}</h2>
 
         <div className="mt-5 grid gap-3">
           {question.options.map((opt, i) => {
             const answered = selected !== null;
             const isCorrect = opt === question.correct;
             const isPicked = i === selected;
-            let cls = "border-line bg-canvas text-white hover:border-accent/60";
+            let cls = "border-line bg-canvas text-ink hover:border-accent/60";
             if (answered) {
-              if (isCorrect) cls = "border-green-500 bg-green-500/15 text-white";
-              else if (isPicked) cls = "border-red-500 bg-red-500/15 text-white";
+              if (isCorrect) cls = "border-green-500 bg-green-500/15 text-ink";
+              else if (isPicked) cls = "border-red-500 bg-red-500/15 text-ink";
               else cls = "border-line bg-canvas text-faint";
             }
             return (

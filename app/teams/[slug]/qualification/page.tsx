@@ -160,7 +160,7 @@ export default async function TeamQualificationPage({
             <p className="font-heading text-sm font-bold uppercase tracking-[0.3em] text-accent">
               World Cup 2026
             </p>
-            <h1 className="font-heading text-3xl font-extrabold uppercase tracking-wide text-white sm:text-4xl">
+            <h1 className="font-heading text-3xl font-extrabold uppercase tracking-wide text-ink sm:text-4xl">
               {name} Qualification
             </h1>
           </div>
@@ -183,7 +183,7 @@ export default async function TeamQualificationPage({
 
         {/* Current standing */}
         <section className="mb-6">
-          <h2 className="mb-2 font-heading text-lg font-extrabold uppercase tracking-wide text-white">
+          <h2 className="mb-2 font-heading text-lg font-extrabold uppercase tracking-wide text-ink">
             Group {group} Standings
           </h2>
           {standingsRows.length > 0 ? (
@@ -199,7 +199,7 @@ export default async function TeamQualificationPage({
         {/* Remaining fixtures */}
         {remainingMatches.length > 0 && (
           <section className="mb-6">
-            <h2 className="mb-2 font-heading text-lg font-extrabold uppercase tracking-wide text-white">
+            <h2 className="mb-2 font-heading text-lg font-extrabold uppercase tracking-wide text-ink">
               Remaining Fixtures
             </h2>
             <div className="space-y-2">
@@ -216,7 +216,7 @@ export default async function TeamQualificationPage({
                   >
                     <div className="flex items-center gap-2">
                       <Flag code={isHome ? team.code : opponentCode} width={28} height={20} />
-                      <span className="text-sm font-bold text-white">
+                      <span className="text-sm font-bold text-ink">
                         {isHome ? name : opponentName}
                       </span>
                     </div>
@@ -224,7 +224,7 @@ export default async function TeamQualificationPage({
                       vs
                     </span>
                     <div className="flex items-center gap-2">
-                      <span className="text-sm font-bold text-white">
+                      <span className="text-sm font-bold text-ink">
                         {isHome ? opponentName : name}
                       </span>
                       <Flag code={isHome ? opponentCode : team.code} width={28} height={20} />
@@ -239,7 +239,7 @@ export default async function TeamQualificationPage({
         {/* Completed results */}
         {completedMatches.length > 0 && (
           <section className="mb-6">
-            <h2 className="mb-2 font-heading text-lg font-extrabold uppercase tracking-wide text-white">
+            <h2 className="mb-2 font-heading text-lg font-extrabold uppercase tracking-wide text-ink">
               Results
             </h2>
             <div className="space-y-2">
@@ -255,13 +255,13 @@ export default async function TeamQualificationPage({
                   >
                     <div className="flex items-center gap-2 min-w-0">
                       <Flag code={m.homeCode} width={26} height={18} />
-                      <span className="truncate text-sm font-bold text-white">{homeName}</span>
+                      <span className="truncate text-sm font-bold text-ink">{homeName}</span>
                     </div>
-                    <span className="mx-3 font-heading text-base font-extrabold text-white shrink-0">
+                    <span className="mx-3 font-heading text-base font-extrabold text-ink shrink-0">
                       {snap?.homeScore ?? "–"} – {snap?.awayScore ?? "–"}
                     </span>
                     <div className="flex items-center gap-2 min-w-0 justify-end">
-                      <span className="truncate text-sm font-bold text-white">{awayName}</span>
+                      <span className="truncate text-sm font-bold text-ink">{awayName}</span>
                       <Flag code={m.awayCode} width={26} height={18} />
                     </div>
                   </Link>
@@ -273,7 +273,7 @@ export default async function TeamQualificationPage({
 
         {/* Qualification routes */}
         <section className="mb-6 rounded-xl border border-line bg-surface px-4 py-4">
-          <h2 className="mb-3 font-heading text-sm font-extrabold uppercase tracking-wide text-white">
+          <h2 className="mb-3 font-heading text-sm font-extrabold uppercase tracking-wide text-ink">
             Routes to the Round of 32
           </h2>
           <ul className="space-y-2 text-xs leading-relaxed text-muted">
@@ -310,7 +310,7 @@ export default async function TeamQualificationPage({
             <Link
               key={l.href}
               href={l.href}
-              className="rounded-lg border border-line bg-surface px-4 py-2 font-heading text-xs font-bold uppercase tracking-wide text-muted transition hover:border-lineStrong hover:text-white"
+              className="rounded-lg border border-line bg-surface px-4 py-2 font-heading text-xs font-bold uppercase tracking-wide text-muted transition hover:border-lineStrong hover:text-ink"
             >
               {l.label}
             </Link>

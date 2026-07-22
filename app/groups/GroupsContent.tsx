@@ -47,7 +47,7 @@ export function GroupsContent({ standings }: GroupsContentProps) {
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-8">
-      <h1 className="mb-2 font-heading text-4xl font-extrabold uppercase tracking-wide text-white">Final Group Standings</h1>
+      <h1 className="mb-2 font-heading text-4xl font-extrabold uppercase tracking-wide text-ink">Final Group Standings</h1>
       <p className="mb-6 max-w-3xl text-sm text-faint">The group stage is complete. Final positions and the tournament outcomes for all 48 teams are preserved here.</p>
 
       <div className="grid gap-5 lg:grid-cols-2">
@@ -62,7 +62,7 @@ export function GroupsContent({ standings }: GroupsContentProps) {
             >
               {/* Group header */}
               <div className="flex items-center justify-between border-b-2 border-accent bg-canvas px-4 py-3">
-                <span className="font-heading text-xl font-extrabold uppercase text-white">
+                <span className="font-heading text-xl font-extrabold uppercase text-ink">
                   {t("lbl_group")} {g}
                 </span>
                 <Link
@@ -103,7 +103,7 @@ export function GroupsContent({ standings }: GroupsContentProps) {
 
       {/* Standings sync note */}
       <section className="mt-6 rounded-xl border border-line bg-surface p-4 text-sm text-muted">
-        <h2 className="font-heading text-sm font-extrabold uppercase tracking-wide text-white">How qualification worked</h2>
+        <h2 className="font-heading text-sm font-extrabold uppercase tracking-wide text-ink">How qualification worked</h2>
         <p className="mt-2">The top two teams in each group advanced automatically, with the eight best third-placed teams completing the Round of 32 field. The table above is now historical rather than a live qualification projection.</p>
       </section>
 
@@ -117,7 +117,7 @@ export function GroupsContent({ standings }: GroupsContentProps) {
           <Link
             key={l.href}
             href={l.href}
-            className="rounded-lg border border-line bg-surface px-4 py-2 font-heading text-xs font-bold uppercase tracking-wide text-muted transition hover:border-lineStrong hover:text-white"
+            className="rounded-lg border border-line bg-surface px-4 py-2 font-heading text-xs font-bold uppercase tracking-wide text-muted transition hover:border-lineStrong hover:text-ink"
           >
             {l.label}
           </Link>

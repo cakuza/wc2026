@@ -86,7 +86,7 @@ const articleLd = articleSchema({
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <section className="mt-8">
-      <h2 className="mb-3 font-heading text-xl font-extrabold uppercase tracking-wide text-white">
+      <h2 className="mb-3 font-heading text-xl font-extrabold uppercase tracking-wide text-ink">
         {title}
       </h2>
       <div className="space-y-3 text-sm leading-relaxed text-muted">{children}</div>
@@ -97,7 +97,7 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 function InfoCard({ label, value }: { label: string; value: string }) {
   return (
     <div className="rounded-xl border border-line bg-surface px-4 py-3">
-      <div className="font-heading text-lg font-extrabold text-white">{value}</div>
+      <div className="font-heading text-lg font-extrabold text-ink">{value}</div>
       <div className="font-heading text-[10px] font-bold uppercase tracking-widest text-faint">{label}</div>
     </div>
   );
@@ -115,7 +115,7 @@ export default function FormatExplainedPage() {
         <p className="mb-2 font-heading text-sm font-bold uppercase tracking-[0.3em] text-accent">
           FIFA World Cup 2026
         </p>
-        <h1 className="mb-3 font-heading text-4xl font-extrabold uppercase tracking-wide text-white">
+        <h1 className="mb-3 font-heading text-4xl font-extrabold uppercase tracking-wide text-ink">
           World Cup 2026 Format Explained
         </h1>
         <p className="mb-8 max-w-2xl text-sm text-muted">
@@ -227,7 +227,7 @@ export default function FormatExplainedPage() {
             <Link
               key={l.href}
               href={l.href}
-              className="rounded-lg border border-line bg-surface px-4 py-2 font-heading text-xs font-bold uppercase tracking-wide text-muted transition hover:border-lineStrong hover:text-white"
+              className="rounded-lg border border-line bg-surface px-4 py-2 font-heading text-xs font-bold uppercase tracking-wide text-muted transition hover:border-lineStrong hover:text-ink"
             >
               {l.label}
             </Link>
@@ -236,11 +236,11 @@ export default function FormatExplainedPage() {
 
         {/* FAQ */}
         <section className="mt-10">
-          <h2 className="mb-3 font-heading text-2xl font-extrabold uppercase tracking-wide text-white">FAQ</h2>
+          <h2 className="mb-3 font-heading text-2xl font-extrabold uppercase tracking-wide text-ink">FAQ</h2>
           <div className="space-y-3">
             {FAQS.map((f) => (
               <div key={f.q} className="rounded-xl border border-line bg-surface p-4">
-                <h3 className="font-heading text-sm font-extrabold uppercase tracking-wide text-white sm:text-base">
+                <h3 className="font-heading text-sm font-extrabold uppercase tracking-wide text-ink sm:text-base">
                   {f.q}
                 </h3>
                 <p className="mt-2 text-sm leading-relaxed text-muted">{f.a}</p>

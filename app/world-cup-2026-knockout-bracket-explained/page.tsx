@@ -136,7 +136,7 @@ export default function KnockoutBracketExplainedPage() {
         <p className="mb-2 font-heading text-sm font-bold uppercase tracking-[0.3em] text-accent">
           FIFA World Cup 2026
         </p>
-        <h1 className="mb-3 font-heading text-4xl font-extrabold uppercase tracking-wide text-white">
+        <h1 className="mb-3 font-heading text-4xl font-extrabold uppercase tracking-wide text-ink">
           Knockout Bracket Explained
         </h1>
         <p className="mb-8 max-w-2xl text-sm text-muted">
@@ -156,7 +156,7 @@ export default function KnockoutBracketExplainedPage() {
             { k: "Final venue", v: "New York New Jersey Stadium" },
           ].map((f) => (
             <div key={f.k} className="rounded-xl border border-line bg-surface px-4 py-3">
-              <div className="font-heading text-base font-extrabold text-white">{f.v}</div>
+              <div className="font-heading text-base font-extrabold text-ink">{f.v}</div>
               <div className="font-heading text-[10px] font-bold uppercase tracking-widest text-faint">{f.k}</div>
             </div>
           ))}
@@ -164,7 +164,7 @@ export default function KnockoutBracketExplainedPage() {
 
         {/* How 32 teams qualify */}
         <section className="mb-8">
-          <h2 className="mb-3 font-heading text-xl font-extrabold uppercase tracking-wide text-white">
+          <h2 className="mb-3 font-heading text-xl font-extrabold uppercase tracking-wide text-ink">
             How 32 Teams Qualify for the Knockout Stage
           </h2>
           <div className="space-y-3 text-sm leading-relaxed text-muted">
@@ -183,14 +183,14 @@ export default function KnockoutBracketExplainedPage() {
         </section>
 
         {/* Rounds */}
-        <h2 className="mb-4 font-heading text-xl font-extrabold uppercase tracking-wide text-white">
+        <h2 className="mb-4 font-heading text-xl font-extrabold uppercase tracking-wide text-ink">
           Knockout Rounds
         </h2>
         <div className="space-y-3">
           {ROUNDS.map((r) => (
             <div key={r.round} className="rounded-xl border border-line bg-surface p-4">
               <div className="mb-1 flex flex-wrap items-baseline gap-x-3 gap-y-1">
-                <h3 className="font-heading text-base font-extrabold uppercase tracking-wide text-white">
+                <h3 className="font-heading text-base font-extrabold uppercase tracking-wide text-ink">
                   {r.round}
                 </h3>
                 <span className="font-heading text-xs font-bold text-accent">{r.matches}</span>
@@ -203,7 +203,7 @@ export default function KnockoutBracketExplainedPage() {
 
         {/* Extra time and penalties */}
         <section className="mt-8">
-          <h2 className="mb-3 font-heading text-xl font-extrabold uppercase tracking-wide text-white">
+          <h2 className="mb-3 font-heading text-xl font-extrabold uppercase tracking-wide text-ink">
             Extra Time and Penalty Shootouts
           </h2>
           <div className="space-y-3 text-sm leading-relaxed text-muted">
@@ -226,7 +226,7 @@ export default function KnockoutBracketExplainedPage() {
 
         {/* When bracket is confirmed */}
         <section className="mt-8 rounded-xl border border-line bg-surface px-4 py-4">
-          <h2 className="mb-2 font-heading text-base font-extrabold uppercase tracking-wide text-white">
+          <h2 className="mb-2 font-heading text-base font-extrabold uppercase tracking-wide text-ink">
             When Are Knockout Fixtures Confirmed?
           </h2>
           <p className="text-sm leading-relaxed text-muted">
@@ -253,7 +253,7 @@ export default function KnockoutBracketExplainedPage() {
             <Link
               key={l.href}
               href={l.href}
-              className="rounded-lg border border-line bg-surface px-4 py-2 font-heading text-xs font-bold uppercase tracking-wide text-muted transition hover:border-lineStrong hover:text-white"
+              className="rounded-lg border border-line bg-surface px-4 py-2 font-heading text-xs font-bold uppercase tracking-wide text-muted transition hover:border-lineStrong hover:text-ink"
             >
               {l.label}
             </Link>
@@ -262,11 +262,11 @@ export default function KnockoutBracketExplainedPage() {
 
         {/* FAQ */}
         <section className="mt-10">
-          <h2 className="mb-3 font-heading text-2xl font-extrabold uppercase tracking-wide text-white">FAQ</h2>
+          <h2 className="mb-3 font-heading text-2xl font-extrabold uppercase tracking-wide text-ink">FAQ</h2>
           <div className="space-y-3">
             {FAQS.map((f) => (
               <div key={f.q} className="rounded-xl border border-line bg-surface p-4">
-                <h3 className="font-heading text-sm font-extrabold uppercase tracking-wide text-white sm:text-base">
+                <h3 className="font-heading text-sm font-extrabold uppercase tracking-wide text-ink sm:text-base">
                   {f.q}
                 </h3>
                 <p className="mt-2 text-sm leading-relaxed text-muted">{f.a}</p>

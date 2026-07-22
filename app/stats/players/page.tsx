@@ -51,7 +51,7 @@ export default async function PlayersStatsPage() {
         <p className="font-heading text-sm font-bold uppercase tracking-[0.3em] text-accent">
           World Cup 2026
         </p>
-        <h1 className="mt-1 font-heading text-3xl font-extrabold uppercase tracking-tight text-white sm:text-4xl">
+        <h1 className="mt-1 font-heading text-3xl font-extrabold uppercase tracking-tight text-ink sm:text-4xl">
           Player Stats
         </h1>
         <p className="mt-2 max-w-3xl text-sm text-faint">
@@ -78,7 +78,7 @@ export default async function PlayersStatsPage() {
                   {list.title}
                 </p>
                 {list.link && (
-                  <Link href={list.link} className="font-heading text-[10px] font-bold uppercase tracking-widest text-accent hover:text-white transition">
+                  <Link href={list.link} className="font-heading text-[10px] font-bold uppercase tracking-widest text-accent hover:text-ink transition">
                     View Full →
                   </Link>
                 )}
@@ -94,13 +94,13 @@ export default async function PlayersStatsPage() {
                         <div className="flex-1 min-w-0 flex flex-col">
                           <div className="flex items-center gap-2">
                             {teamCode && <Flag code={teamCode} width={18} height={13} className="shrink-0" alt="" />}
-                            <p className="truncate font-semibold text-white text-sm">{stat.playerName}</p>
+                            <p className="truncate font-semibold text-ink text-sm">{stat.playerName}</p>
                           </div>
                           {stat.teamName && (
                             <p className="text-xs text-faint mt-0.5">{teamKey ? countryName(teamKey, "en") : stat.teamName}</p>
                           )}
                         </div>
-                        <span className="font-heading text-base font-extrabold tabular-nums text-white">
+                        <span className="font-heading text-base font-extrabold tabular-nums text-ink">
                           {stat.value}
                         </span>
                       </li>

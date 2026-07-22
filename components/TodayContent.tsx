@@ -60,7 +60,7 @@ export function TodayContent({
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-8">
-      <h1 className="mb-2 font-heading text-4xl font-extrabold uppercase tracking-wide text-white">
+      <h1 className="mb-2 font-heading text-4xl font-extrabold uppercase tracking-wide text-ink">
         {showArchiveComplete
           ? "The 2026 World Cup Is Complete"
           : resolved.isExplicitDate
@@ -83,13 +83,13 @@ export function TodayContent({
           </Link>
           <Link
             href={`/matches/${matchSlug(archiveState.finalResult.match)}`}
-            className="rounded-lg border border-line bg-surface px-4 py-2 font-heading text-xs font-bold uppercase tracking-wide text-muted transition hover:border-lineStrong hover:text-white"
+            className="rounded-lg border border-line bg-surface px-4 py-2 font-heading text-xs font-bold uppercase tracking-wide text-muted transition hover:border-lineStrong hover:text-ink"
           >
             Final Match Report
           </Link>
           <Link
             href="/world-cup-2026/results"
-            className="rounded-lg border border-line bg-surface px-4 py-2 font-heading text-xs font-bold uppercase tracking-wide text-muted transition hover:border-lineStrong hover:text-white"
+            className="rounded-lg border border-line bg-surface px-4 py-2 font-heading text-xs font-bold uppercase tracking-wide text-muted transition hover:border-lineStrong hover:text-ink"
           >
             Full Results
           </Link>
@@ -129,12 +129,12 @@ export function TodayContent({
         <div className="mb-5 rounded-xl border border-line bg-surface px-4 py-3 text-sm text-muted">
           {isClientDateResolved ? (
             <>
-              <span className="font-semibold text-white">No World Cup match is being played today.</span>{" "}
+              <span className="font-semibold text-ink">No World Cup match is being played today.</span>{" "}
               Final Weekend fixtures and kickoff times are shown next in your selected timezone.
             </>
           ) : (
             <>
-              <span className="font-semibold text-white">Preparing the Match Center for your local timezone.</span>
+              <span className="font-semibold text-ink">Preparing the Match Center for your local timezone.</span>
             </>
           )}
         </div>
@@ -145,7 +145,7 @@ export function TodayContent({
           href={`/today?date=${previousMatchday}&tz=${encodeURIComponent(selectedTimeZone)}`}
           className="mb-6 flex items-center justify-between gap-3 rounded-xl border border-accent/30 bg-accent/10 px-4 py-3 text-sm transition hover:border-accent/50 hover:bg-accent/15"
         >
-          <span className="font-semibold text-white">
+          <span className="font-semibold text-ink">
             Just after midnight — view the previous matchday&apos;s completed matches.
           </span>
           <span className="shrink-0 font-heading text-xs font-bold uppercase tracking-wide text-accent">
@@ -165,19 +165,19 @@ export function TodayContent({
 
       {/* Quick links */}
       <div className="mt-8 flex flex-wrap gap-3 text-sm">
-        <Link href="/schedule" className="rounded-lg border border-line bg-surface px-4 py-2 font-heading text-xs font-bold uppercase tracking-wide text-muted transition hover:border-lineStrong hover:text-white">
+        <Link href="/schedule" className="rounded-lg border border-line bg-surface px-4 py-2 font-heading text-xs font-bold uppercase tracking-wide text-muted transition hover:border-lineStrong hover:text-ink">
           Full Schedule
         </Link>
-        <Link href="/groups" className="rounded-lg border border-line bg-surface px-4 py-2 font-heading text-xs font-bold uppercase tracking-wide text-muted transition hover:border-lineStrong hover:text-white">
+        <Link href="/groups" className="rounded-lg border border-line bg-surface px-4 py-2 font-heading text-xs font-bold uppercase tracking-wide text-muted transition hover:border-lineStrong hover:text-ink">
           Groups
         </Link>
-        <Link href="/stats" className="rounded-lg border border-line bg-surface px-4 py-2 font-heading text-xs font-bold uppercase tracking-wide text-muted transition hover:border-lineStrong hover:text-white">
+        <Link href="/stats" className="rounded-lg border border-line bg-surface px-4 py-2 font-heading text-xs font-bold uppercase tracking-wide text-muted transition hover:border-lineStrong hover:text-ink">
           Stats
         </Link>
-        <Link href="/world-cup-third-place-qualification" className="rounded-lg border border-line bg-surface px-4 py-2 font-heading text-xs font-bold uppercase tracking-wide text-muted transition hover:border-lineStrong hover:text-white">
+        <Link href="/world-cup-third-place-qualification" className="rounded-lg border border-line bg-surface px-4 py-2 font-heading text-xs font-bold uppercase tracking-wide text-muted transition hover:border-lineStrong hover:text-ink">
           Third-Place Ranking
         </Link>
-        <Link href="/world-cup-schedule-local-time" className="rounded-lg border border-line bg-surface px-4 py-2 font-heading text-xs font-bold uppercase tracking-wide text-muted transition hover:border-lineStrong hover:text-white">
+        <Link href="/world-cup-schedule-local-time" className="rounded-lg border border-line bg-surface px-4 py-2 font-heading text-xs font-bold uppercase tracking-wide text-muted transition hover:border-lineStrong hover:text-ink">
           Schedule by Time Zone
         </Link>
       </div>

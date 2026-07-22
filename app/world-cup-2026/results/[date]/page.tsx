@@ -101,7 +101,7 @@ export default async function ResultsByDatePage({ params }: { params: Promise<{ 
       <BreadcrumbNav items={breadcrumbs} />
 
       <p className="mb-1 font-heading text-sm font-bold uppercase tracking-[0.3em] text-accent">2026 World Cup Results</p>
-      <h1 className="mb-4 font-heading text-3xl font-extrabold uppercase tracking-wide text-white sm:text-4xl">{long}</h1>
+      <h1 className="mb-4 font-heading text-3xl font-extrabold uppercase tracking-wide text-ink sm:text-4xl">{long}</h1>
 
       <p className="mb-6 max-w-2xl text-sm leading-relaxed text-muted">
         {todaysMatches.length > 0
@@ -113,7 +113,7 @@ export default async function ResultsByDatePage({ params }: { params: Promise<{ 
 
       {todaysMatches.length > 0 && (
         <section className="mb-8">
-          <h2 className="mb-3 font-heading text-lg font-bold uppercase tracking-wide text-white">Matches on {long}</h2>
+          <h2 className="mb-3 font-heading text-lg font-bold uppercase tracking-wide text-ink">Matches on {long}</h2>
           <div className="flex flex-col gap-1.5">
             {todaysMatches.map(({ match, pres, home, away }) => (
               <Link
@@ -121,7 +121,7 @@ export default async function ResultsByDatePage({ params }: { params: Promise<{ 
                 href={`/matches/${matchSlug(match)}`}
                 className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-line bg-surface px-3 py-2 text-sm transition hover:border-lineStrong"
               >
-                <span className="font-semibold text-white">
+                <span className="font-semibold text-ink">
                   {home.label} {pres.state === "final" ? `${pres.homeScore}–${pres.awayScore}` : "vs"} {away.label}
                   {pres.state === "final" && pres.scoreDuration === "EXTRA_TIME" && " (after extra time)"}
                   {pres.state === "final" && pres.scoreDuration === "PENALTY_SHOOTOUT" && pres.penaltyHome !== null && pres.penaltyAway !== null && ` (after extra time, ${pres.penaltyHome}–${pres.penaltyAway} on penalties)`}
@@ -140,7 +140,7 @@ export default async function ResultsByDatePage({ params }: { params: Promise<{ 
           { label: "Clean sheets", value: cumulativeStats.cleanSheets },
         ].map((tile) => (
           <div key={tile.label} className="rounded-lg border border-line bg-canvas px-4 py-3 text-center">
-            <p className="font-heading text-2xl font-extrabold text-white">{tile.value}</p>
+            <p className="font-heading text-2xl font-extrabold text-ink">{tile.value}</p>
             <p className="mt-1 text-[11px] uppercase tracking-widest text-faint">{tile.label} as of {long}</p>
           </div>
         ))}
@@ -148,12 +148,12 @@ export default async function ResultsByDatePage({ params }: { params: Promise<{ 
 
       {cumulativeScorers.length > 0 && (
         <section className="mb-8">
-          <h2 className="mb-3 font-heading text-lg font-bold uppercase tracking-wide text-white">Top scorers as of {long}</h2>
+          <h2 className="mb-3 font-heading text-lg font-bold uppercase tracking-wide text-ink">Top scorers as of {long}</h2>
           <ol className="flex flex-col gap-1 text-sm text-muted">
             {cumulativeScorers.map((s, i) => (
               <li key={s.playerName + s.teamKey} className="flex justify-between rounded border border-line bg-canvas/60 px-3 py-1.5">
                 <span>{i + 1}. {s.playerName}{s.teamName ? ` (${s.teamName})` : ""}</span>
-                <span className="font-bold text-white">{s.goals} goal{s.goals !== 1 ? "s" : ""}</span>
+                <span className="font-bold text-ink">{s.goals} goal{s.goals !== 1 ? "s" : ""}</span>
               </li>
             ))}
           </ol>
@@ -162,13 +162,13 @@ export default async function ResultsByDatePage({ params }: { params: Promise<{ 
 
       <nav aria-label="Adjacent tournament dates" className="flex items-center justify-between border-t border-line pt-4 text-sm">
         {prevDate ? (
-          <Link href={`/world-cup-2026/results/${prevDate}`} className="text-muted underline decoration-white/30 underline-offset-2 hover:text-white">
+          <Link href={`/world-cup-2026/results/${prevDate}`} className="text-muted underline decoration-white/30 underline-offset-2 hover:text-ink">
             ← {formatDateLong(prevDate)}
           </Link>
         ) : <span />}
         <Link href="/world-cup-2026/results" className="text-faint hover:text-muted">All results</Link>
         {nextDate ? (
-          <Link href={`/world-cup-2026/results/${nextDate}`} className="text-muted underline decoration-white/30 underline-offset-2 hover:text-white">
+          <Link href={`/world-cup-2026/results/${nextDate}`} className="text-muted underline decoration-white/30 underline-offset-2 hover:text-ink">
             {formatDateLong(nextDate)} →
           </Link>
         ) : <span />}

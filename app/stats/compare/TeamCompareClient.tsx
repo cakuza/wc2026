@@ -46,14 +46,14 @@ export function comparisonColors({
     || right.coverageStatus !== "COMPLETE"
     || left.value === right.value
   ) {
-    return { left: "text-white", right: "text-white" };
+    return { left: "text-ink", right: "text-ink" };
   }
 
   const reverse = label === "Goals Conceded" || label === "Fouls";
   if (left.value > right.value) {
-    return { left: reverse ? "text-red-400" : "text-accent", right: "text-white" };
+    return { left: reverse ? "text-red-400" : "text-accent", right: "text-ink" };
   }
-  return { left: "text-white", right: reverse ? "text-red-400" : "text-accent" };
+  return { left: "text-ink", right: reverse ? "text-red-400" : "text-accent" };
 }
 
 export function comparisonCoverageLabel(row: TeamLeaderboard | undefined): string | null {
@@ -92,7 +92,7 @@ export function TeamCompareShell({
         <div>
           <label className="block text-xs font-bold uppercase tracking-widest text-faint mb-2">Team 1</label>
           <select
-            className="w-full rounded-lg bg-surface border border-line px-4 py-3 text-white focus:border-accent outline-none"
+            className="w-full rounded-lg bg-surface border border-line px-4 py-3 text-ink focus:border-accent outline-none"
             value={t1}
             onChange={(e) => onSelect(1, e.target.value)}
           >
@@ -105,7 +105,7 @@ export function TeamCompareShell({
         <div>
           <label className="block text-xs font-bold uppercase tracking-widest text-faint mb-2">Team 2</label>
           <select
-            className="w-full rounded-lg bg-surface border border-line px-4 py-3 text-white focus:border-accent outline-none"
+            className="w-full rounded-lg bg-surface border border-line px-4 py-3 text-ink focus:border-accent outline-none"
             value={t2}
             onChange={(e) => onSelect(2, e.target.value)}
           >
@@ -120,9 +120,9 @@ export function TeamCompareShell({
       {t1 && t2 ? (
         <div className="rounded-xl border border-line bg-surface overflow-hidden">
           <div className="grid grid-cols-3 border-b border-line bg-canvas/50 px-4 py-3 text-center items-center">
-            <p className="font-heading text-sm font-bold text-white truncate px-2">{countryName(t1, "en") || t1}</p>
+            <p className="font-heading text-sm font-bold text-ink truncate px-2">{countryName(t1, "en") || t1}</p>
             <p className="font-heading text-[10px] font-extrabold uppercase tracking-widest text-faint">VS</p>
-            <p className="font-heading text-sm font-bold text-white truncate px-2">{countryName(t2, "en") || t2}</p>
+            <p className="font-heading text-sm font-bold text-ink truncate px-2">{countryName(t2, "en") || t2}</p>
           </div>
           <ul className="divide-y divide-line">
             {metrics.map((m) => {
@@ -140,7 +140,7 @@ export function TeamCompareShell({
               const isPartial2 = r2?.coverageStatus === "PARTIAL";
 
               return (
-                <li key={m.label} className="flex flex-col px-4 py-4 hover:bg-white/5">
+                <li key={m.label} className="flex flex-col px-4 py-4 hover:bg-hover">
                   <div className="grid grid-cols-3 text-center items-center">
                     <span className={`font-heading text-base font-extrabold ${colors.left}`}>
                       {val1}

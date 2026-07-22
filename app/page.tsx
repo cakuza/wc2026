@@ -74,7 +74,7 @@ export default async function HomePage() {
       <Hero initialMatchday={initialMatchday} snapshot={snapshot} resolvedParticipants={resolvedParticipants} tournamentPhase={tournamentPhase} countdownTarget={countdownTarget} archiveState={archiveState} />
       {archiveState.isComplete ? (
         <div className="mx-auto max-w-7xl px-4 py-8">
-          <h2 className="mb-3 font-heading text-lg font-bold uppercase tracking-wide text-white">Explore the 2026 World Cup Vault</h2>
+          <h2 className="mb-3 font-heading text-lg font-bold uppercase tracking-wide text-ink">Explore the 2026 World Cup Vault</h2>
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
             {[
               { href: "/world-cup-2026/results", label: "Full Results" },
@@ -85,7 +85,7 @@ export default async function HomePage() {
               { href: "/groups", label: "Groups" },
               { href: "/schedule", label: "Schedule" },
             ].map((link) => (
-              <Link key={link.href} href={link.href} className="rounded-lg border border-line bg-surface px-4 py-3 text-center font-heading text-xs font-bold uppercase tracking-wide text-muted transition hover:border-lineStrong hover:text-white">{link.label}</Link>
+              <Link key={link.href} href={link.href} className="rounded-lg border border-line bg-surface px-4 py-3 text-center font-heading text-xs font-bold uppercase tracking-wide text-muted transition hover:border-lineStrong hover:text-ink">{link.label}</Link>
             ))}
           </div>
         </div>

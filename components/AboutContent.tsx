@@ -11,7 +11,7 @@ export function AboutContent() {
       <p className="mb-2 font-heading text-sm font-bold uppercase tracking-[0.3em] text-accent">
         {t("about_tagline")}
       </p>
-      <h1 className="mb-6 font-heading text-3xl font-extrabold uppercase tracking-tight text-white sm:text-4xl">
+      <h1 className="mb-6 font-heading text-3xl font-extrabold uppercase tracking-tight text-ink sm:text-4xl">
         {t("about_title")}
       </h1>
 
@@ -23,7 +23,7 @@ export function AboutContent() {
           {t("about_p4")}{" "}
           <a
             href="mailto:worldcupmatchday@proton.me"
-            className="font-semibold text-accent underline underline-offset-2 hover:text-white"
+            className="font-semibold text-accent underline underline-offset-2 hover:text-ink"
           >
             worldcupmatchday@proton.me
           </a>

@@ -52,7 +52,7 @@ export default function TermsPage() {
       <p className="mb-2 font-heading text-sm font-bold tracking-[0.3em] text-accent">
         LEGAL
       </p>
-      <h1 className="mb-2 font-heading text-3xl font-extrabold tracking-tight text-white sm:text-4xl">
+      <h1 className="mb-2 font-heading text-3xl font-extrabold tracking-tight text-ink sm:text-4xl">
         TERMS OF USE
       </h1>
       <p className="mb-8 font-heading text-xs font-bold tracking-widest text-faint">
@@ -62,7 +62,7 @@ export default function TermsPage() {
       <div className="space-y-7">
         {SECTIONS.map((s) => (
           <section key={s.heading}>
-            <h2 className="mb-2 font-heading text-sm font-extrabold tracking-widest text-white">
+            <h2 className="mb-2 font-heading text-sm font-extrabold tracking-widest text-ink">
               {s.heading}
             </h2>
             <p className="text-sm leading-relaxed text-muted">{s.body}</p>

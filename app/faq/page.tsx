@@ -125,7 +125,7 @@ export default function FaqPage() {
         <p className="mb-2 font-heading text-sm font-bold uppercase tracking-[0.3em] text-accent">
           FIFA World Cup 2026
         </p>
-        <h1 className="mb-8 font-heading text-3xl font-extrabold uppercase tracking-tight text-white sm:text-4xl">
+        <h1 className="mb-8 font-heading text-3xl font-extrabold uppercase tracking-tight text-ink sm:text-4xl">
           Frequently Asked Questions
         </h1>
 
@@ -135,7 +135,7 @@ export default function FaqPage() {
               key={f.q}
               className="rounded-xl border border-line bg-surface p-5 transition hover:border-lineStrong"
             >
-              <h2 className="font-heading text-base font-extrabold uppercase tracking-wide text-white sm:text-lg">
+              <h2 className="font-heading text-base font-extrabold uppercase tracking-wide text-ink sm:text-lg">
                 {f.q}
               </h2>
               <p className="mt-2 text-sm leading-relaxed text-muted">{f.a}</p>

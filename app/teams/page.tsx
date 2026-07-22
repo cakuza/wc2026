@@ -41,7 +41,7 @@ export default async function TeamsPage() {
   const statusLabels = Object.fromEntries(TEAMS.map((team) => [team.key, getTeamStatusLabel(team.key, statuses[team.key], snapshot.matches, resolvedParticipants)]));
   return (
     <div className="mx-auto max-w-4xl px-4 py-8">
-      <h1 className="mb-2 font-heading text-4xl font-extrabold uppercase tracking-wide text-white">
+      <h1 className="mb-2 font-heading text-4xl font-extrabold uppercase tracking-wide text-ink">
         All Teams
       </h1>
       <p className="mb-6 max-w-3xl text-sm text-muted">
@@ -59,7 +59,7 @@ export default async function TeamsPage() {
           <Link
             key={l.href}
             href={l.href}
-            className="rounded-lg border border-line bg-surface px-4 py-2 font-heading text-xs font-bold uppercase tracking-wide text-muted transition hover:border-lineStrong hover:text-white"
+            className="rounded-lg border border-line bg-surface px-4 py-2 font-heading text-xs font-bold uppercase tracking-wide text-muted transition hover:border-lineStrong hover:text-ink"
           >
             {l.label}
           </Link>

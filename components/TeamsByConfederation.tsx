@@ -24,12 +24,12 @@ export function TeamsByConfederationPreview() {
   return (
     <section className="mx-auto max-w-7xl px-4 py-10">
       <div className="mb-5 flex items-end justify-between gap-3">
-        <h2 className="font-heading text-3xl font-extrabold uppercase tracking-wide text-white">
+        <h2 className="font-heading text-3xl font-extrabold uppercase tracking-wide text-ink">
           {t("sec_teamsByConfederation")}
         </h2>
         <Link
           href="/teams"
-          className="shrink-0 font-heading text-xs font-bold uppercase tracking-wide text-accent transition hover:text-white"
+          className="shrink-0 font-heading text-xs font-bold uppercase tracking-wide text-accent transition hover:text-ink"
         >
           {t("nav_teams")} →
         </Link>
@@ -53,7 +53,7 @@ export function TeamsByConfederationPreview() {
       </div>
       <Link
         href="/teams"
-        className="mt-5 inline-flex rounded-lg border border-accent/40 bg-accent/10 px-4 py-2 font-heading text-xs font-bold uppercase tracking-wide text-accent transition hover:border-accent hover:text-white"
+        className="mt-5 inline-flex rounded-lg border border-accent/40 bg-accent/10 px-4 py-2 font-heading text-xs font-bold uppercase tracking-wide text-accent transition hover:border-accent hover:text-ink"
       >
         {t("nav_teams")} →
       </Link>
@@ -71,7 +71,7 @@ export function TeamsByConfederation() {
         <section key={conf.code}>
           <h2 className="mb-1 border-b-2 border-accent pb-2">
             <span className="flex items-baseline gap-2">
-              <span className="font-heading text-xl font-extrabold uppercase tracking-wide text-white">
+              <span className="font-heading text-xl font-extrabold uppercase tracking-wide text-ink">
                 {conf.name}
               </span>
               <span className="font-heading text-xs font-bold uppercase tracking-widest text-faint">
@@ -90,10 +90,10 @@ export function TeamsByConfederation() {
                   key={tm.key}
                   href={`/teams/${slugFor(tm.key)}`}
                   prefetch={false}
-                  className="flex items-center gap-3 rounded-lg border border-line bg-surface px-4 py-2.5 transition hover:border-lineStrong hover:bg-white/5"
+                  className="flex items-center gap-3 rounded-lg border border-line bg-surface px-4 py-2.5 transition hover:border-lineStrong hover:bg-hover"
                 >
                   <Flag code={tm.code} alt="" width={28} height={20} />
-                  <span className="flex-1 truncate font-semibold text-white">{name}</span>
+                  <span className="flex-1 truncate font-semibold text-ink">{name}</span>
                   <span className="font-heading text-[11px] font-bold uppercase tracking-widest text-muted">
                     {t("lbl_group")} {tm.group}
                   </span>

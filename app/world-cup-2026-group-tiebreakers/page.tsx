@@ -125,7 +125,7 @@ export default function GroupTiebreakersPage() {
         <p className="mb-2 font-heading text-sm font-bold uppercase tracking-[0.3em] text-accent">
           FIFA World Cup 2026
         </p>
-        <h1 className="mb-3 font-heading text-4xl font-extrabold uppercase tracking-wide text-white">
+        <h1 className="mb-3 font-heading text-4xl font-extrabold uppercase tracking-wide text-ink">
           Group Stage Tiebreakers Explained
         </h1>
         <p className="mb-8 max-w-2xl text-sm text-muted">
@@ -147,7 +147,7 @@ export default function GroupTiebreakersPage() {
         </div>
 
         {/* Criteria list */}
-        <h2 className="mb-4 font-heading text-xl font-extrabold uppercase tracking-wide text-white">
+        <h2 className="mb-4 font-heading text-xl font-extrabold uppercase tracking-wide text-ink">
           Tiebreaker Criteria — In Order
         </h2>
         <div className="space-y-3">
@@ -157,7 +157,7 @@ export default function GroupTiebreakersPage() {
                 <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-accent/20 font-heading text-sm font-extrabold text-accent">
                   {c.step}
                 </span>
-                <h3 className="font-heading text-base font-extrabold uppercase tracking-wide text-white">
+                <h3 className="font-heading text-base font-extrabold uppercase tracking-wide text-ink">
                   {c.title}
                 </h3>
               </div>
@@ -168,7 +168,7 @@ export default function GroupTiebreakersPage() {
 
         {/* Three-way ties */}
         <section className="mt-8">
-          <h2 className="mb-3 font-heading text-xl font-extrabold uppercase tracking-wide text-white">
+          <h2 className="mb-3 font-heading text-xl font-extrabold uppercase tracking-wide text-ink">
             Three-Way Ties
           </h2>
           <div className="space-y-3 text-sm leading-relaxed text-muted">
@@ -188,7 +188,7 @@ export default function GroupTiebreakersPage() {
 
         {/* Third-place ranking */}
         <section className="mt-8 rounded-xl border border-line bg-surface px-4 py-4">
-          <h2 className="mb-2 font-heading text-base font-extrabold uppercase tracking-wide text-white">
+          <h2 className="mb-2 font-heading text-base font-extrabold uppercase tracking-wide text-ink">
             Third-Place Ranking Uses Different Logic
           </h2>
           <p className="text-sm leading-relaxed text-muted">
@@ -206,7 +206,7 @@ export default function GroupTiebreakersPage() {
 
         {/* Why it matters */}
         <section className="mt-8">
-          <h2 className="mb-3 font-heading text-xl font-extrabold uppercase tracking-wide text-white">
+          <h2 className="mb-3 font-heading text-xl font-extrabold uppercase tracking-wide text-ink">
             Why Tiebreakers Matter in 2026
           </h2>
           <div className="space-y-3 text-sm leading-relaxed text-muted">
@@ -235,7 +235,7 @@ export default function GroupTiebreakersPage() {
             <Link
               key={l.href}
               href={l.href}
-              className="rounded-lg border border-line bg-surface px-4 py-2 font-heading text-xs font-bold uppercase tracking-wide text-muted transition hover:border-lineStrong hover:text-white"
+              className="rounded-lg border border-line bg-surface px-4 py-2 font-heading text-xs font-bold uppercase tracking-wide text-muted transition hover:border-lineStrong hover:text-ink"
             >
               {l.label}
             </Link>
@@ -244,11 +244,11 @@ export default function GroupTiebreakersPage() {
 
         {/* FAQ */}
         <section className="mt-10">
-          <h2 className="mb-3 font-heading text-2xl font-extrabold uppercase tracking-wide text-white">FAQ</h2>
+          <h2 className="mb-3 font-heading text-2xl font-extrabold uppercase tracking-wide text-ink">FAQ</h2>
           <div className="space-y-3">
             {FAQS.map((f) => (
               <div key={f.q} className="rounded-xl border border-line bg-surface p-4">
-                <h3 className="font-heading text-sm font-extrabold uppercase tracking-wide text-white sm:text-base">
+                <h3 className="font-heading text-sm font-extrabold uppercase tracking-wide text-ink sm:text-base">
                   {f.q}
                 </h3>
                 <p className="mt-2 text-sm leading-relaxed text-muted">{f.a}</p>

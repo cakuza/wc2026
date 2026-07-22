@@ -63,7 +63,7 @@ export default async function TeamsStatsPage() {
         <p className="font-heading text-sm font-bold uppercase tracking-[0.3em] text-accent">
           World Cup 2026
         </p>
-        <h1 className="mt-1 font-heading text-3xl font-extrabold uppercase tracking-tight text-white sm:text-4xl">
+        <h1 className="mt-1 font-heading text-3xl font-extrabold uppercase tracking-tight text-ink sm:text-4xl">
           Team Stats
         </h1>
         <p className="mt-2 max-w-3xl text-sm text-faint">

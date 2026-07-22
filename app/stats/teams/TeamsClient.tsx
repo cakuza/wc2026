@@ -47,10 +47,10 @@ export function TeamsClient({ attackLists, controlLists, defenseLists, disciplin
   const renderSection = (title: string, lists: StatList[]) => (
     <section className="mb-12">
       <div className="mb-4 flex items-center gap-3">
-        <h2 className="font-heading text-lg font-extrabold uppercase tracking-widest text-white">
+        <h2 className="font-heading text-lg font-extrabold uppercase tracking-widest text-ink">
           {title}
         </h2>
-        <div className="h-px flex-1 bg-white/10" />
+        <div className="h-px flex-1 bg-line" />
       </div>
 
       <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
@@ -73,7 +73,7 @@ export function TeamsClient({ attackLists, controlLists, defenseLists, disciplin
                       <li key={stat.teamKey + i} className="flex items-center gap-3 px-4 py-3">
                         <span className="w-5 shrink-0 font-heading text-xs font-bold text-faint">{i + 1}</span>
                         <div className="flex-1 min-w-0">
-                          <p className="truncate font-semibold text-white text-sm">{countryName(stat.teamKey, "en")}</p>
+                          <p className="truncate font-semibold text-ink text-sm">{countryName(stat.teamKey, "en")}</p>
                           {isPartial ? (
                             <p className="text-[11px] text-faint">
                               <span className="text-yellow-500/80 mr-1">PARTIAL:</span>
@@ -85,7 +85,7 @@ export function TeamsClient({ attackLists, controlLists, defenseLists, disciplin
                             </p>
                           ) : null}
                         </div>
-                        <span className="font-heading text-base font-extrabold tabular-nums text-white">
+                        <span className="font-heading text-base font-extrabold tabular-nums text-ink">
                           {stat.displayValue}
                         </span>
                       </li>
@@ -109,7 +109,7 @@ export function TeamsClient({ attackLists, controlLists, defenseLists, disciplin
           <button
             onClick={() => setMode("total")}
             className={`rounded-md px-6 py-2 font-heading text-xs font-bold uppercase tracking-widest transition ${
-              mode === "total" ? "bg-accent text-navy" : "text-faint hover:text-white"
+              mode === "total" ? "bg-accent text-navy" : "text-faint hover:text-ink"
             }`}
           >
             Total
@@ -117,7 +117,7 @@ export function TeamsClient({ attackLists, controlLists, defenseLists, disciplin
           <button
             onClick={() => setMode("perMatch")}
             className={`rounded-md px-6 py-2 font-heading text-xs font-bold uppercase tracking-widest transition ${
-              mode === "perMatch" ? "bg-accent text-navy" : "text-faint hover:text-white"
+              mode === "perMatch" ? "bg-accent text-navy" : "text-faint hover:text-ink"
             }`}
           >
             Per Match

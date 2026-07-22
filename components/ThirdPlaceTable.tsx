@@ -42,7 +42,7 @@ export function ThirdPlaceTable({ rows }: ThirdPlaceTableProps) {
     return "Tied final position";
   };
   const statusClass = (status: ThirdPlaceRow["status"]) => {
-    if (status === "not_started") return "bg-white/10 text-faint";
+    if (status === "not_started") return "bg-surface-subtle text-faint";
     if (status === "qualifying") return "bg-green-500/15 text-green-400";
     if (status === "outside") return "bg-red-500/10 text-red-400/80";
     return "bg-amber-500/15 text-amber-300";
@@ -73,7 +73,7 @@ export function ThirdPlaceTable({ rows }: ThirdPlaceTableProps) {
               return (
                 <tr
                   key={row.teamKey}
-                  className={`border-t border-line transition hover:bg-white/5 ${
+                  className={`border-t border-line transition hover:bg-hover ${
                     isQualifying ? "bg-green-500/5" : ""
                   } ${row.rank === 8 && row.status !== "not_started" ? "border-b-2 border-b-accent/40" : ""}`}
                 >
@@ -90,12 +90,12 @@ export function ThirdPlaceTable({ rows }: ThirdPlaceTableProps) {
                     {team ? (
                       <Link href={`/teams/${slugFor(team.key)}`} prefetch={false} className="group flex items-center gap-2">
                         <Flag code={team.code} alt="" width={24} height={18} />
-                        <span className="font-semibold text-white transition group-hover:text-accent">
+                        <span className="font-semibold text-ink transition group-hover:text-accent">
                           {country(row.teamKey)}
                         </span>
                       </Link>
                     ) : (
-                      <span className="font-semibold text-white">{country(row.teamKey)}</span>
+                      <span className="font-semibold text-ink">{country(row.teamKey)}</span>
                     )}
                   </td>
 
@@ -126,7 +126,7 @@ export function ThirdPlaceTable({ rows }: ThirdPlaceTableProps) {
                   })}
 
                   {/* Points */}
-                  <td className="px-3 py-3 text-center font-heading font-bold tabular-nums text-white">
+                  <td className="px-3 py-3 text-center font-heading font-bold tabular-nums text-ink">
                     {row.points}
                   </td>
 

@@ -322,7 +322,7 @@ export default async function MatchPage({
       ) : null}
       <div className="mx-auto max-w-4xl px-4 pt-6 pb-2 text-center">
         <BreadcrumbNav items={breadcrumbs} />
-        <h1 className="font-heading text-2xl font-extrabold uppercase text-white">
+        <h1 className="font-heading text-2xl font-extrabold uppercase text-ink">
           {snap?.status === "FINISHED"
             ? `${resolvedTeamName(match, "home")} ${snap.homeScore ?? 0}–${snap.awayScore ?? 0} ${resolvedTeamName(match, "away")}`
             : `${resolvedTeamName(match, "home")} vs ${resolvedTeamName(match, "away")}`}
