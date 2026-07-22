@@ -102,7 +102,7 @@ export function buildMatchSportsEventSchema(args: {
   const groupOrStage = args.match.group
     ? `Group ${args.match.group}`
     : args.stageLabel
-    ? `2026 World Cup ${args.stageLabel}`
+    ? args.stageLabel
     : "";
 
   const description = buildFactualMatchDescription(args);
