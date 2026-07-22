@@ -92,15 +92,15 @@ export default async function WorldCup2026ResultsPage() {
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListLd) }} />
       <BreadcrumbNav items={breadcrumbs} />
 
-      <p className="mb-1 font-heading text-sm font-bold uppercase tracking-[0.3em] text-accent">2026 World Cup Archive</p>
+      <p className="mb-1 font-heading text-sm font-bold uppercase tracking-[0.3em] text-accentText">2026 World Cup Archive</p>
       <h1 className="mb-2 font-heading text-4xl font-extrabold uppercase tracking-wide text-ink sm:text-5xl">Full Results</h1>
       <p className="mb-6 max-w-2xl text-sm leading-relaxed text-muted">
         {completedCount} of {MATCHES.length} matches completed · {stats.totalGoals} total goals · {stats.cleanSheets} clean sheets.{" "}
-        <Link href="/world-cup-2026" className="underline decoration-white/30 underline-offset-2 hover:text-ink">Archive hub</Link>
+        <Link href="/world-cup-2026" className="underline decoration-lineStrong underline-offset-2 hover:text-ink">Archive hub</Link>
         {" · "}
-        <Link href="/bracket" className="underline decoration-white/30 underline-offset-2 hover:text-ink">Bracket</Link>
+        <Link href="/bracket" className="underline decoration-lineStrong underline-offset-2 hover:text-ink">Bracket</Link>
         {" · "}
-        <Link href="/stats" className="underline decoration-white/30 underline-offset-2 hover:text-ink">Statistics</Link>
+        <Link href="/stats" className="underline decoration-lineStrong underline-offset-2 hover:text-ink">Statistics</Link>
       </p>
 
       <nav aria-label="Jump to stage" className="mb-8 flex flex-wrap gap-2">

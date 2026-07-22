@@ -149,7 +149,7 @@ export default async function GroupPage({
       <div className="mx-auto max-w-3xl px-4 py-8">
         <BreadcrumbNav items={breadcrumbs} />
 
-        <p className="mb-1 font-heading text-sm font-bold uppercase tracking-[0.3em] text-accent">
+        <p className="mb-1 font-heading text-sm font-bold uppercase tracking-[0.3em] text-accentText">
           World Cup 2026
         </p>
         <h1 className="mb-1 font-heading text-3xl font-extrabold uppercase tracking-wide text-ink sm:text-4xl">
@@ -217,14 +217,14 @@ export default async function GroupPage({
             Third-place qualification is determined across all 12 groups — see{" "}
             <Link
               href="/world-cup-third-place-qualification"
-              className="text-accent underline-offset-2 hover:underline"
+              className="text-accentText underline-offset-2 hover:underline"
             >
               Best Third-Place Teams table
             </Link>
             .{" "}
             <Link
               href="/world-cup-2026-group-tiebreakers"
-              className="text-accent underline-offset-2 hover:underline"
+              className="text-accentText underline-offset-2 hover:underline"
             >
               How tiebreakers work →
             </Link>
@@ -259,7 +259,7 @@ export default async function GroupPage({
                   <div className="mx-3 shrink-0 text-center">
                     {finished || live ? (
                       <span
-                        className={`font-heading text-base font-extrabold ${live ? "text-accent" : "text-ink"}`}
+                        className={`font-heading text-base font-extrabold ${live ? "text-accentText" : "text-ink"}`}
                       >
                         {homeScore} – {awayScore}
                       </span>
@@ -269,7 +269,7 @@ export default async function GroupPage({
                       </span>
                     )}
                     {live && (
-                      <span className="mt-0.5 block font-heading text-[9px] font-extrabold uppercase tracking-widest text-accent">
+                      <span className="mt-0.5 block font-heading text-[9px] font-extrabold uppercase tracking-widest text-accentText">
                         Live
                       </span>
                     )}
@@ -296,7 +296,7 @@ export default async function GroupPage({
                 <div key={t.key} className="flex items-center justify-between gap-4 rounded-lg border border-line bg-surface px-4 py-3">
                   <Link
                     href={`/teams/${slugFor(t.key)}`}
-                    className="flex items-center gap-2 font-bold text-ink transition hover:text-accent"
+                    className="flex items-center gap-2 font-bold text-ink transition hover:text-accentText"
                   >
                     <Flag code={t.code} width={22} height={16} />
                     {countryName(t.key, "en")}

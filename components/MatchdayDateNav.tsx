@@ -133,7 +133,7 @@ export function MatchdayDateNav({
               {formatLongDate(displayDate)}
             </p>
             {isToday ? (
-              <span className="mt-0.5 inline-block rounded bg-accent/20 px-2 py-0.5 font-heading text-[10px] font-bold uppercase tracking-widest text-accent">
+              <span className="mt-0.5 inline-block rounded bg-accent/20 px-2 py-0.5 font-heading text-[10px] font-bold uppercase tracking-widest text-accentText">
                 {t("today_jumpToToday")}
               </span>
             ) : (

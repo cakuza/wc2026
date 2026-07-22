@@ -49,7 +49,7 @@ const SECTIONS = [
 export default function TermsPage() {
   return (
     <div className="mx-auto max-w-2xl px-4 py-12">
-      <p className="mb-2 font-heading text-sm font-bold tracking-[0.3em] text-accent">
+      <p className="mb-2 font-heading text-sm font-bold tracking-[0.3em] text-accentText">
         LEGAL
       </p>
       <h1 className="mb-2 font-heading text-3xl font-extrabold tracking-tight text-ink sm:text-4xl">

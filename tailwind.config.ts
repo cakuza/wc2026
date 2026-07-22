@@ -18,7 +18,9 @@ const config: Config = {
         line: "rgb(var(--color-line) / <alpha-value>)",
         lineStrong: "rgb(var(--color-line-strong) / <alpha-value>)",
         hover: "rgb(var(--color-hover) / <alpha-value>)",
-        accent: "rgb(var(--color-accent) / <alpha-value>)",
+        accent: "rgb(var(--color-accent-surface) / <alpha-value>)",
+        accentText: "rgb(var(--color-accent-text) / <alpha-value>)",
+        onAccent: "rgb(var(--color-on-accent) / <alpha-value>)",
       },
       fontFamily: {
         heading: ["var(--font-barlow-condensed)", "system-ui", "sans-serif"],

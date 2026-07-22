@@ -46,7 +46,7 @@ export default async function TopScorersPage() {
     {itemListLd ? <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListLd) }} /> : null}
     <div className="mx-auto max-w-3xl px-4 py-8">
       <BreadcrumbNav items={breadcrumbs} />
-      <p className="mb-1 font-heading text-sm font-bold uppercase tracking-[0.3em] text-accent">World Cup 2026</p>
+      <p className="mb-1 font-heading text-sm font-bold uppercase tracking-[0.3em] text-accentText">World Cup 2026</p>
       <h1 className="mb-1 font-heading text-3xl font-extrabold uppercase tracking-wide text-ink sm:text-4xl">Top Scorers</h1>
       <p className="mb-2 text-sm text-faint">Final Golden Boot standings.</p>
       <p className="mb-4 text-sm leading-relaxed text-muted">The final FIFA World Cup Golden Boot standings. Kylian Mbappé won the Golden Boot with 10 goals. Players tied on goals stay level here unless the available, complete tiebreak information separates them.</p>

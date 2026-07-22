@@ -47,7 +47,7 @@ function Step({ n, title, children }: { n: string; title: string; children: Reac
   return (
     <div className="rounded-xl border border-line bg-surface p-4">
       <div className="flex items-center gap-3">
-        <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-accent/20 font-heading text-sm font-extrabold text-accent">{n}</span>
+        <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-accent/20 font-heading text-sm font-extrabold text-accentText">{n}</span>
         <h2 className="font-heading text-base font-extrabold uppercase tracking-wide text-ink">{title}</h2>
       </div>
       <p className="mt-2 text-sm leading-relaxed text-muted">{children}</p>
@@ -67,7 +67,7 @@ export default async function ThirdPlaceQualificationPage() {
 
       <div className="mx-auto max-w-3xl px-4 py-8">
         <BreadcrumbNav items={breadcrumbs} />
-        <p className="mb-2 font-heading text-sm font-bold uppercase tracking-[0.3em] text-accent">World Cup 2026</p>
+        <p className="mb-2 font-heading text-sm font-bold uppercase tracking-[0.3em] text-accentText">World Cup 2026</p>
         <h1 className="mb-2 font-heading text-4xl font-extrabold uppercase tracking-wide text-ink">
           Final third-place ranking
         </h1>
@@ -125,7 +125,7 @@ export default async function ThirdPlaceQualificationPage() {
           </p>
           <p className="mt-2 text-sm leading-relaxed text-muted">
             The 8 qualifying third-placed teams entered the{" "}
-            <Link href="/world-cup-2026-knockout-bracket-explained" className="text-accent underline-offset-2 hover:underline">
+            <Link href="/world-cup-2026-knockout-bracket-explained" className="text-accentText underline-offset-2 hover:underline">
               knockout bracket
             </Link>{" "}
             for the Round of 32. Their bracket slot depended on which groups they came from, per the pre-set FIFA

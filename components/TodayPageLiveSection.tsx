@@ -77,7 +77,7 @@ function TodaySummary({
                 const pres = getMatchPresentation({ match, liveData: live, timeZone: tz, now: hydrated ? now : new Date(ARCHIVE_DEFAULT_DATE) });
                 return (
                   <p key={matchSlug(match)}>
-                    <Link href={`/matches/${matchSlug(match)}`} className="font-semibold text-ink hover:text-accent">
+                    <Link href={`/matches/${matchSlug(match)}`} className="font-semibold text-ink hover:text-accentText">
                       {homeDisplay.label} vs {awayDisplay.label} - {pres.showScore ? `${pres.homeScore}-${pres.awayScore}` : "score syncing"}
                     </Link>
                   </p>
@@ -93,7 +93,7 @@ function TodaySummary({
               Next kickoff
             </p>
             <p className="mt-1">
-              <Link href={`/matches/${matchSlug(next)}`} className="font-semibold text-ink hover:text-accent">
+              <Link href={`/matches/${matchSlug(next)}`} className="font-semibold text-ink hover:text-accentText">
                 {getParticipantDisplay(next, "home", snapshot.resolvedParticipants).label} vs {getParticipantDisplay(next, "away", snapshot.resolvedParticipants).label}
               </Link>{" "}
               - <span className="font-semibold text-ink" suppressHydrationWarning>

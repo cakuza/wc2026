@@ -19,7 +19,7 @@ export function TeamCard({ team }: { team: Team }) {
       {/* Top row: large flag + group badge */}
       <div className="flex items-start justify-between">
         <Flag code={team.code} alt="" width={56} height={40} className="shadow" />
-        <span className="rounded bg-accent px-2 py-1 font-heading text-xs font-extrabold uppercase tracking-wide text-white">
+        <span className="rounded bg-accent px-2 py-1 font-heading text-xs font-extrabold uppercase tracking-wide text-onAccent">
           {t("lbl_group")} {team.group}
         </span>
       </div>
@@ -45,7 +45,7 @@ export function TeamCard({ team }: { team: Team }) {
       {/* Date + Match Center */}
       <div className="mt-4 flex items-center justify-between border-t border-line pt-3">
         <span className="text-sm font-semibold text-muted">{firstMatch ? formatDate(firstMatch.date) : ""}</span>
-        <span className="font-heading text-sm font-bold uppercase tracking-wide text-accent transition group-hover:text-ink">
+        <span className="font-heading text-sm font-bold uppercase tracking-wide text-accentText transition group-hover:text-ink">
           {t("btn_matchCenter")} →
         </span>
       </div>

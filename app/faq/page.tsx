@@ -122,7 +122,7 @@ export default function FaqPage() {
       />
 
       <div className="mx-auto max-w-2xl px-4 py-12">
-        <p className="mb-2 font-heading text-sm font-bold uppercase tracking-[0.3em] text-accent">
+        <p className="mb-2 font-heading text-sm font-bold uppercase tracking-[0.3em] text-accentText">
           FIFA World Cup 2026
         </p>
         <h1 className="mb-8 font-heading text-3xl font-extrabold uppercase tracking-tight text-ink sm:text-4xl">

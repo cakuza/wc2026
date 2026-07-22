@@ -8,13 +8,8 @@ interface AllowlistEntry {
   reason: string;
 }
 
-// Strict allowlist for genuine fixed-color elements (red/green badges, primary accent buttons, hero backdrop, theme toggle SVG)
+// Strict allowlist for genuine fixed-color elements (red/green status badges, hero backdrop, theme toggle SVG)
 const ALLOWLIST: AllowlistEntry[] = [
-  {
-    file: "components/Footer.tsx",
-    pattern: /bg-accent.*text-white/,
-    reason: "Red accent 2026 year badge requires white text on red background",
-  },
   {
     file: "components/MatchCenterContent.tsx",
     pattern: /bg-red-600 text-white/,
@@ -32,18 +27,8 @@ const ALLOWLIST: AllowlistEntry[] = [
   },
   {
     file: "components/Nav.tsx",
-    pattern: /bg-accent text-white/,
-    reason: "Active primary navigation button requires white text on red accent",
-  },
-  {
-    file: "components/Nav.tsx",
     pattern: /bg-red-600 text-white/,
     reason: "Header 2026 tournament badge requires white text on red-600",
-  },
-  {
-    file: "components/QuizClient.tsx",
-    pattern: /bg-accent.*text-white/,
-    reason: "Primary quiz action button requires white text on red accent",
   },
   {
     file: "components/ScheduledKnockoutPreview.tsx",
@@ -51,24 +36,9 @@ const ALLOWLIST: AllowlistEntry[] = [
     reason: "Win/Loss/Draw status badge indicators (green-600, red-600, gray-500) require white text",
   },
   {
-    file: "components/TeamCard.tsx",
-    pattern: /bg-accent.*text-white/,
-    reason: "Red team card status badge requires white text on red accent",
-  },
-  {
     file: "components/TeamDetail.tsx",
     pattern: /bg-black\/45/,
     reason: "Team detail hero banner image backdrop overlay",
-  },
-  {
-    file: "components/TeamsDirectory.tsx",
-    pattern: /bg-accent text-white/,
-    reason: "Active confederation filter pill requires white text on red accent",
-  },
-  {
-    file: "components/TeamsGrid.tsx",
-    pattern: /bg-accent text-white/,
-    reason: "Active group filter pill requires white text on red accent",
   },
   {
     file: "components/ThemeToggle.tsx",
@@ -79,11 +49,6 @@ const ALLOWLIST: AllowlistEntry[] = [
     file: "components/TodayPageLiveSection.tsx",
     pattern: /bg-red-600 text-white/,
     reason: "LIVE match status badge requires white text on red-600 background",
-  },
-  {
-    file: "components/TriviaCard.tsx",
-    pattern: /bg-accent.*text-white/,
-    reason: "Primary trivia call-to-action button requires white text on red accent",
   },
 ];
 
@@ -116,10 +81,10 @@ function main() {
   }
   console.log(`  PASS: All ${varMatches.length} CSS custom properties in app/globals.css contain clean 3-digit RGB channel values without slashes.`);
 
-  // 2. Audit Codebase for Hardcoded Dark Utilities
+  // 2. Audit Codebase for Hardcoded Dark Utilities & White Decorations
   console.log("\n--- 2. Repository-Wide Hardcoded Class Audit ---");
   const targetFiles = walk("./app").concat(walk("./components"));
-  const darkClassRegex = /(text-white|border-white|divide-white|ring-white|bg-black|bg-navy|bg-navyCard|bg-white\/|hover:text-white|placeholder:text-white)/;
+  const darkClassRegex = /(text-white|border-white|divide-white|ring-white|bg-black|bg-navy|bg-navyCard|bg-white\/|hover:text-white|placeholder:text-white|decoration-white|outline-white|shadow-white|caret-white|accent-white|from-white|via-white|to-white)/;
 
   const matchedAllowlist = new Set<AllowlistEntry>();
   const unallowedMatches: string[] = [];

@@ -106,7 +106,7 @@ export default function PrizeMoneyPage() {
 
       <div className="mx-auto max-w-3xl px-4 py-8">
         <BreadcrumbNav items={breadcrumbs} />
-        <p className="mb-2 font-heading text-sm font-bold uppercase tracking-[0.3em] text-accent">FIFA World Cup 2026</p>
+        <p className="mb-2 font-heading text-sm font-bold uppercase tracking-[0.3em] text-accentText">FIFA World Cup 2026</p>
         <h1 className="mb-2 font-heading text-4xl font-extrabold uppercase tracking-wide text-ink">
           World Cup 2026 Prize Money
         </h1>

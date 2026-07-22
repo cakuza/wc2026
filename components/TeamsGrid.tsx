@@ -35,7 +35,7 @@ export function TeamsGrid({ showHeading = false }: { showHeading?: boolean }) {
             type="button"
             onClick={() => setGroup("all")}
             className={`rounded px-3 py-1.5 font-heading text-sm font-bold uppercase tracking-wide transition ${
-              group === "all" ? "bg-accent text-white" : "bg-surface-raised text-muted hover:bg-hover"
+              group === "all" ? "bg-accent text-onAccent" : "bg-surface-raised text-muted hover:bg-hover"
             }`}
           >
             {t("flt_allGroups")}
@@ -46,7 +46,7 @@ export function TeamsGrid({ showHeading = false }: { showHeading?: boolean }) {
               type="button"
               onClick={() => setGroup(g)}
               className={`rounded px-3 py-1.5 font-heading text-sm font-bold uppercase tracking-wide transition ${
-                group === g ? "bg-accent text-white" : "bg-surface-raised text-muted hover:bg-hover"
+                group === g ? "bg-accent text-onAccent" : "bg-surface-raised text-muted hover:bg-hover"
               }`}
             >
               {t("lbl_group")} {g}

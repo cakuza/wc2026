@@ -74,7 +74,7 @@ export default async function WorldCup2026Page() {
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(collectionLd) }} />
       <BreadcrumbNav items={breadcrumbs} />
 
-      <p className="mb-1 font-heading text-sm font-bold uppercase tracking-[0.3em] text-accent">FIFA World Cup 2026</p>
+      <p className="mb-1 font-heading text-sm font-bold uppercase tracking-[0.3em] text-accentText">FIFA World Cup 2026</p>
       <h1 className="mb-2 font-heading text-4xl font-extrabold uppercase tracking-wide text-ink sm:text-5xl">
         {archive.isComplete ? "World Cup 2026 Vault" : "2026 World Cup: Final Weekend"}
       </h1>
@@ -87,7 +87,7 @@ export default async function WorldCup2026Page() {
 
       {archive.isComplete && archive.finalResult ? (
         <section className="mb-8 rounded-xl border border-accent/40 bg-gradient-to-b from-accent/10 to-navyCard p-6">
-          <p className="mb-3 font-heading text-[11px] font-bold uppercase tracking-widest text-accent">Final Standings</p>
+          <p className="mb-3 font-heading text-[11px] font-bold uppercase tracking-widest text-accentText">Final Standings</p>
           <div className="mb-4 flex flex-wrap items-center gap-6">
             {finalists.map((f, i) => (
               <div key={f.label} className={`flex items-center gap-2 ${i === 0 ? "font-extrabold text-ink" : "text-muted"}`}>
@@ -118,7 +118,7 @@ export default async function WorldCup2026Page() {
             {archive.finalResult.homeLabel} {archive.finalResult.homeScore}–{archive.finalResult.awayScore} {archive.finalResult.awayLabel}
           </p>
           <p className="text-sm text-muted">
-            <Link href={`/matches/${matchSlug(archive.finalResult.match)}`} className="underline decoration-white/30 underline-offset-2 hover:text-ink">
+            <Link href={`/matches/${matchSlug(archive.finalResult.match)}`} className="underline decoration-lineStrong underline-offset-2 hover:text-ink">
               Full Final match report →
             </Link>
           </p>
@@ -126,7 +126,7 @@ export default async function WorldCup2026Page() {
             <p className="mt-3 text-sm text-muted">
               Third place: <span className="font-bold text-ink">{archive.thirdPlace}</span> beat {archive.fourthPlace}{" "}
               {archive.thirdPlaceResult.homeScore}–{archive.thirdPlaceResult.awayScore} in the{" "}
-              <Link href={`/matches/${matchSlug(archive.thirdPlaceResult.match)}`} className="underline decoration-white/30 underline-offset-2 hover:text-ink">
+              <Link href={`/matches/${matchSlug(archive.thirdPlaceResult.match)}`} className="underline decoration-lineStrong underline-offset-2 hover:text-ink">
                 Third-place playoff
               </Link>.
             </p>
@@ -137,9 +137,9 @@ export default async function WorldCup2026Page() {
           <p className="mb-2 font-heading text-[11px] font-bold uppercase tracking-widest text-faint">Tournament at a glance</p>
           <p className="text-sm text-muted">
             The Third-place playoff and Final remain to be played. Follow live results on the{" "}
-            <Link href="/today" className="underline decoration-white/30 underline-offset-2 hover:text-ink">Match Center</Link>{" "}
+            <Link href="/today" className="underline decoration-lineStrong underline-offset-2 hover:text-ink">Match Center</Link>{" "}
             or the{" "}
-            <Link href="/bracket" className="underline decoration-white/30 underline-offset-2 hover:text-ink">complete bracket</Link>.
+            <Link href="/bracket" className="underline decoration-lineStrong underline-offset-2 hover:text-ink">complete bracket</Link>.
           </p>
         </section>
       )}
@@ -162,7 +162,7 @@ export default async function WorldCup2026Page() {
         <p className="mb-8 text-sm text-muted">
           {archive.isComplete ? "Golden Boot winner" : "Golden Boot leader"}{topScorers.length > 1 ? "s" : ""}: <span className="font-bold text-ink">{joinNames(topScorers.map((p) => p.playerName))}</span>
           {" "}with {topScorers[0].goals} goal{topScorers[0].goals !== 1 ? "s" : ""}{topScorers.length > 1 ? " each" : ""}. See the{" "}
-          <Link href="/stats/top-scorers" className="underline decoration-white/30 underline-offset-2 hover:text-ink">full Top Scorers table</Link>.
+          <Link href="/stats/top-scorers" className="underline decoration-lineStrong underline-offset-2 hover:text-ink">full Top Scorers table</Link>.
         </p>
       )}
 

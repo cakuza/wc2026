@@ -29,7 +29,7 @@ export function TeamsByConfederationPreview() {
         </h2>
         <Link
           href="/teams"
-          className="shrink-0 font-heading text-xs font-bold uppercase tracking-wide text-accent transition hover:text-ink"
+          className="shrink-0 font-heading text-xs font-bold uppercase tracking-wide text-accentText transition hover:text-ink"
         >
           {t("nav_teams")} →
         </Link>
@@ -44,7 +44,7 @@ export function TeamsByConfederationPreview() {
                 </p>
                 <p className="mt-1 text-xs leading-snug text-faint">{t(`conf_full_${conf.code}`)}</p>
               </div>
-              <span className="shrink-0 rounded bg-accent/15 px-2 py-1 font-heading text-xs font-extrabold text-accent">
+              <span className="shrink-0 rounded bg-accent/15 px-2 py-1 font-heading text-xs font-extrabold text-accentText">
                 {teams.length}
               </span>
             </div>
@@ -53,7 +53,7 @@ export function TeamsByConfederationPreview() {
       </div>
       <Link
         href="/teams"
-        className="mt-5 inline-flex rounded-lg border border-accent/40 bg-accent/10 px-4 py-2 font-heading text-xs font-bold uppercase tracking-wide text-accent transition hover:border-accent hover:text-ink"
+        className="mt-5 inline-flex rounded-lg border border-accent/40 bg-accent/10 px-4 py-2 font-heading text-xs font-bold uppercase tracking-wide text-accentText transition hover:border-accent hover:text-ink"
       >
         {t("nav_teams")} →
       </Link>

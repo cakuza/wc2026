@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 export default function CorrectionsPolicyPage() {
   return (
     <div className="mx-auto max-w-2xl px-4 py-12">
-      <p className="mb-2 font-heading text-sm font-bold tracking-[0.3em] text-accent">
+      <p className="mb-2 font-heading text-sm font-bold tracking-[0.3em] text-accentText">
         ACCURACY
       </p>
       <h1 className="mb-6 font-heading text-3xl font-extrabold tracking-tight text-ink sm:text-4xl">
@@ -42,7 +42,7 @@ export default function CorrectionsPolicyPage() {
           </h2>
           <p>
             If you detect a mistake—such as an incorrect score line, a missing goal scorer, or an incorrect venue—please email us at{" "}
-            <a href="mailto:worldcupmatchday@proton.me" className="text-accent underline">
+            <a href="mailto:worldcupmatchday@proton.me" className="text-accentText underline">
               worldcupmatchday@proton.me
             </a>
             . To help us process the correction quickly, please specify the match (teams and date), the precise error, and a link to an official or reputable broadcast source supporting the correction.

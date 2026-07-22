@@ -51,9 +51,9 @@ export function comparisonColors({
 
   const reverse = label === "Goals Conceded" || label === "Fouls";
   if (left.value > right.value) {
-    return { left: reverse ? "text-red-400" : "text-accent", right: "text-ink" };
+    return { left: reverse ? "text-red-400" : "text-accentText", right: "text-ink" };
   }
-  return { left: "text-ink", right: reverse ? "text-red-400" : "text-accent" };
+  return { left: "text-ink", right: reverse ? "text-red-400" : "text-accentText" };
 }
 
 export function comparisonCoverageLabel(row: TeamLeaderboard | undefined): string | null {

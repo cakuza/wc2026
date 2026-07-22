@@ -15,7 +15,9 @@
   --color-line: 41 58 82;
   --color-line-strong: 59 81 112;
   --color-hover: 26 43 68;
-  --color-accent: 255 77 106;
+  --color-accent: 225 29 72;
+  --color-accent-surface: 225 29 72;
+  --color-accent-text: 255 128 147;
   --color-on-accent: 255 255 255;
 }
 
@@ -32,7 +34,9 @@ html[data-theme="dark"] {
   --color-line: 41 58 82;
   --color-line-strong: 59 81 112;
   --color-hover: 26 43 68;
-  --color-accent: 255 77 106;
+  --color-accent: 225 29 72;
+  --color-accent-surface: 225 29 72;
+  --color-accent-text: 255 128 147;
   --color-on-accent: 255 255 255;
 }
 
@@ -49,7 +53,9 @@ html[data-theme="light"] {
   --color-line: 226 232 240;
   --color-line-strong: 203 213 225;
   --color-hover: 241 245 249;
-  --color-accent: 217 4 41;
+  --color-accent: 185 10 38;
+  --color-accent-surface: 185 10 38;
+  --color-accent-text: 185 10 38;
   --color-on-accent: 255 255 255;
 }
 

@@ -122,7 +122,7 @@ export default function GroupTiebreakersPage() {
 
       <div className="mx-auto max-w-3xl px-4 py-8">
         <BreadcrumbNav items={breadcrumbs} />
-        <p className="mb-2 font-heading text-sm font-bold uppercase tracking-[0.3em] text-accent">
+        <p className="mb-2 font-heading text-sm font-bold uppercase tracking-[0.3em] text-accentText">
           FIFA World Cup 2026
         </p>
         <h1 className="mb-3 font-heading text-4xl font-extrabold uppercase tracking-wide text-ink">
@@ -136,7 +136,7 @@ export default function GroupTiebreakersPage() {
 
         {/* Key rule callout */}
         <div className="mb-8 rounded-xl border border-accent/30 bg-accent/5 px-5 py-4">
-          <p className="font-heading text-xs font-bold uppercase tracking-widest text-accent">
+          <p className="font-heading text-xs font-bold uppercase tracking-widest text-accentText">
             Key rule
           </p>
           <p className="mt-2 text-sm leading-relaxed text-ink">
@@ -154,7 +154,7 @@ export default function GroupTiebreakersPage() {
           {CRITERIA.map((c) => (
             <div key={c.step} className="rounded-xl border border-line bg-surface p-4">
               <div className="flex items-center gap-3">
-                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-accent/20 font-heading text-sm font-extrabold text-accent">
+                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-accent/20 font-heading text-sm font-extrabold text-accentText">
                   {c.step}
                 </span>
                 <h3 className="font-heading text-base font-extrabold uppercase tracking-wide text-ink">

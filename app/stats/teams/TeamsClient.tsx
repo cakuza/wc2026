@@ -109,7 +109,7 @@ export function TeamsClient({ attackLists, controlLists, defenseLists, disciplin
           <button
             onClick={() => setMode("total")}
             className={`rounded-md px-6 py-2 font-heading text-xs font-bold uppercase tracking-widest transition ${
-              mode === "total" ? "bg-accent text-navy" : "text-faint hover:text-ink"
+              mode === "total" ? "bg-accent text-onAccent" : "text-faint hover:text-ink"
             }`}
           >
             Total
@@ -117,7 +117,7 @@ export function TeamsClient({ attackLists, controlLists, defenseLists, disciplin
           <button
             onClick={() => setMode("perMatch")}
             className={`rounded-md px-6 py-2 font-heading text-xs font-bold uppercase tracking-widest transition ${
-              mode === "perMatch" ? "bg-accent text-navy" : "text-faint hover:text-ink"
+              mode === "perMatch" ? "bg-accent text-onAccent" : "text-faint hover:text-ink"
             }`}
           >
             Per Match

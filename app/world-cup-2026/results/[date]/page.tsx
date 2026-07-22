@@ -100,7 +100,7 @@ export default async function ResultsByDatePage({ params }: { params: Promise<{ 
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListLd) }} />
       <BreadcrumbNav items={breadcrumbs} />
 
-      <p className="mb-1 font-heading text-sm font-bold uppercase tracking-[0.3em] text-accent">2026 World Cup Results</p>
+      <p className="mb-1 font-heading text-sm font-bold uppercase tracking-[0.3em] text-accentText">2026 World Cup Results</p>
       <h1 className="mb-4 font-heading text-3xl font-extrabold uppercase tracking-wide text-ink sm:text-4xl">{long}</h1>
 
       <p className="mb-6 max-w-2xl text-sm leading-relaxed text-muted">
@@ -162,13 +162,13 @@ export default async function ResultsByDatePage({ params }: { params: Promise<{ 
 
       <nav aria-label="Adjacent tournament dates" className="flex items-center justify-between border-t border-line pt-4 text-sm">
         {prevDate ? (
-          <Link href={`/world-cup-2026/results/${prevDate}`} className="text-muted underline decoration-white/30 underline-offset-2 hover:text-ink">
+          <Link href={`/world-cup-2026/results/${prevDate}`} className="text-muted underline decoration-lineStrong underline-offset-2 hover:text-ink">
             ← {formatDateLong(prevDate)}
           </Link>
         ) : <span />}
         <Link href="/world-cup-2026/results" className="text-faint hover:text-muted">All results</Link>
         {nextDate ? (
-          <Link href={`/world-cup-2026/results/${nextDate}`} className="text-muted underline decoration-white/30 underline-offset-2 hover:text-ink">
+          <Link href={`/world-cup-2026/results/${nextDate}`} className="text-muted underline decoration-lineStrong underline-offset-2 hover:text-ink">
             {formatDateLong(nextDate)} →
           </Link>
         ) : <span />}

@@ -87,7 +87,7 @@ function DecidingMatchCard({ m, live, resolvedParticipants, primary }: {
           <span className="font-heading text-[11px] font-extrabold uppercase tracking-[0.18em] text-faint">
             {isFinal ? "FINAL" : "THIRD-PLACE PLAYOFF"} · FT
           </span>
-          <span className="text-[11px] font-bold text-accent">{subTitle}</span>
+          <span className="text-[11px] font-bold text-accentText">{subTitle}</span>
         </div>
         <div className="mt-4 flex items-center justify-center gap-6">
           <div className="flex items-center gap-2">
@@ -112,10 +112,10 @@ function DecidingMatchCard({ m, live, resolvedParticipants, primary }: {
   return (
     <Link href={`/matches/${matchSlug(m)}`} prefetch={false} aria-label={`View ${stage}: ${home.label} vs ${away.label}`}
       className={`block rounded-xl border transition hover:border-accent/80 ${primary ? "border-accent/70 bg-gradient-to-br from-accent/20 via-navyCard to-navyCard p-5 shadow-[0_18px_50px_rgba(232,0,28,0.18)] sm:p-6" : "border-line bg-surface p-4 sm:p-5"}`}>
-      <div className="flex items-center justify-between gap-3"><span className={`font-heading font-extrabold uppercase tracking-[0.18em] ${primary ? "text-sm text-accent" : "text-[11px] text-muted"}`}>{isFinal ? "FINAL" : "THIRD-PLACE PLAYOFF"}</span><span className="text-[11px] font-semibold uppercase tracking-wider text-faint">{stage}</span></div>
+      <div className="flex items-center justify-between gap-3"><span className={`font-heading font-extrabold uppercase tracking-[0.18em] ${primary ? "text-sm text-accentText" : "text-[11px] text-muted"}`}>{isFinal ? "FINAL" : "THIRD-PLACE PLAYOFF"}</span><span className="text-[11px] font-semibold uppercase tracking-wider text-faint">{stage}</span></div>
       <div className="mt-4 grid grid-cols-[1fr_auto_1fr] items-center gap-3"><div className="min-w-0 text-right"><p className={`font-heading font-extrabold uppercase leading-tight text-ink ${primary ? "text-2xl sm:text-3xl" : "text-lg sm:text-xl"}`}>{home.label}</p>{home.teamCode ? <Flag code={home.teamCode} alt="" width={primary ? 36 : 28} height={primary ? 26 : 20} className="ml-auto mt-2 shadow-sm" /> : null}</div><span className={`font-heading font-black text-faint ${primary ? "text-xl" : "text-sm"}`}>VS</span><div className="min-w-0"><p className={`font-heading font-extrabold uppercase leading-tight text-ink ${primary ? "text-2xl sm:text-3xl" : "text-lg sm:text-xl"}`}>{away.label}</p>{away.teamCode ? <Flag code={away.teamCode} alt="" width={primary ? 36 : 28} height={primary ? 26 : 20} className="mt-2 shadow-sm" /> : null}</div></div>
       <div className="mt-5 border-t border-line pt-3 text-center text-sm text-muted"><span className="font-semibold">{presentation.displayKickoffDate} · {presentation.displayKickoffTime}</span>{m.venue ? <span> · {m.venue}</span> : null}{city ? <span> · {city}</span> : null}</div>
-      <span className="mt-4 inline-flex font-heading text-xs font-bold uppercase tracking-widest text-accent">View the {isFinal ? "Final" : "Third-place playoff"} →</span>
+      <span className="mt-4 inline-flex font-heading text-xs font-bold uppercase tracking-widest text-accentText">View the {isFinal ? "Final" : "Third-place playoff"} →</span>
     </Link>
   );
 }
@@ -291,7 +291,7 @@ export function MatchCenterContent({
 
           {(finalMatch || thirdPlaceMatch) && <section aria-labelledby="deciding-matches-heading">
             <div className="mb-3 flex items-center justify-between gap-3">
-              <h2 id="deciding-matches-heading" className="font-heading text-sm font-extrabold uppercase tracking-[0.18em] text-accent">
+              <h2 id="deciding-matches-heading" className="font-heading text-sm font-extrabold uppercase tracking-[0.18em] text-accentText">
                 {isTournamentComplete ? "Tournament Complete" : "Final Weekend"}
               </h2>
               <Link href="/bracket" className="text-xs font-bold uppercase tracking-wider text-muted hover:text-ink">Complete bracket →</Link>
@@ -387,7 +387,7 @@ export function MatchCenterContent({
   return (
     <div className="rounded-xl border border-line bg-surface p-2 shadow-2xl sm:p-6">
       <div className="mb-0 flex items-center justify-between">
-        <p className="font-heading text-sm font-extrabold uppercase tracking-[0.2em] text-accent">Match Center</p>
+        <p className="font-heading text-sm font-extrabold uppercase tracking-[0.2em] text-accentText">Match Center</p>
       </div>
 
       <div className="mb-1 flex flex-wrap items-center justify-between gap-2">
@@ -441,7 +441,7 @@ export function MatchCenterContent({
         <div className="flex gap-4">
           <Link
             href="/today"
-            className="font-heading text-[11px] font-bold uppercase tracking-widest text-accent hover:text-ink"
+            className="font-heading text-[11px] font-bold uppercase tracking-widest text-accentText hover:text-ink"
           >
             Open Match Center &rarr;
           </Link>

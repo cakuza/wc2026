@@ -27,7 +27,7 @@ export function StatsNav() {
               href={tab.href}
               className={`shrink-0 rounded-full px-4 py-2 font-heading text-xs font-bold uppercase tracking-widest transition ${
                 isActive
-                  ? "bg-accent text-navy"
+                  ? "bg-accent text-onAccent"
                   : "bg-surface-subtle text-muted hover:bg-hover hover:text-ink"
               }`}
             >

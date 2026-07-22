@@ -81,7 +81,7 @@ export function QuizClient() {
         <h2 className="mt-4 font-heading text-4xl font-extrabold uppercase tracking-tight text-ink sm:text-5xl">{tier.title}</h2>
         <p className="mt-2 text-base text-muted">{tier.sub}</p>
         <p className="mt-6 font-heading text-2xl font-extrabold text-ink">
-          <span className="text-sm font-bold uppercase tracking-[0.2em] text-accent">{t("q_yourScore")}</span>
+          <span className="text-sm font-bold uppercase tracking-[0.2em] text-accentText">{t("q_yourScore")}</span>
           <br />
           {score}
           <span className="text-faint">/{total}</span>
@@ -89,7 +89,7 @@ export function QuizClient() {
         <button
           type="button"
           onClick={restart}
-          className="mt-7 rounded-lg bg-accent px-6 py-3 font-heading text-sm font-extrabold uppercase tracking-wide text-white transition hover:bg-accent/85"
+          className="mt-7 rounded-lg bg-accent px-6 py-3 font-heading text-sm font-extrabold uppercase tracking-wide text-onAccent transition hover:bg-accent/85"
         >
           {t("q_playAgain")}
         </button>
@@ -104,7 +104,7 @@ export function QuizClient() {
       {/* Progress */}
       <div className="mb-4 flex items-center justify-between">
         <span className="font-heading text-sm font-bold uppercase tracking-wide text-faint">{progress}</span>
-        <span className="font-heading text-sm font-bold uppercase tracking-wide text-accent">
+        <span className="font-heading text-sm font-bold uppercase tracking-wide text-accentText">
           {t("lbl_pts")}: {score}
         </span>
       </div>

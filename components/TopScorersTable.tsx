@@ -83,7 +83,7 @@ export function TopScorersTable({ rows }: { rows: RankedPlayerRankingRecord[] })
         </table>
         {visibleRows.length === 0 ? <p className="px-4 py-5 text-sm text-muted">No players match that search.</p> : null}
       </div>
-      {!query.trim() && rows.length > INITIAL_ROW_COUNT ? <button type="button" onClick={() => setShowAll((value) => !value)} aria-expanded={showAll} className="mt-3 rounded-lg border border-line bg-surface px-4 py-2 font-heading text-xs font-bold uppercase tracking-wide text-accent transition hover:border-accent hover:text-ink">{showAll ? "Show top 25" : `Show all ${rows.length} scorers`}</button> : null}
+      {!query.trim() && rows.length > INITIAL_ROW_COUNT ? <button type="button" onClick={() => setShowAll((value) => !value)} aria-expanded={showAll} className="mt-3 rounded-lg border border-line bg-surface px-4 py-2 font-heading text-xs font-bold uppercase tracking-wide text-accentText transition hover:border-accent hover:text-ink">{showAll ? "Show top 25" : `Show all ${rows.length} scorers`}</button> : null}
     </section>
   );
 }

@@ -90,7 +90,7 @@ export function ThirdPlaceTable({ rows }: ThirdPlaceTableProps) {
                     {team ? (
                       <Link href={`/teams/${slugFor(team.key)}`} prefetch={false} className="group flex items-center gap-2">
                         <Flag code={team.code} alt="" width={24} height={18} />
-                        <span className="font-semibold text-ink transition group-hover:text-accent">
+                        <span className="font-semibold text-ink transition group-hover:text-accentText">
                           {country(row.teamKey)}
                         </span>
                       </Link>

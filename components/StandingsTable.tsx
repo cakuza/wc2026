@@ -113,8 +113,8 @@ export function StandingsTable({
                       <span
                         className={`font-semibold transition ${
                           isCurrent
-                            ? "text-accent"
-                            : "text-ink group-hover:text-accent"
+                            ? "text-accentText"
+                            : "text-ink group-hover:text-accentText"
                         }`}
                       >
                         {country(team.key)}

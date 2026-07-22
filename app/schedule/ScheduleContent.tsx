@@ -270,7 +270,7 @@ export function ScheduleContent({
       {/* Archive Header Notice - rendered only when isTournamentComplete is true */}
       {isTournamentComplete && (
         <div className="mb-6 rounded-xl border border-line bg-surface p-4">
-          <h2 className="font-heading text-lg font-bold text-accent uppercase tracking-wide">
+          <h2 className="font-heading text-lg font-bold text-accentText uppercase tracking-wide">
             Completed Results
           </h2>
           <p className="mt-1 text-sm text-muted">
@@ -281,7 +281,7 @@ export function ScheduleContent({
 
       {/* TABS */}
       <div className="mb-6 flex gap-4 border-b border-line">
-        <a href="#completed" className="border-b-2 border-accent pb-2 font-heading text-sm font-bold uppercase tracking-wide text-ink transition hover:text-accent">
+        <a href="#completed" className="border-b-2 border-accent pb-2 font-heading text-sm font-bold uppercase tracking-wide text-ink transition hover:text-accentText">
           Completed Results
         </a>
         {!isTournamentComplete && (
@@ -300,7 +300,7 @@ export function ScheduleContent({
             <div className="space-y-8">
               {liveDays.map((group) => (
                 <div key={group.date}>
-                  <h3 className="mb-3 border-b border-line pb-2 font-heading text-lg font-bold uppercase tracking-wide text-accent">
+                  <h3 className="mb-3 border-b border-line pb-2 font-heading text-lg font-bold uppercase tracking-wide text-accentText">
                     {longDate(group.date)}
                   </h3>
                   {renderMatches(group.matches)}
@@ -318,7 +318,7 @@ export function ScheduleContent({
             <div className="space-y-8">
               {syncingDays.map((group) => (
                 <div key={group.date}>
-                  <h3 className="mb-3 border-b border-line pb-2 font-heading text-lg font-bold uppercase tracking-wide text-accent">
+                  <h3 className="mb-3 border-b border-line pb-2 font-heading text-lg font-bold uppercase tracking-wide text-accentText">
                     {longDate(group.date)}
                   </h3>
                   {renderMatches(group.matches)}
@@ -358,7 +358,7 @@ export function ScheduleContent({
             <div className="space-y-8">
               {upcomingDays.map((group) => (
                 <div key={group.date}>
-                  <h3 className="mb-3 border-b border-line pb-2 font-heading text-lg font-bold uppercase tracking-wide text-accent">
+                  <h3 className="mb-3 border-b border-line pb-2 font-heading text-lg font-bold uppercase tracking-wide text-accentText">
                     {longDate(group.date)}
                   </h3>
                   {renderMatches(group.matches)}

@@ -157,7 +157,7 @@ export default async function TeamQualificationPage({
         <div className="mb-4 flex items-center gap-3">
           <Flag code={team.code} width={56} height={40} />
           <div>
-            <p className="font-heading text-sm font-bold uppercase tracking-[0.3em] text-accent">
+            <p className="font-heading text-sm font-bold uppercase tracking-[0.3em] text-accentText">
               World Cup 2026
             </p>
             <h1 className="font-heading text-3xl font-extrabold uppercase tracking-wide text-ink sm:text-4xl">
@@ -286,7 +286,7 @@ export default async function TeamQualificationPage({
               Group {group} and rank among the 8 best third-placed teams across all 12 groups. See the{" "}
               <Link
                 href="/world-cup-third-place-qualification"
-                className="text-accent hover:underline"
+                className="text-accentText hover:underline"
               >
                 third-place table
               </Link>
