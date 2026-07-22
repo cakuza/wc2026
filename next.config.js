@@ -1,7 +1,3 @@
-if (!process.env.NODE_OPTIONS || !process.env.NODE_OPTIONS.includes("--max-old-space-size")) {
-  process.env.NODE_OPTIONS = `${process.env.NODE_OPTIONS || ""} --max-old-space-size=8192`.trim();
-}
-
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   output: "export",
@@ -11,10 +7,6 @@ const nextConfig = {
   },
   outputFileTracingIncludes: {
     "/*": ["./data/archive/**/*"]
-  },
-  experimental: {
-    workerThreads: false,
-    cpus: 1
   }
 };
 
