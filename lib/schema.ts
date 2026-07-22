@@ -11,10 +11,10 @@ export function websiteSchema() {
     "@type": "WebSite",
     "@id": `${BASE_URL}/#website`,
     name: "WorldCupMatchDay",
-    alternateName: "World Cup Matchday",
+    alternateName: "World Cup 2026 Vault",
     url: `${BASE_URL}/`,
     description:
-      "Complete 2026 FIFA World Cup archive with all 104 results, final standings, teams, bracket, statistics and match reports.",
+      "Explore the complete 2026 FIFA World Cup Vault and archive with all 104 results, final standings, teams, bracket, statistics and match reports.",
     inLanguage: "en",
   };
 }

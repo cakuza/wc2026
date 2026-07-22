@@ -42,9 +42,9 @@ export const TIMEZONES: TimezoneConfig[] = [
     iana: "America/New_York",
     zoneNote: "Eastern Time (EDT, UTC−4) · America/New_York",
     context: "ET is shown for fans following the tournament from the US East Coast and other Eastern Time locations.",
-    title: "World Cup 2026 Results in Eastern Time",
+    title: "World Cup 2026 Results in Eastern Time — Complete ET Schedule",
     description:
-      "Complete 2026 World Cup results archive in Eastern Time, with all 104 scores, localized kickoff dates, venues and match reports.",
+      "View all 104 completed 2026 World Cup matches in Eastern Time, with final scores and kickoff times converted to ET.",
   },
   {
     slug: "india-time",

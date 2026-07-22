@@ -50,15 +50,26 @@ export function Hero({
       <div className="relative mx-auto max-w-7xl px-4 py-4 sm:px-8 sm:py-8">
         <header className="mb-3 max-w-4xl sm:mb-6">
           <p className="font-heading text-[10px] font-bold uppercase tracking-[0.24em] text-accent sm:text-xs sm:tracking-[0.3em]">
-            {isComplete ? "2026 World Cup Archive" : "2026 World Cup · Final Weekend"}
+            {isComplete ? "The 2026 World Cup Vault" : "2026 World Cup · Final Weekend"}
           </p>
           <h1 className="mt-2 font-heading text-3xl font-extrabold uppercase leading-[0.9] tracking-tight text-white sm:mt-3 sm:text-5xl lg:text-6xl">
-            {isComplete ? "2026 World Cup Archive" : "World Cup 2026 Final Weekend"}
+            {isComplete ? "THE 2026 WORLD CUP VAULT" : "World Cup 2026 Final Weekend"}
           </h1>
-          {isComplete && archiveState.finalResult ? (
-            <p className="mt-2 max-w-3xl text-sm text-white/70 sm:text-base">
-              <span className="font-bold text-white">{archiveState.champion}</span> won the Final {archiveState.finalResult.homeScore}–{archiveState.finalResult.awayScore} over {archiveState.runnerUp}.
-            </p>
+          {isComplete ? (
+            <>
+              <p className="mt-2 text-base font-semibold text-accent sm:text-lg">
+                Every result. Every scorer. Every defining moment.
+              </p>
+              {archiveState.finalResult ? (
+                <p className="mt-1.5 max-w-3xl text-sm leading-relaxed text-white/70 sm:text-base">
+                  <span className="font-bold text-white">{archiveState.champion}</span> won the Final {archiveState.finalResult.homeScore}–{archiveState.finalResult.awayScore} over {archiveState.runnerUp}. Explore the complete 2026 FIFA World Cup archive — all 104 results, final standings, the full bracket, statistics and match reports.
+                </p>
+              ) : (
+                <p className="mt-1.5 max-w-3xl text-sm leading-relaxed text-white/70 sm:text-base">
+                  Explore the complete 2026 FIFA World Cup archive — all 104 results, final standings, the full bracket, statistics and match reports.
+                </p>
+              )}
+            </>
           ) : null}
           {!isComplete ? (
             <div className="mt-3 flex flex-wrap gap-2 sm:mt-5 sm:gap-3">

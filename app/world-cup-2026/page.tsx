@@ -27,11 +27,11 @@ export async function generateMetadata(): Promise<Metadata> {
   const archive = getArchiveState({ matches: MATCHES, liveData: snapshot.liveDataByProviderId, resolvedParticipants, now });
 
   const title = archive.isComplete
-    ? `2026 World Cup Archive: ${archive.champion} Win, Results, Stats & Full Bracket`
-    : "2026 World Cup Archive: Final Weekend, Results & Stats";
+    ? "World Cup 2026 Vault — Winner, Results & Tournament Record"
+    : "2026 World Cup Vault: Final Weekend, Results & Stats";
   const description = archive.isComplete
-    ? `${archive.champion} won the 2026 FIFA World Cup, beating ${archive.runnerUp} ${archive.finalResult?.homeScore}-${archive.finalResult?.awayScore} in the final. ${archive.thirdPlace} finished third. Full results, bracket, stats and teams.`
-    : "The 2026 FIFA World Cup archive hub: full results, bracket, statistics, teams and groups as the tournament reaches its final weekend.";
+    ? `${archive.champion} won the 2026 FIFA World Cup, beating ${archive.runnerUp} ${archive.finalResult?.homeScore}-${archive.finalResult?.awayScore} in the Final. ${archive.thirdPlace} finished third and ${archive.fourthPlace} finished fourth. Explore the complete 2026 FIFA World Cup Vault and results archive.`
+    : "The 2026 FIFA World Cup Vault: full results, bracket, statistics, teams and groups as the tournament reaches its final weekend.";
 
   return {
     title,
@@ -41,7 +41,7 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-const breadcrumbs = [{ label: "Home", href: "/" }, { label: "2026 World Cup" }];
+const breadcrumbs = [{ label: "Home", href: "/" }, { label: "World Cup 2026 Vault" }];
 
 export default async function WorldCup2026Page() {
   const snapshot = await getTournamentLiveSnapshot();
@@ -53,11 +53,11 @@ export default async function WorldCup2026Page() {
   const collectionLd = {
     "@context": "https://schema.org",
     "@type": "CollectionPage",
-    name: archive.isComplete ? `2026 World Cup Archive: ${archive.champion} Winner` : "2026 World Cup Archive",
+    name: archive.isComplete ? `World Cup 2026 Vault: ${archive.champion} Winner` : "World Cup 2026 Vault",
     url: `${BASE}/world-cup-2026`,
     description: archive.isComplete
-      ? `${archive.champion} won the 2026 FIFA World Cup. Complete archive of results, bracket, statistics and teams.`
-      : "The 2026 FIFA World Cup archive hub, updated through the final weekend of the tournament.",
+      ? `${archive.champion} won the 2026 FIFA World Cup. Complete Vault archive of results, bracket, statistics and teams.`
+      : "The 2026 FIFA World Cup Vault hub, updated through the final weekend of the tournament.",
     dateModified: snapshot.generatedAt,
   };
 
@@ -76,12 +76,12 @@ export default async function WorldCup2026Page() {
 
       <p className="mb-1 font-heading text-sm font-bold uppercase tracking-[0.3em] text-accent">FIFA World Cup 2026</p>
       <h1 className="mb-2 font-heading text-4xl font-extrabold uppercase tracking-wide text-white sm:text-5xl">
-        {archive.isComplete ? "2026 World Cup Archive" : "2026 World Cup: Final Weekend"}
+        {archive.isComplete ? "World Cup 2026 Vault" : "2026 World Cup: Final Weekend"}
       </h1>
       <p className="mb-6 max-w-2xl text-sm leading-relaxed text-white/60">
-        11 June – 19 July 2026, hosted across the United States, Mexico and Canada.
+        11 June – 19 July 2026, hosted across the United States, Mexico and Canada. All 104 matches are complete.
         {archive.isComplete
-          ? " The tournament is complete. This page is the permanent archive of what happened."
+          ? ` ${archive.champion} finished as Champions, ${archive.runnerUp} as Runner-up, ${archive.thirdPlace} in Third, and ${archive.fourthPlace} in Fourth.`
           : " The tournament is reaching its conclusion — this page will become the permanent tournament archive once the Final is complete."}
       </p>
 

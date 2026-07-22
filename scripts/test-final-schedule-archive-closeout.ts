@@ -352,10 +352,10 @@ async function runSuite() {
   const layoutSource = fs.readFileSync(path.join(process.cwd(), "app/layout.tsx"), "utf8");
   const indexHtml = getHtmlContent("/");
 
-  check(layoutSource.includes('default: "World Cup 2026 Archive — Results, Teams, Bracket & Statistics"'), "app/layout.tsx sets archive default title");
-  check(layoutSource.includes("Complete 2026 FIFA World Cup archive with all 104 results"), "app/layout.tsx sets archive description");
-  check(indexHtml.includes("World Cup 2026 Archive — Results, Teams, Bracket &amp; Statistics") || indexHtml.includes("World Cup 2026 Archive — Results, Teams, Bracket & Statistics"), "Rendered index.html contains archive title tag");
-  check(indexHtml.includes("Complete 2026 FIFA World Cup archive with all 104 results"), "Rendered index.html contains archive description");
+  check(layoutSource.includes('default: "World Cup 2026 Vault — Results, Bracket & Statistics"'), "app/layout.tsx sets archive default title");
+  check(layoutSource.includes("Explore the complete 2026 FIFA World Cup archive with all 104 results"), "app/layout.tsx sets archive description");
+  check(indexHtml.includes("World Cup 2026 Vault — Results, Bracket &amp; Statistics") || indexHtml.includes("World Cup 2026 Vault — Results, Bracket & Statistics"), "Rendered index.html contains archive title tag");
+  check(indexHtml.includes("Explore the complete 2026 FIFA World Cup archive with all 104 results"), "Rendered index.html contains archive description");
   check(!layoutSource.includes("Matchday Guide – Fixtures") && !indexHtml.includes("Matchday Guide – Fixtures"), "Root metadata suppresses active tournament Matchday Guide copy");
 
   // Print Summary
