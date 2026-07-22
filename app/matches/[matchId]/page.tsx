@@ -15,6 +15,8 @@ import type { MatchEvents } from "@/lib/matchEvents";
 import { readStaticMatchEvents } from "@/lib/staticArchiveReader";
 
 
+import { buildMatchSportsEventSchema } from "@/lib/sportsEventSchema";
+
 export const revalidate = 60;
 // export const dynamic = "force-dynamic"; // removed for ISR
 
@@ -156,6 +158,8 @@ export async function generateMetadata({
     .filter(Boolean)
     .join(" – ");
 
+  const imageUrl = `${BASE}/matches/${matchId}/opengraph-image`;
+
   return {
     title: titleSeg,          // template: "%s | WorldCupMatchDay" appends branding
     description: desc,
@@ -165,11 +169,20 @@ export async function generateMetadata({
       description: [roundLabel, match.date, venueStr].filter(Boolean).join(" – "),
       url: `${BASE}/matches/${matchId}`,
       type: "website",
+      images: [
+        {
+          url: imageUrl,
+          width: 1200,
+          height: 630,
+          alt: `${titleSeg} — World Cup 2026 Vault`,
+        },
+      ],
     },
     twitter: {
       card: "summary_large_image",
       title: ogTitle,
       description: [roundLabel, match.date, venueStr].filter(Boolean).join(" – "),
+      images: [imageUrl],
     },
   };
 }
@@ -225,34 +238,29 @@ export default async function MatchPage({
   const homeName = resolvedTeamName(match, "home");
   const awayName = resolvedTeamName(match, "away");
 
+  const homeKey = isKnockoutMatch(match) ? getResolvedHomeTeam(match) : match.homeKey;
+  const awayKey = isKnockoutMatch(match) ? getResolvedAwayTeam(match) : match.awayKey;
+
   const breadcrumbs = [
     { label: "Home", href: "/" },
     { label: "Schedule", href: "/schedule" },
     { label: `${homeName} vs ${awayName}` },
   ];
 
-  const eventName = isCompleted && snap?.homeScore !== null && snap?.awayScore !== null
-    ? `${homeName} ${snap?.homeScore}–${snap?.awayScore} ${awayName}`
-    : `${homeName} vs ${awayName}`;
-
-  const sportsEventLd = {
-    "@context": "https://schema.org",
-    "@type": "SportsEvent",
-    name: `${eventName} — 2026 FIFA World Cup${groupOrStage ? ` ${groupOrStage}` : ""}`,
-    startDate: matchUtcDate(match).toISOString(),
-    sport: "Soccer",
-    // schema.org's EventStatusType has no "completed" value — EventScheduled
-    // remains the correct status for a normally-held event whether it is
-    // upcoming or already played.
-    eventStatus: "https://schema.org/EventScheduled",
-    eventAttendanceMode: "https://schema.org/OfflineEventAttendanceMode",
-    location: match.venue ? { "@type": "Place", name: match.venue } : undefined,
-    competitor: [
-      { "@type": "SportsTeam", name: homeName },
-      { "@type": "SportsTeam", name: awayName },
-    ],
-    url: `https://www.worldcupmatchday.com/matches/${matchId}`,
-  };
+  const sportsEventLd = buildMatchSportsEventSchema({
+    match,
+    matchId,
+    homeName,
+    awayName,
+    homeKey,
+    awayKey,
+    status: snap?.status ?? "SCHEDULED",
+    homeScore: snap?.homeScore ?? null,
+    awayScore: snap?.awayScore ?? null,
+    scoreDuration: snap?.live?.scoreDuration ?? null,
+    stageLabel,
+    scorers: snap?.scorers,
+  });
 
   const faqLd = {
     "@context": "https://schema.org",

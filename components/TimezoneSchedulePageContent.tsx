@@ -52,8 +52,11 @@ export function TimezoneSchedulePageContent({
   ];
 
   const related = [
-    { href: getTodayHref(z.iana), label: t("nav_today") },
     { href: "/schedule", label: t("hub_fullSchedule") },
+    { href: "/matches/match-104", label: "Final Report" },
+    { href: "/world-cup-2026", label: "World Cup 2026 Vault" },
+    { href: "/stats", label: "Final Statistics" },
+    { href: getTodayHref(z.iana), label: t("nav_today") },
     { href: "/groups", label: t("nav_groups") },
     { href: "/teams", label: t("nav_teams") },
     { href: "/world-cup-schedule-local-time", label: t("tz_related_otherZones") },

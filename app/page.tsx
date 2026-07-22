@@ -34,13 +34,13 @@ export async function generateMetadata(): Promise<Metadata> {
   const isThirdPlaceFinished = snapshot.matches["match-103"]?.status === "FINISHED";
 
   const title = archive.isComplete
-    ? `WorldCupMatchDay — ${archive.champion} Win the 2026 World Cup`
+    ? "World Cup 2026 Vault — Results, Bracket & Statistics"
     : isThirdPlaceFinished
       ? `2026 World Cup Final: ${finalTeams} (England Clinch Third)`
       : `2026 World Cup Final: ${finalTeams} & ${thirdTeams}`;
 
   const description = archive.isComplete
-    ? `${archive.champion} won the 2026 FIFA World Cup, beating ${archive.runnerUp} ${archive.finalResult?.homeScore}-${archive.finalResult?.awayScore} in the Final. Full results, bracket, stats and teams archive.`
+    ? `Explore the complete 2026 FIFA World Cup archive with all 104 results, ${archive.champion}’s title run, final standings, the full bracket, statistics and match reports.`
     : isThirdPlaceFinished
       ? `${finalTeams} in the 2026 World Cup Final. England secured third place with a 6–4 victory over France. See kickoff times, venues, Final preview and the full bracket.`
       : `${finalTeams} in the 2026 World Cup Final, with ${thirdHome && thirdAway ? `${countryName(thirdHome, "en")} vs ${countryName(thirdAway, "en")}` : "the Third-place playoff"}. See kickoff times, venues, semifinal results and the full bracket.`;
@@ -74,7 +74,7 @@ export default async function HomePage() {
       <Hero initialMatchday={initialMatchday} snapshot={snapshot} resolvedParticipants={resolvedParticipants} tournamentPhase={tournamentPhase} countdownTarget={countdownTarget} archiveState={archiveState} />
       {archiveState.isComplete ? (
         <div className="mx-auto max-w-7xl px-4 py-8">
-          <h2 className="mb-3 font-heading text-lg font-bold uppercase tracking-wide text-white">Explore the 2026 Archive</h2>
+          <h2 className="mb-3 font-heading text-lg font-bold uppercase tracking-wide text-white">Explore the 2026 World Cup Vault</h2>
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
             {[
               { href: "/world-cup-2026/results", label: "Full Results" },

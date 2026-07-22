@@ -40,11 +40,11 @@ const BUILD_COMMIT =
 export const metadata: Metadata = {
   metadataBase: new URL(BASE_URL),
   title: {
-    default: "World Cup 2026 Archive — Results, Teams, Bracket & Statistics",
+    default: "World Cup 2026 Vault — Results, Bracket & Statistics",
     template: "%s | WorldCupMatchDay"
   },
   description:
-    "Complete 2026 FIFA World Cup archive with all 104 results, final standings, teams, bracket, statistics, match reports and local-time schedules.",
+    "Explore the complete 2026 FIFA World Cup archive with all 104 results, Spain’s title run, final standings, the full bracket, statistics and match reports.",
   keywords: [
     "FIFA World Cup 2026", "World Cup 2026", "WC2026", "football", "soccer",
     "World Cup fixtures", "World Cup schedule", "World Cup squads", "World Cup groups",
@@ -56,23 +56,23 @@ export const metadata: Metadata = {
     type: "website",
     siteName: "WorldCupMatchDay",
     url: BASE_URL,
-    title: "World Cup 2026 Archive — Results, Teams, Bracket & Statistics",
+    title: "World Cup 2026 Vault — Results, Bracket & Statistics",
     description:
-      "Complete 2026 FIFA World Cup archive with all 104 results, final standings, teams, bracket, statistics, match reports and local-time schedules.",
+      "Explore the complete 2026 FIFA World Cup archive with all 104 results, Spain’s title run, final standings, the full bracket, statistics and match reports.",
     images: [
       {
         url: `${BASE_URL}/og-default.png`,
         width: 1200,
         height: 630,
-        alt: "WorldCupMatchDay - FIFA World Cup 2026 Archive"
+        alt: "WorldCupMatchDay - 2026 World Cup Vault"
       }
     ]
   },
   twitter: {
     card: "summary_large_image",
-    title: "World Cup 2026 Archive — Results, Teams, Bracket & Statistics",
+    title: "World Cup 2026 Vault — Results, Bracket & Statistics",
     description:
-      "Complete 2026 FIFA World Cup archive with all 104 results, final standings, teams, bracket, statistics, match reports and local-time schedules.",
+      "Explore the complete 2026 FIFA World Cup archive with all 104 results, Spain’s title run, final standings, the full bracket, statistics and match reports.",
     images: [`${BASE_URL}/og-default.png`]
   },
   alternates: {

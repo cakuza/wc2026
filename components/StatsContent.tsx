@@ -100,6 +100,14 @@ export default function StatsContent({ tournamentStats, teamLeaderboards: _teamL
         <p className="mt-2 text-sm leading-relaxed text-white/60">Tournament totals, {matchesPlayed === 104 ? "Golden Boot winner" : "Golden Boot leaders"}, provider-recorded assists, team records, clean sheets and match records.</p>
         <p className="mt-3 text-xs font-semibold text-white/45">{fullTimestamp(lastSyncedAt)}</p>
       </header>
+
+      {/* Direct-Answer Summary Block */}
+      <div className="mb-6 rounded-xl border border-accent/40 bg-accent/10 p-4 sm:p-5">
+        <p className="text-sm font-medium leading-relaxed text-white sm:text-base">
+          The 2026 World Cup produced <span className="font-extrabold text-accent">{totalGoals}</span> goals across <span className="font-extrabold text-white">{matchesPlayed}</span> matches. {topScorer ? <><span className="font-extrabold text-white">{topScorer.playerName}</span> won the Golden Boot with <span className="font-extrabold text-accent">{topScorer.goals}</span> goals, and the</> : "The"} tournament recorded <span className="font-extrabold text-white">{cleanSheets}</span> clean sheets.
+        </p>
+      </div>
+
       <StatsNav />
 
       <section aria-labelledby="tournament-glance" className="mb-7">

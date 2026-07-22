@@ -17,6 +17,15 @@ export type ParticipantDisplay = {
   isResolved: boolean;
 };
 
+export const ROUND_DISPLAY: Record<string, string> = {
+  R32: "Round of 32",
+  R16: "Round of 16",
+  QF:  "Quarter-final",
+  SF:  "Semi-final",
+  "3P": "Third-place Match",
+  F:   "Final",
+};
+
 /**
  * Type guard to safely identify if a Match is a KnockoutMatch.
  */
