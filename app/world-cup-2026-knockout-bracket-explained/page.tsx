@@ -133,7 +133,7 @@ export default function KnockoutBracketExplainedPage() {
 
       <div className="mx-auto max-w-3xl px-4 py-8">
         <BreadcrumbNav items={breadcrumbs} />
-        <p className="mb-2 font-heading text-sm font-bold uppercase tracking-[0.3em] text-accent">
+        <p className="mb-2 font-heading text-sm font-bold uppercase tracking-[0.3em] text-accentText">
           FIFA World Cup 2026
         </p>
         <h1 className="mb-3 font-heading text-4xl font-extrabold uppercase tracking-wide text-ink">
@@ -193,7 +193,7 @@ export default function KnockoutBracketExplainedPage() {
                 <h3 className="font-heading text-base font-extrabold uppercase tracking-wide text-ink">
                   {r.round}
                 </h3>
-                <span className="font-heading text-xs font-bold text-accent">{r.matches}</span>
+                <span className="font-heading text-xs font-bold text-accentText">{r.matches}</span>
                 <span className="font-heading text-xs font-bold text-faint">{r.dates}</span>
               </div>
               <p className="text-sm leading-relaxed text-muted">{r.body}</p>
@@ -234,7 +234,7 @@ export default function KnockoutBracketExplainedPage() {
             tournament. The specific teams filling each slot are only known once the group stage ends.
             On 27 June 2026, the last group matches finish, and at that point all 32 Round of 32 matchups
             are simultaneously confirmed. The{" "}
-            <Link href="/bracket" className="text-accent hover:underline">
+            <Link href="/bracket" className="text-accentText hover:underline">
               bracket page
             </Link>{" "}
             updates automatically as group results are synced.

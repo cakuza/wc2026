@@ -64,7 +64,7 @@ export function TimezoneSchedulePageContent({
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-8">
-      <p className="mb-2 font-heading text-sm font-bold uppercase tracking-[0.3em] text-accent">
+      <p className="mb-2 font-heading text-sm font-bold uppercase tracking-[0.3em] text-accentText">
         {z.zoneNote}
       </p>
       <h1 className="mb-2 font-heading text-4xl font-extrabold uppercase tracking-wide text-ink">

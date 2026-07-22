@@ -91,7 +91,7 @@ export default function DataSourcesPage() {
 
       <div className="mx-auto max-w-3xl px-4 py-8">
         <BreadcrumbNav items={breadcrumbs} />
-        <p className="mb-2 font-heading text-sm font-bold uppercase tracking-[0.3em] text-accent">About WorldCupMatchDay</p>
+        <p className="mb-2 font-heading text-sm font-bold uppercase tracking-[0.3em] text-accentText">About WorldCupMatchDay</p>
         <h1 className="mb-3 font-heading text-4xl font-extrabold uppercase tracking-wide text-ink">Data Sources &amp; Methodology</h1>
         <p className="mb-8 max-w-2xl text-sm text-muted">
           WorldCupMatchDay is an independent fan site. This page explains where our World Cup 2026 data comes from,
@@ -150,7 +150,7 @@ export default function DataSourcesPage() {
           <p>
             WorldCupMatchDay is an independent fan project. We are not affiliated with FIFA, any national football
             federation, stadium, broadcaster, or official sponsor. For details on our publisher independence and factual verification, see our{" "}
-            <Link href="/editorial-policy" className="text-accent underline font-semibold">
+            <Link href="/editorial-policy" className="text-accentText underline font-semibold">
               Editorial Policy
             </Link>
             .
@@ -160,11 +160,11 @@ export default function DataSourcesPage() {
         <Section title="How to Report a Correction">
           <p>
             If you see a score, scorer name, venue, or other data that appears incorrect, email us at{" "}
-            <a href="mailto:worldcupmatchday@proton.me" className="font-semibold text-accent underline-offset-2 hover:underline">
+            <a href="mailto:worldcupmatchday@proton.me" className="font-semibold text-accentText underline-offset-2 hover:underline">
               worldcupmatchday@proton.me
             </a>
             . Include the match name, the issue, and a source for the correction where possible. You can read more about how corrections are processed and applied in our{" "}
-            <Link href="/corrections-policy" className="text-accent underline font-semibold">
+            <Link href="/corrections-policy" className="text-accentText underline font-semibold">
               Corrections Policy
             </Link>
             .

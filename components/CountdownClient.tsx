@@ -55,7 +55,7 @@ export function CountdownClient({ tournamentPhase, target, isComplete }: { tourn
         </span>
         <span className="block text-2xl leading-none tracking-tight sm:text-7xl">
           {parts.days}{" "}
-          <span className="text-accent">{t("hero_days")}</span>
+          <span className="text-accentText">{t("hero_days")}</span>
         </span>
       </div>
       {tournamentPhase !== "pre_tournament" && (

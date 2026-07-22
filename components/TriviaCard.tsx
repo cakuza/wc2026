@@ -6,7 +6,7 @@ import { TRIVIA_T } from "@/lib/i18n";
 import { useLang } from "@/components/LanguageProvider";
 
 const CATEGORY_STYLES: Record<string, string> = {
-  "2026":       "border-accent/40 bg-accent/15 text-accent",
+  "2026":       "border-accent/40 bg-accent/15 text-accentText",
   records:      "border-purple-500/40 bg-purple-500/15 text-purple-300",
   history:      "border-blue-400/40 bg-blue-400/15 text-blue-300",
   players:      "border-yellow-400/40 bg-yellow-400/15 text-yellow-300",
@@ -114,7 +114,7 @@ export function TriviaCard() {
                 <button
                   type="button"
                   onClick={() => setRevealed(true)}
-                  className="rounded-lg bg-accent px-5 py-2.5 font-heading text-sm font-extrabold uppercase tracking-wide text-white transition hover:bg-accent/85 active:scale-95"
+                  className="rounded-lg bg-accent px-5 py-2.5 font-heading text-sm font-extrabold uppercase tracking-wide text-onAccent transition hover:bg-accent/85 active:scale-95"
                 >
                   {t("trivia_reveal")}
                 </button>

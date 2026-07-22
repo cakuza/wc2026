@@ -116,7 +116,7 @@ function StatusBadge({ status, t }: { status: DisplayStatus; t: (k: string) => s
     );
   }
   return (
-    <span className="inline-flex items-center rounded-full bg-accent/20 px-3 py-1 font-heading text-xs font-extrabold uppercase tracking-widest text-accent">
+    <span className="inline-flex items-center rounded-full bg-accent/20 px-3 py-1 font-heading text-xs font-extrabold uppercase tracking-widest text-accentText">
       {t("match_upcoming")}
     </span>
   );
@@ -370,7 +370,7 @@ export function MatchDetail({
       {/* Back link */}
       <Link
         href="/schedule"
-        className="font-heading text-sm font-bold uppercase tracking-wide text-faint transition hover:text-accent"
+        className="font-heading text-sm font-bold uppercase tracking-wide text-faint transition hover:text-accentText"
       >
         ← {t("match_backSched")}
       </Link>
@@ -390,7 +390,7 @@ export function MatchDetail({
         <div className="relative px-6 py-8 sm:px-10">
           {/* Group + matchday badge */}
           <div className="mb-6 flex justify-center">
-            <span className="rounded-full bg-accent/20 px-3 py-1 font-heading text-xs font-extrabold uppercase tracking-widest text-accent">
+            <span className="rounded-full bg-accent/20 px-3 py-1 font-heading text-xs font-extrabold uppercase tracking-widest text-accentText">
               {stageLabel}
             </span>
           </div>
@@ -406,11 +406,11 @@ export function MatchDetail({
                 height={56}
                 className="rounded-lg shadow-2xl ring-1 ring-line transition-transform duration-300 group-hover:scale-105"
               />
-              <span className="font-heading text-lg font-extrabold uppercase leading-tight text-ink transition-colors duration-300 group-hover:text-accent sm:text-xl">
+              <span className="font-heading text-lg font-extrabold uppercase leading-tight text-ink transition-colors duration-300 group-hover:text-accentText sm:text-xl">
                 {homeName}
               </span>
               {("matchNumber" in match) && match.matchNumber === 104 && isConfirmedFinished && (
-                <span className="mt-1 rounded bg-accent/20 px-2 py-0.5 font-heading text-[10px] font-extrabold uppercase tracking-widest text-accent">Champion</span>
+                <span className="mt-1 rounded bg-accent/20 px-2 py-0.5 font-heading text-[10px] font-extrabold uppercase tracking-widest text-accentText">Champion</span>
               )}
             </Link>
 
@@ -452,7 +452,7 @@ export function MatchDetail({
                 height={56}
                 className="rounded-lg shadow-2xl ring-1 ring-line transition-transform duration-300 group-hover:scale-105"
               />
-              <span className="font-heading text-lg font-extrabold uppercase leading-tight text-ink transition-colors duration-300 group-hover:text-accent sm:text-xl">
+              <span className="font-heading text-lg font-extrabold uppercase leading-tight text-ink transition-colors duration-300 group-hover:text-accentText sm:text-xl">
                 {awayName}
               </span>
               {("matchNumber" in match) && match.matchNumber === 104 && isConfirmedFinished && (
@@ -768,7 +768,7 @@ export function MatchDetail({
                 </div>
                 {report.factualHighlights.length > 0 && (
                   <div className="mt-6 rounded-xl border border-line bg-canvas/20 p-4">
-                    <h5 className="font-heading text-xs font-extrabold uppercase tracking-wider text-accent mb-2">
+                    <h5 className="font-heading text-xs font-extrabold uppercase tracking-wider text-accentText mb-2">
                       Factual Highlights
                     </h5>
                     <ul className="list-disc list-inside space-y-1.5 text-xs text-muted">
@@ -797,7 +797,7 @@ export function MatchDetail({
                           href={s.url}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="underline text-accent hover:text-ink"
+                          className="underline text-accentText hover:text-ink"
                         >
                           {s.label}
                         </a>

@@ -187,7 +187,7 @@ function MobileDrawer({
                 onClick={onClose}
                 aria-current={active ? "page" : undefined}
                 className={`flex min-h-[44px] items-center rounded-lg px-4 font-heading text-sm font-bold uppercase tracking-wide transition ${
-                  active ? "bg-accent text-white" : "text-muted hover:bg-hover hover:text-ink"
+                  active ? "bg-accent text-onAccent" : "text-muted hover:bg-hover hover:text-ink"
                 }`}
               >
                 {l.label ?? t(l.key)}
@@ -233,7 +233,7 @@ export function Nav({ isTournamentComplete }: { isTournamentComplete: boolean })
                   href={actualHref}
                   aria-current={active ? "page" : undefined}
                   className={`rounded px-3 py-2 font-heading text-sm font-bold uppercase tracking-wide transition ${
-                    active ? "bg-accent text-white" : "text-muted hover:bg-hover hover:text-ink"
+                    active ? "bg-accent text-onAccent" : "text-muted hover:bg-hover hover:text-ink"
                   }`}
                 >
                   {l.label ?? t(l.key)}

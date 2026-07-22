@@ -67,7 +67,7 @@ export function GroupsContent({ standings }: GroupsContentProps) {
                 </span>
                 <Link
                   href={`/groups/${letterToGroupSlug(g)}`}
-                  className="font-heading text-[10px] font-bold uppercase tracking-wide text-accent/70 hover:text-accent transition-colors"
+                  className="font-heading text-[10px] font-bold uppercase tracking-wide text-accentText/70 hover:text-accentText transition-colors"
                 >
                   Full standings →
                 </Link>

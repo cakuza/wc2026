@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 export default function ContactPage() {
   return (
     <div className="mx-auto max-w-2xl px-4 py-12">
-      <p className="mb-2 font-heading text-sm font-bold tracking-[0.3em] text-accent">
+      <p className="mb-2 font-heading text-sm font-bold tracking-[0.3em] text-accentText">
         GET IN TOUCH
       </p>
       <h1 className="mb-6 font-heading text-3xl font-extrabold tracking-tight text-ink sm:text-4xl">
@@ -30,7 +30,7 @@ export default function ContactPage() {
           </p>
           <a
             href="mailto:worldcupmatchday@proton.me"
-            className="font-heading text-lg font-extrabold text-accent hover:text-ink transition"
+            className="font-heading text-lg font-extrabold text-accentText hover:text-ink transition"
           >
             worldcupmatchday@proton.me
           </a>

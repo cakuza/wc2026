@@ -179,7 +179,7 @@ export default async function QualifiedEliminatedPage() {
       <div className="mx-auto max-w-3xl px-4 py-8">
         <BreadcrumbNav items={breadcrumbs} />
 
-        <p className="mb-1 font-heading text-sm font-bold uppercase tracking-[0.3em] text-accent">
+        <p className="mb-1 font-heading text-sm font-bold uppercase tracking-[0.3em] text-accentText">
           World Cup 2026
         </p>
         <h1 className="mb-1 font-heading text-3xl font-extrabold uppercase tracking-wide text-ink sm:text-4xl">
@@ -265,7 +265,7 @@ export default async function QualifiedEliminatedPage() {
               ranking is resolved — see the{" "}
               <Link
                 href="/world-cup-third-place-qualification"
-                className="text-accent hover:underline"
+                className="text-accentText hover:underline"
               >
                 Best Third-Place Teams table
               </Link>

@@ -40,7 +40,7 @@ export default async function MatchesStatsPage() {
       <BreadcrumbNav items={breadcrumbs} />
 
       <div className="mb-6 mt-4">
-        <p className="font-heading text-sm font-bold uppercase tracking-[0.3em] text-accent">
+        <p className="font-heading text-sm font-bold uppercase tracking-[0.3em] text-accentText">
           World Cup 2026
         </p>
         <h1 className="mt-1 font-heading text-3xl font-extrabold uppercase tracking-tight text-ink sm:text-4xl">

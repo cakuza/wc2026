@@ -67,12 +67,12 @@ export function ScheduledKnockoutPreview({ match, resolvedParticipants, previewD
         <h4 className="font-heading text-xs font-bold uppercase tracking-widest text-faint mb-2">Bracket Destination</h4>
         {winnerDestination && (
            <p className="text-sm text-ink">
-             <span className="text-accent font-bold">Winner</span> advances to: <Link href={winnerDestination.href} className="underline decoration-white/20 hover:text-ink transition">{winnerDestination.displayLabel}</Link>
+             <span className="text-accentText font-bold">Winner</span> advances to: <Link href={winnerDestination.href} className="underline decoration-lineStrong hover:text-ink transition">{winnerDestination.displayLabel}</Link>
            </p>
         )}
         {loserDestination && (
            <p className="text-sm text-ink mt-1">
-             <span className="text-red-400 font-bold">Loser</span> drops to: <Link href={loserDestination.href} className="underline decoration-white/20 hover:text-ink transition">{loserDestination.displayLabel}</Link>
+             <span className="text-red-400 font-bold">Loser</span> drops to: <Link href={loserDestination.href} className="underline decoration-lineStrong hover:text-ink transition">{loserDestination.displayLabel}</Link>
            </p>
         )}
       </div>}
@@ -116,7 +116,7 @@ export function ScheduledKnockoutPreview({ match, resolvedParticipants, previewD
                         {j.result === 'UPCOMING' ? '-' : j.result}
                       </span>
                       {j.matchHref && (
-                        <Link href={j.matchHref} className="ml-1 text-accent opacity-50 hover:opacity-100">→</Link>
+                        <Link href={j.matchHref} className="ml-1 text-accentText opacity-50 hover:opacity-100">→</Link>
                       )}
                     </div>
                   </div>
@@ -170,7 +170,7 @@ export function ScheduledKnockoutPreview({ match, resolvedParticipants, previewD
                         {j.result === 'UPCOMING' ? '-' : j.result}
                       </span>
                       {j.matchHref && (
-                        <Link href={j.matchHref} className="ml-1 text-accent opacity-50 hover:opacity-100">→</Link>
+                        <Link href={j.matchHref} className="ml-1 text-accentText opacity-50 hover:opacity-100">→</Link>
                       )}
                     </div>
                   </div>

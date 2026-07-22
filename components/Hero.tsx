@@ -49,7 +49,7 @@ export function Hero({
       />
       <div className="relative mx-auto max-w-7xl px-4 py-4 sm:px-8 sm:py-8">
         <header className="mb-3 max-w-4xl sm:mb-6">
-          <p className="font-heading text-[10px] font-bold uppercase tracking-[0.24em] text-accent sm:text-xs sm:tracking-[0.3em]">
+          <p className="font-heading text-[10px] font-bold uppercase tracking-[0.24em] text-accentText sm:text-xs sm:tracking-[0.3em]">
             {isComplete ? "The 2026 World Cup Vault" : "2026 World Cup · Final Weekend"}
           </p>
           <h1 className="mt-2 font-heading text-3xl font-extrabold uppercase leading-[0.9] tracking-tight text-ink sm:mt-3 sm:text-5xl lg:text-6xl">
@@ -57,7 +57,7 @@ export function Hero({
           </h1>
           {isComplete ? (
             <>
-              <p className="mt-2 text-base font-semibold text-accent sm:text-lg">
+              <p className="mt-2 text-base font-semibold text-accentText sm:text-lg">
                 Every result. Every scorer. Every defining moment.
               </p>
               {archiveState.finalResult ? (
@@ -73,7 +73,7 @@ export function Hero({
           ) : null}
           {!isComplete ? (
             <div className="mt-3 flex flex-wrap gap-2 sm:mt-5 sm:gap-3">
-              <Link href="/matches/match-104" className="rounded-lg bg-accent px-3 py-2.5 font-heading text-[10px] font-bold uppercase tracking-widest text-navy transition hover:bg-white sm:px-4 sm:text-xs">
+              <Link href="/matches/match-104" className="rounded-lg bg-accent px-3 py-2.5 font-heading text-[10px] font-bold uppercase tracking-widest text-onAccent transition hover:bg-surface sm:px-4 sm:text-xs">
                 View the Final
               </Link>
               <Link href="/schedule" className="rounded-lg border border-lineStrong bg-surface px-3 py-2.5 font-heading text-[10px] font-bold uppercase tracking-widest text-ink transition hover:border-lineStrong sm:px-4 sm:text-xs">

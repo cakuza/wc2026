@@ -35,10 +35,10 @@ export function Footer() {
           <div className="flex flex-col items-center gap-2 sm:items-start">
             <Link href="/" className="flex items-center gap-2">
               <span className="font-heading text-lg font-extrabold tracking-tight text-ink">WorldCupMatchDay</span>
-              <span className="rounded bg-accent px-1.5 py-0.5 font-heading text-xs font-extrabold leading-none text-white">2026</span>
+              <span className="rounded bg-accent px-1.5 py-0.5 font-heading text-xs font-extrabold leading-none text-onAccent">2026</span>
             </Link>
             <p className="font-heading text-sm font-extrabold uppercase tracking-wide text-muted">
-              FIFA World Cup <span className="text-accent">2026</span> · {t("footer_dates")}
+              FIFA World Cup <span className="text-accentText">2026</span> · {t("footer_dates")}
             </p>
           </div>
 

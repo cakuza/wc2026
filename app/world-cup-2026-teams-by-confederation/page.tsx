@@ -49,7 +49,7 @@ export default function TeamsByConfederationPage() {
 
       <div className="mx-auto max-w-4xl px-4 py-8">
         <BreadcrumbNav items={breadcrumbs} />
-        <p className="mb-2 font-heading text-sm font-bold uppercase tracking-[0.3em] text-accent">World Cup 2026</p>
+        <p className="mb-2 font-heading text-sm font-bold uppercase tracking-[0.3em] text-accentText">World Cup 2026</p>
         <h1 className="mb-2 font-heading text-4xl font-extrabold uppercase tracking-wide text-ink">
           World Cup 2026 Teams by Confederation
         </h1>

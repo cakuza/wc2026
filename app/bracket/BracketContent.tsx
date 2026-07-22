@@ -174,7 +174,7 @@ export function BracketContent({ resolvedParticipants, tournamentPhase }: { reso
         <h1 className="font-heading text-4xl font-extrabold uppercase tracking-wide text-ink">
           {t("bracket_title")}
         </h1>
-        <span className="rounded-lg border border-accent/30 bg-accent/10 px-3 py-1.5 font-heading text-xs font-bold uppercase tracking-widest text-accent">
+        <span className="rounded-lg border border-accent/30 bg-accent/10 px-3 py-1.5 font-heading text-xs font-bold uppercase tracking-widest text-accentText">
           FIFA World Cup 2026
         </span>
       </div>
@@ -272,7 +272,7 @@ export function BracketContent({ resolvedParticipants, tournamentPhase }: { reso
                 Third-place playoff
               </p>
               <MatchCard m={thirdPlaceModel} />
-              <p className="mb-2 mt-10 font-heading text-[9px] font-bold uppercase tracking-widest text-accent">
+              <p className="mb-2 mt-10 font-heading text-[9px] font-bold uppercase tracking-widest text-accentText">
                 {t("bracket_final")}
               </p>
               <MatchCard m={finalModel} isFinal />

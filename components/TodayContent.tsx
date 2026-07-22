@@ -77,7 +77,7 @@ export function TodayContent({
         <div className="mb-6 flex flex-wrap items-center gap-3">
           <Link
             href="/world-cup-2026"
-            className="rounded-lg border border-accent/40 bg-accent/10 px-4 py-2 font-heading text-xs font-bold uppercase tracking-wide text-accent transition hover:border-accent/60"
+            className="rounded-lg border border-accent/40 bg-accent/10 px-4 py-2 font-heading text-xs font-bold uppercase tracking-wide text-accentText transition hover:border-accent/60"
           >
             2026 World Cup Archive →
           </Link>
@@ -148,7 +148,7 @@ export function TodayContent({
           <span className="font-semibold text-ink">
             Just after midnight — view the previous matchday&apos;s completed matches.
           </span>
-          <span className="shrink-0 font-heading text-xs font-bold uppercase tracking-wide text-accent">
+          <span className="shrink-0 font-heading text-xs font-bold uppercase tracking-wide text-accentText">
             {longDate(previousMatchday)} ?
           </span>
         </Link>
