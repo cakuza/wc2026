@@ -61,7 +61,7 @@ function TodaySummary({
   if (liveMatches.length === 0 && !next) return null;
 
   return (
-    <section className="mb-8 rounded-xl border border-white/10 bg-navyCard px-5 py-4">
+    <section className="mb-8 rounded-xl border border-line bg-surface px-5 py-4">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         {liveMatches.length > 0 && (
           <div>
@@ -89,14 +89,14 @@ function TodaySummary({
 
         {next && (
           <div>
-            <p className="font-heading text-[11px] font-bold uppercase tracking-widest text-white/35">
+            <p className="font-heading text-[11px] font-bold uppercase tracking-widest text-faint">
               Next kickoff
             </p>
             <p className="mt-1">
               <Link href={`/matches/${matchSlug(next)}`} className="font-semibold text-white hover:text-accent">
                 {getParticipantDisplay(next, "home", snapshot.resolvedParticipants).label} vs {getParticipantDisplay(next, "away", snapshot.resolvedParticipants).label}
               </Link>{" "}
-              - <span className="font-semibold text-white/80" suppressHydrationWarning>
+              - <span className="font-semibold text-ink" suppressHydrationWarning>
                 {getMatchPresentation({ match: next, liveData: next.providerIds?.footballData ? snapshot.liveDataByProviderId[String(next.providerIds.footballData)] : undefined, timeZone: tz, now: hydrated ? now : new Date(ARCHIVE_DEFAULT_DATE) }).displayKickoffTime}
               </span>
             </p>
@@ -156,9 +156,9 @@ function MatchRow({
         ? "Third-place playoff"
         : "Match";
     return (
-      <div className="flex flex-col gap-2 rounded-lg border border-white/10 bg-navyCard px-4 py-3 text-center transition hover:border-white/20 hover:bg-white/5">
-        <p className="text-sm font-semibold text-white/70">{stageName} — teams to be decided</p>
-        <p className="text-xs text-white/40">Participants will be confirmed once previous matches conclude.</p>
+      <div className="flex flex-col gap-2 rounded-lg border border-line bg-surface px-4 py-3 text-center transition hover:border-lineStrong hover:bg-white/5">
+        <p className="text-sm font-semibold text-muted">{stageName} — teams to be decided</p>
+        <p className="text-xs text-faint">Participants will be confirmed once previous matches conclude.</p>
       </div>
     );
   }
@@ -176,7 +176,7 @@ function MatchRow({
   return (
     <Link
       href={`/matches/${matchSlug(m)}`}
-      className="flex flex-col gap-2 rounded-lg border border-white/10 bg-navyCard px-4 py-3 transition hover:border-white/20 hover:bg-white/5"
+      className="flex flex-col gap-2 rounded-lg border border-line bg-surface px-4 py-3 transition hover:border-lineStrong hover:bg-white/5"
     >
       <div className="flex flex-col gap-2 sm:flex-row sm:items-start">
         <div data-today-score-cluster className="min-w-0 flex-1">
@@ -190,7 +190,7 @@ function MatchRow({
                 {pres.homeScore}-{pres.awayScore}
               </span>
             ) : (
-              <span className="shrink-0 rounded bg-navy px-2 py-1 font-heading text-xs font-bold uppercase text-white/50">
+              <span className="shrink-0 rounded bg-canvas px-2 py-1 font-heading text-xs font-bold uppercase text-faint">
                 vs
               </span>
             )}
@@ -199,15 +199,15 @@ function MatchRow({
               <span className="truncate font-semibold text-white">{awayDisplay.label}</span>
             </div>
           </div>
-          {goals ? <p className="mt-1.5 truncate text-center text-[11px] text-white/40">Goals: {goals}</p> : null}
+          {goals ? <p className="mt-1.5 truncate text-center text-[11px] text-faint">Goals: {goals}</p> : null}
           {scorerDetailsIncomplete && (pres.state === "live" || pres.state === "syncing") ? (
-            <p className="mt-1.5 text-center text-[11px] text-white/40">Scorer details are still syncing.</p>
+            <p className="mt-1.5 text-center text-[11px] text-faint">Scorer details are still syncing.</p>
           ) : null}
         </div>
-        <div data-today-right-meta className="flex shrink-0 items-center justify-between gap-3 text-xs text-white/50 sm:w-36 sm:flex-col sm:items-end sm:text-end">
+        <div data-today-right-meta className="flex shrink-0 items-center justify-between gap-3 text-xs text-faint sm:w-36 sm:flex-col sm:items-end sm:text-end">
           <div className="flex items-center gap-2 sm:justify-end">
             {pres.showStatus === false && !liveDataUnavailable ? (
-              <span className="font-semibold text-white/80" suppressHydrationWarning>
+              <span className="font-semibold text-ink" suppressHydrationWarning>
                 {pres.displayKickoffTime}
               </span>
             ) : null}
@@ -221,8 +221,8 @@ function MatchRow({
                 pres.state === "live" || pres.state === "halftime"
                   ? "bg-red-600 text-white"
                   : pres.state === "final"
-                  ? "bg-white/10 text-white/60"
-                  : "bg-white/5 text-white/30"
+                  ? "bg-white/10 text-muted"
+                  : "bg-white/5 text-faint"
               }`}>
                 {statusMap[pres.state]}
               </span>

@@ -46,7 +46,7 @@ export default async function MatchesStatsPage() {
         <h1 className="mt-1 font-heading text-3xl font-extrabold uppercase tracking-tight text-white sm:text-4xl">
           Match Records
         </h1>
-        <p className="mt-2 max-w-3xl text-sm text-white/50">
+        <p className="mt-2 max-w-3xl text-sm text-faint">
           Match extremes from the 2026 tournament.
         </p>
       </div>
@@ -63,12 +63,12 @@ export default async function MatchesStatsPage() {
 
         {hasData ? (
           <div className="grid gap-4 sm:grid-cols-3">
-            <div className="flex gap-4 rounded-xl border border-white/10 bg-navyCard p-6">
+            <div className="flex gap-4 rounded-xl border border-line bg-surface p-6">
               <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-accent/10 text-2xl">
                 🔥
               </div>
               <div className="min-w-0 flex flex-col justify-center">
-                <p className="font-heading text-xs font-bold uppercase tracking-widest text-white/50">
+                <p className="font-heading text-xs font-bold uppercase tracking-widest text-faint">
                   Highest Scoring Match
                 </p>
                 <p className="mt-1 font-heading text-lg font-extrabold leading-snug text-white">
@@ -81,16 +81,16 @@ export default async function MatchesStatsPage() {
                   ) : "—"}
                 </p>
                 {highestScoringMatch && (
-                  <p className="text-xs text-white/40 mt-1">{highestScoringMatch.totalGoals} total goals</p>
+                  <p className="text-xs text-faint mt-1">{highestScoringMatch.totalGoals} total goals</p>
                 )}
               </div>
             </div>
-            <div className="flex gap-4 rounded-xl border border-white/10 bg-navyCard p-6">
+            <div className="flex gap-4 rounded-xl border border-line bg-surface p-6">
               <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-accent/10 text-2xl">
                 📊
               </div>
               <div className="min-w-0 flex flex-col justify-center">
-                <p className="font-heading text-xs font-bold uppercase tracking-widest text-white/50">
+                <p className="font-heading text-xs font-bold uppercase tracking-widest text-faint">
                   Biggest Win
                 </p>
                 <p className="mt-1 font-heading text-lg font-extrabold leading-snug text-white">
@@ -103,27 +103,27 @@ export default async function MatchesStatsPage() {
                   ) : "—"}
                 </p>
                 {biggestWin && (
-                  <p className="text-xs text-white/40 mt-1">{biggestWin.margin}-goal margin</p>
+                  <p className="text-xs text-faint mt-1">{biggestWin.margin}-goal margin</p>
                 )}
               </div>
             </div>
-            <div className="flex gap-4 rounded-xl border border-white/10 bg-navyCard p-6">
+            <div className="flex gap-4 rounded-xl border border-line bg-surface p-6">
               <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-accent/10 text-2xl">
                 🧤
               </div>
               <div className="min-w-0 flex flex-col justify-center">
-                <p className="font-heading text-xs font-bold uppercase tracking-widest text-white/50">
+                <p className="font-heading text-xs font-bold uppercase tracking-widest text-faint">
                   Clean Sheets
                 </p>
                 <p className="mt-1 font-heading text-lg font-extrabold leading-snug text-white">
                   {cleanSheets}
                 </p>
-                <p className="text-xs text-white/40 mt-1">across all {matchesPlayed} matches</p>
+                <p className="text-xs text-faint mt-1">across all {matchesPlayed} matches</p>
               </div>
             </div>
           </div>
         ) : (
-          <p className="rounded-xl border border-white/10 bg-navyCard p-5 text-sm text-white/50">
+          <p className="rounded-xl border border-line bg-surface p-5 text-sm text-faint">
             Tournament records will update after completed matches are synced.
           </p>
         )}

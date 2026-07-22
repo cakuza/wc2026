@@ -47,7 +47,7 @@ export const SECONDARY_LINKS: NavLink[] = [
 // desktop nav / into the mobile secondary drawer so they no longer dominate.
 
 export const ARCHIVE_DESKTOP_LINKS: NavLink[] = [
-  { href: "/world-cup-2026", key: "nav_archive", label: "2026 Archive" },
+  { href: "/world-cup-2026", key: "nav_archive", label: "2026 Vault" },
   { href: "/world-cup-2026/results", key: "nav_results", label: "Results" },
   { href: "/stats", key: "nav_stats" },
   { href: "/bracket", key: "nav_bracket" },
@@ -58,7 +58,7 @@ export const ARCHIVE_DESKTOP_LINKS: NavLink[] = [
 ];
 
 export const ARCHIVE_PRIMARY_LINKS: NavLink[] = [
-  { href: "/world-cup-2026", key: "nav_archive", label: "2026 Archive" },
+  { href: "/world-cup-2026", key: "nav_archive", label: "2026 Vault" },
   { href: "/world-cup-2026/results", key: "nav_results", label: "Results" },
   { href: "/stats", key: "nav_stats" },
   { href: "/bracket", key: "nav_bracket" },

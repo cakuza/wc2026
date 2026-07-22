@@ -63,15 +63,15 @@ export function ScheduledKnockoutPreview({ match, resolvedParticipants, previewD
   return (
     <>
       
-      {hasBracketDestination && <div className="mb-4 bg-navy/40 p-4 rounded-lg border border-white/5">
-        <h4 className="font-heading text-xs font-bold uppercase tracking-widest text-white/50 mb-2">Bracket Destination</h4>
+      {hasBracketDestination && <div className="mb-4 bg-canvas/40 p-4 rounded-lg border border-line">
+        <h4 className="font-heading text-xs font-bold uppercase tracking-widest text-faint mb-2">Bracket Destination</h4>
         {winnerDestination && (
-           <p className="text-sm text-white/80">
+           <p className="text-sm text-ink">
              <span className="text-accent font-bold">Winner</span> advances to: <Link href={winnerDestination.href} className="underline decoration-white/20 hover:text-white transition">{winnerDestination.displayLabel}</Link>
            </p>
         )}
         {loserDestination && (
-           <p className="text-sm text-white/80 mt-1">
+           <p className="text-sm text-ink mt-1">
              <span className="text-red-400 font-bold">Loser</span> drops to: <Link href={loserDestination.href} className="underline decoration-white/20 hover:text-white transition">{loserDestination.displayLabel}</Link>
            </p>
         )}
@@ -79,13 +79,13 @@ export function ScheduledKnockoutPreview({ match, resolvedParticipants, previewD
 
       <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
         {/* Home Team */}
-        <div className="rounded-lg bg-navy/60 p-4 text-center border border-white/5">
+        <div className="rounded-lg bg-canvas/60 p-4 text-center border border-line">
           <Flag code={homeCode} name={homeName} width={60} height={42} className="mx-auto rounded-sm shadow-md" />
           <p className="mt-3 font-heading text-sm font-extrabold uppercase tracking-wide text-white">
             {homeName}
           </p>
-          <div className="mt-4 text-left border-t border-white/10 pt-3">
-            <h4 className="text-[10px] uppercase text-white/50 mb-2">Recent Form</h4>
+          <div className="mt-4 text-left border-t border-line pt-3">
+            <h4 className="text-[10px] uppercase text-faint mb-2">Recent Form</h4>
             {homeRecentForm && homeRecentForm.length > 0 ? (
               <div className="flex gap-1">
                 {homeRecentForm.map((result, idx) => (
@@ -94,25 +94,25 @@ export function ScheduledKnockoutPreview({ match, resolvedParticipants, previewD
                   </span>
                 ))}
               </div>
-            ) : <p className="mt-1 text-[10px] text-white/35">Unavailable</p>}
+            ) : <p className="mt-1 text-[10px] text-faint">Unavailable</p>}
           </div>
 
-          <div className="mt-4 text-left border-t border-white/10 pt-3">
-            <h4 className="text-[10px] uppercase text-white/50 mb-2">Tournament Journey</h4>
+          <div className="mt-4 text-left border-t border-line pt-3">
+            <h4 className="text-[10px] uppercase text-faint mb-2">Tournament Journey</h4>
             {homeJourney && homeJourney.length > 0 ? (
               <div className="flex flex-col gap-2">
                 {homeJourney.map((j, idx) => (
                   <div key={idx} className="flex justify-between items-center text-[10px] bg-white/5 rounded px-2 py-1.5">
                     <div className="flex flex-col text-left flex-1 min-w-0 pr-2">
-                      <span className="font-bold text-white/80 whitespace-nowrap overflow-hidden text-ellipsis">{j.stage} vs {countryName(j.opponentName, "en")}</span>
+                      <span className="font-bold text-ink whitespace-nowrap overflow-hidden text-ellipsis">{j.stage} vs {countryName(j.opponentName, "en")}</span>
                     </div>
                     <div className="flex items-center gap-1.5 shrink-0">
                       {j.scoreLabel ? (
-                        <span className="font-mono text-white/90">{j.scoreLabel}</span>
+                        <span className="font-mono text-ink">{j.scoreLabel}</span>
                       ) : (
-                        <span className="font-mono text-white/50 text-[9px]">TBD</span>
+                        <span className="font-mono text-faint text-[9px]">TBD</span>
                       )}
-                      <span className={`w-4 h-4 rounded-sm flex items-center justify-center font-bold text-[9px] ${j.result === 'W' ? 'bg-green-600 text-white' : j.result === 'L' ? 'bg-red-600 text-white' : j.result === 'UPCOMING' ? 'bg-white/10 text-white/50' : 'bg-gray-500 text-white'}`}>
+                      <span className={`w-4 h-4 rounded-sm flex items-center justify-center font-bold text-[9px] ${j.result === 'W' ? 'bg-green-600 text-white' : j.result === 'L' ? 'bg-red-600 text-white' : j.result === 'UPCOMING' ? 'bg-white/10 text-faint' : 'bg-gray-500 text-white'}`}>
                         {j.result === 'UPCOMING' ? '-' : j.result}
                       </span>
                       {j.matchHref && (
@@ -122,24 +122,24 @@ export function ScheduledKnockoutPreview({ match, resolvedParticipants, previewD
                   </div>
                 ))}
               </div>
-            ) : <p className="mt-1 text-[10px] text-white/35">Unavailable</p>}
+            ) : <p className="mt-1 text-[10px] text-faint">Unavailable</p>}
           </div>
-          <div className="mt-3 text-left border-t border-white/10 pt-2">
-            <h4 className="text-[10px] uppercase text-white/50 mb-1">Top Scorers</h4>
+          <div className="mt-3 text-left border-t border-line pt-2">
+            <h4 className="text-[10px] uppercase text-faint mb-1">Top Scorers</h4>
             {homeTopScorers.length > 0 ? homeTopScorers.map(p => (
-              <p key={p.playerName} className="text-[11px] text-white/80">{p.playerName} ({p.goals}G)</p>
-            )) : <p className="text-[11px] text-white/35">Unavailable</p>}
+              <p key={p.playerName} className="text-[11px] text-ink">{p.playerName} ({p.goals}G)</p>
+            )) : <p className="text-[11px] text-faint">Unavailable</p>}
           </div>
         </div>
 
         {/* Away Team */}
-        <div className="rounded-lg bg-navy/60 p-4 text-center border border-white/5">
+        <div className="rounded-lg bg-canvas/60 p-4 text-center border border-line">
           <Flag code={awayCode} name={awayName} width={60} height={42} className="mx-auto rounded-sm shadow-md" />
           <p className="mt-3 font-heading text-sm font-extrabold uppercase tracking-wide text-white">
             {awayName}
           </p>
-          <div className="mt-4 text-left border-t border-white/10 pt-3">
-            <h4 className="text-[10px] uppercase text-white/50 mb-2">Recent Form</h4>
+          <div className="mt-4 text-left border-t border-line pt-3">
+            <h4 className="text-[10px] uppercase text-faint mb-2">Recent Form</h4>
             {awayRecentForm && awayRecentForm.length > 0 ? (
               <div className="flex gap-1">
                 {awayRecentForm.map((result, idx) => (
@@ -148,25 +148,25 @@ export function ScheduledKnockoutPreview({ match, resolvedParticipants, previewD
                   </span>
                 ))}
               </div>
-            ) : <p className="mt-1 text-[10px] text-white/35">Unavailable</p>}
+            ) : <p className="mt-1 text-[10px] text-faint">Unavailable</p>}
           </div>
 
-          <div className="mt-4 text-left border-t border-white/10 pt-3">
-            <h4 className="text-[10px] uppercase text-white/50 mb-2">Tournament Journey</h4>
+          <div className="mt-4 text-left border-t border-line pt-3">
+            <h4 className="text-[10px] uppercase text-faint mb-2">Tournament Journey</h4>
             {awayJourney && awayJourney.length > 0 ? (
               <div className="flex flex-col gap-2">
                 {awayJourney.map((j, idx) => (
                   <div key={idx} className="flex justify-between items-center text-[10px] bg-white/5 rounded px-2 py-1.5">
                     <div className="flex flex-col text-left flex-1 min-w-0 pr-2">
-                      <span className="font-bold text-white/80 whitespace-nowrap overflow-hidden text-ellipsis">{j.stage} vs {countryName(j.opponentName, "en")}</span>
+                      <span className="font-bold text-ink whitespace-nowrap overflow-hidden text-ellipsis">{j.stage} vs {countryName(j.opponentName, "en")}</span>
                     </div>
                     <div className="flex items-center gap-1.5 shrink-0">
                       {j.scoreLabel ? (
-                        <span className="font-mono text-white/90">{j.scoreLabel}</span>
+                        <span className="font-mono text-ink">{j.scoreLabel}</span>
                       ) : (
-                        <span className="font-mono text-white/50 text-[9px]">TBD</span>
+                        <span className="font-mono text-faint text-[9px]">TBD</span>
                       )}
-                      <span className={`w-4 h-4 rounded-sm flex items-center justify-center font-bold text-[9px] ${j.result === 'W' ? 'bg-green-600 text-white' : j.result === 'L' ? 'bg-red-600 text-white' : j.result === 'UPCOMING' ? 'bg-white/10 text-white/50' : 'bg-gray-500 text-white'}`}>
+                      <span className={`w-4 h-4 rounded-sm flex items-center justify-center font-bold text-[9px] ${j.result === 'W' ? 'bg-green-600 text-white' : j.result === 'L' ? 'bg-red-600 text-white' : j.result === 'UPCOMING' ? 'bg-white/10 text-faint' : 'bg-gray-500 text-white'}`}>
                         {j.result === 'UPCOMING' ? '-' : j.result}
                       </span>
                       {j.matchHref && (
@@ -176,21 +176,21 @@ export function ScheduledKnockoutPreview({ match, resolvedParticipants, previewD
                   </div>
                 ))}
               </div>
-            ) : <p className="mt-1 text-[10px] text-white/35">Unavailable</p>}
+            ) : <p className="mt-1 text-[10px] text-faint">Unavailable</p>}
           </div>
-          <div className="mt-3 text-left border-t border-white/10 pt-2">
-            <h4 className="text-[10px] uppercase text-white/50 mb-1">Top Scorers</h4>
+          <div className="mt-3 text-left border-t border-line pt-2">
+            <h4 className="text-[10px] uppercase text-faint mb-1">Top Scorers</h4>
             {awayTopScorers.length > 0 ? awayTopScorers.map(p => (
-              <p key={p.playerName} className="text-[11px] text-white/80">{p.playerName} ({p.goals}G)</p>
-            )) : <p className="text-[11px] text-white/35">Unavailable</p>}
+              <p key={p.playerName} className="text-[11px] text-ink">{p.playerName} ({p.goals}G)</p>
+            )) : <p className="text-[11px] text-faint">Unavailable</p>}
           </div>
         </div>
       </div>
 
       {/* Stats Comparison */}
       {isResolved && stats.length > 0 && (
-        <div className="mt-6 border-t border-white/10 pt-4">
-          <h4 className="font-heading text-[11px] font-extrabold uppercase tracking-widest text-white/40 mb-3 text-center">Tournament Stats Comparison</h4>
+        <div className="mt-6 border-t border-line pt-4">
+          <h4 className="font-heading text-[11px] font-extrabold uppercase tracking-widest text-faint mb-3 text-center">Tournament Stats Comparison</h4>
           <div className="flex flex-col gap-2">
             {stats.map((s, idx) => {
               const isEquivalentComplete = s.home.coverageStatus === "COMPLETE" && s.away.coverageStatus === "COMPLETE";
@@ -203,13 +203,13 @@ export function ScheduledKnockoutPreview({ match, resolvedParticipants, previewD
 
               const renderItem = (item: typeof s.home, isWinner: boolean) => {
                 if (item.coverageStatus === "NONE" || item.value === null) {
-                  return <span className="text-white/30" title="Unavailable">—</span>;
+                  return <span className="text-faint" title="Unavailable">—</span>;
                 }
                 if (item.coverageStatus === "PARTIAL" || item.coverageStatus === "COMPLETE") {
                   return (
                     <div className="flex flex-col items-center leading-tight">
                       <span className="text-white font-bold">{item.value}</span>
-                      <span className="text-[8px] text-white/40 uppercase whitespace-nowrap mt-0.5">
+                      <span className="text-[8px] text-faint uppercase whitespace-nowrap mt-0.5">
                         {item.matchesCovered} of {item.completedMatches} matches covered
                       </span>
                     </div>
@@ -220,7 +220,7 @@ export function ScheduledKnockoutPreview({ match, resolvedParticipants, previewD
                 let colorClass = "text-white font-bold";
                 if (isEquivalentComplete) {
                   if (isWinner) colorClass = "text-green-400 font-bold";
-                  else if (homeVal !== awayVal) colorClass = "text-white/60";
+                  else if (homeVal !== awayVal) colorClass = "text-muted";
                 }
                 return <span className={colorClass}>{item.value}</span>;
               };
@@ -228,7 +228,7 @@ export function ScheduledKnockoutPreview({ match, resolvedParticipants, previewD
               return (
                 <div key={idx} className="flex items-center justify-between text-sm rounded bg-white/5 px-3 py-2">
                   <div className="w-20 flex justify-center text-center">{renderItem(s.home, homeWinner)}</div>
-                  <span className="text-white/60 text-[11px] uppercase tracking-wider text-center flex-1">{s.label}</span>
+                  <span className="text-muted text-[11px] uppercase tracking-wider text-center flex-1">{s.label}</span>
                   <div className="w-20 flex justify-center text-center">{renderItem(s.away, awayWinner)}</div>
                 </div>
               );
@@ -236,7 +236,7 @@ export function ScheduledKnockoutPreview({ match, resolvedParticipants, previewD
           </div>
           
           <div className="mt-4 text-center">
-             <Link href={`/stats/compare?team1=${homeKey}&team2=${awayKey}`} className="text-[11px] font-bold uppercase tracking-widest text-white/40 hover:text-white transition">
+             <Link href={`/stats/compare?team1=${homeKey}&team2=${awayKey}`} className="text-[11px] font-bold uppercase tracking-widest text-faint hover:text-white transition">
                View Full Comparison →
              </Link>
           </div>
@@ -244,7 +244,7 @@ export function ScheduledKnockoutPreview({ match, resolvedParticipants, previewD
       )}
       
       {!isResolved && (
-        <div className="mt-4 text-center text-sm text-white/40">
+        <div className="mt-4 text-center text-sm text-faint">
           Matchup not yet fully determined.
         </div>
       )}

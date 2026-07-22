@@ -70,15 +70,15 @@ export function TimezoneSchedulePageContent({
       <h1 className="mb-2 font-heading text-4xl font-extrabold uppercase tracking-wide text-white">
         {h1}
       </h1>
-      <p className="mb-1 max-w-3xl text-sm text-white/55">{intro}</p>
-      <p className="mb-6 max-w-3xl text-sm text-white/45">{context}</p>
+      <p className="mb-1 max-w-3xl text-sm text-muted">{intro}</p>
+      <p className="mb-6 max-w-3xl text-sm text-faint">{context}</p>
 
       {/* Quick facts */}
       <div className="mb-8 grid grid-cols-2 gap-3 sm:grid-cols-4">
         {facts.map((f) => (
-          <div key={f.k} className="rounded-xl border border-white/10 bg-navyCard px-4 py-3">
+          <div key={f.k} className="rounded-xl border border-line bg-surface px-4 py-3">
             <div className="font-heading text-lg font-extrabold text-white">{f.v}</div>
-            <div className="font-heading text-[10px] font-bold uppercase tracking-widest text-white/55">
+            <div className="font-heading text-[10px] font-bold uppercase tracking-widest text-muted">
               {f.k}
             </div>
           </div>
@@ -98,7 +98,7 @@ export function TimezoneSchedulePageContent({
           <Link
             key={l.href}
             href={l.href}
-            className="rounded-lg border border-white/15 bg-navyCard px-4 py-2 font-heading text-xs font-bold uppercase tracking-wide text-white/70 transition hover:border-white/30 hover:text-white"
+            className="rounded-lg border border-line bg-surface px-4 py-2 font-heading text-xs font-bold uppercase tracking-wide text-muted transition hover:border-lineStrong hover:text-white"
           >
             {l.label}
           </Link>
@@ -107,7 +107,7 @@ export function TimezoneSchedulePageContent({
 
       {/* Other time zones */}
       <section className="mt-8">
-        <p className="mb-2 font-heading text-[10px] font-extrabold uppercase tracking-[0.25em] text-white/50">
+        <p className="mb-2 font-heading text-[10px] font-extrabold uppercase tracking-[0.25em] text-faint">
           {t("tz_otherZones")}
         </p>
         <div className="flex flex-wrap gap-2">
@@ -116,7 +116,7 @@ export function TimezoneSchedulePageContent({
               key={o.slug}
               href={`/schedule/${o.slug}`}
               prefetch={false}
-              className="rounded-lg border border-white/10 bg-navyCard px-3 py-1.5 text-xs font-semibold text-white/60 transition hover:border-white/25 hover:text-white"
+              className="rounded-lg border border-line bg-surface px-3 py-1.5 text-xs font-semibold text-muted transition hover:border-lineStrong hover:text-white"
             >
               {t(`tz_${o.slug}`)}
             </Link>
@@ -131,11 +131,11 @@ export function TimezoneSchedulePageContent({
         </h2>
         <div className="space-y-3">
           {faqs.map((f) => (
-            <div key={f.q} className="rounded-xl border border-white/10 bg-navyCard p-4">
+            <div key={f.q} className="rounded-xl border border-line bg-surface p-4">
               <h3 className="font-heading text-sm font-extrabold uppercase tracking-wide text-white sm:text-base">
                 {f.q}
               </h3>
-              <p className="mt-2 text-sm leading-relaxed text-white/70">{f.a}</p>
+              <p className="mt-2 text-sm leading-relaxed text-muted">{f.a}</p>
             </div>
           ))}
         </div>

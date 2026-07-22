@@ -82,9 +82,9 @@ function DecidingMatchCard({ m, live, resolvedParticipants, primary }: {
 
     return (
       <Link href={`/matches/${matchSlug(m)}`} prefetch={false} aria-label={`View ${stage} report: ${home.label} ${presentation.homeScore}-${presentation.awayScore} ${away.label}`}
-        className="block rounded-xl border border-white/10 bg-navyCard/60 p-4 transition hover:border-accent/80 sm:p-5">
+        className="block rounded-xl border border-line bg-surface/60 p-4 transition hover:border-accent/80 sm:p-5">
         <div className="flex items-center justify-between gap-3">
-          <span className="font-heading text-[11px] font-extrabold uppercase tracking-[0.18em] text-white/40">
+          <span className="font-heading text-[11px] font-extrabold uppercase tracking-[0.18em] text-faint">
             {isFinal ? "FINAL" : "THIRD-PLACE PLAYOFF"} · FT
           </span>
           <span className="text-[11px] font-bold text-accent">{subTitle}</span>
@@ -102,7 +102,7 @@ function DecidingMatchCard({ m, live, resolvedParticipants, primary }: {
             {away.teamCode ? <Flag code={away.teamCode} alt="" width={24} height={18} className="shadow-sm" /> : null}
           </div>
         </div>
-        <div className="mt-4 text-center text-xs text-white/50 border-t border-white/5 pt-2">
+        <div className="mt-4 text-center text-xs text-faint border-t border-line pt-2">
           {winNote}
         </div>
       </Link>
@@ -111,10 +111,10 @@ function DecidingMatchCard({ m, live, resolvedParticipants, primary }: {
 
   return (
     <Link href={`/matches/${matchSlug(m)}`} prefetch={false} aria-label={`View ${stage}: ${home.label} vs ${away.label}`}
-      className={`block rounded-xl border transition hover:border-accent/80 ${primary ? "border-accent/70 bg-gradient-to-br from-accent/20 via-navyCard to-navyCard p-5 shadow-[0_18px_50px_rgba(232,0,28,0.18)] sm:p-6" : "border-white/15 bg-navyCard p-4 sm:p-5"}`}>
-      <div className="flex items-center justify-between gap-3"><span className={`font-heading font-extrabold uppercase tracking-[0.18em] ${primary ? "text-sm text-accent" : "text-[11px] text-white/60"}`}>{isFinal ? "FINAL" : "THIRD-PLACE PLAYOFF"}</span><span className="text-[11px] font-semibold uppercase tracking-wider text-white/50">{stage}</span></div>
-      <div className="mt-4 grid grid-cols-[1fr_auto_1fr] items-center gap-3"><div className="min-w-0 text-right"><p className={`font-heading font-extrabold uppercase leading-tight text-white ${primary ? "text-2xl sm:text-3xl" : "text-lg sm:text-xl"}`}>{home.label}</p>{home.teamCode ? <Flag code={home.teamCode} alt="" width={primary ? 36 : 28} height={primary ? 26 : 20} className="ml-auto mt-2 shadow-sm" /> : null}</div><span className={`font-heading font-black text-white/45 ${primary ? "text-xl" : "text-sm"}`}>VS</span><div className="min-w-0"><p className={`font-heading font-extrabold uppercase leading-tight text-white ${primary ? "text-2xl sm:text-3xl" : "text-lg sm:text-xl"}`}>{away.label}</p>{away.teamCode ? <Flag code={away.teamCode} alt="" width={primary ? 36 : 28} height={primary ? 26 : 20} className="mt-2 shadow-sm" /> : null}</div></div>
-      <div className="mt-5 border-t border-white/10 pt-3 text-center text-sm text-white/70"><span className="font-semibold">{presentation.displayKickoffDate} · {presentation.displayKickoffTime}</span>{m.venue ? <span> · {m.venue}</span> : null}{city ? <span> · {city}</span> : null}</div>
+      className={`block rounded-xl border transition hover:border-accent/80 ${primary ? "border-accent/70 bg-gradient-to-br from-accent/20 via-navyCard to-navyCard p-5 shadow-[0_18px_50px_rgba(232,0,28,0.18)] sm:p-6" : "border-line bg-surface p-4 sm:p-5"}`}>
+      <div className="flex items-center justify-between gap-3"><span className={`font-heading font-extrabold uppercase tracking-[0.18em] ${primary ? "text-sm text-accent" : "text-[11px] text-muted"}`}>{isFinal ? "FINAL" : "THIRD-PLACE PLAYOFF"}</span><span className="text-[11px] font-semibold uppercase tracking-wider text-faint">{stage}</span></div>
+      <div className="mt-4 grid grid-cols-[1fr_auto_1fr] items-center gap-3"><div className="min-w-0 text-right"><p className={`font-heading font-extrabold uppercase leading-tight text-white ${primary ? "text-2xl sm:text-3xl" : "text-lg sm:text-xl"}`}>{home.label}</p>{home.teamCode ? <Flag code={home.teamCode} alt="" width={primary ? 36 : 28} height={primary ? 26 : 20} className="ml-auto mt-2 shadow-sm" /> : null}</div><span className={`font-heading font-black text-faint ${primary ? "text-xl" : "text-sm"}`}>VS</span><div className="min-w-0"><p className={`font-heading font-extrabold uppercase leading-tight text-white ${primary ? "text-2xl sm:text-3xl" : "text-lg sm:text-xl"}`}>{away.label}</p>{away.teamCode ? <Flag code={away.teamCode} alt="" width={primary ? 36 : 28} height={primary ? 26 : 20} className="mt-2 shadow-sm" /> : null}</div></div>
+      <div className="mt-5 border-t border-line pt-3 text-center text-sm text-muted"><span className="font-semibold">{presentation.displayKickoffDate} · {presentation.displayKickoffTime}</span>{m.venue ? <span> · {m.venue}</span> : null}{city ? <span> · {city}</span> : null}</div>
       <span className="mt-4 inline-flex font-heading text-xs font-bold uppercase tracking-widest text-accent">View the {isFinal ? "Final" : "Third-place playoff"} →</span>
     </Link>
   );
@@ -166,7 +166,7 @@ function MatchRow({
     <Link
       href={`/matches/${matchSlug(m)}`}
       prefetch={false}
-      className="block rounded-lg border border-white/10 bg-navy px-3 py-1.5 transition hover:border-white/20"
+      className="block rounded-lg border border-line bg-canvas px-3 py-1.5 transition hover:border-lineStrong"
     >
       <div className="flex items-center gap-2">
         <div className="flex min-w-0 flex-1 items-center justify-end gap-1.5 sm:gap-2">
@@ -179,7 +179,7 @@ function MatchRow({
             {pres.homeScore} - {pres.awayScore}
           </span>
         ) : (
-          <span className="shrink-0 px-1 font-heading text-[11px] font-bold uppercase text-white/55">{t("vs")}</span>
+          <span className="shrink-0 px-1 font-heading text-[11px] font-bold uppercase text-muted">{t("vs")}</span>
         )}
 
         <div className="flex min-w-0 flex-1 items-center gap-1.5 sm:gap-2">
@@ -188,28 +188,28 @@ function MatchRow({
         </div>
       </div>
 
-      <div className="mt-1.5 flex flex-wrap items-center justify-center gap-2 text-[11px] text-white/50">
+      <div className="mt-1.5 flex flex-wrap items-center justify-center gap-2 text-[11px] text-faint">
         {pres.showStatus && (
           <span className={`rounded px-1.5 py-0.5 font-heading text-[10px] font-extrabold uppercase tracking-widest ${
             pres.state === 'live' || pres.state === 'halftime'
               ? 'bg-red-600 text-white flex items-center gap-1'
               : pres.state === 'syncing'
                 ? 'bg-white/5 text-[#f5a623]'
-                : 'bg-white/10 text-white/60'
+                : 'bg-white/10 text-muted'
           }`}>
             {pres.state === 'live' && <span className="inline-block h-1.5 w-1.5 animate-pulse rounded-full bg-white" />}
             {statusLabel}
           </span>
         )}
-        <span className="font-semibold text-white/75" suppressHydrationWarning>
+        <span className="font-semibold text-muted" suppressHydrationWarning>
           {pres.displayKickoffDate} • {pres.displayKickoffTime}
         </span>
         {m.venue ? <span className="truncate">{m.venue}</span> : null}
       </div>
 
-      {goals ? <p className="mt-1 truncate text-center text-[11px] text-white/40">Goals: {goals}</p> : null}
+      {goals ? <p className="mt-1 truncate text-center text-[11px] text-faint">Goals: {goals}</p> : null}
       {(pres.state === 'live' || pres.state === 'syncing') && scorerDetailsIncomplete ? (
-        <p className="mt-1 text-center text-[11px] text-white/40">{t("msg_syncing") || "Match data is updating"}</p>
+        <p className="mt-1 text-center text-[11px] text-faint">{t("msg_syncing") || "Match data is updating"}</p>
       ) : null}
     </Link>
   );
@@ -274,11 +274,11 @@ export function MatchCenterContent({
     const finalMatch = decidingMatches.find((m) => "stage" in m && m.stage === "F");
     const thirdPlaceMatch = decidingMatches.find((m) => "stage" in m && m.stage === "3P");
     return (
-      <div className="rounded-xl border border-white/10 bg-navyCard p-4 shadow-2xl sm:p-6">
+      <div className="rounded-xl border border-line bg-surface p-4 shadow-2xl sm:p-6">
         <div className="space-y-4 sm:space-y-6">
           {false && tournamentPhase === "tournament_complete" && archivedDestinations.length > 0 && (
             <section>
-              <h2 className="mb-3 font-heading text-[11px] font-bold uppercase tracking-widest text-white/40">Tournament Final</h2>
+              <h2 className="mb-3 font-heading text-[11px] font-bold uppercase tracking-widest text-faint">Tournament Final</h2>
               <div className="flex flex-col gap-1">
                 {archivedDestinations.map(m => (
                   <div key={matchSlug(m)}>
@@ -294,7 +294,7 @@ export function MatchCenterContent({
               <h2 id="deciding-matches-heading" className="font-heading text-sm font-extrabold uppercase tracking-[0.18em] text-accent">
                 {isTournamentComplete ? "Tournament Complete" : "Final Weekend"}
               </h2>
-              <Link href="/bracket" className="text-xs font-bold uppercase tracking-wider text-white/55 hover:text-white">Complete bracket →</Link>
+              <Link href="/bracket" className="text-xs font-bold uppercase tracking-wider text-muted hover:text-white">Complete bracket →</Link>
             </div>
             <div className="space-y-3">
               {finalMatch ? <DecidingMatchCard m={finalMatch} live={finalMatch.providerIds?.footballData ? liveSnapshot.liveDataByProviderId[String(finalMatch.providerIds.footballData)] : undefined} resolvedParticipants={liveSnapshot.resolvedParticipants} primary /> : null}
@@ -302,15 +302,15 @@ export function MatchCenterContent({
             </div>
           </section>}
 
-          {mode === "homepage" && <section className="rounded-xl border border-white/10 bg-navy/40 px-4 py-3" aria-label="Countdown to the next deciding match">
-            <p className="font-heading text-[11px] font-bold uppercase tracking-widest text-white/50">
+          {mode === "homepage" && <section className="rounded-xl border border-line bg-canvas/40 px-4 py-3" aria-label="Countdown to the next deciding match">
+            <p className="font-heading text-[11px] font-bold uppercase tracking-widest text-faint">
               {isTournamentComplete ? "Tournament complete" : "Next deciding match"}
             </p>
             <CountdownClient tournamentPhase={tournamentPhase ?? "pre_tournament"} target={countdownTarget ?? null} isComplete={isTournamentComplete} />
           </section>}
 
           <section>
-            <h2 className="mb-3 font-heading text-[11px] font-bold uppercase tracking-widest text-white/40">Semifinal results</h2>
+            <h2 className="mb-3 font-heading text-[11px] font-bold uppercase tracking-widest text-faint">Semifinal results</h2>
             <div className="flex flex-col gap-1">
               {phaseSnapshot.completedCurrentRound.map(renderRow)}
               {phaseSnapshot.upcomingCurrentRound.map(renderRow)}
@@ -328,12 +328,12 @@ export function MatchCenterContent({
             return (
               <>
                 {completed.length > 0 && (
-                  <section className="rounded-lg border border-white/10 bg-navy/30 p-4">
-                    <h2 className="mb-3 font-heading text-[11px] font-bold uppercase tracking-widest text-white/40">Placement Results</h2>
+                  <section className="rounded-lg border border-line bg-canvas/30 p-4">
+                    <h2 className="mb-3 font-heading text-[11px] font-bold uppercase tracking-widest text-faint">Placement Results</h2>
                     <div className="flex flex-col gap-3">
                       {completed.map(m => (
                         <div key={matchSlug(m)}>
-                          <p className="mb-1 text-xs font-bold text-white/60">{stageLabel(m)}</p>
+                          <p className="mb-1 text-xs font-bold text-muted">{stageLabel(m)}</p>
                           {renderRow(m)}
                         </div>
                       ))}
@@ -341,12 +341,12 @@ export function MatchCenterContent({
                   </section>
                 )}
                 {upcoming.length > 0 && (
-                  <section className="rounded-lg border border-white/10 bg-navy/30 p-4">
-                    <h2 className="mb-3 font-heading text-[11px] font-bold uppercase tracking-widest text-white/40">Destinations</h2>
+                  <section className="rounded-lg border border-line bg-canvas/30 p-4">
+                    <h2 className="mb-3 font-heading text-[11px] font-bold uppercase tracking-widest text-faint">Destinations</h2>
                     <div className="flex flex-col gap-3">
                       {upcoming.map(m => (
                         <div key={matchSlug(m)}>
-                          <p className="mb-1 text-xs font-bold text-white/60">{stageLabel(m)}</p>
+                          <p className="mb-1 text-xs font-bold text-muted">{stageLabel(m)}</p>
                           {renderRow(m)}
                         </div>
                       ))}
@@ -357,12 +357,12 @@ export function MatchCenterContent({
             );
           })()}
           {false && tournamentPhase !== "tournament_complete" && archivedDestinations.length > 0 && (
-            <section className="rounded-lg border border-white/10 bg-navy/30 p-4">
-              <h2 className="mb-3 font-heading text-[11px] font-bold uppercase tracking-widest text-white/40">Destinations</h2>
+            <section className="rounded-lg border border-line bg-canvas/30 p-4">
+              <h2 className="mb-3 font-heading text-[11px] font-bold uppercase tracking-widest text-faint">Destinations</h2>
               <div className="flex flex-col gap-3">
                 {archivedDestinations.map(m => (
                   <div key={matchSlug(m)}>
-                    <p className="mb-1 text-xs font-bold text-white/60">
+                    <p className="mb-1 text-xs font-bold text-muted">
                       {"stage" in m && m.stage === "3P" ? "Match 103 — Third-place playoff" : "Match 104 — Final"}
                     </p>
                     {renderRow(m)}
@@ -374,7 +374,7 @@ export function MatchCenterContent({
           */}
 
           <section>
-            <h2 className="mb-3 font-heading text-[11px] font-bold uppercase tracking-widest text-white/40">Quarterfinal Results</h2>
+            <h2 className="mb-3 font-heading text-[11px] font-bold uppercase tracking-widest text-faint">Quarterfinal Results</h2>
             <div className="flex flex-col gap-1">
               {phaseSnapshot.completedPreviousRound.map(renderRow)}
             </div>
@@ -385,13 +385,13 @@ export function MatchCenterContent({
   }
 
   return (
-    <div className="rounded-xl border border-white/10 bg-navyCard p-2 shadow-2xl sm:p-6">
+    <div className="rounded-xl border border-line bg-surface p-2 shadow-2xl sm:p-6">
       <div className="mb-0 flex items-center justify-between">
         <p className="font-heading text-sm font-extrabold uppercase tracking-[0.2em] text-accent">Match Center</p>
       </div>
 
       <div className="mb-1 flex flex-wrap items-center justify-between gap-2">
-        <TimezoneLabel className="text-[11px] text-white/55" />
+        <TimezoneLabel className="text-[11px] text-muted" />
         <FreshnessLabel primaryProviderFetchedAt={liveSnapshot.primaryProviderFetchedAt} primaryProviderOk={liveSnapshot.primaryProviderOk} />
       </div>
 
@@ -416,7 +416,7 @@ export function MatchCenterContent({
 
         {snapshot.latestResult && (
           <div>
-            <h3 className="mb-1 font-heading text-[11px] font-bold uppercase tracking-widest text-white/40">{t("sec_latestResults") || "Latest Result"}</h3>
+            <h3 className="mb-1 font-heading text-[11px] font-bold uppercase tracking-widest text-faint">{t("sec_latestResults") || "Latest Result"}</h3>
             <div className="flex flex-col gap-1">
               {renderRow(snapshot.latestResult)}
             </div>
@@ -425,7 +425,7 @@ export function MatchCenterContent({
 
         {snapshot.upNext.length > 0 && (
           <div>
-            <h3 className="mb-1 font-heading text-[11px] font-bold uppercase tracking-widest text-white/40">Up Next</h3>
+            <h3 className="mb-1 font-heading text-[11px] font-bold uppercase tracking-widest text-faint">Up Next</h3>
             <div className="flex flex-col gap-1">
               {snapshot.upNext.map(renderRow)}
             </div>
@@ -433,7 +433,7 @@ export function MatchCenterContent({
         )}
 
         {snapshot.upNext.length === 0 && !snapshot.latestResult && snapshot.liveNow.length === 0 && (!snapshot.syncing || snapshot.syncing.length === 0) && (
-          <p className="text-sm text-white/50">No matches available.</p>
+          <p className="text-sm text-faint">No matches available.</p>
         )}
       </div>
 
@@ -447,7 +447,7 @@ export function MatchCenterContent({
           </Link>
           <Link
             href="/schedule"
-            className="font-heading text-[11px] font-bold uppercase tracking-widest text-white/50 hover:text-white"
+            className="font-heading text-[11px] font-bold uppercase tracking-widest text-faint hover:text-white"
           >
             Full Schedule &rarr;
           </Link>

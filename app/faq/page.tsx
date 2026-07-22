@@ -133,12 +133,12 @@ export default function FaqPage() {
           {FAQS.map((f) => (
             <div
               key={f.q}
-              className="rounded-xl border border-white/10 bg-navyCard p-5 transition hover:border-white/20"
+              className="rounded-xl border border-line bg-surface p-5 transition hover:border-lineStrong"
             >
               <h2 className="font-heading text-base font-extrabold uppercase tracking-wide text-white sm:text-lg">
                 {f.q}
               </h2>
-              <p className="mt-2 text-sm leading-relaxed text-white/70">{f.a}</p>
+              <p className="mt-2 text-sm leading-relaxed text-muted">{f.a}</p>
             </div>
           ))}
         </div>

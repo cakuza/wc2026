@@ -59,7 +59,7 @@ type BMatch = { id: string; dateLabel?: string; home: Slot; away: Slot; score?: 
 // --- Sub-components ---
 
 function ParticipantRow({ slot, isFinal }: { slot: Slot; isFinal: boolean }) {
-  const cls = `font-heading font-bold uppercase ${isFinal ? "text-white/60" : "text-white/40"}`;
+  const cls = `font-heading font-bold uppercase ${isFinal ? "text-muted" : "text-faint"}`;
   if (slot.flagCode) {
     return (
       <div className="flex items-center gap-1.5 overflow-hidden">
@@ -79,7 +79,7 @@ function MatchCard({ m, isFinal = false }: { m: BMatch; isFinal?: boolean }) {
       className={`overflow-hidden rounded-lg border ${
         isFinal
           ? "border-accent/50 bg-gradient-to-b from-accent/15 to-navy shadow-lg shadow-accent/10"
-          : "border-white/10 bg-navyCard"
+          : "border-line bg-surface"
       }`}
       style={{ width: CARD_W, height: CARD_H }}
     >
@@ -93,7 +93,7 @@ function MatchCard({ m, isFinal = false }: { m: BMatch; isFinal?: boolean }) {
           <div className="min-w-0 flex-1"><ParticipantRow slot={m.away} isFinal={isFinal} /></div>
           {m.score ? <span className="font-heading text-[11px] font-extrabold tabular-nums text-white">{m.score.away}</span> : null}
         </div>
-        {m.score?.aet ? <span className="text-[8px] font-bold uppercase tracking-widest text-white/50">AET</span> : null}
+        {m.score?.aet ? <span className="text-[8px] font-bold uppercase tracking-widest text-faint">AET</span> : null}
       </div>
     </div>
   );
@@ -178,11 +178,11 @@ export function BracketContent({ resolvedParticipants, tournamentPhase }: { reso
           FIFA World Cup 2026
         </span>
       </div>
-      <p className="mb-1 max-w-3xl text-sm text-white/50">{t("bracket_intro")}</p>
-      <p className="mb-6 text-sm text-white/40">Current phase · {getTournamentPhaseLabel(tournamentPhase)}</p>
+      <p className="mb-1 max-w-3xl text-sm text-faint">{t("bracket_intro")}</p>
+      <p className="mb-6 text-sm text-faint">Current phase · {getTournamentPhaseLabel(tournamentPhase)}</p>
 
       {/* Scrollable bracket canvas */}
-      <div className="overflow-x-auto rounded-xl border border-white/10 bg-navy p-5">
+      <div className="overflow-x-auto rounded-xl border border-line bg-canvas p-5">
         <div
           className="relative"
           style={{ width: CANVAS_W, height: CANVAS_H }}
@@ -199,7 +199,7 @@ export function BracketContent({ resolvedParticipants, tournamentPhase }: { reso
                   className="absolute text-center"
                   style={{ left: rx, width: CARD_W, top: 0 }}
                 >
-                  <span className="font-heading text-[10px] font-bold uppercase tracking-widest text-white/50">
+                  <span className="font-heading text-[10px] font-bold uppercase tracking-widest text-faint">
                     {ROUND_LABELS[ri]}
                   </span>
                 </div>
@@ -212,7 +212,7 @@ export function BracketContent({ resolvedParticipants, tournamentPhase }: { reso
                     style={{ left: rx, top: ft + mi * sh }}
                   >
                     {m.dateLabel && (
-                      <div className="mb-1 font-heading text-[9px] font-bold uppercase tracking-widest text-white/25">
+                      <div className="mb-1 font-heading text-[9px] font-bold uppercase tracking-widest text-faint">
                         {m.dateLabel}
                       </div>
                     )}
@@ -264,11 +264,11 @@ export function BracketContent({ resolvedParticipants, tournamentPhase }: { reso
             style={{ left: DECIDING_X, top: 0, width: CARD_W }}
             aria-label="Deciding matches"
           >
-            <p className="text-center font-heading text-[10px] font-bold uppercase tracking-widest text-white/50">
+            <p className="text-center font-heading text-[10px] font-bold uppercase tracking-widest text-faint">
               Deciding matches
             </p>
             <div className="absolute left-0" style={{ top: DECIDING_TOP }}>
-              <p className="mb-2 font-heading text-[9px] font-bold uppercase tracking-widest text-white/45">
+              <p className="mb-2 font-heading text-[9px] font-bold uppercase tracking-widest text-faint">
                 Third-place playoff
               </p>
               <MatchCard m={thirdPlaceModel} />
@@ -276,7 +276,7 @@ export function BracketContent({ resolvedParticipants, tournamentPhase }: { reso
                 {t("bracket_final")}
               </p>
               <MatchCard m={finalModel} isFinal />
-              <p className="mt-3 text-[10px] leading-relaxed text-white/50">
+              <p className="mt-3 text-[10px] leading-relaxed text-faint">
                 {FINAL_DATE[lang] ?? FINAL_DATE.en}<br />New York New Jersey Stadium
               </p>
             </div>
@@ -285,8 +285,8 @@ export function BracketContent({ resolvedParticipants, tournamentPhase }: { reso
       </div>
 
       {/* Format note */}
-      <div className="mt-4 rounded-xl border border-white/10 bg-navyCard p-4 text-sm text-white/50">
-        <p className="mb-1 font-heading text-[10px] font-bold uppercase tracking-widest text-white/50">{t("bracket_format_heading")}</p>
+      <div className="mt-4 rounded-xl border border-line bg-surface p-4 text-sm text-faint">
+        <p className="mb-1 font-heading text-[10px] font-bold uppercase tracking-widest text-faint">{t("bracket_format_heading")}</p>
         <p>{t("bracket_format_text")}</p>
       </div>
     </div>

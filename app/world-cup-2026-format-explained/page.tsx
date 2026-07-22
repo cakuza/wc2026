@@ -89,16 +89,16 @@ function Section({ title, children }: { title: string; children: React.ReactNode
       <h2 className="mb-3 font-heading text-xl font-extrabold uppercase tracking-wide text-white">
         {title}
       </h2>
-      <div className="space-y-3 text-sm leading-relaxed text-white/70">{children}</div>
+      <div className="space-y-3 text-sm leading-relaxed text-muted">{children}</div>
     </section>
   );
 }
 
 function InfoCard({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-xl border border-white/10 bg-navyCard px-4 py-3">
+    <div className="rounded-xl border border-line bg-surface px-4 py-3">
       <div className="font-heading text-lg font-extrabold text-white">{value}</div>
-      <div className="font-heading text-[10px] font-bold uppercase tracking-widest text-white/40">{label}</div>
+      <div className="font-heading text-[10px] font-bold uppercase tracking-widest text-faint">{label}</div>
     </div>
   );
 }
@@ -118,7 +118,7 @@ export default function FormatExplainedPage() {
         <h1 className="mb-3 font-heading text-4xl font-extrabold uppercase tracking-wide text-white">
           World Cup 2026 Format Explained
         </h1>
-        <p className="mb-8 max-w-2xl text-sm text-white/55">
+        <p className="mb-8 max-w-2xl text-sm text-muted">
           The 2026 FIFA World Cup is the largest in history. 48 teams, 12 groups, 104 matches — and a
           brand-new Round of 32 that is making its World Cup debut. Here is exactly how it works.
         </p>
@@ -227,7 +227,7 @@ export default function FormatExplainedPage() {
             <Link
               key={l.href}
               href={l.href}
-              className="rounded-lg border border-white/15 bg-navyCard px-4 py-2 font-heading text-xs font-bold uppercase tracking-wide text-white/70 transition hover:border-white/30 hover:text-white"
+              className="rounded-lg border border-line bg-surface px-4 py-2 font-heading text-xs font-bold uppercase tracking-wide text-muted transition hover:border-lineStrong hover:text-white"
             >
               {l.label}
             </Link>
@@ -239,39 +239,39 @@ export default function FormatExplainedPage() {
           <h2 className="mb-3 font-heading text-2xl font-extrabold uppercase tracking-wide text-white">FAQ</h2>
           <div className="space-y-3">
             {FAQS.map((f) => (
-              <div key={f.q} className="rounded-xl border border-white/10 bg-navyCard p-4">
+              <div key={f.q} className="rounded-xl border border-line bg-surface p-4">
                 <h3 className="font-heading text-sm font-extrabold uppercase tracking-wide text-white sm:text-base">
                   {f.q}
                 </h3>
-                <p className="mt-2 text-sm leading-relaxed text-white/70">{f.a}</p>
+                <p className="mt-2 text-sm leading-relaxed text-muted">{f.a}</p>
               </div>
             ))}
           </div>
         </section>
 
-        <section className="mt-8 rounded-xl border border-white/10 bg-navyCard px-4 py-4">
-          <h2 className="mb-2 font-heading text-xs font-bold uppercase tracking-widest text-white/40">
+        <section className="mt-8 rounded-xl border border-line bg-surface px-4 py-4">
+          <h2 className="mb-2 font-heading text-xs font-bold uppercase tracking-widest text-faint">
             Official Sources
           </h2>
-          <ul className="space-y-1 text-xs leading-relaxed text-white/50">
+          <ul className="space-y-1 text-xs leading-relaxed text-faint">
             <li>
-              <a href="https://www.fifa.com/en/tournaments/mens/worldcup/canada-mexico-usa-2026" target="_blank" rel="noopener noreferrer" className="underline underline-offset-2 hover:text-white/70 transition">
+              <a href="https://www.fifa.com/en/tournaments/mens/worldcup/canada-mexico-usa-2026" target="_blank" rel="noopener noreferrer" className="underline underline-offset-2 hover:text-muted transition">
                 FIFA World Cup 2026 — Official Tournament Page
               </a>{" "}— format overview and team entries
             </li>
             <li>
-              <a href="https://www.fifa.com/en/tournaments/mens/worldcup/canada-mexico-usa-2026/host-cities" target="_blank" rel="noopener noreferrer" className="underline underline-offset-2 hover:text-white/70 transition">
+              <a href="https://www.fifa.com/en/tournaments/mens/worldcup/canada-mexico-usa-2026/host-cities" target="_blank" rel="noopener noreferrer" className="underline underline-offset-2 hover:text-muted transition">
                 FIFA 2026 Host Cities &amp; Stadiums
               </a>{" "}— official 16 host locations and venues
             </li>
             <li>
-              <a href="https://www.fifa.com/en/tournaments/mens/worldcup/canada-mexico-usa-2026/matches" target="_blank" rel="noopener noreferrer" className="underline underline-offset-2 hover:text-white/70 transition">
+              <a href="https://www.fifa.com/en/tournaments/mens/worldcup/canada-mexico-usa-2026/matches" target="_blank" rel="noopener noreferrer" className="underline underline-offset-2 hover:text-muted transition">
                 FIFA 2026 Match Schedule
               </a>{" "}— official dates for all 104 matches
             </li>
           </ul>
         </section>
-        <p className="mt-6 text-xs leading-relaxed text-white/40">
+        <p className="mt-6 text-xs leading-relaxed text-faint">
           WorldCupMatchDay is an independent, fan-made resource and is not affiliated with FIFA. Format
           details are based on publicly available FIFA regulations. Always verify specific rules with
           official FIFA sources.

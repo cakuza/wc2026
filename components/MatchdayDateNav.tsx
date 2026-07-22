@@ -66,7 +66,7 @@ function DateNavLink({
       href={href}
       aria-label={label}
       onClick={onActivate}
-      className={`${arrowClasses} border border-white/15 text-white/80 hover:border-white/30 hover:text-white active:bg-white/10`}
+      className={`${arrowClasses} border border-line text-ink hover:border-lineStrong hover:text-white active:bg-white/10`}
     >
       {direction === "prev" ? <>{icon}{labelSpan}</> : <>{labelSpan}{icon}</>}
     </Link>
@@ -75,7 +75,7 @@ function DateNavLink({
 
 function DisabledArrow({ label, direction }: { label: string; direction: "prev" | "next" }) {
   return (
-    <span aria-disabled="true" className={`${arrowClasses} cursor-not-allowed border border-white/5 text-white/20`}>
+    <span aria-disabled="true" className={`${arrowClasses} cursor-not-allowed border border-line text-faint`}>
       {direction === "prev" ? <><Chevron direction="prev" /><span className="hidden sm:inline">{label}</span></> : <><span className="hidden sm:inline">{label}</span><Chevron direction="next" /></>}
     </span>
   );
@@ -120,7 +120,7 @@ export function MatchdayDateNav({
 
   return (
     <section aria-label="Matchday date navigation" data-pending={pending ? "true" : undefined} className="mb-6">
-      <div className="rounded-xl border border-white/10 bg-navyCard px-3 py-3">
+      <div className="rounded-xl border border-line bg-surface px-3 py-3">
         <div className="flex items-center justify-between gap-2">
           {prevDate ? (
             <DateNavLink href={hrefFor(prevDate)} label={t("today_prevDay")} direction="prev" onActivate={() => setOptimisticDate(prevDate)} />
@@ -140,7 +140,7 @@ export function MatchdayDateNav({
               <Link
                 href={hrefFor(null)}
                 onClick={() => setOptimisticDate(todayDate)}
-                className="mt-0.5 inline-block rounded bg-white/5 px-2 py-0.5 font-heading text-[10px] font-bold uppercase tracking-widest text-white/60 transition hover:bg-white/10 hover:text-white"
+                className="mt-0.5 inline-block rounded bg-white/5 px-2 py-0.5 font-heading text-[10px] font-bold uppercase tracking-widest text-muted transition hover:bg-white/10 hover:text-white"
               >
                 {t("today_jumpToToday")}
               </Link>

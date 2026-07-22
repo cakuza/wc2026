@@ -9,16 +9,16 @@ interface BreadcrumbNavProps {
 export function BreadcrumbNav({ items }: BreadcrumbNavProps) {
   return (
     <nav aria-label="Breadcrumb" className="mb-4">
-      <ol className="flex flex-wrap items-center gap-1 font-heading text-[11px] font-bold uppercase tracking-widest text-white/30">
+      <ol className="flex flex-wrap items-center gap-1 font-heading text-[11px] font-bold uppercase tracking-widest text-faint">
         {items.map((item, i) => (
           <li key={i} className="flex items-center gap-1">
             {i > 0 && <span aria-hidden="true">›</span>}
             {item.href ? (
-              <Link href={item.href} className="hover:text-white/60 transition-colors">
+              <Link href={item.href} className="hover:text-muted transition-colors">
                 {item.label}
               </Link>
             ) : (
-              <span className="text-white/60" aria-current="page">{item.label}</span>
+              <span className="text-muted" aria-current="page">{item.label}</span>
             )}
           </li>
         ))}

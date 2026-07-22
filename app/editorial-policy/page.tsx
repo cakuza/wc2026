@@ -17,7 +17,7 @@ export default function EditorialPolicyPage() {
         EDITORIAL POLICY
       </h1>
 
-      <div className="space-y-5 text-sm leading-relaxed text-white/70">
+      <div className="space-y-5 text-sm leading-relaxed text-muted">
         <section>
           <h2 className="mb-2 font-heading text-sm font-extrabold tracking-widest text-white uppercase">
             Publisher Identity
@@ -54,7 +54,7 @@ export default function EditorialPolicyPage() {
           </p>
         </section>
 
-        <p className="text-xs text-white/40">
+        <p className="text-xs text-faint">
           Last updated: 19 July 2026. For inquiries or feedback on our editorial standards, contact us at worldcupmatchday@proton.me.
         </p>
       </div>

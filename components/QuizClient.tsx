@@ -76,15 +76,15 @@ export function QuizClient() {
   if (finished) {
     const tier = resultTier(score);
     return (
-      <div className="mx-auto max-w-xl rounded-2xl border border-white/10 bg-navyCard p-8 text-center">
+      <div className="mx-auto max-w-xl rounded-2xl border border-line bg-surface p-8 text-center">
         <div className="text-6xl">{tier.emoji}</div>
         <h2 className="mt-4 font-heading text-4xl font-extrabold uppercase tracking-tight text-white sm:text-5xl">{tier.title}</h2>
-        <p className="mt-2 text-base text-white/65">{tier.sub}</p>
+        <p className="mt-2 text-base text-muted">{tier.sub}</p>
         <p className="mt-6 font-heading text-2xl font-extrabold text-white">
           <span className="text-sm font-bold uppercase tracking-[0.2em] text-accent">{t("q_yourScore")}</span>
           <br />
           {score}
-          <span className="text-white/40">/{total}</span>
+          <span className="text-faint">/{total}</span>
         </p>
         <button
           type="button"
@@ -103,7 +103,7 @@ export function QuizClient() {
     <div className="mx-auto max-w-xl">
       {/* Progress */}
       <div className="mb-4 flex items-center justify-between">
-        <span className="font-heading text-sm font-bold uppercase tracking-wide text-white/50">{progress}</span>
+        <span className="font-heading text-sm font-bold uppercase tracking-wide text-faint">{progress}</span>
         <span className="font-heading text-sm font-bold uppercase tracking-wide text-accent">
           {t("lbl_pts")}: {score}
         </span>
@@ -113,7 +113,7 @@ export function QuizClient() {
       </div>
 
       {/* Question */}
-      <div className="rounded-2xl border border-white/10 bg-navyCard p-6">
+      <div className="rounded-2xl border border-line bg-surface p-6">
         <h2 className="font-heading text-2xl font-extrabold leading-tight text-white">{question.question}</h2>
 
         <div className="mt-5 grid gap-3">
@@ -121,11 +121,11 @@ export function QuizClient() {
             const answered = selected !== null;
             const isCorrect = opt === question.correct;
             const isPicked = i === selected;
-            let cls = "border-white/10 bg-navy text-white hover:border-accent/60";
+            let cls = "border-line bg-canvas text-white hover:border-accent/60";
             if (answered) {
               if (isCorrect) cls = "border-green-500 bg-green-500/15 text-white";
               else if (isPicked) cls = "border-red-500 bg-red-500/15 text-white";
-              else cls = "border-white/10 bg-navy text-white/40";
+              else cls = "border-line bg-canvas text-faint";
             }
             return (
               <button

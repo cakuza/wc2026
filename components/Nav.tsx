@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
+import { ThemeToggle } from "@/components/ThemeToggle";
 import { useLang } from "@/components/LanguageProvider";
 import { getDesktopLinks, getPrimaryLinks, getSecondaryLinks, isActive } from "@/lib/navLinks";
 import { getTodayHref } from "@/lib/todaySelection";
@@ -158,17 +159,17 @@ function MobileDrawer({
       />
       <div
         ref={panelRef}
-        className="absolute right-0 top-0 flex h-full w-72 max-w-[85vw] flex-col overflow-y-auto border-l border-white/10 bg-navy shadow-2xl"
+        className="absolute right-0 top-0 flex h-full w-72 max-w-[85vw] flex-col overflow-y-auto border-l border-line bg-surface shadow-2xl"
       >
-        <div className="flex items-center justify-between border-b border-white/10 px-4 py-3">
-          <span className="font-heading text-sm font-extrabold uppercase tracking-wide text-white">
+        <div className="flex items-center justify-between border-b border-line px-4 py-3">
+          <span className="font-heading text-sm font-extrabold uppercase tracking-wide text-ink">
             {t("nav_more")}
           </span>
           <button
             type="button"
             aria-label="Close menu"
             onClick={onClose}
-            className="flex h-11 w-11 items-center justify-center rounded border border-white/15 bg-white/5 text-white transition hover:bg-white/10"
+            className="flex h-11 w-11 items-center justify-center rounded border border-line bg-hover text-ink transition hover:border-lineStrong"
           >
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5" aria-hidden>
               <path d="M18 6 6 18M6 6l12 12" />
@@ -186,7 +187,7 @@ function MobileDrawer({
                 onClick={onClose}
                 aria-current={active ? "page" : undefined}
                 className={`flex min-h-[44px] items-center rounded-lg px-4 font-heading text-sm font-bold uppercase tracking-wide transition ${
-                  active ? "bg-accent text-white" : "text-white/75 hover:bg-white/10 hover:text-white"
+                  active ? "bg-accent text-white" : "text-muted hover:bg-hover hover:text-ink"
                 }`}
               >
                 {l.label ?? t(l.key)}
@@ -205,22 +206,20 @@ export function Nav({ isTournamentComplete }: { isTournamentComplete: boolean })
   const [menuOpen, setMenuOpen] = useState(false);
   const closeMenu = useCallback(() => setMenuOpen(false), []);
 
-  // Close the drawer whenever the route changes (covers link clicks and
-  // browser back/forward while the drawer is open).
   useEffect(() => {
     setMenuOpen(false);
   }, [pathname]);
 
   const { timeZone } = useTimezone();
-  const tz = timeZone || "UTC"; // or use the imported DEFAULT_TIMEZONE
+  const tz = timeZone || "UTC";
   const todayHref = getTodayHref(tz);
 
   return (
-    <header className="sticky top-0 z-40 border-b-[3px] border-accent bg-navy">
+    <header className="sticky top-0 z-40 border-b-[3px] border-accent bg-header">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-2 px-4 sm:gap-4">
         <div className="flex min-w-0 items-center gap-6">
           <Link href="/" className="flex min-w-0 items-center gap-1.5 sm:gap-2" onClick={closeMenu}>
-            <span className="truncate font-heading text-base font-extrabold tracking-tight text-white sm:text-xl">WorldCupMatchDay</span>
+            <span className="truncate font-heading text-base font-extrabold tracking-tight text-ink sm:text-xl">WorldCupMatchDay</span>
             <span className="shrink-0 font-sans text-[11px] font-black tracking-widest bg-red-600 text-white px-1.5 py-0.5 rounded">2026</span>
           </Link>
           {/* Desktop nav */}
@@ -234,7 +233,7 @@ export function Nav({ isTournamentComplete }: { isTournamentComplete: boolean })
                   href={actualHref}
                   aria-current={active ? "page" : undefined}
                   className={`rounded px-3 py-2 font-heading text-sm font-bold uppercase tracking-wide transition ${
-                    active ? "bg-accent text-white" : "text-white/70 hover:bg-white/10 hover:text-white"
+                    active ? "bg-accent text-white" : "text-muted hover:bg-hover hover:text-ink"
                   }`}
                 >
                   {l.label ?? t(l.key)}
@@ -245,6 +244,7 @@ export function Nav({ isTournamentComplete }: { isTournamentComplete: boolean })
         </div>
 
         <div className="flex shrink-0 items-center gap-2 sm:gap-3">
+          <ThemeToggle />
           <LanguageSwitcher />
           {/* Hamburger button — mobile only, opens the secondary drawer */}
           <button
@@ -253,7 +253,7 @@ export function Nav({ isTournamentComplete }: { isTournamentComplete: boolean })
             aria-haspopup="dialog"
             aria-expanded={menuOpen}
             onClick={() => setMenuOpen((o) => !o)}
-            className="flex h-11 w-11 items-center justify-center rounded border border-white/15 bg-white/5 text-white transition hover:bg-white/10 lg:hidden"
+            className="flex h-11 w-11 items-center justify-center rounded border border-line bg-hover text-ink transition hover:border-lineStrong lg:hidden"
           >
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5" aria-hidden>
               <path d="M4 6h16M4 12h16M4 18h16" />
@@ -263,7 +263,7 @@ export function Nav({ isTournamentComplete }: { isTournamentComplete: boolean })
       </div>
 
       {/* Persistent mobile primary nav — visible without opening any menu */}
-      <nav aria-label="Primary" className="border-t border-white/10 bg-navy lg:hidden">
+      <nav aria-label="Primary" className="border-t border-line bg-header lg:hidden">
         <div className="mx-auto grid max-w-7xl grid-cols-4">
           {getPrimaryLinks(isTournamentComplete).map((l) => {
             const actualHref = l.href;
@@ -275,8 +275,8 @@ export function Nav({ isTournamentComplete }: { isTournamentComplete: boolean })
                 aria-current={active ? "page" : undefined}
                 className={`flex min-h-[44px] flex-col items-center justify-center gap-0.5 px-1 py-1.5 font-heading text-[11px] font-bold uppercase tracking-wide transition ${
                   active
-                    ? "text-white"
-                    : "text-white/60 hover:text-white"
+                    ? "text-ink"
+                    : "text-muted hover:text-ink"
                 }`}
               >
                 <PrimaryIcon href={l.href} />

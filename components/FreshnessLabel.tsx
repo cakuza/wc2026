@@ -36,8 +36,8 @@ export function FreshnessLabel({
     state === "stale"
       ? "text-amber-400"
       : state === "updating"
-        ? "text-white/60"
-        : "text-white/40";
+        ? "text-muted"
+        : "text-faint";
 
   return (
     <span className={className ?? `text-[11px] ${stateClass}`} suppressHydrationWarning>

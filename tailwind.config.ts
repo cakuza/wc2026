@@ -5,17 +5,28 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        navy: "#0a1628",
-        navyCard: "#111d2e",
-        accent: "#e8001c"
+        navy: "rgb(var(--color-canvas) / <alpha-value>)",
+        navyCard: "rgb(var(--color-surface) / <alpha-value>)",
+        canvas: "rgb(var(--color-canvas) / <alpha-value>)",
+        surface: "rgb(var(--color-surface) / <alpha-value>)",
+        surfaceRaised: "rgb(var(--color-surface-raised) / <alpha-value>)",
+        surfaceSubtle: "rgb(var(--color-surface-subtle) / <alpha-value>)",
+        header: "rgb(var(--color-header) / <alpha-value>)",
+        ink: "rgb(var(--color-ink) / <alpha-value>)",
+        muted: "rgb(var(--color-muted) / <alpha-value>)",
+        faint: "rgb(var(--color-faint) / <alpha-value>)",
+        line: "rgb(var(--color-line) / <alpha-value>)",
+        lineStrong: "rgb(var(--color-line-strong) / <alpha-value>)",
+        hover: "rgb(var(--color-hover) / <alpha-value>)",
+        accent: "#e8001c",
       },
       fontFamily: {
         heading: ["var(--font-barlow-condensed)", "system-ui", "sans-serif"],
-        body: ["var(--font-barlow)", "system-ui", "sans-serif"]
-      }
-    }
+        body: ["var(--font-barlow)", "system-ui", "sans-serif"],
+      },
+    },
   },
-  plugins: []
+  plugins: [],
 };
 
 export default config;

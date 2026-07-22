@@ -103,7 +103,7 @@ export default async function ResultsByDatePage({ params }: { params: Promise<{ 
       <p className="mb-1 font-heading text-sm font-bold uppercase tracking-[0.3em] text-accent">2026 World Cup Results</p>
       <h1 className="mb-4 font-heading text-3xl font-extrabold uppercase tracking-wide text-white sm:text-4xl">{long}</h1>
 
-      <p className="mb-6 max-w-2xl text-sm leading-relaxed text-white/60">
+      <p className="mb-6 max-w-2xl text-sm leading-relaxed text-muted">
         {todaysMatches.length > 0
           ? `${todaysMatches.length} match${todaysMatches.length !== 1 ? "es" : ""} played on ${long}, producing ${goalsToday} goal${goalsToday !== 1 ? "s" : ""}${cleanSheetsToday > 0 ? ` and ${cleanSheetsToday} clean sheet${cleanSheetsToday !== 1 ? "s" : ""}` : ""}.`
           : `No matches were scheduled on ${long} — a rest day between rounds.`}{" "}
@@ -119,14 +119,14 @@ export default async function ResultsByDatePage({ params }: { params: Promise<{ 
               <Link
                 key={matchSlug(match)}
                 href={`/matches/${matchSlug(match)}`}
-                className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-white/10 bg-navyCard px-3 py-2 text-sm transition hover:border-white/25"
+                className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-line bg-surface px-3 py-2 text-sm transition hover:border-lineStrong"
               >
                 <span className="font-semibold text-white">
                   {home.label} {pres.state === "final" ? `${pres.homeScore}–${pres.awayScore}` : "vs"} {away.label}
                   {pres.state === "final" && pres.scoreDuration === "EXTRA_TIME" && " (after extra time)"}
                   {pres.state === "final" && pres.scoreDuration === "PENALTY_SHOOTOUT" && pres.penaltyHome !== null && pres.penaltyAway !== null && ` (after extra time, ${pres.penaltyHome}–${pres.penaltyAway} on penalties)`}
                 </span>
-                <span className="text-xs text-white/50">{matchStageLabel(match)} · {match.venue}</span>
+                <span className="text-xs text-faint">{matchStageLabel(match)} · {match.venue}</span>
               </Link>
             ))}
           </div>
@@ -139,9 +139,9 @@ export default async function ResultsByDatePage({ params }: { params: Promise<{ 
           { label: "Total goals", value: cumulativeStats.totalGoals },
           { label: "Clean sheets", value: cumulativeStats.cleanSheets },
         ].map((tile) => (
-          <div key={tile.label} className="rounded-lg border border-white/10 bg-navy px-4 py-3 text-center">
+          <div key={tile.label} className="rounded-lg border border-line bg-canvas px-4 py-3 text-center">
             <p className="font-heading text-2xl font-extrabold text-white">{tile.value}</p>
-            <p className="mt-1 text-[11px] uppercase tracking-widest text-white/40">{tile.label} as of {long}</p>
+            <p className="mt-1 text-[11px] uppercase tracking-widest text-faint">{tile.label} as of {long}</p>
           </div>
         ))}
       </section>
@@ -149,9 +149,9 @@ export default async function ResultsByDatePage({ params }: { params: Promise<{ 
       {cumulativeScorers.length > 0 && (
         <section className="mb-8">
           <h2 className="mb-3 font-heading text-lg font-bold uppercase tracking-wide text-white">Top scorers as of {long}</h2>
-          <ol className="flex flex-col gap-1 text-sm text-white/70">
+          <ol className="flex flex-col gap-1 text-sm text-muted">
             {cumulativeScorers.map((s, i) => (
-              <li key={s.playerName + s.teamKey} className="flex justify-between rounded border border-white/5 bg-navy/60 px-3 py-1.5">
+              <li key={s.playerName + s.teamKey} className="flex justify-between rounded border border-line bg-canvas/60 px-3 py-1.5">
                 <span>{i + 1}. {s.playerName}{s.teamName ? ` (${s.teamName})` : ""}</span>
                 <span className="font-bold text-white">{s.goals} goal{s.goals !== 1 ? "s" : ""}</span>
               </li>
@@ -160,15 +160,15 @@ export default async function ResultsByDatePage({ params }: { params: Promise<{ 
         </section>
       )}
 
-      <nav aria-label="Adjacent tournament dates" className="flex items-center justify-between border-t border-white/10 pt-4 text-sm">
+      <nav aria-label="Adjacent tournament dates" className="flex items-center justify-between border-t border-line pt-4 text-sm">
         {prevDate ? (
-          <Link href={`/world-cup-2026/results/${prevDate}`} className="text-white/60 underline decoration-white/30 underline-offset-2 hover:text-white">
+          <Link href={`/world-cup-2026/results/${prevDate}`} className="text-muted underline decoration-white/30 underline-offset-2 hover:text-white">
             ← {formatDateLong(prevDate)}
           </Link>
         ) : <span />}
-        <Link href="/world-cup-2026/results" className="text-white/40 hover:text-white/70">All results</Link>
+        <Link href="/world-cup-2026/results" className="text-faint hover:text-muted">All results</Link>
         {nextDate ? (
-          <Link href={`/world-cup-2026/results/${nextDate}`} className="text-white/60 underline decoration-white/30 underline-offset-2 hover:text-white">
+          <Link href={`/world-cup-2026/results/${nextDate}`} className="text-muted underline decoration-white/30 underline-offset-2 hover:text-white">
             {formatDateLong(nextDate)} →
           </Link>
         ) : <span />}

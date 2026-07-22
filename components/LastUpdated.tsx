@@ -16,7 +16,7 @@ export function LastUpdated({ isoTimestamp, label = "Last updated" }: LastUpdate
     timeZoneName: "short",
   });
   return (
-    <p className="mt-1 font-heading text-[10px] font-bold uppercase tracking-widest text-white/30">
+    <p className="mt-1 font-heading text-[10px] font-bold uppercase tracking-widest text-faint">
       {label}: {formatted}
     </p>
   );

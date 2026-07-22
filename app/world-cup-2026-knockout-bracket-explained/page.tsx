@@ -139,7 +139,7 @@ export default function KnockoutBracketExplainedPage() {
         <h1 className="mb-3 font-heading text-4xl font-extrabold uppercase tracking-wide text-white">
           Knockout Bracket Explained
         </h1>
-        <p className="mb-8 max-w-2xl text-sm text-white/55">
+        <p className="mb-8 max-w-2xl text-sm text-muted">
           Once the group stage ends on 27 June 2026, 32 teams enter the knockout stage. Every match from
           this point is win-or-go-home — no draws, no second chances. Here is how the bracket works,
           when fixtures are confirmed, and what dates lead to the final.
@@ -155,9 +155,9 @@ export default function KnockoutBracketExplainedPage() {
             { k: "Final", v: "19 Jul 2026" },
             { k: "Final venue", v: "New York New Jersey Stadium" },
           ].map((f) => (
-            <div key={f.k} className="rounded-xl border border-white/10 bg-navyCard px-4 py-3">
+            <div key={f.k} className="rounded-xl border border-line bg-surface px-4 py-3">
               <div className="font-heading text-base font-extrabold text-white">{f.v}</div>
-              <div className="font-heading text-[10px] font-bold uppercase tracking-widest text-white/40">{f.k}</div>
+              <div className="font-heading text-[10px] font-bold uppercase tracking-widest text-faint">{f.k}</div>
             </div>
           ))}
         </div>
@@ -167,7 +167,7 @@ export default function KnockoutBracketExplainedPage() {
           <h2 className="mb-3 font-heading text-xl font-extrabold uppercase tracking-wide text-white">
             How 32 Teams Qualify for the Knockout Stage
           </h2>
-          <div className="space-y-3 text-sm leading-relaxed text-white/70">
+          <div className="space-y-3 text-sm leading-relaxed text-muted">
             <p>
               The 32 knockout-stage participants come from the group stage in three categories: the
               24 automatic qualifiers (first and second place from each of the 12 groups) and the
@@ -188,15 +188,15 @@ export default function KnockoutBracketExplainedPage() {
         </h2>
         <div className="space-y-3">
           {ROUNDS.map((r) => (
-            <div key={r.round} className="rounded-xl border border-white/10 bg-navyCard p-4">
+            <div key={r.round} className="rounded-xl border border-line bg-surface p-4">
               <div className="mb-1 flex flex-wrap items-baseline gap-x-3 gap-y-1">
                 <h3 className="font-heading text-base font-extrabold uppercase tracking-wide text-white">
                   {r.round}
                 </h3>
                 <span className="font-heading text-xs font-bold text-accent">{r.matches}</span>
-                <span className="font-heading text-xs font-bold text-white/40">{r.dates}</span>
+                <span className="font-heading text-xs font-bold text-faint">{r.dates}</span>
               </div>
-              <p className="text-sm leading-relaxed text-white/70">{r.body}</p>
+              <p className="text-sm leading-relaxed text-muted">{r.body}</p>
             </div>
           ))}
         </div>
@@ -206,7 +206,7 @@ export default function KnockoutBracketExplainedPage() {
           <h2 className="mb-3 font-heading text-xl font-extrabold uppercase tracking-wide text-white">
             Extra Time and Penalty Shootouts
           </h2>
-          <div className="space-y-3 text-sm leading-relaxed text-white/70">
+          <div className="space-y-3 text-sm leading-relaxed text-muted">
             <p>
               All knockout matches at the 2026 World Cup use the same rules: if the score is level after
               90 minutes, the match goes to extra time — two additional 15-minute halves. If still tied
@@ -225,11 +225,11 @@ export default function KnockoutBracketExplainedPage() {
         </section>
 
         {/* When bracket is confirmed */}
-        <section className="mt-8 rounded-xl border border-white/10 bg-navyCard px-4 py-4">
+        <section className="mt-8 rounded-xl border border-line bg-surface px-4 py-4">
           <h2 className="mb-2 font-heading text-base font-extrabold uppercase tracking-wide text-white">
             When Are Knockout Fixtures Confirmed?
           </h2>
-          <p className="text-sm leading-relaxed text-white/60">
+          <p className="text-sm leading-relaxed text-muted">
             The bracket structure — which group position faces which — is set by FIFA before the
             tournament. The specific teams filling each slot are only known once the group stage ends.
             On 27 June 2026, the last group matches finish, and at that point all 32 Round of 32 matchups
@@ -253,7 +253,7 @@ export default function KnockoutBracketExplainedPage() {
             <Link
               key={l.href}
               href={l.href}
-              className="rounded-lg border border-white/15 bg-navyCard px-4 py-2 font-heading text-xs font-bold uppercase tracking-wide text-white/70 transition hover:border-white/30 hover:text-white"
+              className="rounded-lg border border-line bg-surface px-4 py-2 font-heading text-xs font-bold uppercase tracking-wide text-muted transition hover:border-lineStrong hover:text-white"
             >
               {l.label}
             </Link>
@@ -265,34 +265,34 @@ export default function KnockoutBracketExplainedPage() {
           <h2 className="mb-3 font-heading text-2xl font-extrabold uppercase tracking-wide text-white">FAQ</h2>
           <div className="space-y-3">
             {FAQS.map((f) => (
-              <div key={f.q} className="rounded-xl border border-white/10 bg-navyCard p-4">
+              <div key={f.q} className="rounded-xl border border-line bg-surface p-4">
                 <h3 className="font-heading text-sm font-extrabold uppercase tracking-wide text-white sm:text-base">
                   {f.q}
                 </h3>
-                <p className="mt-2 text-sm leading-relaxed text-white/70">{f.a}</p>
+                <p className="mt-2 text-sm leading-relaxed text-muted">{f.a}</p>
               </div>
             ))}
           </div>
         </section>
 
-        <section className="mt-8 rounded-xl border border-white/10 bg-navyCard px-4 py-4">
-          <h2 className="mb-2 font-heading text-xs font-bold uppercase tracking-widest text-white/40">
+        <section className="mt-8 rounded-xl border border-line bg-surface px-4 py-4">
+          <h2 className="mb-2 font-heading text-xs font-bold uppercase tracking-widest text-faint">
             Official Sources
           </h2>
-          <ul className="space-y-1 text-xs leading-relaxed text-white/50">
+          <ul className="space-y-1 text-xs leading-relaxed text-faint">
             <li>
-              <a href="https://www.fifa.com/en/tournaments/mens/worldcup/canada-mexico-usa-2026/matches" target="_blank" rel="noopener noreferrer" className="underline underline-offset-2 hover:text-white/70 transition">
+              <a href="https://www.fifa.com/en/tournaments/mens/worldcup/canada-mexico-usa-2026/matches" target="_blank" rel="noopener noreferrer" className="underline underline-offset-2 hover:text-muted transition">
                 FIFA 2026 Match Schedule
               </a>{" "}— official round-by-round dates
             </li>
             <li>
-              <a href="https://www.fifa.com/en/tournaments/mens/worldcup/canada-mexico-usa-2026/host-cities" target="_blank" rel="noopener noreferrer" className="underline underline-offset-2 hover:text-white/70 transition">
+              <a href="https://www.fifa.com/en/tournaments/mens/worldcup/canada-mexico-usa-2026/host-cities" target="_blank" rel="noopener noreferrer" className="underline underline-offset-2 hover:text-muted transition">
                 FIFA 2026 Host Cities &amp; Stadiums
               </a>{" "}— official 16-venue list
             </li>
           </ul>
         </section>
-        <p className="mt-6 text-xs leading-relaxed text-white/40">
+        <p className="mt-6 text-xs leading-relaxed text-faint">
           WorldCupMatchDay is an independent, fan-made resource and is not affiliated with FIFA. Always verify
           specific match dates and venues with official FIFA sources.
         </p>

@@ -107,6 +107,7 @@ async function main() {
         const text = await page.locator("body").innerText();
         const metrics = await page.evaluate(() => ({ h1: document.querySelectorAll("h1").length, scrollWidth: document.documentElement.scrollWidth, bodyWidth: document.body.scrollWidth, innerWidth: window.innerWidth }));
         assert(response?.ok(), `[${label}] ${route} loads`);
+        if (errors.length > 0) console.error(`ERRORS ON ${route}:`, errors);
         assert(errors.length === 0, `[${label}] ${route} has no console/page errors`);
         assert(warnings.length === 0, `[${label}] ${route} has no hydration warnings`);
         assert(metrics.scrollWidth <= metrics.innerWidth && metrics.bodyWidth <= metrics.innerWidth, `[${label}] ${route} has no horizontal overflow`);

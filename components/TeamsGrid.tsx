@@ -35,7 +35,7 @@ export function TeamsGrid({ showHeading = false }: { showHeading?: boolean }) {
             type="button"
             onClick={() => setGroup("all")}
             className={`rounded px-3 py-1.5 font-heading text-sm font-bold uppercase tracking-wide transition ${
-              group === "all" ? "bg-accent text-white" : "bg-white/5 text-white/70 hover:bg-white/10"
+              group === "all" ? "bg-accent text-white" : "bg-white/5 text-muted hover:bg-white/10"
             }`}
           >
             {t("flt_allGroups")}
@@ -46,7 +46,7 @@ export function TeamsGrid({ showHeading = false }: { showHeading?: boolean }) {
               type="button"
               onClick={() => setGroup(g)}
               className={`rounded px-3 py-1.5 font-heading text-sm font-bold uppercase tracking-wide transition ${
-                group === g ? "bg-accent text-white" : "bg-white/5 text-white/70 hover:bg-white/10"
+                group === g ? "bg-accent text-white" : "bg-white/5 text-muted hover:bg-white/10"
               }`}
             >
               {t("lbl_group")} {g}
@@ -58,7 +58,7 @@ export function TeamsGrid({ showHeading = false }: { showHeading?: boolean }) {
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder={t("search_ph")}
-          className="w-full rounded-lg border border-white/10 bg-navyCard px-4 py-2.5 text-sm text-white placeholder:text-white/40 focus:border-accent focus:outline-none lg:w-72"
+          className="w-full rounded-lg border border-line bg-surface px-4 py-2.5 text-sm text-white placeholder:text-faint focus:border-accent focus:outline-none lg:w-72"
         />
       </div>
 
@@ -69,7 +69,7 @@ export function TeamsGrid({ showHeading = false }: { showHeading?: boolean }) {
       </div>
 
       {filtered.length === 0 ? (
-        <p className="py-10 text-center text-white/50">—</p>
+        <p className="py-10 text-center text-faint">—</p>
       ) : null}
     </section>
   );

@@ -54,7 +54,7 @@ export default async function PlayersStatsPage() {
         <h1 className="mt-1 font-heading text-3xl font-extrabold uppercase tracking-tight text-white sm:text-4xl">
           Player Stats
         </h1>
-        <p className="mt-2 max-w-3xl text-sm text-white/50">
+        <p className="mt-2 max-w-3xl text-sm text-faint">
           Comprehensive player statistics across the tournament.
         </p>
       </div>
@@ -72,9 +72,9 @@ export default async function PlayersStatsPage() {
       {hasEventData ? (
         <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
           {lists.map((list) => (
-            <div key={list.title} className="rounded-xl border border-white/10 bg-navyCard overflow-hidden">
-              <div className="border-b border-white/10 bg-navy/50 px-4 py-3 flex items-center justify-between">
-                <p className="font-heading text-[10px] font-extrabold uppercase tracking-widest text-white/60">
+            <div key={list.title} className="rounded-xl border border-line bg-surface overflow-hidden">
+              <div className="border-b border-line bg-canvas/50 px-4 py-3 flex items-center justify-between">
+                <p className="font-heading text-[10px] font-extrabold uppercase tracking-widest text-muted">
                   {list.title}
                 </p>
                 {list.link && (
@@ -84,20 +84,20 @@ export default async function PlayersStatsPage() {
                 )}
               </div>
               {list.data.length > 0 ? (
-                <ul className="divide-y divide-white/5">
+                <ul className="divide-y divide-line">
                   {list.data.slice(0, 10).map((stat, i) => {
                     const teamKey = stat.teamKey;
                     const teamCode = teamKey ? teamCodeForKey(teamKey) : null;
                     return (
                       <li key={stat.playerName + i} className="flex items-center gap-3 px-4 py-3">
-                        <span className="w-5 shrink-0 font-heading text-xs font-bold text-white/30">{i + 1}</span>
+                        <span className="w-5 shrink-0 font-heading text-xs font-bold text-faint">{i + 1}</span>
                         <div className="flex-1 min-w-0 flex flex-col">
                           <div className="flex items-center gap-2">
                             {teamCode && <Flag code={teamCode} width={18} height={13} className="shrink-0" alt="" />}
                             <p className="truncate font-semibold text-white text-sm">{stat.playerName}</p>
                           </div>
                           {stat.teamName && (
-                            <p className="text-xs text-white/40 mt-0.5">{teamKey ? countryName(teamKey, "en") : stat.teamName}</p>
+                            <p className="text-xs text-faint mt-0.5">{teamKey ? countryName(teamKey, "en") : stat.teamName}</p>
                           )}
                         </div>
                         <span className="font-heading text-base font-extrabold tabular-nums text-white">
@@ -108,14 +108,14 @@ export default async function PlayersStatsPage() {
                   })}
                 </ul>
               ) : (
-                <div className="p-6 text-center text-xs text-white/40">No data available</div>
+                <div className="p-6 text-center text-xs text-faint">No data available</div>
               )}
             </div>
           ))}
         </div>
       ) : (
-        <div className="rounded-xl border border-white/10 bg-navyCard p-6 text-center">
-          <p className="font-heading text-xs font-bold uppercase tracking-widest text-white/30">
+        <div className="rounded-xl border border-line bg-surface p-6 text-center">
+          <p className="font-heading text-xs font-bold uppercase tracking-widest text-faint">
             Player stats will appear when event data is available from the match sync.
           </p>
         </div>

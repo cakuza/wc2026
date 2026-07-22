@@ -85,7 +85,7 @@ export default async function HomePage() {
               { href: "/groups", label: "Groups" },
               { href: "/schedule", label: "Schedule" },
             ].map((link) => (
-              <Link key={link.href} href={link.href} className="rounded-lg border border-white/10 bg-navyCard px-4 py-3 text-center font-heading text-xs font-bold uppercase tracking-wide text-white/70 transition hover:border-white/25 hover:text-white">{link.label}</Link>
+              <Link key={link.href} href={link.href} className="rounded-lg border border-line bg-surface px-4 py-3 text-center font-heading text-xs font-bold uppercase tracking-wide text-muted transition hover:border-lineStrong hover:text-white">{link.label}</Link>
             ))}
           </div>
         </div>

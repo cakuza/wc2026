@@ -45,12 +45,12 @@ const faqLd = {
 
 function Step({ n, title, children }: { n: string; title: string; children: React.ReactNode }) {
   return (
-    <div className="rounded-xl border border-white/10 bg-navyCard p-4">
+    <div className="rounded-xl border border-line bg-surface p-4">
       <div className="flex items-center gap-3">
         <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-accent/20 font-heading text-sm font-extrabold text-accent">{n}</span>
         <h2 className="font-heading text-base font-extrabold uppercase tracking-wide text-white">{title}</h2>
       </div>
-      <p className="mt-2 text-sm leading-relaxed text-white/70">{children}</p>
+      <p className="mt-2 text-sm leading-relaxed text-muted">{children}</p>
     </div>
   );
 }
@@ -71,7 +71,7 @@ export default async function ThirdPlaceQualificationPage() {
         <h1 className="mb-2 font-heading text-4xl font-extrabold uppercase tracking-wide text-white">
           Final third-place ranking
         </h1>
-        <p className="mb-6 max-w-2xl text-sm text-white/55">
+        <p className="mb-6 max-w-2xl text-sm text-muted">
           The group stage is complete. This final table is preserved as tournament history and records which
           third-placed teams qualified for the Round of 32.
         </p>
@@ -80,7 +80,7 @@ export default async function ThirdPlaceQualificationPage() {
           <h2 className="mb-1 font-heading text-2xl font-extrabold uppercase tracking-wide text-white">
             Final third-place ranking
           </h2>
-          <p className="mb-3 max-w-2xl text-sm text-white/55">
+          <p className="mb-3 max-w-2xl text-sm text-muted">
             The eight highest-ranked third-placed teams qualified for the Round of 32. Where the available
             published criteria cannot separate teams, the table preserves a tied final position.
           </p>
@@ -107,7 +107,7 @@ export default async function ThirdPlaceQualificationPage() {
           <h2 className="mb-2 font-heading text-xl font-extrabold uppercase tracking-wide text-white">
             How many third-place teams qualified?
           </h2>
-          <p className="text-sm leading-relaxed text-white/70">
+          <p className="text-sm leading-relaxed text-muted">
             Eight of the twelve third-placed teams qualified for the knockout stage. The other four did not qualify.
             Where available published criteria are level, this historical table shows a tied position rather than an
             unsupported internal order.
@@ -118,12 +118,12 @@ export default async function ThirdPlaceQualificationPage() {
           <h2 className="mb-2 font-heading text-xl font-extrabold uppercase tracking-wide text-white">
             Why third place mattered
           </h2>
-          <p className="text-sm leading-relaxed text-white/70">
+          <p className="text-sm leading-relaxed text-muted">
             A team that finished third in its group could still reach the Round of 32 by ranking among the eight best
             third-placed teams across all 12 groups. Every point and goal from the completed group stage contributed to
             the historical ranking.
           </p>
-          <p className="mt-2 text-sm leading-relaxed text-white/70">
+          <p className="mt-2 text-sm leading-relaxed text-muted">
             The 8 qualifying third-placed teams entered the{" "}
             <Link href="/world-cup-2026-knockout-bracket-explained" className="text-accent underline-offset-2 hover:underline">
               knockout bracket
@@ -133,11 +133,11 @@ export default async function ThirdPlaceQualificationPage() {
           </p>
         </section>
 
-        <section className="mt-6 rounded-xl border border-white/10 bg-navyCard p-4">
+        <section className="mt-6 rounded-xl border border-line bg-surface p-4">
           <h2 className="mb-2 font-heading text-base font-extrabold uppercase tracking-wide text-white">
             What decided the best third-placed teams?
           </h2>
-          <p className="text-sm leading-relaxed text-white/70">
+          <p className="text-sm leading-relaxed text-muted">
             Best third-placed teams were ranked by: (1) points, (2) goal difference, and (3) goals scored - all from
             their three group matches. Further criteria include disciplinary record and FIFA/Coca-Cola Men&apos;s World
             Ranking. If available evidence does not resolve an internal tie, the ranking above preserves that tied final
@@ -151,7 +151,7 @@ export default async function ThirdPlaceQualificationPage() {
             { href: "/bracket", label: "Bracket" },
             { href: "/stats", label: "Stats" },
           ].map((l) => (
-            <Link key={l.href} href={l.href} className="rounded-lg border border-white/15 bg-navyCard px-4 py-2 font-heading text-xs font-bold uppercase tracking-wide text-white/70 transition hover:border-white/30 hover:text-white">
+            <Link key={l.href} href={l.href} className="rounded-lg border border-line bg-surface px-4 py-2 font-heading text-xs font-bold uppercase tracking-wide text-muted transition hover:border-lineStrong hover:text-white">
               {l.label}
             </Link>
           ))}
@@ -161,9 +161,9 @@ export default async function ThirdPlaceQualificationPage() {
           <h2 className="mb-3 font-heading text-2xl font-extrabold uppercase tracking-wide text-white">FAQ</h2>
           <div className="space-y-3">
             {FAQS.map((f) => (
-              <div key={f.q} className="rounded-xl border border-white/10 bg-navyCard p-4">
+              <div key={f.q} className="rounded-xl border border-line bg-surface p-4">
                 <h3 className="font-heading text-sm font-extrabold uppercase tracking-wide text-white sm:text-base">{f.q}</h3>
-                <p className="mt-2 text-sm leading-relaxed text-white/70">{f.a}</p>
+                <p className="mt-2 text-sm leading-relaxed text-muted">{f.a}</p>
               </div>
             ))}
           </div>

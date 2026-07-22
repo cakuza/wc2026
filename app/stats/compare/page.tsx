@@ -45,7 +45,7 @@ export default async function CompareStatsPage() {
         <h1 className="mt-1 font-heading text-3xl font-extrabold uppercase tracking-tight text-white sm:text-4xl">
           Team Compare
         </h1>
-        <p className="mt-2 max-w-3xl text-sm text-white/50">
+        <p className="mt-2 max-w-3xl text-sm text-faint">
           Compare cumulative tournament statistics between any two teams.
         </p>
       </div>

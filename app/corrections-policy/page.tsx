@@ -17,7 +17,7 @@ export default function CorrectionsPolicyPage() {
         CORRECTIONS POLICY
       </h1>
 
-      <div className="space-y-5 text-sm leading-relaxed text-white/70">
+      <div className="space-y-5 text-sm leading-relaxed text-muted">
         <section>
           <h2 className="mb-2 font-heading text-sm font-extrabold tracking-widest text-white uppercase">
             Our Commitment to Accuracy
@@ -49,7 +49,7 @@ export default function CorrectionsPolicyPage() {
           </p>
         </section>
 
-        <p className="text-xs text-white/40">
+        <p className="text-xs text-faint">
           Last updated: 19 July 2026.
         </p>
       </div>

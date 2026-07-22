@@ -15,7 +15,7 @@ export function AboutContent() {
         {t("about_title")}
       </h1>
 
-      <div className="space-y-5 text-sm leading-relaxed text-white/70">
+      <div className="space-y-5 text-sm leading-relaxed text-muted">
         <p>{t("about_p1")}</p>
         <p>{t("about_p2")}</p>
         <p>{t("about_p3")}</p>
@@ -33,23 +33,23 @@ export function AboutContent() {
       </div>
 
       <div className="mt-10 flex flex-wrap gap-x-4 gap-y-2 text-sm">
-        <Link href="/privacy" className="font-heading font-bold uppercase tracking-wide text-white/40 hover:text-white/80 transition">
+        <Link href="/privacy" className="font-heading font-bold uppercase tracking-wide text-faint hover:text-ink transition">
           {t("about_link_privacy")}
         </Link>
-        <span className="text-white/20">·</span>
-        <Link href="/terms" className="font-heading font-bold uppercase tracking-wide text-white/40 hover:text-white/80 transition">
+        <span className="text-faint">·</span>
+        <Link href="/terms" className="font-heading font-bold uppercase tracking-wide text-faint hover:text-ink transition">
           {t("about_link_terms")}
         </Link>
-        <span className="text-white/20">·</span>
-        <Link href="/contact" className="font-heading font-bold uppercase tracking-wide text-white/40 hover:text-white/80 transition">
+        <span className="text-faint">·</span>
+        <Link href="/contact" className="font-heading font-bold uppercase tracking-wide text-faint hover:text-ink transition">
           {t("about_link_contact")}
         </Link>
-        <span className="text-white/20">·</span>
-        <Link href="/editorial-policy" className="font-heading font-bold uppercase tracking-wide text-white/40 hover:text-white/80 transition">
+        <span className="text-faint">·</span>
+        <Link href="/editorial-policy" className="font-heading font-bold uppercase tracking-wide text-faint hover:text-ink transition">
           Editorial Policy
         </Link>
-        <span className="text-white/20">·</span>
-        <Link href="/corrections-policy" className="font-heading font-bold uppercase tracking-wide text-white/40 hover:text-white/80 transition">
+        <span className="text-faint">·</span>
+        <Link href="/corrections-policy" className="font-heading font-bold uppercase tracking-wide text-faint hover:text-ink transition">
           Corrections Policy
         </Link>
       </div>

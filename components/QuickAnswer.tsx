@@ -9,7 +9,7 @@ export function QuickAnswer({ children, label = "Quick Answer" }: QuickAnswerPro
       <p className="mb-1 font-heading text-[10px] font-extrabold uppercase tracking-[0.3em] text-accent/70">
         {label}
       </p>
-      <div className="text-sm leading-relaxed text-white/90">{children}</div>
+      <div className="text-sm leading-relaxed text-ink">{children}</div>
     </div>
   );
 }

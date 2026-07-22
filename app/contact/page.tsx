@@ -17,15 +17,15 @@ export default function ContactPage() {
         CONTACT
       </h1>
 
-      <div className="space-y-5 text-sm leading-relaxed text-white/70">
+      <div className="space-y-5 text-sm leading-relaxed text-muted">
         <p>
           WorldCupMatchDay is an independent fan site. Whether you&apos;ve spotted a data error,
           have a feature suggestion, want to report incorrect match information, or just want to say
           hello — drop us an email and we&apos;ll get back to you as soon as we can.
         </p>
 
-        <div className="rounded-xl border border-white/10 bg-navyCard p-6">
-          <p className="mb-1 font-heading text-xs font-bold tracking-widest text-white/40">
+        <div className="rounded-xl border border-line bg-surface p-6">
+          <p className="mb-1 font-heading text-xs font-bold tracking-widest text-faint">
             EMAIL
           </p>
           <a
@@ -34,26 +34,26 @@ export default function ContactPage() {
           >
             worldcupmatchday@proton.me
           </a>
-          <p className="mt-3 text-xs text-white/40">
+          <p className="mt-3 text-xs text-faint">
             Response times vary. Since the tournament has concluded, we review messages and apply data corrections periodically. General inquiries may take longer depending on developer availability.
           </p>
         </div>
 
-        <div className="rounded-xl border border-white/10 bg-navyCard p-5">
-          <p className="mb-2 font-heading text-xs font-bold uppercase tracking-widest text-white/40">
+        <div className="rounded-xl border border-line bg-surface p-5">
+          <p className="mb-2 font-heading text-xs font-bold uppercase tracking-widest text-faint">
             Reporting a data error
           </p>
-          <p className="text-sm text-white/65">
+          <p className="text-sm text-muted">
             For match data corrections — wrong score, missing goal scorer, incorrect venue or kickoff
             time — please include the following in your message:
           </p>
-          <ul className="mt-2 ml-4 list-disc space-y-1 text-sm text-white/50">
+          <ul className="mt-2 ml-4 list-disc space-y-1 text-sm text-faint">
             <li>The match name (e.g. &quot;France vs Senegal, Group I&quot;)</li>
             <li>What you see that appears incorrect</li>
             <li>The correct information, with a source reference if possible (e.g. a link to the official
               match record or a broadcaster report)</li>
           </ul>
-          <p className="mt-2 text-sm text-white/50">
+          <p className="mt-2 text-sm text-faint">
             Confirmed corrections are applied to our verified corrections file and take effect across our pages in the next verified rebuild or data-sync cycle.
           </p>
         </div>
@@ -65,14 +65,14 @@ export default function ContactPage() {
           using so we can investigate.
         </p>
 
-        <p className="text-white/40">
+        <p className="text-faint">
           WorldCupMatchDay is an independent fan project — we are not affiliated with FIFA or any
           official tournament body. For official FIFA communications, please visit{" "}
           <a
             href="https://www.fifa.com"
             target="_blank"
             rel="noopener noreferrer"
-            className="underline underline-offset-2 hover:text-white/70 transition"
+            className="underline underline-offset-2 hover:text-muted transition"
           >
             fifa.com
           </a>

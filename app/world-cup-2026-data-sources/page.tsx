@@ -77,7 +77,7 @@ function Section({ title, children }: { title: string; children: React.ReactNode
   return (
     <section className="mt-8">
       <h2 className="mb-3 font-heading text-xl font-extrabold uppercase tracking-wide text-white">{title}</h2>
-      <div className="space-y-3 text-sm leading-relaxed text-white/70">{children}</div>
+      <div className="space-y-3 text-sm leading-relaxed text-muted">{children}</div>
     </section>
   );
 }
@@ -93,7 +93,7 @@ export default function DataSourcesPage() {
         <BreadcrumbNav items={breadcrumbs} />
         <p className="mb-2 font-heading text-sm font-bold uppercase tracking-[0.3em] text-accent">About WorldCupMatchDay</p>
         <h1 className="mb-3 font-heading text-4xl font-extrabold uppercase tracking-wide text-white">Data Sources &amp; Methodology</h1>
-        <p className="mb-8 max-w-2xl text-sm text-white/55">
+        <p className="mb-8 max-w-2xl text-sm text-muted">
           WorldCupMatchDay is an independent fan site. This page explains where our World Cup 2026 data comes from,
           how we process and display it, and how to report corrections.
         </p>
@@ -171,12 +171,12 @@ export default function DataSourcesPage() {
           </p>
         </Section>
 
-        <section className="mt-8 rounded-xl border border-white/10 bg-navyCard px-4 py-4">
-          <h2 className="mb-2 font-heading text-xs font-bold uppercase tracking-widest text-white/40">Official Sources</h2>
-          <ul className="space-y-1 text-xs leading-relaxed text-white/50">
-            <li><a href="https://www.fifa.com/en/tournaments/mens/worldcup/canada-mexico-usa-2026/matches" target="_blank" rel="noopener noreferrer" className="underline underline-offset-2 hover:text-white/70 transition">FIFA 2026 Match Schedule</a> - official fixtures and results source</li>
-            <li><a href="https://www.fifa.com/en/tournaments/mens/worldcup/canada-mexico-usa-2026/host-cities" target="_blank" rel="noopener noreferrer" className="underline underline-offset-2 hover:text-white/70 transition">FIFA 2026 Host Cities &amp; Stadiums</a> - official venue information</li>
-            <li><a href="https://legal.fifa.com/en/official-documents" target="_blank" rel="noopener noreferrer" className="underline underline-offset-2 hover:text-white/70 transition">FIFA Official Documents</a> - official competition regulations and rules</li>
+        <section className="mt-8 rounded-xl border border-line bg-surface px-4 py-4">
+          <h2 className="mb-2 font-heading text-xs font-bold uppercase tracking-widest text-faint">Official Sources</h2>
+          <ul className="space-y-1 text-xs leading-relaxed text-faint">
+            <li><a href="https://www.fifa.com/en/tournaments/mens/worldcup/canada-mexico-usa-2026/matches" target="_blank" rel="noopener noreferrer" className="underline underline-offset-2 hover:text-muted transition">FIFA 2026 Match Schedule</a> - official fixtures and results source</li>
+            <li><a href="https://www.fifa.com/en/tournaments/mens/worldcup/canada-mexico-usa-2026/host-cities" target="_blank" rel="noopener noreferrer" className="underline underline-offset-2 hover:text-muted transition">FIFA 2026 Host Cities &amp; Stadiums</a> - official venue information</li>
+            <li><a href="https://legal.fifa.com/en/official-documents" target="_blank" rel="noopener noreferrer" className="underline underline-offset-2 hover:text-muted transition">FIFA Official Documents</a> - official competition regulations and rules</li>
           </ul>
         </section>
 
@@ -189,7 +189,7 @@ export default function DataSourcesPage() {
             { href: "/faq", label: "FAQ" },
             { href: "/privacy", label: "Privacy" },
           ].map((l) => (
-            <Link key={l.href} href={l.href} className="rounded-lg border border-white/15 bg-navyCard px-4 py-2 font-heading text-xs font-bold uppercase tracking-wide text-white/70 transition hover:border-white/30 hover:text-white">
+            <Link key={l.href} href={l.href} className="rounded-lg border border-line bg-surface px-4 py-2 font-heading text-xs font-bold uppercase tracking-wide text-muted transition hover:border-lineStrong hover:text-white">
               {l.label}
             </Link>
           ))}
@@ -199,9 +199,9 @@ export default function DataSourcesPage() {
           <h2 className="mb-3 font-heading text-2xl font-extrabold uppercase tracking-wide text-white">FAQ</h2>
           <div className="space-y-3">
             {FAQS.map((f) => (
-              <div key={f.q} className="rounded-xl border border-white/10 bg-navyCard p-4">
+              <div key={f.q} className="rounded-xl border border-line bg-surface p-4">
                 <h3 className="font-heading text-sm font-extrabold uppercase tracking-wide text-white sm:text-base">{f.q}</h3>
-                <p className="mt-2 text-sm leading-relaxed text-white/70">{f.a}</p>
+                <p className="mt-2 text-sm leading-relaxed text-muted">{f.a}</p>
               </div>
             ))}
           </div>

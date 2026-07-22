@@ -73,21 +73,21 @@ const articleLd = articleSchema({
 
 function Table({ caption, rows, head }: { caption: string; head: [string, string]; rows: { a: string; b: string }[] }) {
   return (
-    <div className="overflow-hidden rounded-xl border border-white/10 bg-navyCard">
-      <div className="border-b border-white/10 bg-navy/50 px-4 py-3">
+    <div className="overflow-hidden rounded-xl border border-line bg-surface">
+      <div className="border-b border-line bg-canvas/50 px-4 py-3">
         <span className="font-heading text-sm font-extrabold uppercase tracking-wide text-white">{caption}</span>
       </div>
       <table className="w-full text-sm">
         <thead>
-          <tr className="border-b border-white/10 text-left font-heading text-[11px] font-bold uppercase tracking-widest text-white/40">
+          <tr className="border-b border-line text-left font-heading text-[11px] font-bold uppercase tracking-widest text-faint">
             <th className="px-4 py-2">{head[0]}</th>
             <th className="px-4 py-2 text-right">{head[1]}</th>
           </tr>
         </thead>
         <tbody>
           {rows.map((r) => (
-            <tr key={r.a} className="border-b border-white/5 last:border-0">
-              <td className="px-4 py-2.5 text-white/75">{r.a}</td>
+            <tr key={r.a} className="border-b border-line last:border-0">
+              <td className="px-4 py-2.5 text-muted">{r.a}</td>
               <td className="px-4 py-2.5 text-right font-semibold tabular-nums text-white">{r.b}</td>
             </tr>
           ))}
@@ -110,7 +110,7 @@ export default function PrizeMoneyPage() {
         <h1 className="mb-2 font-heading text-4xl font-extrabold uppercase tracking-wide text-white">
           World Cup 2026 Prize Money
         </h1>
-        <p className="mb-6 max-w-2xl text-sm text-white/55">
+        <p className="mb-6 max-w-2xl text-sm text-muted">
           The 2026 World Cup champions earn USD 50 million, with USD 655 million in prize money shared among the 48
           teams. Below is the payout by finishing position and the guaranteed minimums, using figures published by FIFA.
         </p>
@@ -128,7 +128,7 @@ export default function PrizeMoneyPage() {
           />
         </div>
 
-        <p className="mt-4 text-xs leading-relaxed text-white/45">
+        <p className="mt-4 text-xs leading-relaxed text-faint">
           Note: FIFA pays the participating member associations rather than players directly. Amounts are in US dollars
           as published by FIFA and are not adjusted for currency conversion. Prize money figures may be updated as
           information becomes available — always verify amounts before citing them.
@@ -140,7 +140,7 @@ export default function PrizeMoneyPage() {
             { href: "/groups", label: "Groups" },
             { href: "/bracket", label: "Bracket" },
           ].map((l) => (
-            <Link key={l.href} href={l.href} className="rounded-lg border border-white/15 bg-navyCard px-4 py-2 font-heading text-xs font-bold uppercase tracking-wide text-white/70 transition hover:border-white/30 hover:text-white">
+            <Link key={l.href} href={l.href} className="rounded-lg border border-line bg-surface px-4 py-2 font-heading text-xs font-bold uppercase tracking-wide text-muted transition hover:border-lineStrong hover:text-white">
               {l.label}
             </Link>
           ))}
@@ -150,9 +150,9 @@ export default function PrizeMoneyPage() {
           <h2 className="mb-3 font-heading text-2xl font-extrabold uppercase tracking-wide text-white">FAQ</h2>
           <div className="space-y-3">
             {FAQS.map((f) => (
-              <div key={f.q} className="rounded-xl border border-white/10 bg-navyCard p-4">
+              <div key={f.q} className="rounded-xl border border-line bg-surface p-4">
                 <h3 className="font-heading text-sm font-extrabold uppercase tracking-wide text-white sm:text-base">{f.q}</h3>
-                <p className="mt-2 text-sm leading-relaxed text-white/70">{f.a}</p>
+                <p className="mt-2 text-sm leading-relaxed text-muted">{f.a}</p>
               </div>
             ))}
           </div>

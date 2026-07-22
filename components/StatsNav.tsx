@@ -17,7 +17,7 @@ export function StatsNav() {
   ];
 
   return (
-    <div className="sticky top-0 z-10 -mx-4 mb-8 overflow-x-auto bg-navy/95 px-4 py-3 backdrop-blur-md sm:mx-0 sm:px-0 sm:bg-navy/80 border-b border-white/10">
+    <div className="sticky top-0 z-10 -mx-4 mb-8 overflow-x-auto bg-canvas/95 px-4 py-3 backdrop-blur-md sm:mx-0 sm:px-0 sm:bg-canvas/80 border-b border-line">
       <nav className="flex items-center gap-2 sm:gap-4 w-max">
         {tabs.map((tab) => {
           const isActive = tab.href === "/stats" ? pathname === "/stats" : pathname.startsWith(tab.matchPrefix!);
@@ -28,7 +28,7 @@ export function StatsNav() {
               className={`shrink-0 rounded-full px-4 py-2 font-heading text-xs font-bold uppercase tracking-widest transition ${
                 isActive
                   ? "bg-accent text-navy"
-                  : "bg-white/5 text-white/70 hover:bg-white/10 hover:text-white"
+                  : "bg-white/5 text-muted hover:bg-white/10 hover:text-white"
               }`}
             >
               {tab.name}

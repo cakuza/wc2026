@@ -42,18 +42,18 @@ export function ThirdPlaceTable({ rows }: ThirdPlaceTableProps) {
     return "Tied final position";
   };
   const statusClass = (status: ThirdPlaceRow["status"]) => {
-    if (status === "not_started") return "bg-white/10 text-white/40";
+    if (status === "not_started") return "bg-white/10 text-faint";
     if (status === "qualifying") return "bg-green-500/15 text-green-400";
     if (status === "outside") return "bg-red-500/10 text-red-400/80";
     return "bg-amber-500/15 text-amber-300";
   };
 
   return (
-    <div className="overflow-hidden rounded-xl border border-white/10 bg-navyCard">
+    <div className="overflow-hidden rounded-xl border border-line bg-surface">
       <div className="overflow-x-auto">
         <table className="w-full min-w-[560px] text-sm">
           <thead>
-            <tr className="border-b border-white/10 text-[11px] uppercase tracking-wider text-white/40">
+            <tr className="border-b border-line text-[11px] uppercase tracking-wider text-faint">
               <th className="px-3 py-3 text-start font-semibold">#</th>
               <th className="px-2 py-3 text-start font-semibold" />
               <th className="px-2 py-3 text-center font-semibold">{t("lbl_group")}</th>
@@ -62,7 +62,7 @@ export function ThirdPlaceTable({ rows }: ThirdPlaceTableProps) {
                   {c}
                 </th>
               ))}
-              <th className="px-3 py-3 text-center font-semibold text-white/70">{t("lbl_pts")}</th>
+              <th className="px-3 py-3 text-center font-semibold text-muted">{t("lbl_pts")}</th>
               <th className="px-3 py-3 text-start font-semibold">Status</th>
             </tr>
           </thead>
@@ -73,13 +73,13 @@ export function ThirdPlaceTable({ rows }: ThirdPlaceTableProps) {
               return (
                 <tr
                   key={row.teamKey}
-                  className={`border-t border-white/5 transition hover:bg-white/5 ${
+                  className={`border-t border-line transition hover:bg-white/5 ${
                     isQualifying ? "bg-green-500/5" : ""
                   } ${row.rank === 8 && row.status !== "not_started" ? "border-b-2 border-b-accent/40" : ""}`}
                 >
                   {/* Rank */}
                   <td
-                    className="px-3 py-3 font-heading font-bold text-white/50"
+                    className="px-3 py-3 font-heading font-bold text-faint"
                     style={{ borderLeft: `3px solid ${isQualifying ? "#22c55e" : "#ef4444"}` }}
                   >
                     {row.rankLabel ?? row.rank}
@@ -100,7 +100,7 @@ export function ThirdPlaceTable({ rows }: ThirdPlaceTableProps) {
                   </td>
 
                   {/* Group */}
-                  <td className="px-2 py-3 text-center font-heading font-bold text-white/60">
+                  <td className="px-2 py-3 text-center font-heading font-bold text-muted">
                     {row.group}
                   </td>
 
@@ -117,7 +117,7 @@ export function ThirdPlaceTable({ rows }: ThirdPlaceTableProps) {
                             ? val > 0
                               ? "font-semibold text-green-400"
                               : "font-semibold text-red-400"
-                            : "text-white/60"
+                            : "text-muted"
                         }`}
                       >
                         {display}
@@ -148,12 +148,12 @@ export function ThirdPlaceTable({ rows }: ThirdPlaceTableProps) {
       </div>
 
       {/* Legend */}
-      <div className="space-y-1.5 border-t border-white/5 bg-navy/60 px-4 py-3">
-        <div className="flex items-start gap-2 text-xs text-white/55">
+      <div className="space-y-1.5 border-t border-line bg-canvas/60 px-4 py-3">
+        <div className="flex items-start gap-2 text-xs text-muted">
           <span className="mt-0.5 h-2 w-2 shrink-0 rounded-full bg-green-500" aria-hidden="true" />
           <span>{legend.primary}</span>
         </div>
-        <div className="flex items-start gap-2 text-xs text-white/55">
+        <div className="flex items-start gap-2 text-xs text-muted">
           <span className="mt-0.5 h-2 w-2 shrink-0 rounded-full bg-red-500/70" aria-hidden="true" />
           <span>{legend.secondary}</span>
         </div>

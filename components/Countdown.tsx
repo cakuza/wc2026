@@ -60,9 +60,9 @@ export function CountdownTimer({ target }: { target: string | null }) {
     /* suppressHydrationWarning: numbers tick immediately after hydration */
     <div className="flex gap-1 sm:gap-3" suppressHydrationWarning>
       {cells.map((c, i) => (
-        <div key={i} className="flex-1 min-w-0 rounded-lg border border-white/10 bg-navyCard px-1 py-0.5 text-center sm:py-2 sm:px-3 sm:min-w-[80px]">
+        <div key={i} className="flex-1 min-w-0 rounded-lg border border-line bg-surface px-1 py-0.5 text-center sm:py-2 sm:px-3 sm:min-w-[80px]">
           <div className="font-heading text-xl font-extrabold tabular-nums text-white sm:text-4xl">{c.value}</div>
-          <div className="mt-0.5 text-[10px] font-medium uppercase tracking-tight text-white/50 sm:text-xs">{c.label}</div>
+          <div className="mt-0.5 text-[10px] font-medium uppercase tracking-tight text-faint sm:text-xs">{c.label}</div>
         </div>
       ))}
     </div>

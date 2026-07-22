@@ -128,7 +128,7 @@ export default function GroupTiebreakersPage() {
         <h1 className="mb-3 font-heading text-4xl font-extrabold uppercase tracking-wide text-white">
           Group Stage Tiebreakers Explained
         </h1>
-        <p className="mb-8 max-w-2xl text-sm text-white/55">
+        <p className="mb-8 max-w-2xl text-sm text-muted">
           When two or more teams finish level on points in their World Cup 2026 group, FIFA applies a
           structured set of tiebreaker criteria to determine their final ranking. Here is the exact order
           and what each criterion means.
@@ -139,7 +139,7 @@ export default function GroupTiebreakersPage() {
           <p className="font-heading text-xs font-bold uppercase tracking-widest text-accent">
             Key rule
           </p>
-          <p className="mt-2 text-sm leading-relaxed text-white/80">
+          <p className="mt-2 text-sm leading-relaxed text-ink">
             Head-to-head results come before overall goal difference. If two teams are level on points,
             the direct match between them is the primary tiebreaker — not which team scored more goals
             across all three group matches.
@@ -152,7 +152,7 @@ export default function GroupTiebreakersPage() {
         </h2>
         <div className="space-y-3">
           {CRITERIA.map((c) => (
-            <div key={c.step} className="rounded-xl border border-white/10 bg-navyCard p-4">
+            <div key={c.step} className="rounded-xl border border-line bg-surface p-4">
               <div className="flex items-center gap-3">
                 <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-accent/20 font-heading text-sm font-extrabold text-accent">
                   {c.step}
@@ -161,7 +161,7 @@ export default function GroupTiebreakersPage() {
                   {c.title}
                 </h3>
               </div>
-              <p className="mt-2 text-sm leading-relaxed text-white/70">{c.body}</p>
+              <p className="mt-2 text-sm leading-relaxed text-muted">{c.body}</p>
             </div>
           ))}
         </div>
@@ -171,7 +171,7 @@ export default function GroupTiebreakersPage() {
           <h2 className="mb-3 font-heading text-xl font-extrabold uppercase tracking-wide text-white">
             Three-Way Ties
           </h2>
-          <div className="space-y-3 text-sm leading-relaxed text-white/70">
+          <div className="space-y-3 text-sm leading-relaxed text-muted">
             <p>
               When three teams finish level on points, the tiebreaker criteria are applied among all
               three simultaneously. FIFA only considers results from matches played between the tied
@@ -187,18 +187,18 @@ export default function GroupTiebreakersPage() {
         </section>
 
         {/* Third-place ranking */}
-        <section className="mt-8 rounded-xl border border-white/10 bg-navyCard px-4 py-4">
+        <section className="mt-8 rounded-xl border border-line bg-surface px-4 py-4">
           <h2 className="mb-2 font-heading text-base font-extrabold uppercase tracking-wide text-white">
             Third-Place Ranking Uses Different Logic
           </h2>
-          <p className="text-sm leading-relaxed text-white/60">
+          <p className="text-sm leading-relaxed text-muted">
             When ranking the eight best third-placed teams to fill the remaining Round of 32 slots, FIFA
             does not use head-to-head (since these teams come from different groups and never played each
             other). Instead it uses: (1) points, (2) goal difference, (3) goals scored — all across the
             three group-stage matches only. If still level: (4) disciplinary record (team conduct score),
             and (5) FIFA/Coca-Cola Men&apos;s World Ranking.
           </p>
-          <p className="mt-2 text-sm leading-relaxed text-white/60">
+          <p className="mt-2 text-sm leading-relaxed text-muted">
             This means every goal in the group stage can matter for a third-placed team, since both goal
             difference and goals scored are pure aggregate figures across all three games.
           </p>
@@ -209,7 +209,7 @@ export default function GroupTiebreakersPage() {
           <h2 className="mb-3 font-heading text-xl font-extrabold uppercase tracking-wide text-white">
             Why Tiebreakers Matter in 2026
           </h2>
-          <div className="space-y-3 text-sm leading-relaxed text-white/70">
+          <div className="space-y-3 text-sm leading-relaxed text-muted">
             <p>
               With 12 groups of four teams and only six matches per group, draws and level-points
               scenarios are statistically common. In the 2022 World Cup group stage, several groups
@@ -235,7 +235,7 @@ export default function GroupTiebreakersPage() {
             <Link
               key={l.href}
               href={l.href}
-              className="rounded-lg border border-white/15 bg-navyCard px-4 py-2 font-heading text-xs font-bold uppercase tracking-wide text-white/70 transition hover:border-white/30 hover:text-white"
+              className="rounded-lg border border-line bg-surface px-4 py-2 font-heading text-xs font-bold uppercase tracking-wide text-muted transition hover:border-lineStrong hover:text-white"
             >
               {l.label}
             </Link>
@@ -247,34 +247,34 @@ export default function GroupTiebreakersPage() {
           <h2 className="mb-3 font-heading text-2xl font-extrabold uppercase tracking-wide text-white">FAQ</h2>
           <div className="space-y-3">
             {FAQS.map((f) => (
-              <div key={f.q} className="rounded-xl border border-white/10 bg-navyCard p-4">
+              <div key={f.q} className="rounded-xl border border-line bg-surface p-4">
                 <h3 className="font-heading text-sm font-extrabold uppercase tracking-wide text-white sm:text-base">
                   {f.q}
                 </h3>
-                <p className="mt-2 text-sm leading-relaxed text-white/70">{f.a}</p>
+                <p className="mt-2 text-sm leading-relaxed text-muted">{f.a}</p>
               </div>
             ))}
           </div>
         </section>
 
-        <section className="mt-8 rounded-xl border border-white/10 bg-navyCard px-4 py-4">
-          <h2 className="mb-2 font-heading text-xs font-bold uppercase tracking-widest text-white/40">
+        <section className="mt-8 rounded-xl border border-line bg-surface px-4 py-4">
+          <h2 className="mb-2 font-heading text-xs font-bold uppercase tracking-widest text-faint">
             Official Sources
           </h2>
-          <ul className="space-y-1 text-xs leading-relaxed text-white/50">
+          <ul className="space-y-1 text-xs leading-relaxed text-faint">
             <li>
-              <a href="https://www.fifa.com/en/articles/groups-how-teams-qualify-tie-breakers" target="_blank" rel="noopener noreferrer" className="underline underline-offset-2 hover:text-white/70 transition">
+              <a href="https://www.fifa.com/en/articles/groups-how-teams-qualify-tie-breakers" target="_blank" rel="noopener noreferrer" className="underline underline-offset-2 hover:text-muted transition">
                 FIFA: Groups — How Teams Qualify &amp; Tie-Breakers
               </a>{" "}— official group qualification and tiebreaker criteria
             </li>
             <li>
-              <a href="https://www.fifa.com/en/tournaments/mens/worldcup/canada-mexico-usa-2026" target="_blank" rel="noopener noreferrer" className="underline underline-offset-2 hover:text-white/70 transition">
+              <a href="https://www.fifa.com/en/tournaments/mens/worldcup/canada-mexico-usa-2026" target="_blank" rel="noopener noreferrer" className="underline underline-offset-2 hover:text-muted transition">
                 FIFA 2026 World Cup — Official Tournament Page
               </a>{" "}— format and qualification rules
             </li>
           </ul>
         </section>
-        <p className="mt-6 text-xs leading-relaxed text-white/40">
+        <p className="mt-6 text-xs leading-relaxed text-faint">
           WorldCupMatchDay is an independent, fan-made resource and is not affiliated with FIFA. Tiebreaker
           details are based on publicly available FIFA 2026 regulations. Always verify with official FIFA
           sources before citing specific rules.

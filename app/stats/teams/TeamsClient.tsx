@@ -57,30 +57,30 @@ export function TeamsClient({ attackLists, controlLists, defenseLists, disciplin
         {lists.map((list) => {
           const processed = processList(list);
           return (
-            <div key={list.title} className="rounded-xl border border-white/10 bg-navyCard overflow-hidden flex flex-col">
-              <div className="border-b border-white/10 bg-navy/50 px-4 py-3">
-                <p className="font-heading text-[10px] font-extrabold uppercase tracking-widest text-white/60">
+            <div key={list.title} className="rounded-xl border border-line bg-surface overflow-hidden flex flex-col">
+              <div className="border-b border-line bg-canvas/50 px-4 py-3">
+                <p className="font-heading text-[10px] font-extrabold uppercase tracking-widest text-muted">
                   {list.title}
                 </p>
               </div>
               {processed.length > 0 ? (
-                <ul className="divide-y divide-white/5 flex-1">
+                <ul className="divide-y divide-line flex-1">
                   {processed.map((stat, i) => {
                     const { coverageStatus, matchesCovered, completedMatches } = stat;
                     const isPartial = coverageStatus === "PARTIAL";
 
                     return (
                       <li key={stat.teamKey + i} className="flex items-center gap-3 px-4 py-3">
-                        <span className="w-5 shrink-0 font-heading text-xs font-bold text-white/30">{i + 1}</span>
+                        <span className="w-5 shrink-0 font-heading text-xs font-bold text-faint">{i + 1}</span>
                         <div className="flex-1 min-w-0">
                           <p className="truncate font-semibold text-white text-sm">{countryName(stat.teamKey, "en")}</p>
                           {isPartial ? (
-                            <p className="text-[11px] text-white/40">
+                            <p className="text-[11px] text-faint">
                               <span className="text-yellow-500/80 mr-1">PARTIAL:</span>
                               {matchesCovered} of {completedMatches} completed matches covered
                             </p>
                           ) : coverageStatus === "COMPLETE" ? (
-                            <p className="text-[11px] text-white/40">
+                            <p className="text-[11px] text-faint">
                               {matchesCovered} completed matches covered
                             </p>
                           ) : null}
@@ -93,7 +93,7 @@ export function TeamsClient({ attackLists, controlLists, defenseLists, disciplin
                   })}
                 </ul>
               ) : (
-                <div className="p-6 text-center text-xs text-white/40 flex-1 flex items-center justify-center">No data available</div>
+                <div className="p-6 text-center text-xs text-faint flex-1 flex items-center justify-center">No data available</div>
               )}
             </div>
           );
@@ -105,11 +105,11 @@ export function TeamsClient({ attackLists, controlLists, defenseLists, disciplin
   return (
     <>
       <div className="mb-8 flex justify-center">
-        <div className="inline-flex rounded-lg border border-white/10 bg-navy p-1">
+        <div className="inline-flex rounded-lg border border-line bg-canvas p-1">
           <button
             onClick={() => setMode("total")}
             className={`rounded-md px-6 py-2 font-heading text-xs font-bold uppercase tracking-widest transition ${
-              mode === "total" ? "bg-accent text-navy" : "text-white/50 hover:text-white"
+              mode === "total" ? "bg-accent text-navy" : "text-faint hover:text-white"
             }`}
           >
             Total
@@ -117,7 +117,7 @@ export function TeamsClient({ attackLists, controlLists, defenseLists, disciplin
           <button
             onClick={() => setMode("perMatch")}
             className={`rounded-md px-6 py-2 font-heading text-xs font-bold uppercase tracking-widest transition ${
-              mode === "perMatch" ? "bg-accent text-navy" : "text-white/50 hover:text-white"
+              mode === "perMatch" ? "bg-accent text-navy" : "text-faint hover:text-white"
             }`}
           >
             Per Match

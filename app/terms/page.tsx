@@ -55,7 +55,7 @@ export default function TermsPage() {
       <h1 className="mb-2 font-heading text-3xl font-extrabold tracking-tight text-white sm:text-4xl">
         TERMS OF USE
       </h1>
-      <p className="mb-8 font-heading text-xs font-bold tracking-widest text-white/30">
+      <p className="mb-8 font-heading text-xs font-bold tracking-widest text-faint">
         EFFECTIVE: 1 JUNE 2026
       </p>
 
@@ -65,7 +65,7 @@ export default function TermsPage() {
             <h2 className="mb-2 font-heading text-sm font-extrabold tracking-widest text-white">
               {s.heading}
             </h2>
-            <p className="text-sm leading-relaxed text-white/60">{s.body}</p>
+            <p className="text-sm leading-relaxed text-muted">{s.body}</p>
           </section>
         ))}
       </div>

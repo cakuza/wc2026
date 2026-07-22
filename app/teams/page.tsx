@@ -44,7 +44,7 @@ export default async function TeamsPage() {
       <h1 className="mb-2 font-heading text-4xl font-extrabold uppercase tracking-wide text-white">
         All Teams
       </h1>
-      <p className="mb-6 max-w-3xl text-sm text-white/55">
+      <p className="mb-6 max-w-3xl text-sm text-muted">
         Explore every World Cup side by final tournament standing, knockout status or confederation.
       </p>
 
@@ -59,7 +59,7 @@ export default async function TeamsPage() {
           <Link
             key={l.href}
             href={l.href}
-            className="rounded-lg border border-white/15 bg-navyCard px-4 py-2 font-heading text-xs font-bold uppercase tracking-wide text-white/70 transition hover:border-white/30 hover:text-white"
+            className="rounded-lg border border-line bg-surface px-4 py-2 font-heading text-xs font-bold uppercase tracking-wide text-muted transition hover:border-lineStrong hover:text-white"
           >
             {l.label}
           </Link>

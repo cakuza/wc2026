@@ -67,7 +67,7 @@ export function TodayContent({
           ? `World Cup Matches — ${longDate(resolved.date)}`
           : "World Cup Match Center"}
       </h1>
-      <p className="mb-2 max-w-3xl text-sm text-white/50">
+      <p className="mb-2 max-w-3xl text-sm text-faint">
         {showArchiveComplete
           ? `${archiveState.champion} won the Final ${archiveState.finalResult?.homeScore}–${archiveState.finalResult?.awayScore} over ${archiveState.runnerUp}. ${archiveState.thirdPlace} finished third.`
           : "Follow World Cup matches with scores, kickoff times in your selected timezone, venues and match status. Finished matches include final scores and goal scorers when available."}
@@ -83,13 +83,13 @@ export function TodayContent({
           </Link>
           <Link
             href={`/matches/${matchSlug(archiveState.finalResult.match)}`}
-            className="rounded-lg border border-white/15 bg-navyCard px-4 py-2 font-heading text-xs font-bold uppercase tracking-wide text-white/70 transition hover:border-white/30 hover:text-white"
+            className="rounded-lg border border-line bg-surface px-4 py-2 font-heading text-xs font-bold uppercase tracking-wide text-muted transition hover:border-lineStrong hover:text-white"
           >
             Final Match Report
           </Link>
           <Link
             href="/world-cup-2026/results"
-            className="rounded-lg border border-white/15 bg-navyCard px-4 py-2 font-heading text-xs font-bold uppercase tracking-wide text-white/70 transition hover:border-white/30 hover:text-white"
+            className="rounded-lg border border-line bg-surface px-4 py-2 font-heading text-xs font-bold uppercase tracking-wide text-muted transition hover:border-lineStrong hover:text-white"
           >
             Full Results
           </Link>
@@ -99,13 +99,13 @@ export function TodayContent({
       {!resolved.isExplicitDate && (
         <div className="mb-6 flex flex-wrap items-center justify-between gap-2">
           {/* MatchCenterContent has its own timezone and freshness label, but we can keep the picker here */}
-          <TimezonePicker className="flex flex-wrap items-center gap-2 text-[11px] text-white/55" />
+          <TimezonePicker className="flex flex-wrap items-center gap-2 text-[11px] text-muted" />
         </div>
       )}
 
       {resolved.isExplicitDate && (
         <div className="mb-6 flex flex-wrap items-center justify-between gap-2">
-          <TimezonePicker className="flex flex-wrap items-center gap-2 text-[11px] text-white/55" />
+          <TimezonePicker className="flex flex-wrap items-center gap-2 text-[11px] text-muted" />
           <FreshnessLabel
             primaryProviderFetchedAt={snapshot.primaryProviderFetchedAt}
             primaryProviderOk={snapshot.primaryProviderOk}
@@ -126,7 +126,7 @@ export function TodayContent({
       <LiveDataUnavailableNotice show={isFallbackSnapshot} />
 
       {!showArchiveComplete && !resolved.isExplicitDate && (tournamentPhase === "third_place" || tournamentPhase === "final") && (
-        <div className="mb-5 rounded-xl border border-white/10 bg-navyCard px-4 py-3 text-sm text-white/70">
+        <div className="mb-5 rounded-xl border border-line bg-surface px-4 py-3 text-sm text-muted">
           {isClientDateResolved ? (
             <>
               <span className="font-semibold text-white">No World Cup match is being played today.</span>{" "}
@@ -165,19 +165,19 @@ export function TodayContent({
 
       {/* Quick links */}
       <div className="mt-8 flex flex-wrap gap-3 text-sm">
-        <Link href="/schedule" className="rounded-lg border border-white/15 bg-navyCard px-4 py-2 font-heading text-xs font-bold uppercase tracking-wide text-white/70 transition hover:border-white/30 hover:text-white">
+        <Link href="/schedule" className="rounded-lg border border-line bg-surface px-4 py-2 font-heading text-xs font-bold uppercase tracking-wide text-muted transition hover:border-lineStrong hover:text-white">
           Full Schedule
         </Link>
-        <Link href="/groups" className="rounded-lg border border-white/15 bg-navyCard px-4 py-2 font-heading text-xs font-bold uppercase tracking-wide text-white/70 transition hover:border-white/30 hover:text-white">
+        <Link href="/groups" className="rounded-lg border border-line bg-surface px-4 py-2 font-heading text-xs font-bold uppercase tracking-wide text-muted transition hover:border-lineStrong hover:text-white">
           Groups
         </Link>
-        <Link href="/stats" className="rounded-lg border border-white/15 bg-navyCard px-4 py-2 font-heading text-xs font-bold uppercase tracking-wide text-white/70 transition hover:border-white/30 hover:text-white">
+        <Link href="/stats" className="rounded-lg border border-line bg-surface px-4 py-2 font-heading text-xs font-bold uppercase tracking-wide text-muted transition hover:border-lineStrong hover:text-white">
           Stats
         </Link>
-        <Link href="/world-cup-third-place-qualification" className="rounded-lg border border-white/15 bg-navyCard px-4 py-2 font-heading text-xs font-bold uppercase tracking-wide text-white/70 transition hover:border-white/30 hover:text-white">
+        <Link href="/world-cup-third-place-qualification" className="rounded-lg border border-line bg-surface px-4 py-2 font-heading text-xs font-bold uppercase tracking-wide text-muted transition hover:border-lineStrong hover:text-white">
           Third-Place Ranking
         </Link>
-        <Link href="/world-cup-schedule-local-time" className="rounded-lg border border-white/15 bg-navyCard px-4 py-2 font-heading text-xs font-bold uppercase tracking-wide text-white/70 transition hover:border-white/30 hover:text-white">
+        <Link href="/world-cup-schedule-local-time" className="rounded-lg border border-line bg-surface px-4 py-2 font-heading text-xs font-bold uppercase tracking-wide text-muted transition hover:border-lineStrong hover:text-white">
           Schedule by Time Zone
         </Link>
       </div>

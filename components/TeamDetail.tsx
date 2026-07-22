@@ -152,7 +152,7 @@ export function TeamDetail({
     <div className="mx-auto max-w-4xl px-4 py-8">
       <Link
         href="/teams"
-        className="font-heading text-sm font-bold uppercase tracking-wide text-white/50 transition hover:text-accent"
+        className="font-heading text-sm font-bold uppercase tracking-wide text-faint transition hover:text-accent"
       >
         ← {t("lbl_backTeams")}
       </Link>
@@ -204,7 +204,7 @@ export function TeamDetail({
             <h1 className="font-heading text-[60px] font-black uppercase leading-none text-white sm:text-[80px]">
               {country(team.key)}
             </h1>
-            <p className="mt-1.5 font-heading text-xs font-bold uppercase tracking-[0.18em] text-white/50">
+            <p className="mt-1.5 font-heading text-xs font-bold uppercase tracking-[0.18em] text-faint">
               {hasKnockoutJourney ? "2026 Tournament Run" : `${t("lbl_group")} ${team.group} · ${t("team_matchdays")}`}
             </p>
           </div>
@@ -212,7 +212,7 @@ export function TeamDetail({
           {/* Squad value badge — bottom right */}
           {typeof team.squadValue === "number" && (
             <div className="mb-0.5 shrink-0 rounded-xl bg-black/45 px-3 py-2 text-right backdrop-blur-sm">
-              <p className="font-heading text-[10px] font-extrabold uppercase tracking-wider text-white/50">
+              <p className="font-heading text-[10px] font-extrabold uppercase tracking-wider text-faint">
                 Est. {t("lbl_squadValue")}
               </p>
               <p className="font-heading text-lg font-extrabold leading-tight text-white">
@@ -225,8 +225,8 @@ export function TeamDetail({
 
       {/* ── 3 MATCHDAY CARDS ────────────────────────────────────────────── */}
        {hasKnockoutJourney ? <section className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4" aria-label={`${teamDisplayName} tournament summary`}>
-         <div className="rounded-xl border border-accent/30 bg-accent/10 p-4"><p className="text-[10px] font-bold uppercase tracking-widest text-white/50">Current status</p><p className="mt-1 font-heading text-lg font-extrabold text-white">{tournamentStatus.currentStageLabel}</p></div>
-         <div className="rounded-xl border border-white/10 bg-navyCard p-4"><p className="text-[10px] font-bold uppercase tracking-widest text-white/50">Latest result</p>{latestCompletedMatch ? (() => {
+         <div className="rounded-xl border border-accent/30 bg-accent/10 p-4"><p className="text-[10px] font-bold uppercase tracking-widest text-faint">Current status</p><p className="mt-1 font-heading text-lg font-extrabold text-white">{tournamentStatus.currentStageLabel}</p></div>
+         <div className="rounded-xl border border-line bg-surface p-4"><p className="text-[10px] font-bold uppercase tracking-widest text-faint">Latest result</p>{latestCompletedMatch ? (() => {
            const m = latestCompletedMatch;
            const homeKey = getResolvedHomeTeam(m, resolvedParticipants) ?? m.homeKey;
            const awayKey = getResolvedAwayTeam(m, resolvedParticipants) ?? m.awayKey;
@@ -238,20 +238,20 @@ export function TeamDetail({
              <Link href={`/matches/${matchSlug(m)}`} className="mt-1 block transition-opacity hover:opacity-80">
                <span className="font-heading text-xs font-extrabold text-accent">{fixtureStage(m)}</span><br/>
                <span className="font-heading text-sm font-extrabold text-white">{home} {scoreOrVs(m)} {away}</span><br/>
-               <span className="font-heading text-[10px] font-bold uppercase tracking-widest text-white/50">{formatDate(m.date)} · {statusLabel}</span>
+               <span className="font-heading text-[10px] font-bold uppercase tracking-widest text-faint">{formatDate(m.date)} · {statusLabel}</span>
              </Link>
            );
          })() : <p className="mt-1 font-heading text-sm font-extrabold text-white">—</p>}</div>
-         <div className="rounded-xl border border-white/10 bg-navyCard p-4"><p className="text-[10px] font-bold uppercase tracking-widest text-white/50">Next match</p>{nextListedMatch ? <Link href={`/matches/${matchSlug(nextListedMatch)}`} className="mt-1 block font-heading text-sm font-extrabold text-accent hover:text-white">{fixtureStage(nextListedMatch)}: {nextFixtureLabel}</Link> : <p className="mt-1 font-heading text-sm font-extrabold text-white">{noNextMatchLabel}</p>}</div>
-         <div className="rounded-xl border border-white/10 bg-navyCard p-4"><p className="text-[10px] font-bold uppercase tracking-widest text-white/50">Tournament record</p><p className="mt-1 font-heading text-sm font-extrabold text-white">{form.wins}-{form.draws}-{form.losses} <span className="text-white/45">GF {form.goalsFor} GA {form.goalsAgainst} CS {form.cleanSheets}</span></p></div>
+         <div className="rounded-xl border border-line bg-surface p-4"><p className="text-[10px] font-bold uppercase tracking-widest text-faint">Next match</p>{nextListedMatch ? <Link href={`/matches/${matchSlug(nextListedMatch)}`} className="mt-1 block font-heading text-sm font-extrabold text-accent hover:text-white">{fixtureStage(nextListedMatch)}: {nextFixtureLabel}</Link> : <p className="mt-1 font-heading text-sm font-extrabold text-white">{noNextMatchLabel}</p>}</div>
+         <div className="rounded-xl border border-line bg-surface p-4"><p className="text-[10px] font-bold uppercase tracking-widest text-faint">Tournament record</p><p className="mt-1 font-heading text-sm font-extrabold text-white">{form.wins}-{form.draws}-{form.losses} <span className="text-faint">GF {form.goalsFor} GA {form.goalsAgainst} CS {form.cleanSheets}</span></p></div>
        </section> : null}
-       {hasKnockoutJourney && leadingScorers.length > 0 ? <section className="mt-3 rounded-xl border border-white/10 bg-navyCard px-4 py-3"><p className="text-[10px] font-bold uppercase tracking-widest text-white/50">Leading scorers</p><p className="mt-1 text-sm text-white">{leadingScorers.map(([player, goals]) => `${player} (${goals})`).join(" · ")}</p></section> : null}
+       {hasKnockoutJourney && leadingScorers.length > 0 ? <section className="mt-3 rounded-xl border border-line bg-surface px-4 py-3"><p className="text-[10px] font-bold uppercase tracking-widest text-faint">Leading scorers</p><p className="mt-1 text-sm text-white">{leadingScorers.map(([player, goals]) => `${player} (${goals})`).join(" · ")}</p></section> : null}
 
        <section className="mt-6" aria-labelledby="team-journey-heading">
         <div className="mb-3 flex flex-wrap items-end justify-between gap-3">
           <div>
             <h2 id="team-journey-heading" className="font-heading text-2xl font-extrabold uppercase tracking-wide text-white">{hasKnockoutJourney ? "2026 Tournament Run" : "Tournament journey"}</h2>
-            <p className="mt-1 text-sm text-white/55">{hasKnockoutJourney ? "Group stage and knockout fixtures" : "Group-stage fixtures and results"}</p>
+            <p className="mt-1 text-sm text-muted">{hasKnockoutJourney ? "Group stage and knockout fixtures" : "Group-stage fixtures and results"}</p>
           </div>
           {nextListedMatch && nextFixtureLabel ? <span className="rounded bg-accent/15 px-2 py-1 font-heading text-[10px] font-extrabold uppercase tracking-wider text-accent">Next: {nextFixtureLabel}</span> : null}
         </div>
@@ -273,7 +273,7 @@ export function TeamDetail({
               <Link
                 key={idx}
                 href={`/matches/${matchSlug(m)}`}
-                className="group flex flex-col rounded-xl border border-white/10 bg-navyCard p-3 transition hover:border-white/20 hover:bg-white/5"
+                className="group flex flex-col rounded-xl border border-line bg-surface p-3 transition hover:border-lineStrong hover:bg-white/5"
                 style={{
                   borderLeftColor: team.accentColor,
                   borderLeftWidth: "3px",
@@ -284,7 +284,7 @@ export function TeamDetail({
                   <span className="rounded bg-accent/20 px-1.5 py-0.5 font-heading text-[10px] font-extrabold uppercase tracking-wider text-accent">
                     {fixtureStage(m)}
                   </span>
-                  <span className="font-heading text-[10px] font-bold uppercase tracking-wider text-white/35">
+                  <span className="font-heading text-[10px] font-bold uppercase tracking-wider text-faint">
                     {isHome ? "H" : "A"}
                   </span>
                 </div>
@@ -306,16 +306,16 @@ export function TeamDetail({
                 </div>
 
                 {/* Date + time */}
-                <div className="mt-2 text-[11px] leading-snug text-white/45">
-                  <span className="font-heading font-extrabold text-white/75">{scoreOrVs(m)}</span>
+                <div className="mt-2 text-[11px] leading-snug text-faint">
+                  <span className="font-heading font-extrabold text-muted">{scoreOrVs(m)}</span>
                   {statusText(m) ? (
-                    <span className="ml-1 font-heading font-bold uppercase text-white/55">{statusText(m)}</span>
+                    <span className="ml-1 font-heading font-bold uppercase text-muted">{statusText(m)}</span>
                   ) : (
-                    <MatchTime match={m} className="ml-1 font-semibold text-white/60" />
+                    <MatchTime match={m} className="ml-1 font-semibold text-muted" />
                   )}
                 </div>
                 {scorerText(m) ? (
-                  <div className="mt-1 truncate text-[10px] text-white/40">
+                  <div className="mt-1 truncate text-[10px] text-faint">
                     Goals: {scorerText(m)}
                   </div>
                 ) : null}
@@ -324,11 +324,11 @@ export function TeamDetail({
           })}
         </div>
       )}
-      {listedMatches.length > 0 && <TimezoneLabel className="mt-2 text-[11px] text-white/45" />}
+      {listedMatches.length > 0 && <TimezoneLabel className="mt-2 text-[11px] text-faint" />}
       </section>
 
       {hasPlayed ? (
-        <div className="mt-3 rounded-lg border border-white/10 bg-navyCard/70 px-4 py-3 text-sm text-white/70">
+        <div className="mt-3 rounded-lg border border-line bg-surface/70 px-4 py-3 text-sm text-muted">
           <span className="font-semibold text-white">{teamDisplayName}</span>
           {" "}{playedSummary?.slice(teamDisplayName.length).trim()}
           {" "}{allGroupMatchesFinished
@@ -339,7 +339,7 @@ export function TeamDetail({
         const isHome = nextListedMatch.homeKey === team.key;
         const opponentName = getParticipantName(nextListedMatch, isHome ? "away" : "home");
         return (
-          <div className="mt-3 rounded-lg border border-white/10 bg-navyCard/70 px-4 py-3 text-sm text-white/70">
+          <div className="mt-3 rounded-lg border border-line bg-surface/70 px-4 py-3 text-sm text-muted">
             <span className="font-semibold text-white">{country(team.key)}</span>
             {" "}are in Group {team.group}. Next listed match:{" "}
             <Link href={`/matches/${matchSlug(nextListedMatch)}`} className="font-semibold text-accent underline underline-offset-2 hover:text-white">
@@ -353,7 +353,7 @@ export function TeamDetail({
 
       {/* ── QUICK ANSWERS (FAQ for Google AI Overview) ──────────────────── */}
       <section className="mt-4" aria-label="Quick answers">
-        <p className="mb-2 font-heading text-[10px] font-extrabold uppercase tracking-[0.25em] text-white/30">
+        <p className="mb-2 font-heading text-[10px] font-extrabold uppercase tracking-[0.25em] text-faint">
           {t("qa_section")}
         </p>
         <div className="space-y-1.5">
@@ -368,11 +368,11 @@ export function TeamDetail({
             const timeStr  = m.time  ?? "";
             const venue    = m.venue ?? "";
             return (
-              <div className="rounded-lg border border-white/8 bg-navyCard/60 px-4 py-3">
-                <p className="font-heading text-[11px] font-extrabold uppercase tracking-wide text-white/40">
+              <div className="rounded-lg border border-line bg-surface/60 px-4 py-3">
+                <p className="font-heading text-[11px] font-extrabold uppercase tracking-wide text-faint">
                   {fill(t("qa_first_match_q"), { team: withArticle(teamName) })}
                 </p>
-                <p className="mt-1 text-sm text-white/80">
+                <p className="mt-1 text-sm text-ink">
                   {snap?.status === "FINISHED"
                     ? firstMatchResultSentence({
                         teamName,
@@ -401,11 +401,11 @@ export function TeamDetail({
               .map((gt) => country(gt.key))
               .join(", ");
             return (
-              <div className="rounded-lg border border-white/8 bg-navyCard/60 px-4 py-3">
-                <p className="font-heading text-[11px] font-extrabold uppercase tracking-wide text-white/40">
+              <div className="rounded-lg border border-line bg-surface/60 px-4 py-3">
+                <p className="font-heading text-[11px] font-extrabold uppercase tracking-wide text-faint">
                   {fill(t("qa_group_q"), { team: withArticle(teamName) })}
                 </p>
-                <p className="mt-1 text-sm text-white/80">
+                <p className="mt-1 text-sm text-ink">
                   {fill(t("qa_group_a"), {
                     team: withArticle(teamName, true),
                     group: team.group,
@@ -420,11 +420,11 @@ export function TeamDetail({
           {!hasKnockoutJourney && (() => {
             const teamName = country(team.key);
             return (
-              <div className="rounded-lg border border-white/8 bg-navyCard/60 px-4 py-3">
-                <p className="font-heading text-[11px] font-extrabold uppercase tracking-wide text-white/40">
+              <div className="rounded-lg border border-line bg-surface/60 px-4 py-3">
+                <p className="font-heading text-[11px] font-extrabold uppercase tracking-wide text-faint">
                   {fill(t("qa_qualify_q"), { team: withArticle(teamName) })}
                 </p>
-                <p className="mt-1 text-sm text-white/80">
+                <p className="mt-1 text-sm text-ink">
                   {fill(t("qa_qualify_a"), { team: withArticle(teamName, true), group: team.group })}
                 </p>
               </div>
@@ -442,7 +442,7 @@ export function TeamDetail({
           <Link
             key={l.href}
             href={l.href}
-            className="rounded-lg border border-white/15 bg-navyCard px-4 py-2 font-heading text-xs font-bold uppercase tracking-wide text-white/70 transition hover:border-white/30 hover:text-white"
+            className="rounded-lg border border-line bg-surface px-4 py-2 font-heading text-xs font-bold uppercase tracking-wide text-muted transition hover:border-lineStrong hover:text-white"
           >
             {l.label}
           </Link>
@@ -461,10 +461,10 @@ export function TeamDetail({
               <Link
                 key={i}
                 href={`/matches/${matchSlug(m)}`}
-                className={`block rounded-lg border px-4 py-3 transition hover:border-white/20 hover:bg-white/5 ${
+                className={`block rounded-lg border px-4 py-3 transition hover:border-lineStrong hover:bg-white/5 ${
                   isTeamMatch
                     ? "border-accent/30 bg-accent/10"
-                    : "border-white/10 bg-navyCard"
+                    : "border-line bg-surface"
                 }`}
               >
                 <div className="flex items-center gap-2">
@@ -479,7 +479,7 @@ export function TeamDetail({
                       height={22}
                     />
                   </div>
-                  <span className="shrink-0 rounded bg-navy px-2 py-1 font-heading text-xs font-bold uppercase text-white/50">
+                  <span className="shrink-0 rounded bg-canvas px-2 py-1 font-heading text-xs font-bold uppercase text-faint">
                     {scoreOrVs(m)}
                   </span>
                   <div className="flex min-w-0 flex-1 items-center gap-2">
@@ -494,8 +494,8 @@ export function TeamDetail({
                     </span>
                   </div>
                 </div>
-                <div className="mt-1.5 text-center text-xs text-white/50">
-                  <span className="font-semibold text-white/75">
+                <div className="mt-1.5 text-center text-xs text-faint">
+                  <span className="font-semibold text-muted">
                     {formatDate(m.date)}
                     {m.time ? " · " : ""}
                     {statusText(m) ? statusText(m) : <MatchTime match={m} />}
@@ -515,7 +515,7 @@ export function TeamDetail({
         <h2 className="mb-4 font-heading text-2xl font-extrabold uppercase tracking-wide text-white">
           {hasKnockoutJourney ? "Group-stage history" : t("sec_standings")} · {t("lbl_group")} {team.group}
         </h2>
-        <div className="overflow-hidden rounded-xl border border-white/10 bg-navyCard">
+        <div className="overflow-hidden rounded-xl border border-line bg-surface">
           <StandingsTable teams={groupTeams} rows={standingsRows} currentTeamKey={team.key} />
         </div>
       </section>
@@ -528,7 +528,7 @@ export function TeamDetail({
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
           {/* 1st or 2nd */}
           <div
-            className="rounded-xl border border-white/10 bg-navyCard p-4"
+            className="rounded-xl border border-line bg-surface p-4"
             style={{ borderLeftColor: "#22c55e", borderLeftWidth: "3px" }}
           >
             <div className="mb-2 flex items-center gap-2">
@@ -538,14 +538,14 @@ export function TeamDetail({
               </span>
             </div>
             <p className="text-sm font-bold text-white">{t("path_finish_top2_desc")}</p>
-            <div className="mt-3 space-y-1 border-t border-white/10 pt-3">
-              <p className="text-xs text-white/60">
+            <div className="mt-3 space-y-1 border-t border-line pt-3">
+              <p className="text-xs text-muted">
                 1st in Group {team.group}: M{pathSlots.winner?.matchNumber} vs{" "}
                 {pathSlots.winner
                   ? slotLabel(pathSlots.winner.home.kind === "group" && pathSlots.winner.home.group === team.group ? pathSlots.winner.away : pathSlots.winner.home)
                   : "TBD"}.
               </p>
-              <p className="text-xs text-white/60">
+              <p className="text-xs text-muted">
                 2nd in Group {team.group}: M{pathSlots.runnerUp?.matchNumber} vs{" "}
                 {pathSlots.runnerUp
                   ? slotLabel(pathSlots.runnerUp.home.kind === "group" && pathSlots.runnerUp.home.group === team.group ? pathSlots.runnerUp.away : pathSlots.runnerUp.home)
@@ -556,7 +556,7 @@ export function TeamDetail({
 
           {/* 3rd */}
           <div
-            className="rounded-xl border border-white/10 bg-navyCard p-4"
+            className="rounded-xl border border-line bg-surface p-4"
             style={{ borderLeftColor: "#f59e0b", borderLeftWidth: "3px" }}
           >
             <div className="mb-2 flex items-center gap-2">
@@ -566,9 +566,9 @@ export function TeamDetail({
               </span>
             </div>
             <p className="text-sm font-bold text-white">{t("path_finish_3rd_desc")}</p>
-            <div className="mt-3 border-t border-white/10 pt-3">
-              <p className="text-xs text-white/60">{t("path_finish_3rd_note")}</p>
-              <p className="mt-1 text-xs text-white/50">
+            <div className="mt-3 border-t border-line pt-3">
+              <p className="text-xs text-muted">{t("path_finish_3rd_note")}</p>
+              <p className="mt-1 text-xs text-faint">
                 Possible R32 slots: {pathSlots.third.map((slot) => `M${slot.matchNumber}`).join(", ") || "TBD"}.
               </p>
             </div>
@@ -576,7 +576,7 @@ export function TeamDetail({
 
           {/* 4th */}
           <div
-            className="rounded-xl border border-white/10 bg-navyCard p-4"
+            className="rounded-xl border border-line bg-surface p-4"
             style={{ borderLeftColor: "#ef4444", borderLeftWidth: "3px" }}
           >
             <div className="mb-2 flex items-center gap-2">
@@ -586,15 +586,15 @@ export function TeamDetail({
               </span>
             </div>
             <p className="text-sm font-bold text-white">{t("path_finish_4th_desc")}</p>
-            <div className="mt-3 border-t border-white/10 pt-3">
-              <p className="text-xs text-white/60">{t("path_finish_4th_note")}</p>
+            <div className="mt-3 border-t border-line pt-3">
+              <p className="text-xs text-muted">{t("path_finish_4th_note")}</p>
             </div>
           </div>
         </div>
 
         {/* Opener note */}
         {teamMatches[0] && (
-          <p className="mt-4 font-heading text-[11px] font-bold uppercase tracking-widest text-white/30">
+          <p className="mt-4 font-heading text-[11px] font-bold uppercase tracking-widest text-faint">
             {fill(t("path_opener_note"), { team: withArticle(country(team.key)) })}
           </p>
         )}
@@ -611,16 +611,16 @@ export function TeamDetail({
             {squad.map((block) => (
               <div
                 key={block.position}
-                className="overflow-hidden rounded-xl border border-white/10 bg-navyCard"
+                className="overflow-hidden rounded-xl border border-line bg-surface"
               >
-                <div className="border-b-2 border-accent bg-navy px-4 py-2.5">
+                <div className="border-b-2 border-accent bg-canvas px-4 py-2.5">
                   <span className="font-heading text-sm font-extrabold uppercase tracking-wide text-white">
                     {t(`pos_${block.position}`)}
                   </span>
                 </div>
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="text-[11px] uppercase tracking-wider text-white/40">
+                    <tr className="text-[11px] uppercase tracking-wider text-faint">
                       <th className="w-10 px-3 py-2 text-start font-semibold">
                         #
                       </th>
@@ -634,12 +634,12 @@ export function TeamDetail({
                   </thead>
                   <tbody>
                     {block.players.map((p) => (
-                      <tr key={p.name} className="border-t border-white/5">
-                        <td className="px-3 py-2 font-heading font-bold tabular-nums text-white/40">
+                      <tr key={p.name} className="border-t border-line">
+                        <td className="px-3 py-2 font-heading font-bold tabular-nums text-faint">
                           {p.number ?? "—"}
                         </td>
                         <td className="px-2 py-2 font-semibold text-white">{p.name}</td>
-                        <td className="px-3 py-2 text-end text-xs text-white/55">
+                        <td className="px-3 py-2 text-end text-xs text-muted">
                           {p.detailedPosition || t(`posOne_${p.position}`)}
                         </td>
                       </tr>
