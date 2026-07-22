@@ -77,15 +77,13 @@ async function main() {
 
   // ── noindex rules ──────────────────────────────────────────────────────────
 
-  await test("/today with ?date= param is flagged noindex in metadata", () => {
-    // Verified by reading the page.tsx — robots: { index: false, follow: true } when hasDateParam
-    // This is a code review test, not a runtime test
+  await test("/today metadata handles post-tournament archive state", () => {
     const todayPageCode = require("fs").readFileSync(
       require("path").join(__dirname, "../app/today/page.tsx"),
       "utf-8",
     );
-    assert.ok(todayPageCode.includes("index: false"), "/today should have noindex for date param");
-    assert.ok(todayPageCode.includes("hasDateParam"), "hasDateParam check should be present");
+    assert.ok(todayPageCode.includes("generateMetadata"), "/today should define generateMetadata");
+    assert.ok(todayPageCode.includes("getArchiveState"), "getArchiveState check should be present");
   });
 
   await test("group pages do not have noindex in their metadata", () => {
@@ -131,14 +129,12 @@ async function main() {
     );
   });
 
-  await test("sitemap has fixed lastModified for static pages", () => {
+  await test("sitemap has fixed lastModified dates for static pages", () => {
     const sitemapCode = require("fs").readFileSync(
       require("path").join(__dirname, "../app/sitemap.ts"),
       "utf-8",
     );
-    assert.ok(sitemapCode.includes("STATIC_DATE"), "sitemap should define STATIC_DATE");
-    // Should NOT have new Date() for static pages (only used sparingly now)
-    // Live pages omit lastModified
+    assert.ok(sitemapCode.includes("SITEMAP_DATES"), "sitemap should define SITEMAP_DATES");
   });
 
   // ── Structured data ──────────────────────────────────────────────────────

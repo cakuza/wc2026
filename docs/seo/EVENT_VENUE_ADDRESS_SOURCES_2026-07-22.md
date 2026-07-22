@@ -2,26 +2,26 @@
 
 Authoritative address registry documentation for all 16 official tournament host venues used across the 104 completed matches.
 
-## Venue Audit Table
+## Deterministic Venue Source Audit Table
 
-| Match-Data Venue Name | Canonical Venue Name | Full Physical Address | Country | Authoritative Source URL | Date Verified | Alias Notes |
+| Registry Key | Match-Data Alias | Recorded Address | Authoritative Address | Source | Match Quality | Correction Made |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| `Estadio Azteca` | Estadio Azteca | Calz. de Tlalpan 3465, Santa Úrsula Coapa, Coyoacán, CDMX 04650 | MX | `https://www.estadioazteca.com.mx` | 2026-07-22 | Host city Mexico City; venue for Match 1 (opener). |
-| `Estadio Akron` | Estadio Akron | Av. Circuito del Bajío 850, Jockers, Zapopan, Jalisco 45014 | MX | `https://estadioakron.mx` | 2026-07-22 | Host city Guadalajara (Zapopan municipality). |
-| `Estadio BBVA` | Estadio BBVA | Av. Pablo Livas 2011, La Pastora, Guadalupe, Nuevo León 67140 | MX | `https://estadio-bbva.mx` | 2026-07-22 | Host city Monterrey (Guadalupe municipality). |
-| `BMO Field` | BMO Field | 170 Princes' Blvd, Toronto, ON M6K 3C3 | CA | `https://www.bmofield.com` | 2026-07-22 | Official FIFA tournament alias: Toronto Stadium. |
-| `BC Place` | BC Place | 777 Pacific Blvd, Vancouver, BC V6B 4Y8 | CA | `https://www.bcplace.com` | 2026-07-22 | Pavilion Corporation (PavCo) venue operator. |
-| `SoFi Stadium` | SoFi Stadium | 1001 Stadium Dr, Inglewood, CA 90301 | US | `https://www.sofistadium.com` | 2026-07-22 | Official FIFA tournament alias: Los Angeles Stadium. |
-| `Levi's Stadium` | Levi's Stadium | 4900 Marie P DeBartolo Way, Santa Clara, CA 95054 | US | `https://www.levisstadium.com` | 2026-07-22 | Official FIFA tournament alias: San Francisco Bay Area Stadium. |
-| `Lumen Field` | Lumen Field | 800 Occidental Ave S, Seattle, WA 98134 | US | `https://www.lumenfield.com` | 2026-07-22 | Official FIFA tournament alias: Seattle Stadium. |
-| `Mercedes-Benz Stadium` | Mercedes-Benz Stadium | 1 AMB Drive NW, Atlanta, GA 30313 | US | `https://mercedesbenzstadium.com` | 2026-07-22 | Official FIFA tournament alias: Atlanta Stadium. |
-| `New York New Jersey Stadium (MetLife Stadium)` | MetLife Stadium | 1 MetLife Stadium Dr, East Rutherford, NJ 07073 | US | `https://www.metlifestadium.com` | 2026-07-22 | Match 104 (Final) venue; tournament alias: New York New Jersey Stadium. |
-| `Gillette Stadium` | Gillette Stadium | 1 Patriot Pl, Foxborough, MA 02035 | US | `https://www.gillettestadium.com` | 2026-07-22 | Official FIFA tournament alias: Boston Stadium. |
-| `Lincoln Financial Field` | Lincoln Financial Field | 1 Lincoln Financial Field Way, Philadelphia, PA 19148 | US | `https://www.lincolnfinancialfield.com` | 2026-07-22 | Official FIFA tournament alias: Philadelphia Stadium. |
-| `Hard Rock Stadium` | Hard Rock Stadium | 347 Don Shula Dr, Miami Gardens, FL 33056 | US | `https://www.hardrockstadium.com` | 2026-07-22 | Match 103 (Third-place) venue; tournament alias: Miami Stadium. |
-| `NRG Stadium` | NRG Stadium | NRG Park, 1 NRG Pkwy, Houston, TX 77054 | US | `https://www.nrgpark.com` | 2026-07-22 | Official FIFA tournament alias: Houston Stadium. |
-| `Arrowhead Stadium` / `GEHA Field at Arrowhead Stadium` | GEHA Field at Arrowhead Stadium | 1 Arrowhead Dr, Kansas City, MO 64129 | US | `https://www.chiefs.com/stadium/` | 2026-07-22 | Official FIFA tournament alias: Kansas City Stadium. |
-| `AT&T Stadium` | AT&T Stadium | 1 AT&T Way, Arlington, TX 76011 | US | `https://attstadium.com` | 2026-07-22 | Official FIFA tournament alias: Dallas Stadium. |
+| `estadio-azteca` | Estadio Azteca | Calz. de Tlalpan 3465, Santa Úrsula Coapa, Coyoacán, CDMX 04650 | Calz. de Tlalpan 3465, Santa Úrsula Coapa, Coyoacán, CDMX 04650 | `https://www.estadioazteca.com.mx` | Exact match | Verified against official venue site |
+| `estadio-akron` | Estadio Akron / Guadalajara Stadium | Av. Circuito del Bajío 850, 45014 | Av. Circuito JVC 2800, El Bajío, Zapopan, Jalisco 45019 | `https://estadioakron.mx/Contactanos` | Corrected | Updated street address to Av. Circuito JVC 2800 and postal code to 45019 per official contact page |
+| `estadio-bbva` | Estadio BBVA / Monterrey Stadium | Av. Pablo Livas 2011, La Pastora, Guadalupe, NL 67140 | Av. Pablo Livas 2011, La Pastora, Guadalupe, NL 67140 | `https://estadio-bbva.mx` | Exact match | Verified against official venue site |
+| `bmo-field` | BMO Field / Toronto Stadium | 170 Princes' Blvd, Toronto, ON M6K 3C3 | 170 Princes' Blvd, Toronto, ON M6K 3C3 | `https://www.bmofield.com` | Exact match | Verified against venue operator |
+| `bc-place` | BC Place / Vancouver Stadium | 777 Pacific Blvd, Vancouver, BC V6B 4Y8 | 777 Pacific Blvd, Vancouver, BC V6B 4Y8 | `https://www.bcplace.com` | Exact match | Verified against PavCo operator site |
+| `sofi-stadium` | SoFi Stadium / Los Angeles Stadium | 1001 Stadium Dr, Inglewood, CA 90301 | 1001 Stadium Dr, Inglewood, CA 90301 | `https://www.sofistadium.com` | Exact match | Verified against official venue site |
+| `levis-stadium` | Levi's Stadium / San Francisco Bay Area Stadium | 4900 Marie P DeBartolo Way, Santa Clara, CA 95054 | 4900 Marie P DeBartolo Way, Santa Clara, CA 95054 | `https://www.levisstadium.com` | Exact match | Verified against official venue site |
+| `lumen-field` | Lumen Field / Seattle Stadium | 800 Occidental Ave S, Seattle, WA 98134 | 800 Occidental Ave S, Seattle, WA 98134 | `https://www.lumenfield.com` | Exact match | Verified against official venue site |
+| `mercedes-benz-stadium` | Mercedes-Benz Stadium / Atlanta Stadium | 1 AMB Drive NW, Atlanta, GA 30313 | 1 AMB Drive NW, Atlanta, GA 30313 | `https://mercedesbenzstadium.com` | Exact match | Verified against official venue site |
+| `metlife-stadium` | MetLife Stadium / New York New Jersey Stadium | 1 MetLife Stadium Dr, East Rutherford, NJ 07073 | 1 MetLife Stadium Dr, East Rutherford, NJ 07073 | `https://www.metlifestadium.com` | Exact match | Verified against official venue site |
+| `gillette-stadium` | Gillette Stadium / Boston Stadium | 1 Patriot Pl, Foxborough, MA 02035 | 1 Patriot Pl, Foxborough, MA 02035 | `https://www.gillettestadium.com` | Exact match | Verified against official venue site |
+| `lincoln-financial-field` | Lincoln Financial Field / Philadelphia Stadium | 1 Lincoln Financial Field Way, Philadelphia, PA 19148 | 1 Lincoln Financial Field Way, Philadelphia, PA 19148 | `https://www.lincolnfinancialfield.com` | Exact match | Verified against official venue site |
+| `hard-rock-stadium` | Hard Rock Stadium / Miami Stadium | 347 Don Shula Dr, Miami Gardens, FL 33056 | 347 Don Shula Dr, Miami Gardens, FL 33056 | `https://www.hardrockstadium.com` | Exact match | Verified against official venue site |
+| `nrg-stadium` | NRG Stadium / Houston Stadium | NRG Park, 1 NRG Pkwy, Houston, TX 77054 | NRG Park, 1 NRG Pkwy, Houston, TX 77054 | `https://www.nrgpark.com` | Exact match | Verified against official venue site |
+| `arrowhead-stadium` | GEHA Field at Arrowhead Stadium / Kansas City Stadium | 1 Arrowhead Dr, Kansas City, MO 64129 | 1 Arrowhead Dr, Kansas City, MO 64129 | `https://www.chiefs.com/stadium/` | Exact match | Verified against venue operator |
+| `att-stadium` | AT&T Stadium / Dallas Stadium | 1 AT&T Way, Arlington, TX 76011 | 1 AT&T Way, Arlington, TX 76011 | `https://attstadium.com` | Exact match | Verified against official venue site |
 
 ## Verification Methodology
 - All physical addresses cross-checked against official stadium operator portals and host city municipal records.

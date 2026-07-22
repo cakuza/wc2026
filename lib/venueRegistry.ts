@@ -27,12 +27,12 @@ export const VENUE_REGISTRY: Record<string, VenueRecord> = {
   "estadio-akron": {
     key: "estadio-akron",
     name: "Estadio Akron",
-    streetAddress: "Av. Circuito del Bajío 850, Jockers",
+    streetAddress: "Av. Circuito JVC 2800, El Bajío",
     addressLocality: "Zapopan",
     addressRegion: "Jalisco",
-    postalCode: "45014",
+    postalCode: "45019",
     addressCountry: "MX",
-    sourceUrl: "https://estadioakron.mx",
+    sourceUrl: "https://estadioakron.mx/Contactanos",
   },
   "estadio-bbva": {
     key: "estadio-bbva",
