@@ -34,8 +34,8 @@ This release completes the post-tournament SEO Wave 2, resolving all truthful `S
   "@context": "https://schema.org",
   "@type": "SportsEvent",
   "@id": "https://www.worldcupmatchday.com/matches/match-104#sports-event",
-  "name": "Spain 2–1 Argentina — 2026 FIFA World Cup Final",
-  "description": "Spain defeated Argentina 2–1 in the 2026 FIFA World Cup Final at MetLife Stadium.",
+  "name": "Spain 1–0 Argentina — 2026 FIFA World Cup Final",
+  "description": "Spain defeated Argentina 1–0 after extra time in the 2026 FIFA World Cup Final at MetLife Stadium.",
   "url": "https://www.worldcupmatchday.com/matches/match-104",
   "startDate": "2026-07-19T19:00:00.000Z",
   "eventStatus": "https://schema.org/EventScheduled",
@@ -100,7 +100,7 @@ This release completes the post-tournament SEO Wave 2, resolving all truthful `S
   "organizer": {
     "@type": "Organization",
     "name": "FIFA",
-    "url": "https://www.fifa.com/en/tournaments/mens/worldcup/canada-mexico-usa-2026"
+    "url": "https://www.fifa.com/en/tournaments/mens/worldcup/canadamexicousa2026/"
   },
   "inLanguage": "en"
 }
@@ -113,7 +113,7 @@ This release completes the post-tournament SEO Wave 2, resolving all truthful `S
 | Venue Key | Name in Match Data | Street Address | City / Locality | Region | Postal Code | Country |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
 | `estadio-azteca` | Estadio Azteca | Calz. de Tlalpan 3465 | Santa Úrsula Coapa | CDMX | 04650 | MX |
-| `estadio-akron` | Estadio Akron | Av. Circuito del Bajío 850 | Zapopan | Jalisco | 45014 | MX |
+| `estadio-akron` | Estadio Akron | Av. Circuito JVC 2800, El Bajío | Zapopan | Jalisco | 45019 | MX |
 | `estadio-bbva` | Estadio BBVA | Av. Pablo Livas 2011 | Guadalupe | Nuevo León | 67140 | MX |
 | `bmo-field` | BMO Field | 170 Princes' Blvd | Toronto | ON | M6K 3C3 | CA |
 | `bc-place` | BC Place | 777 Pacific Blvd | Vancouver | BC | V6B 4Y8 | CA |
