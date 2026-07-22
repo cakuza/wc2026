@@ -139,7 +139,7 @@ export function buildMatchSportsEventSchema(args: {
     organizer: {
       "@type": "Organization",
       name: "FIFA",
-      url: "https://www.fifa.com/en/tournaments/mens/worldcup/canada-mexico-usa-2026",
+      url: "https://www.fifa.com/en/tournaments/mens/worldcup/canadamexicousa2026/",
     },
     inLanguage: "en",
   };

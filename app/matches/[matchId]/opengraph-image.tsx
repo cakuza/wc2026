@@ -1,3 +1,4 @@
+import React from "react";
 import { ImageResponse } from "next/og";
 import { MATCHES, matchBySlug, matchSlug } from "@/lib/matches";
 import {

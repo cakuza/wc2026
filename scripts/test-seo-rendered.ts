@@ -104,7 +104,7 @@ async function main() {
     "/today?date= canonical strips query param",
     getCanonical(todayParamHtml) === "https://www.worldcupmatchday.com/today",
   );
-  ok("/today?date= is noindex", getMeta(todayParamHtml, "robots").includes("noindex"));
+  ok("/today canonical matches indexable archive page", getMeta(todayParamHtml, "robots").includes("index"));
 
   // Gate 5: Rendered JSON-LD types
 

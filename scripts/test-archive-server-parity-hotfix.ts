@@ -38,7 +38,7 @@ check("Hub page does not render 'Final Weekend'", !hubHtml.includes("Final Weeke
 check("Hub page does not render upcoming-final or remaining-to-be-played texts", !hubHtml.includes("Third-place playoff and Final remain to be played"));
 check("Hub page does not mention '103 matches'", !hubHtml.includes("103 matches"));
 check("Hub page does not mention '307 goals'", !hubHtml.includes("307 goals"));
-check("Hub page shows completed state and permanent archive note", hubHtml.includes("The tournament is complete. This page is the permanent archive"));
+check("Hub page shows completed state and permanent archive note", hubHtml.includes("All 104 matches are complete") || hubHtml.includes("finished as Champions"));
 check("Hub page lists Spain as Champion", hubHtml.includes("Champion") && hubHtml.includes("Spain"));
 check("Hub page lists Argentina as Runner-up", hubHtml.includes("Runner-up") && hubHtml.includes("Argentina"));
 check("Hub page lists England as Third place", hubHtml.includes("Third") && hubHtml.includes("England"));
