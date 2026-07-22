@@ -2,7 +2,11 @@ import { spawn } from "node:child_process";
 
 const prior = process.env.NODE_OPTIONS || "";
 const heap = "--max-old-space-size=8192";
-const env = { ...process.env, NODE_OPTIONS: prior.includes(heap) ? prior : `${prior} ${heap}`.trim() };
+const env = {
+  ...process.env,
+  NODE_OPTIONS: prior.includes(heap) ? prior : `${prior} ${heap}`.trim(),
+  NEXT_PRIVATE_WORKERS: "1",
+};
 const isWindows = process.platform === "win32";
 const child = spawn(
   isWindows ? (process.env.ComSpec || "cmd.exe") : "npm",
