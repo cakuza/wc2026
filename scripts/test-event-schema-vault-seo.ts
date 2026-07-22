@@ -152,7 +152,7 @@ async function runTests() {
     stageLabel: "Final",
   }) as any;
 
-  assert(schema104.name === "Spain 1–0 Argentina — 2026 FIFA World Cup 2026 World Cup Final", `Match 104 name mismatch: ${schema104.name}`);
+  assert(schema104.name === "Spain 1–0 Argentina — 2026 FIFA World Cup Final", `Match 104 name mismatch: ${schema104.name}`);
   assert(schema104.description === "Spain defeated Argentina 1–0 after extra time in the 2026 FIFA World Cup Final at New York New Jersey Stadium (MetLife Stadium).", `Match 104 description mismatch: ${schema104.description}`);
   assert(schema104.location.name === "New York New Jersey Stadium (MetLife Stadium)", "Match 104 venue name mismatch");
 
@@ -174,7 +174,7 @@ async function runTests() {
     stageLabel: "Third-place Match",
   }) as any;
 
-  assert(schema103.name === "France 4–6 England — 2026 FIFA World Cup 2026 World Cup Third-place Match", `Match 103 name mismatch: ${schema103.name}`);
+  assert(schema103.name === "France 4–6 England — 2026 FIFA World Cup Third-place Match", `Match 103 name mismatch: ${schema103.name}`);
   assert(schema103.description === "England defeated France 6–4 in the 2026 FIFA World Cup Third-place Match at Hard Rock Stadium.", `Match 103 description mismatch: ${schema103.description}`);
 
   // Penalty Shootout Match (Match 74: 1-1, 3-4 PEN)
