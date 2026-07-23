@@ -115,7 +115,7 @@ export function buildMatchSportsEventSchema(args: {
     description,
     url: `${BASE_URL}/matches/${args.matchId}`,
     startDate: matchUtcDate(args.match).toISOString(),
-    eventStatus: "https://schema.org/EventScheduled",
+    eventStatus: isCompleted ? "https://schema.org/EventCompleted" : "https://schema.org/EventScheduled",
     eventAttendanceMode: "https://schema.org/OfflineEventAttendanceMode",
     sport: "Soccer",
     location: {
