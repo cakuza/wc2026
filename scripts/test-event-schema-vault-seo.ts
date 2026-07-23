@@ -101,7 +101,7 @@ async function runTests() {
     assert(typeof schema.description === "string" && schema.description.length > 25, `${matchId}: Short or missing description`);
     assert(schema.url === `https://www.worldcupmatchday.com/matches/${matchId}`, `${matchId}: Invalid URL`);
     assert(Boolean(schema.startDate), `${matchId}: Missing startDate`);
-    assert(schema.eventStatus === "https://schema.org/EventScheduled", `${matchId}: Invalid eventStatus`);
+    assert(schema.eventStatus === "https://schema.org/EventCompleted", `${matchId}: Invalid eventStatus`);
     assert(schema.eventAttendanceMode === "https://schema.org/OfflineEventAttendanceMode", `${matchId}: Invalid eventAttendanceMode`);
     assert(schema.sport === "Soccer", `${matchId}: Invalid sport`);
     assert(schema.inLanguage === "en", `${matchId}: Missing inLanguage`);
